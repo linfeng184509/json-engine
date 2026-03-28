@@ -1,95 +1,117 @@
-import { ref, computed, type Ref, type ComputedRef } from 'vue';
-import { parseJson, registerKeyParser, clearKeyParsers, type ParseConfig } from '@json-engine/core-engine';
+import { ref, shallowRef, type Ref, type Component } from 'vue';
+import type { VueJsonSchemaInput, UseVueJsonOptions, ParsedSchema } from '../types';
+import { parseSchema } from '../parser';
+import { createComponent, clearComponentCache } from '../runtime/component-factory';
+import { removeStyles } from '../runtime/style-injector';
 
-interface UseJsonParserOptions {
-  keyParsers?: ParseConfig['keyParsers'];
-  autoParse?: boolean;
+export interface UseVueJsonReturn {
+  component: Ref<Component | null>;
+  schema: Ref<ParsedSchema | null>;
+  parse: (input: VueJsonSchemaInput) => void;
+  error: Ref<Error | null>;
+  isLoading: Ref<boolean>;
 }
 
-interface UseJsonParserReturn {
-  parsedData: Ref<unknown>;
-  parse: (json: unknown) => void;
-  reset: () => void;
-  isValid: ComputedRef<boolean>;
-}
+export function useVueJson(options: UseVueJsonOptions = {}): UseVueJsonReturn {
+  const { onError, cache = true } = options;
 
-export function useJsonParser(
-  initialData?: unknown,
-  options: UseJsonParserOptions = {}
-): UseJsonParserReturn {
-  const { keyParsers, autoParse = true } = options;
+  const component = shallowRef<Component | null>(null);
+  const schema = ref<ParsedSchema | null>(null);
+  const error = ref<Error | null>(null);
+  const isLoading = ref(false);
 
-  const parsedData = ref<unknown>(null);
+  const parse = (input: VueJsonSchemaInput): void => {
+    isLoading.value = true;
+    error.value = null;
 
-  const isValid = computed(() => {
-    return parsedData.value !== null;
-  });
-
-  const parse = (json: unknown): void => {
     try {
-      parsedData.value = parseJson(json, { keyParsers });
-    } catch (error) {
-      console.error('JSON parsing failed:', error);
-      parsedData.value = null;
+      const parseResult = parseSchema(input);
+
+      if (!parseResult.success || !parseResult.data) {
+        const errorMsg = parseResult.errors?.map((e) => e.message).join('; ') || 'Parse failed';
+        throw new Error(errorMsg);
+      }
+
+      schema.value = parseResult.data;
+
+      const createdComponent = createComponent(input, { cache });
+      component.value = createdComponent;
+
+      if (parseResult.warnings && parseResult.warnings.length > 0) {
+        console.warn('[vue-json-engine] Parse warnings:', parseResult.warnings);
+      }
+    } catch (e) {
+      error.value = e instanceof Error ? e : new Error(String(e));
+      component.value = null;
+      schema.value = null;
+      onError?.(error.value);
+    } finally {
+      isLoading.value = false;
     }
   };
 
-  const reset = (): void => {
-    parsedData.value = null;
-  };
-
-  if (initialData !== undefined && autoParse) {
-    parse(initialData);
-  }
-
   return {
-    parsedData,
+    component: component as Ref<Component | null>,
+    schema: schema as Ref<ParsedSchema | null>,
     parse,
-    reset,
-    isValid,
+    error: error as Ref<Error | null>,
+    isLoading: isLoading as Ref<boolean>,
   };
 }
 
-interface UseKeyParserOptions {
-  persist?: boolean;
+export interface UseJsonComponentOptions {
+  cache?: boolean;
 }
 
-interface UseKeyParserReturn {
-  register: (keyName: string, parser: (key: string) => string) => void;
-  clear: () => void;
+export interface UseJsonComponentReturn {
+  create: (input: VueJsonSchemaInput) => Component | null;
+  clearCache: () => void;
 }
 
-export function useKeyParser(options: UseKeyParserOptions = {}): UseKeyParserReturn {
-  const { persist = false } = options;
+export function useJsonComponent(options: UseJsonComponentOptions = {}): UseJsonComponentReturn {
+  const { cache = true } = options;
 
-  const localParsers = new Map<string, (key: string) => string>();
-
-  const register = (keyName: string, parser: (key: string) => string): void => {
-    localParsers.set(keyName, parser);
-    if (persist) {
-      registerKeyParser(keyName, parser);
+  const create = (input: VueJsonSchemaInput): Component | null => {
+    try {
+      return createComponent(input, { cache });
+    } catch (error) {
+      console.error('[vue-json-engine] Component creation failed:', error);
+      return null;
     }
   };
 
-  const clear = (): void => {
-    localParsers.clear();
-    if (persist) {
-      clearKeyParsers();
+  const clearCacheFn = (): void => {
+    clearComponentCache();
+  };
+
+  return {
+    create,
+    clearCache: clearCacheFn,
+  };
+}
+
+export interface UseJsonRendererOptions {
+  componentId?: string;
+}
+
+export interface UseJsonRendererReturn {
+  destroy: () => void;
+}
+
+export function useJsonRenderer(
+  component: Ref<Component | null>,
+  options: UseJsonRendererOptions = {}
+): UseJsonRendererReturn {
+  const { componentId } = options;
+
+  const destroy = (): void => {
+    component.value = null;
+    if (componentId) {
+      removeStyles(componentId);
     }
   };
 
   return {
-    register,
-    clear,
-  };
-}
-
-export function useParsedCallback(
-  callback: ParseConfig['onParsed']
-): { config: ParseConfig } {
-  return {
-    config: {
-      onParsed: callback,
-    },
+    destroy,
   };
 }

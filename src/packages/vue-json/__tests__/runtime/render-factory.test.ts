@@ -1,0 +1,174 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderVNode } from '../../src/runtime/render-factory';
+import type { RenderDefinition, RenderContext } from '../../src/types';
+
+describe('renderVNode', () => {
+  let mockContext: RenderContext;
+
+  beforeEach(() => {
+    mockContext = {
+      props: {},
+      state: {},
+      computed: {},
+      methods: {},
+      components: {},
+      slots: {},
+      attrs: {},
+      emit: vi.fn(),
+      provide: {},
+    };
+  });
+
+  it('should render template type with div', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'div',
+        children: 'Hello',
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+    expect(result).toBeTruthy();
+  });
+
+  it('should render template type with span', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'span',
+        children: 'Content',
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should render element with string children', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'p',
+        children: 'Paragraph text',
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should render element with nested children', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'div',
+        children: [
+          { type: 'span', children: 'Nested' },
+        ],
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should apply v-if directive when condition is true', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'div',
+        directives: {
+          vIf: 'true',
+        },
+        children: 'Shown',
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should apply v-if directive when condition is false', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'div',
+        directives: {
+          vIf: 'false',
+        },
+        children: 'Hidden',
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeNull();
+  });
+
+  it('should render with v-show directive', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'div',
+        directives: {
+          vShow: 'true',
+        },
+        children: 'Visible',
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should handle function render type', () => {
+    const definition: RenderDefinition = {
+      type: 'function',
+      content: 'return h("div", "Function rendered")',
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should render element with v-html directive', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'div',
+        directives: {
+          vHtml: '"<span>HTML content</span>"',
+        },
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should render element with v-text directive', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'span',
+        directives: {
+          vText: '"Text content"',
+        },
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+});

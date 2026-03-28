@@ -12,6 +12,9 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
         composables: resolve(__dirname, 'src/composables/index.ts'),
+        runtime: resolve(__dirname, 'src/runtime/index.ts'),
+        parser: resolve(__dirname, 'src/parser/index.ts'),
+        types: resolve(__dirname, 'src/types/index.ts'),
       },
       name: 'VueJson',
       formats: ['es'],
