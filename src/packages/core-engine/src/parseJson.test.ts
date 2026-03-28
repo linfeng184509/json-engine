@@ -209,7 +209,9 @@ describe('parseJson - recursive traversal', () => {
       },
     };
     const result = parseJson(input);
-    expect((result as Record<string, unknown>).outer.inner.nested).toEqual({
+    const outer = (result as Record<string, unknown>).outer as Record<string, unknown>;
+    const inner = outer.inner as Record<string, unknown>;
+    expect(inner.nested).toEqual({
       value: 'deep value',
     });
   });
@@ -234,8 +236,10 @@ describe('parseJson - recursive traversal', () => {
       },
     };
     const result = parseJson(input);
-    const arr = (result as Record<string, unknown>).obj.arr as unknown[];
-    expect(arr[0].nested).toEqual({ scope: 'goal', variable: 'var' });
+    const obj = (result as Record<string, unknown>).obj as Record<string, unknown>;
+    const arr = obj.arr as unknown[];
+    const firstItem = arr[0] as Record<string, unknown>;
+    expect(firstItem.nested).toEqual({ scope: 'goal', variable: 'var' });
   });
 
   it('should parse deeply nested structure (3+ levels)', () => {
@@ -249,7 +253,10 @@ describe('parseJson - recursive traversal', () => {
       },
     };
     const result = parseJson(input);
-    expect((result as Record<string, unknown>).l1.l2.l3.l4).toEqual({
+    const l1 = (result as Record<string, unknown>).l1 as Record<string, unknown>;
+    const l2 = l1.l2 as Record<string, unknown>;
+    const l3 = l2.l3 as Record<string, unknown>;
+    expect(l3.l4).toEqual({
       expression: 'deep expression',
     });
   });
@@ -286,7 +293,7 @@ describe('parseJson - callback function', () => {
       },
     };
     parseJson(input, {
-      onParsed: (path, key, value) => {
+      onParsed: (path, _key, _value) => {
         calls.push({ path });
       },
     });
@@ -300,11 +307,16 @@ describe('parseJson - callback function', () => {
       key: { type: 'string', body: "'parsed value'" },
     };
     parseJson(input, {
-      onParsed: (path, key, value) => {
+      onParsed: (_path, key, value) => {
         calls.push({ key, value });
       },
     });
-    expect(calls.some((c) => c.key === 'key' && c.value?.value === 'parsed value')).toBe(true);
+    expect(
+      calls.some((c) => {
+        const val = c.value as Record<string, unknown>;
+        return c.key === 'key' && val?.value === 'parsed value';
+      })
+    ).toBe(true);
   });
 });
 
