@@ -1,0 +1,106 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
+    }
+  },
+  "plugin": ["opencode-mem"],
+  "provider": {
+	  "minimax": {
+      "npm": "@ai-sdk/anthropic",
+      "options": {
+        "baseURL": "https://api.minimaxi.com/anthropic/v1",
+        "apiKey": "sk-cp-poEtzsKYF0FiOycmEwup_x0ktxuvHs87bAC4GoDGl25yx1DifmI4ySxtdTkHaB88x5fqPoxD_qBs4CeJ5h0NseWknM4lvMSupkpcGZM88MtyLdd2JNsZueg"
+      },
+      "models": {
+        "MiniMax-M2.7": {
+          "name": "MiniMax-M2.7"
+        }
+      }
+    },
+    "bailian-coding-plan": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Model Studio Coding Plan",
+      "options": {
+        "baseURL": "https://coding.dashscope.aliyuncs.com/apps/anthropic/v1",
+        "apiKey": "sk-sp-2aa939a8689447599134860dc4d92daf"
+      },
+      "models": {
+        "qwen3.5-plus": {
+          "name": "Qwen3.5 Plus",
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "qwen3-max-2026-01-23": {
+          "name": "Qwen3 Max 2026-01-23"
+        },
+        "qwen3-coder-next": {
+          "name": "Qwen3 Coder Next"
+        },
+        "qwen3-coder-plus": {
+          "name": "Qwen3 Coder Plus"
+        },
+        "MiniMax-M2.5": {
+          "name": "MiniMax M2.5",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "glm-5": {
+          "name": "GLM-5",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "glm-4.7": {
+          "name": "GLM-4.7",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "kimi-k2.5": {
+          "name": "Kimi K2.5",
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        }
+      }
+    }
+  }
+}
