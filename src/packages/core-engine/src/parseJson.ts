@@ -136,7 +136,8 @@ function walkJson(data: unknown, config: ParseConfig, path: string): unknown {
     const parsedArray: unknown[] = [];
     for (let i = 0; i < data.length; i++) {
       const itemPath = `${path}[${i}]`;
-      const parsedItem = walkJson(data[i], config, itemPath);
+      const parsedValue = parseValueByType(data[i]);
+      const parsedItem = walkJson(parsedValue, config, itemPath);
       parsedArray.push(parsedItem);
     }
     return parsedArray;
