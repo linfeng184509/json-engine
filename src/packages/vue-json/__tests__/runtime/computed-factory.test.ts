@@ -31,7 +31,7 @@ describe('createComputed', () => {
 
   it('should create computed with getter only', () => {
     const definition: ComputedDefinition = {
-      doubled: { get: 'count * 2' },
+      doubled: { get: 'ref_state_count * 2' },
     };
 
     const result = createComputed(definition, mockContext, state);
@@ -43,8 +43,8 @@ describe('createComputed', () => {
   it('should create computed with getter and setter', () => {
     const definition: ComputedDefinition = {
       fullName: {
-        get: 'name + " Doe"',
-        set: 'name = newValue',
+        get: 'ref_state_name + " Doe"',
+        set: 'ref_state_name.value = newValue',
       },
     };
 
@@ -55,9 +55,9 @@ describe('createComputed', () => {
 
   it('should create multiple computed properties', () => {
     const definition: ComputedDefinition = {
-      doubled: { get: 'count * 2' },
-      tripled: { get: 'count * 3' },
-      greeting: { get: '"Hello, " + name' },
+      doubled: { get: 'ref_state_count * 2' },
+      tripled: { get: 'ref_state_count * 3' },
+      greeting: { get: '"Hello, " + ref_state_name' },
     };
 
     const result = createComputed(definition, mockContext, state);
@@ -67,7 +67,7 @@ describe('createComputed', () => {
 
   it('should handle complex getter expressions', () => {
     const definition: ComputedDefinition = {
-      complex: { get: '(count + 10) * 2' },
+      complex: { get: '(ref_state_count + 10) * 2' },
     };
 
     const result = createComputed(definition, mockContext, state);
@@ -77,7 +77,7 @@ describe('createComputed', () => {
 
   it('should handle string concatenation in getter', () => {
     const definition: ComputedDefinition = {
-      message: { get: '"Count is: " + count' },
+      message: { get: '"Count is: " + ref_state_count' },
     };
 
     const result = createComputed(definition, mockContext, state);

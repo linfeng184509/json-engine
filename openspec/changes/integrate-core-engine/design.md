@@ -29,33 +29,19 @@
 
 ## Decisions
 
-### Decision 1: parseJson 集成位置
+### Decision 1: parseNestedReference 在表达式评估中使用
 
-**选择：** 在 `parseSchema` 函数入口处调用 `parseJson`
+**选择：** 在 `evaluateExpression` 中使用 `parseNestedReference` 解析引用表达式
 
 **理由：**
-- `parseSchema` 是所有 Schema 解析的入口点
-- 预处理确保后续 parser 模块无需关心引用解析
-- 符合规格文档要求
+- core-engine 的 `parseJson` 会解析整个 Schema，与 vue-json 的结构冲突（如 `render: { type: 'function' }` 会被误解析）
+- 直接在表达式评估时使用 `parseNestedReference` 更精确，只处理引用格式
+- 保持 Schema 解析逻辑不变，降低风险
 
-**代码位置：** `src/parser/index.ts:51-58`
-
-```ts
-// Before
-if (typeof input === 'string') {
-  schema = JSON.parse(input);
-}
-
-// After
-import { parseJson } from '@json-engine/core-engine';
-
-if (typeof input === 'string') {
-  const rawJson = JSON.parse(input);
-  schema = parseJson(rawJson) as VueJsonSchema;
-} else {
-  schema = parseJson(input) as VueJsonSchema;
-}
-```
+**实际实现：**
+- `evaluateExpression` 检测 `ref_state_xxx`、`ref_props_xxx`、`ref_computed_xxx` 格式
+- 使用 `parseNestedReference` 解析引用
+- 对于混合表达式（如 `ref_state_count + 1`），转换引用后求值
 
 ### Decision 2: 表达式评估集成 parseNestedReference
 

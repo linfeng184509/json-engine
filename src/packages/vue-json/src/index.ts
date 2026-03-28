@@ -3,6 +3,15 @@ export type * from './types';
 
 // Parser
 export { parseSchema } from './parser';
+export {
+  registerDefaultKeyParsers,
+  unregisterDefaultKeyParsers,
+  registerVueJsonKeyParser,
+  unregisterVueJsonKeyParser,
+  clearVueJsonKeyParsers,
+  toPascalCase,
+  isValidVariableName,
+} from './parser/key-parsers';
 
 // Runtime
 export {
@@ -28,6 +37,7 @@ export { useVueJson, useJsonComponent, useJsonRenderer } from './composables';
 export {
   evaluateExpression,
   evaluateFunction,
+  resolveReference,
   clearExpressionCache,
   SchemaParseError,
   ValidationError,

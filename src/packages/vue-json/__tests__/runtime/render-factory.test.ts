@@ -7,9 +7,9 @@ describe('renderVNode', () => {
 
   beforeEach(() => {
     mockContext = {
-      props: {},
-      state: {},
-      computed: {},
+      props: { title: 'Test Title' },
+      state: { count: { value: 42 }, message: { value: 'Hello' } },
+      computed: { doubled: { value: 84 } },
       methods: {},
       components: {},
       slots: {},
@@ -112,6 +112,24 @@ describe('renderVNode', () => {
     expect(result).toBeNull();
   });
 
+  it('should apply v-if with core-engine state reference', () => {
+    const ctx = { ...mockContext, state: { show: { value: true } } };
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'div',
+        directives: {
+          vIf: 'ref_state_show',
+        },
+        children: 'Shown',
+      },
+    };
+
+    const result = renderVNode(definition, ctx);
+
+    expect(result).toBeDefined();
+  });
+
   it('should render with v-show directive', () => {
     const definition: RenderDefinition = {
       type: 'template',
@@ -164,6 +182,51 @@ describe('renderVNode', () => {
         directives: {
           vText: '"Text content"',
         },
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should render element with core-engine state reference in children', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'span',
+        children: '{{ref_state_message}}',
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should render element with core-engine props reference in props', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'div',
+        props: {
+          title: 'ref_props_title',
+        },
+        children: 'Content',
+      },
+    };
+
+    const result = renderVNode(definition, mockContext);
+
+    expect(result).toBeDefined();
+  });
+
+  it('should render element with mixed expression', () => {
+    const definition: RenderDefinition = {
+      type: 'template',
+      content: {
+        type: 'span',
+        children: '{{ref_state_count}} + 1',
       },
     };
 

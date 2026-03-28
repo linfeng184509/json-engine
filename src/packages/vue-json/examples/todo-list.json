@@ -1,0 +1,172 @@
+{
+  "name": "TodoList",
+  "props": {
+    "title": {
+      "type": "String",
+      "default": "My Todo List"
+    }
+  },
+  "state": {
+    "todos": {
+      "type": "ref",
+      "initial": []
+    },
+    "newTodo": {
+      "type": "ref",
+      "initial": ""
+    },
+    "filter": {
+      "type": "ref",
+      "initial": "all"
+    }
+  },
+  "computed": {
+    "filteredTodos": {
+      "get": "const todos = state.todos.value; const filter = state.filter.value; if (filter === 'all') return todos; if (filter === 'active') return todos.filter(t => !t.completed); if (filter === 'completed') return todos.filter(t => t.completed); return todos;"
+    },
+    "remainingCount": {
+      "get": "return state.todos.value.filter(t => !t.completed).length;"
+    }
+  },
+  "methods": {
+    "addTodo": "if (state.newTodo.value.trim()) { state.todos.value.push({ id: Date.now(), text: state.newTodo.value.trim(), completed: false }); state.newTodo.value = ''; }",
+    "removeTodo": "state.todos.value = state.todos.value.filter(t => t.id !== args[0]);",
+    "toggleTodo": "const todo = state.todos.value.find(t => t.id === args[0]); if (todo) todo.completed = !todo.completed;",
+    "setFilter": "state.filter.value = args[0];"
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": {
+        "class": "todo-list"
+      },
+      "children": [
+        {
+          "type": "h2",
+          "children": ["{{props.title}}"]
+        },
+        {
+          "type": "div",
+          "props": {
+            "class": "input-group"
+          },
+          "children": [
+            {
+              "type": "input",
+              "directives": {
+                "vModel": {
+                  "prop": "state.newTodo"
+                }
+              },
+              "props": {
+                "type": "text",
+                "placeholder": "Add a new todo..."
+              }
+            },
+            {
+              "type": "button",
+              "directives": {
+                "vOn": {
+                  "click": "methods.addTodo();"
+                }
+              },
+              "children": ["Add"]
+            }
+          ]
+        },
+        {
+          "type": "div",
+          "props": {
+            "class": "filters"
+          },
+          "children": [
+            {
+              "type": "button",
+              "directives": {
+                "vOn": {
+                  "click": "methods.setFilter('all');"
+                }
+              },
+              "children": ["All"]
+            },
+            {
+              "type": "button",
+              "directives": {
+                "vOn": {
+                  "click": "methods.setFilter('active');"
+                }
+              },
+              "children": ["Active"]
+            },
+            {
+              "type": "button",
+              "directives": {
+                "vOn": {
+                  "click": "methods.setFilter('completed');"
+                }
+              },
+              "children": ["Completed"]
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "children": [
+            {
+              "type": "li",
+              "directives": {
+                "vFor": {
+                  "source": "computed.filteredTodos.value",
+                  "alias": "todo"
+                }
+              },
+              "children": [
+                {
+                  "type": "input",
+                  "props": {
+                    "type": "checkbox"
+                  },
+                  "directives": {
+                    "vBind": {
+                      "checked": "todo.completed"
+                    },
+                    "vOn": {
+                      "change": "methods.toggleTodo(todo.id);"
+                    }
+                  }
+                },
+                {
+                  "type": "span",
+                  "directives": {
+                    "vBind": {
+                      "style": "todo.completed ? 'text-decoration: line-through' : ''"
+                    }
+                  },
+                  "children": ["{{todo.text}}"]
+                },
+                {
+                  "type": "button",
+                  "directives": {
+                    "vOn": {
+                      "click": "methods.removeTodo(todo.id);"
+                    }
+                  },
+                  "children": ["x"]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": ["{{computed.remainingCount.value}} items left"]
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": true,
+    "css": ".todo-list { max-width: 500px; margin: 0 auto; padding: 20px; } .input-group { display: flex; gap: 10px; margin-bottom: 20px; } input[type='text'] { flex: 1; padding: 8px; } button { padding: 8px 16px; cursor: pointer; } .filters { margin-bottom: 15px; } .filters button { margin-right: 5px; } li { display: flex; align-items: center; gap: 10px; margin: 5px 0; }"
+  }
+}

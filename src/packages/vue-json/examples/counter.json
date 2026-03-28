@@ -1,0 +1,84 @@
+{
+  "name": "Counter",
+  "props": {
+    "initialCount": {
+      "type": "Number",
+      "default": 0
+    }
+  },
+  "state": {
+    "count": {
+      "type": "ref",
+      "initial": "{{props.initialCount}}"
+    }
+  },
+  "computed": {
+    "doubleCount": {
+      "get": "return state.count.value * 2;"
+    }
+  },
+  "methods": {
+    "increment": "state.count.value++;",
+    "decrement": "state.count.value--;",
+    "reset": "state.count.value = props.initialCount;"
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": {
+        "class": "counter"
+      },
+      "children": [
+        {
+          "type": "h2",
+          "children": ["Counter Example"]
+        },
+        {
+          "type": "p",
+          "children": ["Count: ", { "type": "text", "content": "{{state.count.value}}" }]
+        },
+        {
+          "type": "p",
+          "children": ["Double: ", { "type": "text", "content": "{{computed.doubleCount.value}}" }]
+        },
+        {
+          "type": "div",
+          "children": [
+            {
+              "type": "button",
+              "directives": {
+                "vOn": {
+                  "click": "methods.decrement();"
+                }
+              },
+              "children": ["-"]
+            },
+            {
+              "type": "button",
+              "directives": {
+                "vOn": {
+                  "click": "methods.reset();"
+                }
+              },
+              "children": ["Reset"]
+            },
+            {
+              "type": "button",
+              "directives": {
+                "vOn": {
+                  "click": "methods.increment();"
+                }
+              },
+              "children": ["+"]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": true,
+    "css": ".counter { padding: 20px; text-align: center; } button { margin: 5px; padding: 8px 16px; font-size: 16px; cursor: pointer; } h2 { color: #333; }"
+  }
+}

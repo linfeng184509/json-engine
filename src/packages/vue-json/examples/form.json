@@ -1,0 +1,211 @@
+{
+  "name": "DynamicForm",
+  "props": {
+    "formTitle": {
+      "type": "String",
+      "default": "Contact Form"
+    }
+  },
+  "state": {
+    "formData": {
+      "type": "reactive",
+      "initial": {
+        "name": "",
+        "email": "",
+        "message": ""
+      }
+    },
+    "errors": {
+      "type": "reactive",
+      "initial": {}
+    },
+    "isSubmitting": {
+      "type": "ref",
+      "initial": false
+    }
+  },
+  "computed": {
+    "isValid": {
+      "get": "return !state.errors.name && !state.errors.email && !state.errors.message && state.formData.name && state.formData.email && state.formData.message;"
+    }
+  },
+  "methods": {
+    "validateName": "if (!state.formData.name) { state.errors.name = 'Name is required'; } else { state.errors.name = ''; }",
+    "validateEmail": "const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/; if (!state.formData.email) { state.errors.email = 'Email is required'; } else if (!emailRegex.test(state.formData.email)) { state.errors.email = 'Invalid email format'; } else { state.errors.email = ''; }",
+    "validateMessage": "if (!state.formData.message) { state.errors.message = 'Message is required'; } else if (state.formData.message.length < 10) { state.errors.message = 'Message must be at least 10 characters'; } else { state.errors.message = ''; }",
+    "handleSubmit": "methods.validateName(); methods.validateEmail(); methods.validateMessage(); if (computed.isValid.value) { state.isSubmitting.value = true; setTimeout(() => { alert('Form submitted: ' + JSON.stringify(state.formData)); state.isSubmitting.value = false; }, 1000); }",
+    "resetForm": "state.formData.name = ''; state.formData.email = ''; state.formData.message = ''; state.errors.name = ''; state.errors.email = ''; state.errors.message = '';"
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "form",
+      "props": {
+        "class": "dynamic-form"
+      },
+      "directives": {
+        "vOn": {
+          "submit.prevent": "methods.handleSubmit();"
+        }
+      },
+      "children": [
+        {
+          "type": "h2",
+          "children": ["{{props.formTitle}}"]
+        },
+        {
+          "type": "div",
+          "props": {
+            "class": "form-group"
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "for": "name"
+              },
+              "children": ["Name:"]
+            },
+            {
+              "type": "input",
+              "props": {
+                "id": "name",
+                "type": "text"
+              },
+              "directives": {
+                "vModel": {
+                  "prop": "state.formData.name"
+                },
+                "vOn": {
+                  "blur": "methods.validateName();"
+                }
+              }
+            },
+            {
+              "type": "span",
+              "props": {
+                "class": "error"
+              },
+              "directives": {
+                "vIf": "state.errors.name"
+              },
+              "children": ["{{state.errors.name}}"]
+            }
+          ]
+        },
+        {
+          "type": "div",
+          "props": {
+            "class": "form-group"
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "for": "email"
+              },
+              "children": ["Email:"]
+            },
+            {
+              "type": "input",
+              "props": {
+                "id": "email",
+                "type": "email"
+              },
+              "directives": {
+                "vModel": {
+                  "prop": "state.formData.email"
+                },
+                "vOn": {
+                  "blur": "methods.validateEmail();"
+                }
+              }
+            },
+            {
+              "type": "span",
+              "props": {
+                "class": "error"
+              },
+              "directives": {
+                "vIf": "state.errors.email"
+              },
+              "children": ["{{state.errors.email}}"]
+            }
+          ]
+        },
+        {
+          "type": "div",
+          "props": {
+            "class": "form-group"
+          },
+          "children": [
+            {
+              "type": "label",
+              "props": {
+                "for": "message"
+              },
+              "children": ["Message:"]
+            },
+            {
+              "type": "textarea",
+              "props": {
+                "id": "message",
+                "rows": "4"
+              },
+              "directives": {
+                "vModel": {
+                  "prop": "state.formData.message"
+                },
+                "vOn": {
+                  "blur": "methods.validateMessage();"
+                }
+              }
+            },
+            {
+              "type": "span",
+              "props": {
+                "class": "error"
+              },
+              "directives": {
+                "vIf": "state.errors.message"
+              },
+              "children": ["{{state.errors.message}}"]
+            }
+          ]
+        },
+        {
+          "type": "div",
+          "props": {
+            "class": "form-actions"
+          },
+          "children": [
+            {
+              "type": "button",
+              "props": {
+                "type": "submit",
+                "disabled": "{{state.isSubmitting.value}}"
+              },
+              "children": ["{{state.isSubmitting.value ? 'Submitting...' : 'Submit'}}"]
+            },
+            {
+              "type": "button",
+              "props": {
+                "type": "button"
+              },
+              "directives": {
+                "vOn": {
+                  "click": "methods.resetForm();"
+                }
+              },
+              "children": ["Reset"]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": true,
+    "css": ".dynamic-form { max-width: 500px; margin: 0 auto; padding: 20px; } h2 { margin-bottom: 20px; } .form-group { margin-bottom: 15px; } label { display: block; margin-bottom: 5px; font-weight: bold; } input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; } .error { color: red; font-size: 12px; } .form-actions { margin-top: 20px; } button { margin-right: 10px; padding: 10px 20px; cursor: pointer; } button:disabled { opacity: 0.5; cursor: not-allowed; }"
+  }
+}

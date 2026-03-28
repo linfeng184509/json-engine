@@ -53,7 +53,7 @@ describe('component-creation integration', () => {
       },
       render: {
         type: 'template',
-        content: { type: 'div', children: '{{title}}' },
+        content: { type: 'div', children: '{{ref_props_title}}' },
       },
     };
 
@@ -70,7 +70,7 @@ describe('component-creation integration', () => {
       },
       render: {
         type: 'template',
-        content: { type: 'div', children: '{{count}}' },
+        content: { type: 'div', children: '{{ref_state_count}}' },
       },
     };
 
@@ -82,8 +82,11 @@ describe('component-creation integration', () => {
   it('should create component with methods', () => {
     const schema = {
       name: 'WithMethods',
+      state: {
+        count: { type: 'ref', initial: 0 },
+      },
       methods: {
-        increment: 'count++',
+        increment: 'ref_state_count.value++',
       },
       render: {
         type: 'template',
@@ -103,11 +106,11 @@ describe('component-creation integration', () => {
         count: { type: 'ref', initial: 5 },
       },
       computed: {
-        doubled: { get: 'count * 2' },
+        doubled: { get: 'ref_state_count * 2' },
       },
       render: {
         type: 'template',
-        content: { type: 'div', children: '{{doubled}}' },
+        content: { type: 'div', children: '{{ref_computed_doubled}}' },
       },
     };
 
@@ -129,7 +132,7 @@ describe('component-creation integration', () => {
           children: [
             {
               type: 'p',
-              directives: { vIf: 'show' },
+              directives: { vIf: 'ref_state_show' },
               children: 'Shown',
             },
           ],
@@ -152,7 +155,7 @@ describe('component-creation integration', () => {
         type: 'template',
         content: {
           type: 'div',
-          directives: { vShow: 'visible' },
+          directives: { vShow: 'ref_state_visible' },
           children: 'Content',
         },
       },
@@ -163,9 +166,9 @@ describe('component-creation integration', () => {
     expect(component).toBeDefined();
   });
 
-  it('should create component with props', () => {
+  it('should create component with v-model', () => {
     const schema = {
-      name: 'PropsComponent',
+      name: 'VModelComponent',
       state: {
         inputValue: { type: 'ref', initial: '' },
       },
@@ -176,8 +179,8 @@ describe('component-creation integration', () => {
           children: [
             {
               type: 'input',
-              props: {
-                value: 'state.inputValue.value',
+              directives: {
+                vModel: { prop: 'ref_state_inputValue' },
               },
             },
           ],
@@ -198,7 +201,7 @@ describe('component-creation integration', () => {
       },
       render: {
         type: 'function',
-        content: 'return h("div", message)',
+        content: 'return h("div", state.message.value)',
       },
     };
 

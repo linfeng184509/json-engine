@@ -13,9 +13,9 @@ import type { VNodeDefinition, RenderContext } from '../../src/types';
 
 describe('directive-runtime', () => {
   const mockContext: RenderContext = {
-    props: { modelValue: 'test' },
-    state: { count: { value: 0 } },
-    computed: {},
+    props: { modelValue: 'test', title: 'Test Title' },
+    state: { count: { value: 0 }, inputValue: { value: 'test value' }, visible: { value: true } },
+    computed: { doubled: { value: 0 } },
     methods: { handleClick: () => {} },
     components: {},
     slots: {},
@@ -45,6 +45,12 @@ describe('directive-runtime', () => {
       expect(result).toBe(false);
     });
 
+    it('should evaluate core-engine state reference', () => {
+      const ctx = { ...mockContext, state: { show: { value: true } } };
+      const result = applyVIf('ref_state_show', ctx);
+      expect(result).toBe(true);
+    });
+
     it('should throw error for invalid expression', () => {
       expect(() => applyVIf('invalid+++expression', mockContext)).toThrow();
     });
@@ -69,6 +75,13 @@ describe('directive-runtime', () => {
       expect(result.props?.style).toHaveProperty('color', 'red');
       expect(result.props?.style).toHaveProperty('display', 'none');
     });
+
+    it('should evaluate core-engine state reference', () => {
+      const vnode = h('div', { style: {} });
+      const ctx = { ...mockContext, state: { visible: { value: false } } };
+      const result = applyVShow(vnode, 'ref_state_visible', ctx);
+      expect(result.props?.style).toHaveProperty('display', 'none');
+    });
   });
 
   describe('applyVModel', () => {
@@ -78,23 +91,15 @@ describe('directive-runtime', () => {
     });
 
     it('should return binding props with modelValue', () => {
-      const ctx = {
-        ...mockContext,
-        state: { inputValue: { value: 'test value' } },
-      };
-      const vModel = { prop: 'state.inputValue.value' };
-      const result = applyVModel(vModel, ctx);
+      const vModel = { prop: 'ref_state_inputValue' };
+      const result = applyVModel(vModel, mockContext);
       expect(result).toHaveProperty('modelValue');
       expect(result).toHaveProperty('onUpdate:modelValue');
     });
 
     it('should use custom prop name', () => {
-      const ctx = {
-        ...mockContext,
-        state: { myValue: { value: 'test' } },
-      };
-      const vModel = { prop: 'state.myValue.value', event: 'value' };
-      const result = applyVModel(vModel, ctx);
+      const vModel = { prop: 'ref_state_inputValue', event: 'value' };
+      const result = applyVModel(vModel, mockContext);
       expect(result).toHaveProperty('value');
       expect(result).toHaveProperty('onUpdate:value');
     });
@@ -154,6 +159,20 @@ describe('directive-runtime', () => {
       const result = applyVBind(vBind, mockContext);
       expect(result).toHaveProperty('class');
     });
+
+    it('should bind using core-engine state reference', () => {
+      const vBind = { 'data-count': 'ref_state_count' };
+      const result = applyVBind(vBind, mockContext);
+      expect(result).toHaveProperty('data-count');
+      expect(result['data-count']).toBe(0);
+    });
+
+    it('should bind using core-engine props reference', () => {
+      const vBind = { title: 'ref_props_title' };
+      const result = applyVBind(vBind, mockContext);
+      expect(result).toHaveProperty('title');
+      expect(result.title).toBe('Test Title');
+    });
   });
 
   describe('applyVHtml', () => {
@@ -167,8 +186,9 @@ describe('directive-runtime', () => {
         ...mockContext,
         state: { count: { value: 42 } },
       };
-      const result = applyVHtml('state.count', ctx);
+      const result = applyVHtml('ref_state_count', ctx);
       expect(typeof result).toBe('string');
+      expect(result).toBe('42');
     });
 
     it('should return empty string for null/undefined', () => {
@@ -199,6 +219,12 @@ describe('directive-runtime', () => {
       };
       const result = applyVText('"test"', ctx);
       expect(typeof result).toBe('string');
+    });
+
+    it('should evaluate core-engine state reference', () => {
+      const ctx = { ...mockContext, state: { message: { value: 'Hello World' } } };
+      const result = applyVText('ref_state_message', ctx);
+      expect(result).toBe('Hello World');
     });
   });
 });

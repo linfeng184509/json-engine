@@ -10,6 +10,7 @@ import { parseProvide, parseInject } from './provide-inject-parser';
 import { parseLifecycle } from './lifecycle-parser';
 import { parseComponents } from './components-parser';
 import { parseRender } from './render-parser';
+import { registerDefaultKeyParsers } from './key-parsers';
 
 function createParserContext(schema: VueJsonSchema): ParserContext {
   return {
@@ -47,6 +48,8 @@ export function parseSchema(input: VueJsonSchemaInput): ParseResult<ParsedSchema
 
   try {
     let schema: VueJsonSchema;
+
+    registerDefaultKeyParsers();
 
     if (typeof input === 'string') {
       try {

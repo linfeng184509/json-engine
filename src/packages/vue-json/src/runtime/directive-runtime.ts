@@ -1,4 +1,5 @@
 import { h, createVNode, Fragment, type VNode } from 'vue';
+import { parseNestedReference } from '@json-engine/core-engine';
 import type { VNodeDefinition, RenderContext } from '../types';
 import { evaluateExpression } from '../utils/expression';
 import { createDirectiveError } from '../utils/error';
@@ -159,25 +160,40 @@ export function applyVModel(
 }
 
 function setExpressionValue(expression: string, value: unknown, context: RenderContext): void {
+  const parsed = parseNestedReference(expression);
+
+  if (typeof parsed !== 'string' && parsed.type === 'state') {
+    const stateValue = context.state[parsed.variable];
+    if (stateValue && typeof stateValue === 'object' && 'value' in stateValue) {
+      (stateValue as { value: unknown }).value = value;
+      return;
+    }
+  }
+
+  if (typeof parsed !== 'string' && parsed.type === 'props') {
+    context.props[parsed.variable] = value;
+    return;
+  }
+
   const pathParts = expression.split('.').filter((part) => part.length > 0);
-  
+
   if (pathParts.length === 0) return;
-  
+
   const rootKey = pathParts[0];
   const rootValue = context[rootKey as keyof RenderContext];
-  
+
   if (!rootValue) return;
-  
+
   let target: unknown = rootValue;
   const remainingParts = pathParts.slice(1);
-  
+
   if (remainingParts.length === 0) {
     if (rootKey === 'state' && typeof rootValue === 'object' && rootValue !== null) {
       throw createDirectiveError('v-model', 'Cannot directly assign to state object');
     }
     return;
   }
-  
+
   for (let i = 0; i < remainingParts.length - 1; i++) {
     const part = remainingParts[i];
     if (typeof target === 'object' && target !== null) {
@@ -189,9 +205,9 @@ function setExpressionValue(expression: string, value: unknown, context: RenderC
       return;
     }
   }
-  
+
   const finalKey = remainingParts[remainingParts.length - 1];
-  
+
   if (typeof target === 'object' && target !== null) {
     if (isRefLike(target) && finalKey === 'value') {
       (target as { value: unknown }).value = value;
