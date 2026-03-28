@@ -63,6 +63,21 @@ function parseValueByType(value: unknown): unknown {
 
   const valueObj = value as Record<string, unknown>;
 
+  if (
+    valueObj.type === 'scope' &&
+    typeof valueObj.scope === 'string' &&
+    typeof valueObj.variable === 'string'
+  ) {
+    return value;
+  }
+
+  if (
+    (valueObj.type === 'props' || valueObj.type === 'state') &&
+    typeof valueObj.variable === 'string'
+  ) {
+    return value;
+  }
+
   if (valueObj.type === 'function') {
     const functionBody: FunctionBody = {
       type: 'function',

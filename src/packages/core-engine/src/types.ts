@@ -2,17 +2,20 @@ interface KeyLifeParser {
   name: string;
   params: Record<string, unknown>;
   parseRule: Function;
+  valueType: 'function';
 }
 
 interface KeyEventParser {
   name: string;
   params: Record<string, unknown>;
   parseRule: Function;
+  valueType: 'function';
 }
 
 interface KeyAttrParser {
   name: string;
   parseRule: Function;
+  valueType: 'string' | 'expression' | 'scope' | 'props' | 'state' | 'object';
 }
 
 interface FunctionBody {
@@ -46,8 +49,16 @@ interface VariableParseData {
   variable: string;
 }
 
+interface NestedReferenceData {
+  type: 'scope' | 'props' | 'state';
+  variable: string;
+  scope?: 'core' | 'goal';
+}
+
+type NestedReferenceResult = string | NestedReferenceData;
+
 interface ExpressionParseData {
-  expression: string;
+  expression: NestedReferenceResult;
 }
 
 interface StringParseData {
@@ -55,7 +66,7 @@ interface StringParseData {
 }
 
 interface FunctionParseData {
-  params: string;
+  params: NestedReferenceResult;
   body: string;
 }
 
@@ -82,6 +93,42 @@ function parseValue(rawValue: string): unknown {
   } catch {
     return rawValue;
   }
+}
+
+function parseNestedReference(content: string): NestedReferenceResult {
+  if (!content) return content;
+
+  const scopeMatch = content.match(SCOPE_REGEX);
+  if (scopeMatch) {
+    return { type: 'scope', scope: scopeMatch[1] as 'core' | 'goal', variable: scopeMatch[2] };
+  }
+
+  const propsMatch = content.match(PROPS_REGEX);
+  if (propsMatch) {
+    return { type: 'props', variable: propsMatch[1] };
+  }
+
+  const stateMatch = content.match(STATE_REGEX);
+  if (stateMatch) {
+    return { type: 'state', variable: stateMatch[1] };
+  }
+
+  const innerScopeMatch = content.match(/^\$_\[(core|goal)\]_([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
+  if (innerScopeMatch) {
+    return { type: 'scope', scope: innerScopeMatch[1] as 'core' | 'goal', variable: innerScopeMatch[2] };
+  }
+
+  const innerPropsMatch = content.match(/^ref_props_([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
+  if (innerPropsMatch) {
+    return { type: 'props', variable: innerPropsMatch[1] };
+  }
+
+  const innerStateMatch = content.match(/^ref_state_([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
+  if (innerStateMatch) {
+    return { type: 'state', variable: innerStateMatch[1] };
+  }
+
+  return content;
 }
 
 const ValueObjectParser = (value: ValueBody): ParseResult<ObjectParseData> => {
@@ -178,9 +225,12 @@ const ValueExpressionParser = (value: ValueBody): ParseResult<ExpressionParseDat
     throw createError('ValueExpressionParser', `body 格式不正确: "${value.body}"`, '{{ 表达式 }}');
   }
 
+  const trimmedExpression = match[1].trim();
+  const parsedExpression = parseNestedReference(trimmedExpression);
+
   return {
     success: true,
-    data: { expression: match[1].trim() },
+    data: { expression: parsedExpression },
   };
 };
 
@@ -197,9 +247,11 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
     throw createError('ValueFunctionParser', 'body 不能为空', '{ type: "function", params: "参数", body: "函数体" }');
   }
 
+  const parsedParams = parseNestedReference(value.params);
+
   return {
     success: true,
-    data: { params: value.params, body: value.body },
+    data: { params: parsedParams, body: value.body },
   };
 };
 
@@ -216,6 +268,8 @@ export type {
   ExpressionParseData,
   StringParseData,
   FunctionParseData,
+  NestedReferenceData,
+  NestedReferenceResult,
 };
 
 export {
@@ -226,4 +280,5 @@ export {
   ValueStateParser,
   ValueExpressionParser,
   ValueFunctionParser,
+  parseNestedReference,
 };

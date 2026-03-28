@@ -359,3 +359,116 @@ describe('parseJson - edge cases', () => {
     expect(result).toBe('hello');
   });
 });
+
+describe('parseJson - nested reference in function', () => {
+  beforeEach(() => {
+    clearKeyParsers();
+  });
+
+  afterEach(() => {
+    clearKeyParsers();
+  });
+
+  it('should parse function params with pure scope reference', () => {
+    const input = {
+      onClick: { type: 'function', params: '{{$_[core]_eventId}}', body: 'handleClick()' },
+    };
+    const result = parseJson(input);
+    const onClick = (result as Record<string, unknown>).onClick as Record<string, unknown>;
+    expect(onClick.params).toEqual({
+      type: 'scope',
+      scope: 'core',
+      variable: 'eventId',
+    });
+    expect(onClick.body).toBe('handleClick()');
+  });
+
+  it('should parse function params with pure props reference', () => {
+    const input = {
+      handler: { type: 'function', params: '{{ref_props_itemId}}', body: 'return itemId' },
+    };
+    const result = parseJson(input);
+    const handler = (result as Record<string, unknown>).handler as Record<string, unknown>;
+    expect(handler.params).toEqual({
+      type: 'props',
+      variable: 'itemId',
+    });
+  });
+
+  it('should parse function params with pure state reference', () => {
+    const input = {
+      handler: { type: 'function', params: '{{ref_state_count}}', body: 'return count' },
+    };
+    const result = parseJson(input);
+    const handler = (result as Record<string, unknown>).handler as Record<string, unknown>;
+    expect(handler.params).toEqual({
+      type: 'state',
+      variable: 'count',
+    });
+  });
+
+  it('should keep function params as string for mixed content', () => {
+    const input = {
+      onClick: { type: 'function', params: 'config={{$_[core]_config}}', body: 'handleClick()' },
+    };
+    const result = parseJson(input);
+    const onClick = (result as Record<string, unknown>).onClick as Record<string, unknown>;
+    expect(onClick.params).toBe('config={{$_[core]_config}}');
+  });
+});
+
+describe('parseJson - nested reference in expression', () => {
+  beforeEach(() => {
+    clearKeyParsers();
+  });
+
+  afterEach(() => {
+    clearKeyParsers();
+  });
+
+  it('should parse expression with pure scope reference', () => {
+    const input = {
+      value: { type: 'expression', body: '{{$_[goal]_target}}' },
+    };
+    const result = parseJson(input);
+    const value = (result as Record<string, unknown>).value as Record<string, unknown>;
+    expect(value.expression).toEqual({
+      type: 'scope',
+      scope: 'goal',
+      variable: 'target',
+    });
+  });
+
+  it('should parse expression with pure props reference', () => {
+    const input = {
+      value: { type: 'expression', body: '{{ref_props_userId}}' },
+    };
+    const result = parseJson(input);
+    const value = (result as Record<string, unknown>).value as Record<string, unknown>;
+    expect(value.expression).toEqual({
+      type: 'props',
+      variable: 'userId',
+    });
+  });
+
+  it('should parse expression with pure state reference', () => {
+    const input = {
+      value: { type: 'expression', body: '{{ref_state_count}}' },
+    };
+    const result = parseJson(input);
+    const value = (result as Record<string, unknown>).value as Record<string, unknown>;
+    expect(value.expression).toEqual({
+      type: 'state',
+      variable: 'count',
+    });
+  });
+
+  it('should keep expression as string for mixed content', () => {
+    const input = {
+      value: { type: 'expression', body: '{{ref_props_userId + 1}}' },
+    };
+    const result = parseJson(input);
+    const value = (result as Record<string, unknown>).value as Record<string, unknown>;
+    expect(value.expression).toBe('ref_props_userId + 1');
+  });
+});

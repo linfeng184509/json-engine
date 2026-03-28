@@ -8,6 +8,7 @@ import {
   ValueStateParser,
   ValueExpressionParser,
   ValueFunctionParser,
+  parseNestedReference,
 } from './types';
 
 describe('ValueObjectParser', () => {
@@ -173,6 +174,34 @@ describe('ValueExpressionParser', () => {
     expect(result.data?.expression).toBe('a + b');
   });
 
+  it('should parse expression as nested reference for pure scope', () => {
+    const input: ValueBody = { type: 'expression', body: '{{$_[goal]_target}}' };
+    const result = ValueExpressionParser(input);
+    expect(result.success).toBe(true);
+    expect(result.data?.expression).toEqual({ type: 'scope', scope: 'goal', variable: 'target' });
+  });
+
+  it('should parse expression as nested reference for pure props', () => {
+    const input: ValueBody = { type: 'expression', body: '{{ref_props_userId}}' };
+    const result = ValueExpressionParser(input);
+    expect(result.success).toBe(true);
+    expect(result.data?.expression).toEqual({ type: 'props', variable: 'userId' });
+  });
+
+  it('should parse expression as nested reference for pure state', () => {
+    const input: ValueBody = { type: 'expression', body: '{{ref_state_count}}' };
+    const result = ValueExpressionParser(input);
+    expect(result.success).toBe(true);
+    expect(result.data?.expression).toEqual({ type: 'state', variable: 'count' });
+  });
+
+  it('should keep expression as string for mixed content', () => {
+    const input: ValueBody = { type: 'expression', body: '{{a + {{ref_props_x}}}}' };
+    const result = ValueExpressionParser(input);
+    expect(result.success).toBe(true);
+    expect(result.data?.expression).toBe('a + {{ref_props_x}}');
+  });
+
   it('should throw error with correct message when body format is invalid', () => {
     const input: ValueBody = { type: 'expression', body: 'invalid' };
     expect(() => ValueExpressionParser(input)).toThrow(
@@ -197,6 +226,35 @@ describe('ValueFunctionParser', () => {
     expect(result.data?.body).toBe('return x');
   });
 
+  it('should parse function params as nested reference for pure scope', () => {
+    const input: FunctionBody = { type: 'function', params: '{{$_[core]_eventId}}', body: 'handleClick()' };
+    const result = ValueFunctionParser(input);
+    expect(result.success).toBe(true);
+    expect(result.data?.params).toEqual({ type: 'scope', scope: 'core', variable: 'eventId' });
+    expect(result.data?.body).toBe('handleClick()');
+  });
+
+  it('should parse function params as nested reference for pure props', () => {
+    const input: FunctionBody = { type: 'function', params: '{{ref_props_itemId}}', body: 'return itemId' };
+    const result = ValueFunctionParser(input);
+    expect(result.success).toBe(true);
+    expect(result.data?.params).toEqual({ type: 'props', variable: 'itemId' });
+  });
+
+  it('should parse function params as nested reference for pure state', () => {
+    const input: FunctionBody = { type: 'function', params: '{{ref_state_count}}', body: 'return count' };
+    const result = ValueFunctionParser(input);
+    expect(result.success).toBe(true);
+    expect(result.data?.params).toEqual({ type: 'state', variable: 'count' });
+  });
+
+  it('should keep function params as string for mixed content', () => {
+    const input: FunctionBody = { type: 'function', params: '{id: {{$_[core]_id}}}', body: 'return id' };
+    const result = ValueFunctionParser(input);
+    expect(result.success).toBe(true);
+    expect(result.data?.params).toBe('{id: {{$_[core]_id}}}');
+  });
+
   it('should throw error with correct message when params is empty', () => {
     const input: FunctionBody = { type: 'function', params: '', body: 'return x' };
     expect(() => ValueFunctionParser(input)).toThrow(
@@ -216,5 +274,52 @@ describe('ValueFunctionParser', () => {
     expect(() => ValueFunctionParser(input)).toThrow(
       '[ValueFunctionParser] 验证失败: type 必须为 "function"，实际为 "string"。期望格式: { type: "function", params: "参数", body: "函数体" }'
     );
+  });
+});
+
+describe('parseNestedReference', () => {
+  it('should parse pure scope reference', () => {
+    const result = parseNestedReference('{{$_[core]_userName}}');
+    expect(result).toEqual({ type: 'scope', scope: 'core', variable: 'userName' });
+  });
+
+  it('should parse pure goal scope reference', () => {
+    const result = parseNestedReference('{{$_[goal]_target}}');
+    expect(result).toEqual({ type: 'scope', scope: 'goal', variable: 'target' });
+  });
+
+  it('should parse pure props reference', () => {
+    const result = parseNestedReference('{{ref_props_itemId}}');
+    expect(result).toEqual({ type: 'props', variable: 'itemId' });
+  });
+
+  it('should parse pure state reference', () => {
+    const result = parseNestedReference('{{ref_state_count}}');
+    expect(result).toEqual({ type: 'state', variable: 'count' });
+  });
+
+  it('should return original string for mixed content with scope', () => {
+    const result = parseNestedReference('handleClick({{$_[core]_id}})');
+    expect(result).toBe('handleClick({{$_[core]_id}})');
+  });
+
+  it('should return original string for mixed content with props', () => {
+    const result = parseNestedReference('prefix{{ref_props_x}}suffix');
+    expect(result).toBe('prefix{{ref_props_x}}suffix');
+  });
+
+  it('should return original string for non-reference content', () => {
+    const result = parseNestedReference('plain text');
+    expect(result).toBe('plain text');
+  });
+
+  it('should return empty string for empty input', () => {
+    const result = parseNestedReference('');
+    expect(result).toBe('');
+  });
+
+  it('should return original string for invalid scope format', () => {
+    const result = parseNestedReference('{{$_[invalid]_var}}');
+    expect(result).toBe('{{$_[invalid]_var}}');
   });
 });
