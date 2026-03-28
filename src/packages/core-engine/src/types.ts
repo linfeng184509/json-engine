@@ -1,52 +1,229 @@
-interface KeyLifeParser{
-    name:string
-    params:Record<string,unknown>
-    parseRule:Function
+interface KeyLifeParser {
+  name: string;
+  params: Record<string, unknown>;
+  parseRule: Function;
 }
 
-interface KeyEventParser{
-    name:string
-    params:Record<string,unknown>
-    parseRule:Function
-}
-interface KeyAttrParser{
-    name:string
-    parseRule:Function
+interface KeyEventParser {
+  name: string;
+  params: Record<string, unknown>;
+  parseRule: Function;
 }
 
-interface FunctionBody{
-    type:"function"
-    // {{{参数名：参数值}}}
-    params:string
-    //{{body}}
-    body:string
-}
-interface ValueBody{
-    type:"string"|"scope"|"props"|"state"|"expression"
-    body:string
-}
-// 单引号包裹的字符串,type为string
-const ValueConstraintParser=(value:ValueBody)=>{
-
-}
-// {{$_[scope]_变量名}},type为scope
-const ValueScopeParser=(value:ValueBody)=>{
-
-}
-// {{ref_props_变量名}},type为props
-const ValuePropsParser=(value:ValueBody)=>{
-
-}
-// {{ref_state_变量名}},type为state
-const ValueStateParser=(value:ValueBody)=>{
-
-}
-// {{ 表达式}},type为expression
-const ValueExpressionParser=(value:ValueBody)=>{
-
+interface KeyAttrParser {
+  name: string;
+  parseRule: Function;
 }
 
-// type为function
-const ValueFunctionParser=(value:FunctionBody)=>{
-
+interface FunctionBody {
+  type: 'function';
+  params: string;
+  body: string;
 }
+
+interface ValueBody {
+  type: 'string' | 'scope' | 'props' | 'state' | 'expression' | 'object';
+  body: string;
+}
+
+interface ParseResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+interface ObjectParseData {
+  key: string;
+  value: unknown;
+}
+
+interface ScopeParseData {
+  scope: 'core' | 'goal';
+  variable: string;
+}
+
+interface VariableParseData {
+  variable: string;
+}
+
+interface ExpressionParseData {
+  expression: string;
+}
+
+interface StringParseData {
+  value: string;
+}
+
+interface FunctionParseData {
+  params: string;
+  body: string;
+}
+
+const OBJECT_REGEX = /^\{\{\{\[([^\]]+)\]:\[([\s\S]*)\]\}\}\}$/;
+const SCOPE_REGEX = /^\{\{\$_\[(core|goal)\]_(.+)\}\}$/;
+const PROPS_REGEX = /^\{\{ref_props_(.+)\}\}$/;
+const STATE_REGEX = /^\{\{ref_state_(.+)\}\}$/;
+const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
+const STRING_REGEX = /^'([\s\S]*)'$/;
+
+function createError(parserName: string, reason: string, example: string): Error {
+  return new Error(`[${parserName}] 验证失败: ${reason}。期望格式: ${example}`);
+}
+
+function parseValue(rawValue: string): unknown {
+  if (!rawValue) return rawValue;
+
+  if (rawValue.startsWith('{{') && rawValue.endsWith('}}')) {
+    return rawValue;
+  }
+
+  try {
+    return JSON.parse(rawValue);
+  } catch {
+    return rawValue;
+  }
+}
+
+const ValueObjectParser = (value: ValueBody): ParseResult<ObjectParseData> => {
+  if (value.type !== 'object') {
+    throw createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{[键]:[值]}}}');
+  }
+
+  const match = value.body.match(OBJECT_REGEX);
+  if (!match) {
+    throw createError('ValueObjectParser', `body 格式不正确: "${value.body}"`, '{{{[键]:[值]}}}');
+  }
+
+  const key = match[1];
+  const rawValue = match[2];
+  const parsedValue = parseValue(rawValue);
+
+  return {
+    success: true,
+    data: { key, value: parsedValue },
+  };
+};
+
+const ValueConstraintParser = (value: ValueBody): ParseResult<StringParseData> => {
+  if (value.type !== 'string') {
+    throw createError('ValueConstraintParser', `type 必须为 "string"，实际为 "${value.type}"`, "'字符串内容'");
+  }
+
+  const match = value.body.match(STRING_REGEX);
+  if (!match) {
+    throw createError('ValueConstraintParser', `body 必须被单引号包裹: "${value.body}"`, "'字符串内容'");
+  }
+
+  return {
+    success: true,
+    data: { value: match[1] },
+  };
+};
+
+const ValueScopeParser = (value: ValueBody): ParseResult<ScopeParseData> => {
+  if (value.type !== 'scope') {
+    throw createError('ValueScopeParser', `type 必须为 "scope"，实际为 "${value.type}"`, '{{$_[core|goal]_变量名}}');
+  }
+
+  const match = value.body.match(SCOPE_REGEX);
+  if (!match) {
+    throw createError('ValueScopeParser', `body 格式不正确: "${value.body}"`, '{{$_[core|goal]_变量名}}');
+  }
+
+  return {
+    success: true,
+    data: { scope: match[1] as 'core' | 'goal', variable: match[2] },
+  };
+};
+
+const ValuePropsParser = (value: ValueBody): ParseResult<VariableParseData> => {
+  if (value.type !== 'props') {
+    throw createError('ValuePropsParser', `type 必须为 "props"，实际为 "${value.type}"`, '{{ref_props_变量名}}');
+  }
+
+  const match = value.body.match(PROPS_REGEX);
+  if (!match) {
+    throw createError('ValuePropsParser', `body 格式不正确: "${value.body}"`, '{{ref_props_变量名}}');
+  }
+
+  return {
+    success: true,
+    data: { variable: match[1] },
+  };
+};
+
+const ValueStateParser = (value: ValueBody): ParseResult<VariableParseData> => {
+  if (value.type !== 'state') {
+    throw createError('ValueStateParser', `type 必须为 "state"，实际为 "${value.type}"`, '{{ref_state_变量名}}');
+  }
+
+  const match = value.body.match(STATE_REGEX);
+  if (!match) {
+    throw createError('ValueStateParser', `body 格式不正确: "${value.body}"`, '{{ref_state_变量名}}');
+  }
+
+  return {
+    success: true,
+    data: { variable: match[1] },
+  };
+};
+
+const ValueExpressionParser = (value: ValueBody): ParseResult<ExpressionParseData> => {
+  if (value.type !== 'expression') {
+    throw createError('ValueExpressionParser', `type 必须为 "expression"，实际为 "${value.type}"`, '{{ 表达式 }}');
+  }
+
+  const match = value.body.match(EXPRESSION_REGEX);
+  if (!match) {
+    throw createError('ValueExpressionParser', `body 格式不正确: "${value.body}"`, '{{ 表达式 }}');
+  }
+
+  return {
+    success: true,
+    data: { expression: match[1].trim() },
+  };
+};
+
+const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData> => {
+  if (value.type !== 'function') {
+    throw createError('ValueFunctionParser', `type 必须为 "function"，实际为 "${value.type}"`, '{ type: "function", params: "参数", body: "函数体" }');
+  }
+
+  if (!value.params || value.params.trim() === '') {
+    throw createError('ValueFunctionParser', 'params 不能为空', '{ type: "function", params: "参数", body: "函数体" }');
+  }
+
+  if (!value.body || value.body.trim() === '') {
+    throw createError('ValueFunctionParser', 'body 不能为空', '{ type: "function", params: "参数", body: "函数体" }');
+  }
+
+  return {
+    success: true,
+    data: { params: value.params, body: value.body },
+  };
+};
+
+export type {
+  KeyLifeParser,
+  KeyEventParser,
+  KeyAttrParser,
+  FunctionBody,
+  ValueBody,
+  ParseResult,
+  ObjectParseData,
+  ScopeParseData,
+  VariableParseData,
+  ExpressionParseData,
+  StringParseData,
+  FunctionParseData,
+};
+
+export {
+  ValueObjectParser,
+  ValueConstraintParser,
+  ValueScopeParser,
+  ValuePropsParser,
+  ValueStateParser,
+  ValueExpressionParser,
+  ValueFunctionParser,
+};
