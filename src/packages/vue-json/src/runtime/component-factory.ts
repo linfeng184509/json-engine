@@ -1,5 +1,6 @@
 import {
   defineComponent,
+  h,
   type Component,
   type PropType,
   type ComponentOptions,
@@ -49,12 +50,12 @@ export function createComponent(
     props: schema.props as Record<string, PropType<unknown>>,
     emits: schema.emits,
     components: schema.components,
-    setup(props, setupContext) {
+    setup(props, { emit, slots, attrs }) {
       const context: SetupContext = {
         props: { ...props, __componentName__: schema.name },
-        emit: setupContext.emit,
-        slots: setupContext.slots,
-        attrs: setupContext.attrs,
+        emit,
+        slots,
+        attrs,
       };
 
       const injected = schema.inject ? setupInject({ items: schema.inject.items }, context) : {};
@@ -88,6 +89,7 @@ export function createComponent(
         });
       }
 
+      // 返回渲染函数和状态
       return () => {
         try {
           return renderVNode(schema.render, {
@@ -96,9 +98,9 @@ export function createComponent(
             computed: computedRefs,
             methods,
             components: schema.components || {},
-            slots: context.slots,
-            attrs: context.attrs,
-            emit: context.emit,
+            slots,
+            attrs,
+            emit,
             provide: provideRef.value,
           });
         } catch (error) {
