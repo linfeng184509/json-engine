@@ -9,18 +9,18 @@
   "state": {
     "count": {
       "type": "ref",
-      "initial": "{{props.initialCount}}"
+      "initial": "{{ref_props_initialCount}}"
     }
   },
   "computed": {
     "doubleCount": {
-      "get": "return state.count.value * 2;"
+      "get": "return ref_state_count * 2;"
     }
   },
   "methods": {
-    "increment": "state.count.value++;",
-    "decrement": "state.count.value--;",
-    "reset": "state.count.value = props.initialCount;"
+    "increment": "ref_state_count.value++;",
+    "decrement": "ref_state_count.value--;",
+    "reset": "ref_state_count.value = ref_props_initialCount;"
   },
   "render": {
     "type": "template",
@@ -36,11 +36,11 @@
         },
         {
           "type": "p",
-          "children": ["Count: ", { "type": "text", "content": "{{state.count.value}}" }]
+          "children": ["Count: ", { "type": "text", "content": "{{ref_state_count}}" }]
         },
         {
           "type": "p",
-          "children": ["Double: ", { "type": "text", "content": "{{computed.doubleCount.value}}" }]
+          "children": ["Double: ", { "type": "text", "content": "{{ref_computed_doubleCount}}" }]
         },
         {
           "type": "div",

@@ -22,17 +22,17 @@
   },
   "computed": {
     "filteredTodos": {
-      "get": "const todos = state.todos.value; const filter = state.filter.value; if (filter === 'all') return todos; if (filter === 'active') return todos.filter(t => !t.completed); if (filter === 'completed') return todos.filter(t => t.completed); return todos;"
+      "get": "const todos = ref_state_todos; const filter = ref_state_filter; if (filter === 'all') return todos; if (filter === 'active') return todos.filter(t => !t.completed); if (filter === 'completed') return todos.filter(t => t.completed); return todos;"
     },
     "remainingCount": {
-      "get": "return state.todos.value.filter(t => !t.completed).length;"
+      "get": "return ref_state_todos.filter(t => !t.completed).length;"
     }
   },
   "methods": {
-    "addTodo": "if (state.newTodo.value.trim()) { state.todos.value.push({ id: Date.now(), text: state.newTodo.value.trim(), completed: false }); state.newTodo.value = ''; }",
-    "removeTodo": "state.todos.value = state.todos.value.filter(t => t.id !== args[0]);",
-    "toggleTodo": "const todo = state.todos.value.find(t => t.id === args[0]); if (todo) todo.completed = !todo.completed;",
-    "setFilter": "state.filter.value = args[0];"
+    "addTodo": "if (ref_state_newTodo.trim()) { ref_state_todos.value.push({ id: Date.now(), text: ref_state_newTodo.trim(), completed: false }); ref_state_newTodo.value = ''; }",
+    "removeTodo": "ref_state_todos.value = ref_state_todos.value.filter(t => t.id !== args[0]);",
+    "toggleTodo": "const todo = ref_state_todos.value.find(t => t.id === args[0]); if (todo) todo.completed = !todo.completed;",
+    "setFilter": "ref_state_filter.value = args[0];"
   },
   "render": {
     "type": "template",
@@ -44,7 +44,7 @@
       "children": [
         {
           "type": "h2",
-          "children": ["{{props.title}}"]
+          "children": ["{{ref_props_title}}"]
         },
         {
           "type": "div",
@@ -56,7 +56,7 @@
               "type": "input",
               "directives": {
                 "vModel": {
-                  "prop": "state.newTodo"
+                  "prop": "ref_state_newTodo"
                 }
               },
               "props": {
@@ -117,7 +117,7 @@
               "type": "li",
               "directives": {
                 "vFor": {
-                  "source": "computed.filteredTodos.value",
+                  "source": "ref_computed_filteredTodos",
                   "alias": "todo"
                 }
               },
@@ -160,7 +160,7 @@
         },
         {
           "type": "p",
-          "children": ["{{computed.remainingCount.value}} items left"]
+          "children": ["{{ref_computed_remainingCount}} items left"]
         }
       ]
     }

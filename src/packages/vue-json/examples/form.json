@@ -33,7 +33,7 @@
     "validateName": "if (!state.formData.name) { state.errors.name = 'Name is required'; } else { state.errors.name = ''; }",
     "validateEmail": "const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/; if (!state.formData.email) { state.errors.email = 'Email is required'; } else if (!emailRegex.test(state.formData.email)) { state.errors.email = 'Invalid email format'; } else { state.errors.email = ''; }",
     "validateMessage": "if (!state.formData.message) { state.errors.message = 'Message is required'; } else if (state.formData.message.length < 10) { state.errors.message = 'Message must be at least 10 characters'; } else { state.errors.message = ''; }",
-    "handleSubmit": "methods.validateName(); methods.validateEmail(); methods.validateMessage(); if (computed.isValid.value) { state.isSubmitting.value = true; setTimeout(() => { alert('Form submitted: ' + JSON.stringify(state.formData)); state.isSubmitting.value = false; }, 1000); }",
+    "handleSubmit": "methods.validateName(); methods.validateEmail(); methods.validateMessage(); if (computed.isValid.value) { ref_state_isSubmitting.value = true; setTimeout(() => { alert('Form submitted: ' + JSON.stringify(state.formData)); ref_state_isSubmitting.value = false; }, 1000); }",
     "resetForm": "state.formData.name = ''; state.formData.email = ''; state.formData.message = ''; state.errors.name = ''; state.errors.email = ''; state.errors.message = '';"
   },
   "render": {
@@ -51,7 +51,7 @@
       "children": [
         {
           "type": "h2",
-          "children": ["{{props.formTitle}}"]
+          "children": ["{{ref_props_formTitle}}"]
         },
         {
           "type": "div",
@@ -183,9 +183,9 @@
               "type": "button",
               "props": {
                 "type": "submit",
-                "disabled": "{{state.isSubmitting.value}}"
+                "disabled": "{{ref_state_isSubmitting}}"
               },
-              "children": ["{{state.isSubmitting.value ? 'Submitting...' : 'Submit'}}"]
+              "children": ["{{ref_state_isSubmitting ? 'Submitting...' : 'Submit'}}"]
             },
             {
               "type": "button",
