@@ -66,7 +66,7 @@ interface StringParseData {
 }
 
 interface FunctionParseData {
-  params: NestedReferenceResult;
+  params: Record<string, unknown>;
   body: string;
 }
 
@@ -76,6 +76,8 @@ const PROPS_REGEX = /^\{\{ref_props_(.+)\}\}$/;
 const STATE_REGEX = /^\{\{ref_state_(.+)\}\}$/;
 const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
 const STRING_REGEX = /^'([\s\S]*)'$/;
+const FUNCTION_PARAMS_REGEX = /^\{\{\{(.*)\}\}\}$/s;
+const FUNCTION_BODY_REGEX = /^\{\{([\s\S]*)\}\}$/;
 
 function createError(parserName: string, reason: string, example: string): Error {
   return new Error(`[${parserName}] 验证失败: ${reason}。期望格式: ${example}`);
@@ -236,22 +238,35 @@ const ValueExpressionParser = (value: ValueBody): ParseResult<ExpressionParseDat
 
 const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData> => {
   if (value.type !== 'function') {
-    throw createError('ValueFunctionParser', `type 必须为 "function"，实际为 "${value.type}"`, '{ type: "function", params: "参数", body: "函数体" }');
+    throw createError('ValueFunctionParser', `type 必须为 "function"，实际为 "${value.type}"`, '{{{参数对象}}}, {{函数体}}');
   }
 
-  if (!value.params || value.params.trim() === '') {
-    throw createError('ValueFunctionParser', 'params 不能为空', '{ type: "function", params: "参数", body: "函数体" }');
+  const paramsMatch = value.params.match(FUNCTION_PARAMS_REGEX);
+  if (!paramsMatch) {
+    throw createError('ValueFunctionParser', `params 格式不正确，期望三花括号: "${value.params}"`, '{{{参数对象}}}');
   }
 
-  if (!value.body || value.body.trim() === '') {
-    throw createError('ValueFunctionParser', 'body 不能为空', '{ type: "function", params: "参数", body: "函数体" }');
+  const bodyMatch = value.body.match(FUNCTION_BODY_REGEX);
+  if (!bodyMatch) {
+    throw createError('ValueFunctionParser', `body 格式不正确，期望双花括号: "${value.body}"`, '{{函数体}}');
   }
 
-  const parsedParams = parseNestedReference(value.params);
+  let parsedParams: Record<string, unknown>;
+  const paramsContent = paramsMatch[1].trim();
+
+  if (paramsContent === '') {
+    parsedParams = {};
+  } else {
+    try {
+      parsedParams = JSON.parse(paramsContent);
+    } catch {
+      throw createError('ValueFunctionParser', `params JSON 解析失败: "${paramsContent}"`, '{{{ "key": "value" }}}');
+    }
+  }
 
   return {
     success: true,
-    data: { params: parsedParams, body: value.body },
+    data: { params: parsedParams, body: bodyMatch[1] },
   };
 };
 

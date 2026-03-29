@@ -181,11 +181,11 @@ describe('parseJson - value parsing', () => {
 
   it('should use ValueFunctionParser for type=function', () => {
     const input = {
-      key: { type: 'function', params: '{{x}}', body: 'return x' },
+      key: { type: 'function', params: '{{{ {"x": 123} }}}', body: '{{return x}}' },
     };
     const result = parseJson(input);
     expect((result as Record<string, unknown>).key).toEqual({
-      params: '{{x}}',
+      params: { x: 123 },
       body: 'return x',
     });
   });
@@ -369,51 +369,54 @@ describe('parseJson - nested reference in function', () => {
     clearKeyParsers();
   });
 
-  it('should parse function params with pure scope reference', () => {
+  it('should parse function params as JSON object with string value', () => {
     const input = {
-      onClick: { type: 'function', params: '{{$_[core]_eventId}}', body: 'handleClick()' },
+      onClick: { type: 'function', params: '{{{ {"eventId": "click123"} }}}', body: '{{handleClick()}}' },
     };
     const result = parseJson(input);
     const onClick = (result as Record<string, unknown>).onClick as Record<string, unknown>;
-    expect(onClick.params).toEqual({
-      type: 'scope',
-      scope: 'core',
-      variable: 'eventId',
-    });
+    expect(onClick.params).toEqual({ eventId: 'click123' });
     expect(onClick.body).toBe('handleClick()');
   });
 
-  it('should parse function params with pure props reference', () => {
+  it('should parse function params as JSON object with number value', () => {
     const input = {
-      handler: { type: 'function', params: '{{ref_props_itemId}}', body: 'return itemId' },
+      handler: { type: 'function', params: '{{{ {"itemId": 42} }}}', body: '{{return itemId}}' },
     };
     const result = parseJson(input);
     const handler = (result as Record<string, unknown>).handler as Record<string, unknown>;
-    expect(handler.params).toEqual({
-      type: 'props',
-      variable: 'itemId',
-    });
+    expect(handler.params).toEqual({ itemId: 42 });
+    expect(handler.body).toBe('return itemId');
   });
 
-  it('should parse function params with pure state reference', () => {
+  it('should parse function params as JSON object with boolean value', () => {
     const input = {
-      handler: { type: 'function', params: '{{ref_state_count}}', body: 'return count' },
+      handler: { type: 'function', params: '{{{ {"isActive": true} }}}', body: '{{return isActive}}' },
     };
     const result = parseJson(input);
     const handler = (result as Record<string, unknown>).handler as Record<string, unknown>;
-    expect(handler.params).toEqual({
-      type: 'state',
-      variable: 'count',
-    });
+    expect(handler.params).toEqual({ isActive: true });
+    expect(handler.body).toBe('return isActive');
   });
 
-  it('should keep function params as string for mixed content', () => {
+  it('should parse function params with empty JSON object', () => {
     const input = {
-      onClick: { type: 'function', params: 'config={{$_[core]_config}}', body: 'handleClick()' },
+      onClick: { type: 'function', params: '{{{}}}', body: '{{handleClick()}}' },
     };
     const result = parseJson(input);
     const onClick = (result as Record<string, unknown>).onClick as Record<string, unknown>;
-    expect(onClick.params).toBe('config={{$_[core]_config}}');
+    expect(onClick.params).toEqual({});
+    expect(onClick.body).toBe('handleClick()');
+  });
+
+  it('should parse function params with multiple keys', () => {
+    const input = {
+      onClick: { type: 'function', params: '{{{ {"id": 1, "name": "test", "active": true} }}}', body: '{{handleClick(id, name)}}' },
+    };
+    const result = parseJson(input);
+    const onClick = (result as Record<string, unknown>).onClick as Record<string, unknown>;
+    expect(onClick.params).toEqual({ id: 1, name: 'test', active: true });
+    expect(onClick.body).toBe('handleClick(id, name)');
   });
 });
 

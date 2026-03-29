@@ -219,60 +219,61 @@ describe('ValueExpressionParser', () => {
 
 describe('ValueFunctionParser', () => {
   it('should parse function with params and body', () => {
-    const input: FunctionBody = { type: 'function', params: '{{x}}', body: 'return x' };
+    const input: FunctionBody = { type: 'function', params: '{{{}}}', body: '{{return x}}' };
     const result = ValueFunctionParser(input);
     expect(result.success).toBe(true);
-    expect(result.data?.params).toBe('{{x}}');
+    expect(result.data?.params).toEqual({});
     expect(result.data?.body).toBe('return x');
   });
 
-  it('should parse function params as nested reference for pure scope', () => {
-    const input: FunctionBody = { type: 'function', params: '{{$_[core]_eventId}}', body: 'handleClick()' };
+  it('should parse function params as JSON object', () => {
+    const input: FunctionBody = { type: 'function', params: '{{{ {"eventId": "click123"} }}}', body: '{{handleClick()}}' };
     const result = ValueFunctionParser(input);
     expect(result.success).toBe(true);
-    expect(result.data?.params).toEqual({ type: 'scope', scope: 'core', variable: 'eventId' });
+    expect(result.data?.params).toEqual({ eventId: 'click123' });
     expect(result.data?.body).toBe('handleClick()');
   });
 
-  it('should parse function params as nested reference for pure props', () => {
-    const input: FunctionBody = { type: 'function', params: '{{ref_props_itemId}}', body: 'return itemId' };
+  it('should parse function params with multiple keys', () => {
+    const input: FunctionBody = { type: 'function', params: '{{{ {"x": 123, "y": true} }}}', body: '{{return x + y}}' };
     const result = ValueFunctionParser(input);
     expect(result.success).toBe(true);
-    expect(result.data?.params).toEqual({ type: 'props', variable: 'itemId' });
+    expect(result.data?.params).toEqual({ x: 123, y: true });
+    expect(result.data?.body).toBe('return x + y');
   });
 
-  it('should parse function params as nested reference for pure state', () => {
-    const input: FunctionBody = { type: 'function', params: '{{ref_state_count}}', body: 'return count' };
+  it('should parse function params with nested JSON', () => {
+    const input: FunctionBody = { type: 'function', params: '{{{ {"user": {"id": 1, "name": "test"}} }}}', body: '{{return user.id}}' };
     const result = ValueFunctionParser(input);
     expect(result.success).toBe(true);
-    expect(result.data?.params).toEqual({ type: 'state', variable: 'count' });
+    expect(result.data?.params).toEqual({ user: { id: 1, name: 'test' } });
   });
 
-  it('should keep function params as string for mixed content', () => {
-    const input: FunctionBody = { type: 'function', params: '{id: {{$_[core]_id}}}', body: 'return id' };
-    const result = ValueFunctionParser(input);
-    expect(result.success).toBe(true);
-    expect(result.data?.params).toBe('{id: {{$_[core]_id}}}');
-  });
-
-  it('should throw error with correct message when params is empty', () => {
-    const input: FunctionBody = { type: 'function', params: '', body: 'return x' };
+  it('should throw error with correct message when params is not triple braces', () => {
+    const input: FunctionBody = { type: 'function', params: '{{"x": 123}}', body: '{{return x}}' };
     expect(() => ValueFunctionParser(input)).toThrow(
-      '[ValueFunctionParser] 验证失败: params 不能为空。期望格式: { type: "function", params: "参数", body: "函数体" }'
+      '[ValueFunctionParser] 验证失败: params 格式不正确，期望三花括号: "{{\"x\": 123}}"。期望格式: {{{参数对象}}}'
     );
   });
 
-  it('should throw error with correct message when body is empty', () => {
-    const input: FunctionBody = { type: 'function', params: '{{x}}', body: '' };
+  it('should throw error with correct message when body is not double braces', () => {
+    const input: FunctionBody = { type: 'function', params: '{{{ "x": 123 }}}', body: 'return x' };
     expect(() => ValueFunctionParser(input)).toThrow(
-      '[ValueFunctionParser] 验证失败: body 不能为空。期望格式: { type: "function", params: "参数", body: "函数体" }'
+      '[ValueFunctionParser] 验证失败: body 格式不正确，期望双花括号: "return x"。期望格式: {{函数体}}'
+    );
+  });
+
+  it('should throw error with correct message when params JSON is invalid', () => {
+    const input: FunctionBody = { type: 'function', params: '{{{invalid json}}}', body: '{{return x}}' };
+    expect(() => ValueFunctionParser(input)).toThrow(
+      '[ValueFunctionParser] 验证失败: params JSON 解析失败: "invalid json"。期望格式: {{{ "key": "value" }}}'
     );
   });
 
   it('should throw error with correct message when type is not function', () => {
-    const input = { type: 'string', params: '{{x}}', body: 'return x' } as unknown as FunctionBody;
+    const input = { type: 'string', params: '{{{ "x": 1 }}}', body: '{{return x}}' } as unknown as FunctionBody;
     expect(() => ValueFunctionParser(input)).toThrow(
-      '[ValueFunctionParser] 验证失败: type 必须为 "function"，实际为 "string"。期望格式: { type: "function", params: "参数", body: "函数体" }'
+      '[ValueFunctionParser] 验证失败: type 必须为 "function"，实际为 "string"。期望格式: {{{参数对象}}}, {{函数体}}'
     );
   });
 });
