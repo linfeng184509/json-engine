@@ -8,7 +8,6 @@ import type {
   SOPStepPermission,
 } from '@json-engine/vue-json/types';
 import {
-  useCoreScope,
   createCoreScope,
   setCoreScope,
 } from '@json-engine/vue-json';
