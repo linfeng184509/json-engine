@@ -1,6 +1,38 @@
 {
   "name": "EnterpriseAdminApp",
   "version": "1.0.0",
+  "router": {
+    "history": "hash",
+    "routes": [
+      {
+        "path": "/login",
+        "name": "Login",
+        "component": "/schemas/pages/login.json",
+        "meta": {
+          "title": "登录"
+        }
+      },
+      {
+        "path": "/dashboard",
+        "name": "Dashboard",
+        "component": "/schemas/pages/dashboard.json",
+        "meta": {
+          "title": "首页",
+          "requiresAuth": true,
+          "permissions": ["dashboard:view"]
+        }
+      },
+      {
+        "path": "/",
+        "redirect": "/dashboard"
+      },
+      {
+        "path": "/:pathMatch(.*)*",
+        "name": "NotFound",
+        "component": "/schemas/pages/404.json"
+      }
+    ]
+  },
   "ui": {
     "components": [
       { "name": "AForm", "component": "ant-design-vue/es/form" },
@@ -15,7 +47,8 @@
       { "name": "ALayout", "component": "ant-design-vue/es/layout" },
       { "name": "ALayoutHeader", "component": "ant-design-vue/es/layout/Header" },
       { "name": "ALayoutContent", "component": "ant-design-vue/es/layout/Content" },
-      { "name": "AResult", "component": "ant-design-vue/es/result" }
+      { "name": "AResult", "component": "ant-design-vue/es/result" },
+      { "name": "AConfigProvider", "component": "ant-design-vue/es/config-provider" }
     ],
     "theme": {
       "primaryColor": "#1677ff",
@@ -29,7 +62,15 @@
       "headers": {
         "Content-Type": "application/json"
       }
-    }
+    },
+    "websocket": [
+      {
+        "url": "ws://localhost:8080",
+        "autoReconnect": true,
+        "reconnectInterval": 5000,
+        "heartbeatInterval": 30000
+      }
+    ]
   },
   "storage": {
     "prefix": "ea_",

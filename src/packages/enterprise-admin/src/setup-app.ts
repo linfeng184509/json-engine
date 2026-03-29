@@ -1,22 +1,18 @@
 import {
   registerPermissionProvider,
   createStorageAdapter,
+  createCoreScope,
+  setCoreScope,
+  registerPagePermission,
 } from '@json-engine/vue-json';
 import type {
   PermissionProvider,
   FieldPermission,
   SOPStepPermission,
-} from '@json-engine/vue-json/types';
-import {
-  createCoreScope,
-  setCoreScope,
+  VueJsonAppSchema,
+  StorageConfig,
+  WSConfig,
 } from '@json-engine/vue-json';
-import type {
-  CoreScope,
-  CoreScopeWS,
-} from '@json-engine/vue-json';
-
-const STORAGE_PREFIX = 'ea_';
 
 interface UserInfo {
   id: number;
@@ -29,16 +25,18 @@ class EnterprisePermissionProvider implements PermissionProvider {
   private permissions: string[] = [];
   private roles: string[] = [];
   private userInfo: UserInfo | null = null;
+  private storagePrefix: string;
 
-  constructor() {
+  constructor(storagePrefix: string = 'ea_') {
+    this.storagePrefix = storagePrefix;
     this.loadFromStorage();
   }
 
   private loadFromStorage(): void {
     try {
-      const permissions = localStorage.getItem(`${STORAGE_PREFIX}permissions`);
-      const roles = localStorage.getItem(`${STORAGE_PREFIX}roles`);
-      const userInfo = localStorage.getItem(`${STORAGE_PREFIX}userInfo`);
+      const permissions = localStorage.getItem(`${this.storagePrefix}permissions`);
+      const roles = localStorage.getItem(`${this.storagePrefix}roles`);
+      const userInfo = localStorage.getItem(`${this.storagePrefix}userInfo`);
 
       this.permissions = permissions ? JSON.parse(permissions) : [];
       this.roles = roles ? JSON.parse(roles) : [];
@@ -52,17 +50,17 @@ class EnterprisePermissionProvider implements PermissionProvider {
 
   setPermissions(permissions: string[]): void {
     this.permissions = permissions;
-    localStorage.setItem(`${STORAGE_PREFIX}permissions`, JSON.stringify(permissions));
+    localStorage.setItem(`${this.storagePrefix}permissions`, JSON.stringify(permissions));
   }
 
   setRoles(roles: string[]): void {
     this.roles = roles;
-    localStorage.setItem(`${STORAGE_PREFIX}roles`, JSON.stringify(roles));
+    localStorage.setItem(`${this.storagePrefix}roles`, JSON.stringify(roles));
   }
 
   setUserInfo(userInfo: UserInfo): void {
     this.userInfo = userInfo;
-    localStorage.setItem(`${STORAGE_PREFIX}userInfo`, JSON.stringify(userInfo));
+    localStorage.setItem(`${this.storagePrefix}userInfo`, JSON.stringify(userInfo));
   }
 
   getUserInfo(): UserInfo | null {
@@ -73,10 +71,10 @@ class EnterprisePermissionProvider implements PermissionProvider {
     this.permissions = [];
     this.roles = [];
     this.userInfo = null;
-    localStorage.removeItem(`${STORAGE_PREFIX}permissions`);
-    localStorage.removeItem(`${STORAGE_PREFIX}roles`);
-    localStorage.removeItem(`${STORAGE_PREFIX}userInfo`);
-    localStorage.removeItem(`${STORAGE_PREFIX}token`);
+    localStorage.removeItem(`${this.storagePrefix}permissions`);
+    localStorage.removeItem(`${this.storagePrefix}roles`);
+    localStorage.removeItem(`${this.storagePrefix}userInfo`);
+    localStorage.removeItem(`${this.storagePrefix}token`);
   }
 
   getPermissions(): string[] {
@@ -116,23 +114,23 @@ class EnterprisePermissionProvider implements PermissionProvider {
 }
 
 let permissionProviderInstance: EnterprisePermissionProvider | null = null;
+let wsClient: WebSocket | null = null;
+const wsHandlers: Map<string, Set<(data: unknown) => void>> = new Map();
+let storagePrefix: string = 'ea_';
 
 export function getPermissionProviderInstance(): EnterprisePermissionProvider {
   if (!permissionProviderInstance) {
-    permissionProviderInstance = new EnterprisePermissionProvider();
+    permissionProviderInstance = new EnterprisePermissionProvider(storagePrefix);
   }
   return permissionProviderInstance;
 }
 
-let wsClient: WebSocket | null = null;
-const wsHandlers: Map<string, Set<(data: unknown) => void>> = new Map();
-
-function initWebSocket(coreScope: CoreScope): void {
-  const token = localStorage.getItem(`${STORAGE_PREFIX}token`);
+function initWebSocket(wsConfig: WSConfig, coreScope: VueJsonAppSchema): void {
+  const token = localStorage.getItem(`${storagePrefix}token`);
   if (!token) return;
 
-  const wsUrl = `ws://localhost:8080?token=${encodeURIComponent(token)}`;
-  
+  const wsUrl = `${wsConfig.url}?token=${encodeURIComponent(token)}`;
+
   try {
     wsClient = new WebSocket(wsUrl);
 
@@ -144,7 +142,7 @@ function initWebSocket(coreScope: CoreScope): void {
       try {
         const message = JSON.parse(event.data);
         const { type, payload } = message;
-        
+
         const handlers = wsHandlers.get(type);
         if (handlers) {
           handlers.forEach(handler => handler(payload));
@@ -166,39 +164,25 @@ function initWebSocket(coreScope: CoreScope): void {
 
     wsClient.onclose = () => {
       console.log('[WebSocket] Disconnected');
-      setTimeout(() => initWebSocket(coreScope), 5000);
+      if (wsConfig.autoReconnect) {
+        setTimeout(() => initWebSocket(wsConfig, coreScope), wsConfig.reconnectInterval || 5000);
+      }
     };
 
     wsClient.onerror = (error) => {
       console.error('[WebSocket] Error:', error);
     };
-
-    const ws: CoreScopeWS = {
-      send: (channel: string, data: unknown) => {
-        if (wsClient?.readyState === WebSocket.OPEN) {
-          wsClient.send(JSON.stringify({ type: channel, payload: data }));
-        }
-      },
-      subscribe: (channel: string, handler: (data: unknown) => void) => {
-        if (!wsHandlers.has(channel)) {
-          wsHandlers.set(channel, new Set());
-        }
-        wsHandlers.get(channel)!.add(handler);
-      },
-      unsubscribe: (channel: string, handler: (data: unknown) => void) => {
-        wsHandlers.get(channel)?.delete(handler);
-      },
-    };
-
-    (coreScope as unknown as Record<string, unknown>)._ws = ws;
   } catch (error) {
     console.error('[WebSocket] Connection failed:', error);
   }
 }
 
 export function connectWebSocket(): void {
-  const coreScope = createCoreScope();
-  initWebSocket(coreScope);
+  if (wsClient) {
+    wsClient.close();
+    wsClient = null;
+  }
+  wsHandlers.clear();
 }
 
 export function disconnectWebSocket(): void {
@@ -209,19 +193,33 @@ export function disconnectWebSocket(): void {
   wsHandlers.clear();
 }
 
-export function setupApp(): void {
-  createStorageAdapter({ prefix: STORAGE_PREFIX, sync: true });
-  
-  const provider = getPermissionProviderInstance();
-  registerPermissionProvider(provider);
+export function getStoragePrefix(): string {
+  return storagePrefix;
+}
+
+export function setupApp(schema: VueJsonAppSchema): void {
+  const storageConfig: StorageConfig = schema.storage || { prefix: 'ea_', sync: true };
+  storagePrefix = storageConfig.prefix || 'ea_';
+
+  createStorageAdapter(storageConfig);
+
+  permissionProviderInstance = new EnterprisePermissionProvider(storagePrefix);
+  registerPermissionProvider(permissionProviderInstance);
+
+  if (schema.auth?.pagePermissions) {
+    for (const [path, perm] of Object.entries(schema.auth.pagePermissions)) {
+      registerPagePermission(path, perm as string);
+    }
+  }
 
   const coreScope = createCoreScope();
   setCoreScope(coreScope);
 
-  const token = localStorage.getItem(`${STORAGE_PREFIX}token`);
-  if (token) {
-    initWebSocket(coreScope);
+  const wsConfigs = schema.network?.websocket;
+  if (wsConfigs && wsConfigs.length > 0) {
+    const token = localStorage.getItem(`${storagePrefix}token`);
+    if (token) {
+      initWebSocket(wsConfigs[0], schema);
+    }
   }
 }
-
-export { STORAGE_PREFIX };
