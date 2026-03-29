@@ -7,7 +7,9 @@ import type {
   ScopeRef,
   RenderContext,
 } from '../types';
-import type { NestedReferenceResult, NestedReferenceData } from '@json-engine/core-engine';
+import type { AbstractReferenceParseData, AbstractScopeParseData } from '@json-engine/core-engine';
+
+type ExpressionResult = string | AbstractReferenceParseData | AbstractScopeParseData;
 
 /**
  * 获取嵌套属性值
@@ -128,16 +130,16 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
  * 评估表达式
  */
 export function evaluateExpression(
-  expression: NestedReferenceResult,
+  expression: ExpressionResult,
   context: RenderContext
 ): unknown {
   if (typeof expression === 'string') {
     return evaluateStringExpression(expression, context);
   }
 
-  const ref = expression as NestedReferenceData;
-  switch (ref.type) {
-    case 'state': {
+  if (expression._type === 'reference') {
+    const ref = expression as AbstractReferenceParseData;
+    if (ref.prefix === 'state') {
       let stateRef = context.state[ref.variable];
       if (stateRef === undefined && context.computed) {
         stateRef = context.computed[ref.variable];
@@ -146,23 +148,32 @@ export function evaluateExpression(
       if (stateRef && typeof stateRef === 'object' && 'value' in stateRef) {
         stateValue = (stateRef as { value: unknown }).value;
       }
-      if (ref.scope && typeof ref.scope === 'string' && !['core', 'goal'].includes(ref.scope)) {
-        return getNestedValue(stateValue, ref.scope);
+      if (ref.path) {
+        return getNestedValue(stateValue, ref.path);
       }
       return stateValue;
     }
-    case 'props':
-      return context.props[ref.variable];
-    case 'scope': {
-      const scopeKey = ref.scope as 'core' | 'goal';
-      const contextRecord = context as unknown as Record<string, unknown>;
-      const scopeValue = contextRecord[scopeKey];
-      if (scopeValue && typeof scopeValue === 'object') {
-        return (scopeValue as Record<string, unknown>)[ref.variable];
+    if (ref.prefix === 'props') {
+      if (ref.path) {
+        return getNestedValue(context.props[ref.variable], ref.path);
       }
-      return undefined;
+      return context.props[ref.variable];
     }
+    return undefined;
   }
+
+  if (expression._type === 'scope') {
+    const ref = expression as AbstractScopeParseData;
+    const scopeKey = ref.scope as 'core' | 'goal';
+    const contextRecord = context as unknown as Record<string, unknown>;
+    const scopeValue = contextRecord[scopeKey];
+    if (scopeValue && typeof scopeValue === 'object') {
+      return (scopeValue as Record<string, unknown>)[ref.variable];
+    }
+    return undefined;
+  }
+
+  return undefined;
 }
 
 /**

@@ -47,10 +47,9 @@ export type {
 } from './schema';
 export type {
   ExpressionParseData,
-  VariableParseData,
-  ScopeParseData,
+  ReferenceParseData,
+  AbstractScopeParseData,
   FunctionParseData,
-  NestedReferenceResult,
 } from './schema';
 export type {
   ParserContext,

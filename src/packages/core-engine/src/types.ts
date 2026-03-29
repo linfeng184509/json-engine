@@ -1,31 +1,13 @@
-interface KeyLifeParser {
-  name: string;
-  params: Record<string, unknown>;
-  parseRule: Function;
-  valueType: 'function';
-}
-
-interface KeyEventParser {
-  name: string;
-  params: Record<string, unknown>;
-  parseRule: Function;
-  valueType: 'function';
-}
-
-interface KeyAttrParser {
-  name: string;
-  parseRule: Function;
-  valueType: 'string' | 'expression' | 'scope' | 'props' | 'state' | 'object';
-}
-
 interface FunctionBody {
   type: 'function';
   params: string;
   body: string;
 }
 
+type ValueBodyType = 'string' | 'scope' | 'reference' | 'expression' | 'object' | 'function';
+
 interface ValueBody {
-  type: 'string' | 'scope' | 'props' | 'state' | 'expression' | 'object';
+  type: ValueBodyType;
   body: string;
 }
 
@@ -40,44 +22,48 @@ interface ObjectParseData {
   value: unknown;
 }
 
-interface ScopeParseData {
-  scope: 'core' | 'goal';
+interface AbstractScopeParseData {
+  _type: 'scope';
+  scope: string;
   variable: string;
 }
 
-interface VariableParseData {
+interface AbstractReferenceParseData {
+  _type: 'reference';
+  prefix: string;
   variable: string;
+  path?: string;
 }
-
-interface NestedReferenceData {
-  type: 'scope' | 'props' | 'state';
-  variable: string;
-  scope?: 'core' | 'goal';
-}
-
-type NestedReferenceResult = string | NestedReferenceData;
 
 interface ExpressionParseData {
-  expression: NestedReferenceResult;
+  _type: 'expression';
+  expression: string | AbstractReferenceParseData | AbstractScopeParseData;
 }
 
 interface StringParseData {
+  _type: 'string';
   value: string;
 }
 
 interface FunctionParseData {
+  _type: 'function';
   params: Record<string, unknown>;
   body: string;
 }
 
-const OBJECT_REGEX = /^\{\{\{\[([^\]]+)\]:\[([\s\S]*)\]\}\}\}$/;
-const SCOPE_REGEX = /^\{\{\$_\[(core|goal)\]_(.+)\}\}$/;
-const PROPS_REGEX = /^\{\{ref_props_(.+)\}\}$/;
-const STATE_REGEX = /^\{\{ref_state_(.+)\}\}$/;
-const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
+interface ObjectParseResult {
+  _type: 'object';
+  key: string;
+  value: unknown;
+}
+
+type ParseDataType = StringParseData | ObjectParseResult | AbstractScopeParseData | AbstractReferenceParseData | ExpressionParseData | FunctionParseData;
+
 const STRING_REGEX = /^'([\s\S]*)'$/;
 const FUNCTION_PARAMS_REGEX = /^\{\{\{(.*)\}\}\}$/s;
 const FUNCTION_BODY_REGEX = /^\{\{([\s\S]*)\}\}$/;
+const OBJECT_REGEX = /^\{\{\{\[([^\]]+)\]:\[([\s\S]*)\]\}\}\}$/;
+const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
 
 function createError(parserName: string, reason: string, example: string): Error {
   return new Error(`[${parserName}] 验证失败: ${reason}。期望格式: ${example}`);
@@ -97,43 +83,69 @@ function parseValue(rawValue: string): unknown {
   }
 }
 
-function parseNestedReference(content: string): NestedReferenceResult {
+function createReferenceRegex(prefixes: string[]): RegExp {
+  const pattern = prefixes.join('|');
+  return new RegExp(`^\\{\\{ref_(${pattern})_(.+)\\}\\}$`);
+}
+
+function createScopeRegex(scopeNames: string[]): RegExp {
+  const pattern = scopeNames.join('|');
+  return new RegExp(`^\\{\\{\\$_\\[(${pattern})\\]_(.+)\\}\\}$`);
+}
+
+function createInnerReferenceRegex(prefixes: string[]): RegExp {
+  const pattern = prefixes.join('|');
+  return new RegExp(`^ref_(${pattern})_([a-zA-Z_$][a-zA-Z0-9_$]*)$`);
+}
+
+function createInnerScopeRegex(scopeNames: string[]): RegExp {
+  const pattern = scopeNames.join('|');
+  return new RegExp(`^\\$_\\[(${pattern})\\]_([a-zA-Z_$][a-zA-Z0-9_$]*)$`);
+}
+
+function parseNestedReference(
+  content: string,
+  referenceRegex: RegExp,
+  scopeRegex: RegExp,
+  innerRefRegex: RegExp,
+  innerScopeRegex: RegExp
+): string | AbstractReferenceParseData | AbstractScopeParseData {
   if (!content) return content;
 
-  const scopeMatch = content.match(SCOPE_REGEX);
+  const scopeMatch = content.match(scopeRegex);
   if (scopeMatch) {
-    return { type: 'scope', scope: scopeMatch[1] as 'core' | 'goal', variable: scopeMatch[2] };
+    return { _type: 'scope', scope: scopeMatch[1], variable: scopeMatch[2] };
   }
 
-  const propsMatch = content.match(PROPS_REGEX);
-  if (propsMatch) {
-    return { type: 'props', variable: propsMatch[1] };
+  const refMatch = content.match(referenceRegex);
+  if (refMatch) {
+    const fullPath = refMatch[2];
+    const dotIndex = fullPath.indexOf('.');
+    if (dotIndex > 0) {
+      return {
+        _type: 'reference',
+        prefix: refMatch[1],
+        variable: fullPath.substring(0, dotIndex),
+        path: fullPath.substring(dotIndex + 1),
+      };
+    }
+    return { _type: 'reference', prefix: refMatch[1], variable: fullPath };
   }
 
-  const stateMatch = content.match(STATE_REGEX);
-  if (stateMatch) {
-    return { type: 'state', variable: stateMatch[1] };
-  }
-
-  const innerScopeMatch = content.match(/^\$_\[(core|goal)\]_([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
+  const innerScopeMatch = content.match(innerScopeRegex);
   if (innerScopeMatch) {
-    return { type: 'scope', scope: innerScopeMatch[1] as 'core' | 'goal', variable: innerScopeMatch[2] };
+    return { _type: 'scope', scope: innerScopeMatch[1], variable: innerScopeMatch[2] };
   }
 
-  const innerPropsMatch = content.match(/^ref_props_([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
-  if (innerPropsMatch) {
-    return { type: 'props', variable: innerPropsMatch[1] };
-  }
-
-  const innerStateMatch = content.match(/^ref_state_([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
-  if (innerStateMatch) {
-    return { type: 'state', variable: innerStateMatch[1] };
+  const innerRefMatch = content.match(innerRefRegex);
+  if (innerRefMatch) {
+    return { _type: 'reference', prefix: innerRefMatch[1], variable: innerRefMatch[2] };
   }
 
   return content;
 }
 
-const ValueObjectParser = (value: ValueBody): ParseResult<ObjectParseData> => {
+const ValueObjectParser = (value: ValueBody): ParseResult<ObjectParseResult> => {
   if (value.type !== 'object') {
     throw createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{[键]:[值]}}}');
   }
@@ -149,7 +161,7 @@ const ValueObjectParser = (value: ValueBody): ParseResult<ObjectParseData> => {
 
   return {
     success: true,
-    data: { key, value: parsedValue },
+    data: { _type: 'object', key, value: parsedValue },
   };
 };
 
@@ -165,59 +177,68 @@ const ValueConstraintParser = (value: ValueBody): ParseResult<StringParseData> =
 
   return {
     success: true,
-    data: { value: match[1] },
+    data: { _type: 'string', value: match[1] },
   };
 };
 
-const ValueScopeParser = (value: ValueBody): ParseResult<ScopeParseData> => {
+const ValueScopeParser = (
+  value: ValueBody,
+  scopeRegex: RegExp
+): ParseResult<AbstractScopeParseData> => {
   if (value.type !== 'scope') {
-    throw createError('ValueScopeParser', `type 必须为 "scope"，实际为 "${value.type}"`, '{{$_[core|goal]_变量名}}');
+    throw createError('ValueScopeParser', `type 必须为 "scope"，实际为 "${value.type}"`, '{{$_[*]_变量名}}');
   }
 
-  const match = value.body.match(SCOPE_REGEX);
+  const match = value.body.match(scopeRegex);
   if (!match) {
-    throw createError('ValueScopeParser', `body 格式不正确: "${value.body}"`, '{{$_[core|goal]_变量名}}');
+    throw createError('ValueScopeParser', `body 格式不正确: "${value.body}"`, '{{$_[*]_变量名}}');
   }
 
   return {
     success: true,
-    data: { scope: match[1] as 'core' | 'goal', variable: match[2] },
+    data: { _type: 'scope', scope: match[1], variable: match[2] },
   };
 };
 
-const ValuePropsParser = (value: ValueBody): ParseResult<VariableParseData> => {
-  if (value.type !== 'props') {
-    throw createError('ValuePropsParser', `type 必须为 "props"，实际为 "${value.type}"`, '{{ref_props_变量名}}');
+const ValueReferenceParser = (
+  value: ValueBody,
+  referenceRegex: RegExp
+): ParseResult<AbstractReferenceParseData> => {
+  if (value.type !== 'reference') {
+    throw createError('ValueReferenceParser', `type 必须为 "reference"，实际为 "${value.type}"`, '{{ref_*_变量名}}');
   }
 
-  const match = value.body.match(PROPS_REGEX);
+  const match = value.body.match(referenceRegex);
   if (!match) {
-    throw createError('ValuePropsParser', `body 格式不正确: "${value.body}"`, '{{ref_props_变量名}}');
+    throw createError('ValueReferenceParser', `body 格式不正确: "${value.body}"`, '{{ref_*_变量名}}');
   }
 
+  const fullPath = match[2];
+  const dotIndex = fullPath.indexOf('.');
+  if (dotIndex > 0) {
+    return {
+      success: true,
+      data: {
+        _type: 'reference',
+        prefix: match[1],
+        variable: fullPath.substring(0, dotIndex),
+        path: fullPath.substring(dotIndex + 1),
+      },
+    };
+  }
   return {
     success: true,
-    data: { variable: match[1] },
+    data: { _type: 'reference', prefix: match[1], variable: fullPath },
   };
 };
 
-const ValueStateParser = (value: ValueBody): ParseResult<VariableParseData> => {
-  if (value.type !== 'state') {
-    throw createError('ValueStateParser', `type 必须为 "state"，实际为 "${value.type}"`, '{{ref_state_变量名}}');
-  }
-
-  const match = value.body.match(STATE_REGEX);
-  if (!match) {
-    throw createError('ValueStateParser', `body 格式不正确: "${value.body}"`, '{{ref_state_变量名}}');
-  }
-
-  return {
-    success: true,
-    data: { variable: match[1] },
-  };
-};
-
-const ValueExpressionParser = (value: ValueBody): ParseResult<ExpressionParseData> => {
+const ValueExpressionParser = (
+  value: ValueBody,
+  referenceRegex: RegExp,
+  scopeRegex: RegExp,
+  innerRefRegex: RegExp,
+  innerScopeRegex: RegExp
+): ParseResult<ExpressionParseData> => {
   if (value.type !== 'expression') {
     throw createError('ValueExpressionParser', `type 必须为 "expression"，实际为 "${value.type}"`, '{{ 表达式 }}');
   }
@@ -228,11 +249,17 @@ const ValueExpressionParser = (value: ValueBody): ParseResult<ExpressionParseDat
   }
 
   const trimmedExpression = match[1].trim();
-  const parsedExpression = parseNestedReference(trimmedExpression);
+  const parsedExpression = parseNestedReference(
+    trimmedExpression,
+    referenceRegex,
+    scopeRegex,
+    innerRefRegex,
+    innerScopeRegex
+  );
 
   return {
     success: true,
-    data: { expression: parsedExpression },
+    data: { _type: 'expression', expression: parsedExpression },
   };
 };
 
@@ -266,34 +293,31 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
 
   return {
     success: true,
-    data: { params: parsedParams, body: bodyMatch[1] },
+    data: { _type: 'function', params: parsedParams, body: bodyMatch[1] },
   };
 };
 
-export type {
-  KeyLifeParser,
-  KeyEventParser,
-  KeyAttrParser,
-  FunctionBody,
-  ValueBody,
-  ParseResult,
-  ObjectParseData,
-  ScopeParseData,
-  VariableParseData,
-  ExpressionParseData,
-  StringParseData,
-  FunctionParseData,
-  NestedReferenceData,
-  NestedReferenceResult,
-};
-
 export {
+  parseNestedReference,
   ValueObjectParser,
   ValueConstraintParser,
   ValueScopeParser,
-  ValuePropsParser,
-  ValueStateParser,
+  ValueReferenceParser,
   ValueExpressionParser,
   ValueFunctionParser,
-  parseNestedReference,
+};
+
+export type {
+  FunctionBody,
+  ValueBody,
+  ValueBodyType,
+  ParseResult,
+  ObjectParseData,
+  ObjectParseResult,
+  AbstractScopeParseData,
+  AbstractReferenceParseData,
+  ExpressionParseData,
+  StringParseData,
+  FunctionParseData,
+  ParseDataType,
 };

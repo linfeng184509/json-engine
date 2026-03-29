@@ -3,8 +3,8 @@ import type {
   FunctionBody,
   ParseResult,
   ObjectParseData,
-  ScopeParseData,
-  VariableParseData,
+  AbstractScopeParseData,
+  AbstractReferenceParseData,
   ExpressionParseData,
   StringParseData,
   FunctionParseData,
@@ -13,11 +13,17 @@ import {
   ValueObjectParser,
   ValueConstraintParser,
   ValueScopeParser,
-  ValuePropsParser,
-  ValueStateParser,
+  ValueReferenceParser,
   ValueExpressionParser,
   ValueFunctionParser,
 } from './types';
+import {
+  createReferenceRegex,
+  createScopeRegex,
+  createInnerReferenceRegex,
+  createInnerScopeRegex,
+} from './regex-factory';
+import { createParserConfig, type ParserConfig, type ParserOptions } from './config-factory';
 
 type KeyParserFunction = (key: string, params?: Record<string, unknown>) => string;
 
@@ -27,28 +33,10 @@ interface KeyParserRegistry {
 
 type ParseCallback = (path: string, key: string, value: unknown) => void;
 
-interface ParseConfig {
-  keyParsers?: KeyParserRegistry;
-  onParsed?: ParseCallback;
-}
-
-const globalKeyParserRegistry: KeyParserRegistry = {};
-
-export function registerKeyParser(keyName: string, parser: KeyParserFunction): void {
-  globalKeyParserRegistry[keyName] = parser;
-}
-
-export function unregisterKeyParser(keyName: string): void {
-  delete globalKeyParserRegistry[keyName];
-}
-
-export function clearKeyParsers(): void {
-  Object.keys(globalKeyParserRegistry).forEach((key) => {
-    delete globalKeyParserRegistry[key];
-  });
-}
-
-function parseValueByType(value: unknown): unknown {
+function parseValueByType(
+  value: unknown,
+  config: ParserConfig
+): unknown {
   if (value === null || value === undefined) {
     return value;
   }
@@ -68,14 +56,18 @@ function parseValueByType(value: unknown): unknown {
     typeof valueObj.scope === 'string' &&
     typeof valueObj.variable === 'string'
   ) {
-    return value;
+    const result = ValueScopeParser({ type: 'scope', body: `{{$_[${valueObj.scope}]_${valueObj.variable}}}` }, config.scopeRegex);
+    return result.data;
   }
 
   if (
-    (valueObj.type === 'props' || valueObj.type === 'state') &&
+    valueObj.type === 'reference' &&
+    typeof valueObj.prefix === 'string' &&
     typeof valueObj.variable === 'string'
   ) {
-    return value;
+    const body = `{{ref_${valueObj.prefix}_${valueObj.variable}${valueObj.path ? '.' + valueObj.path : ''}}}`;
+    const result = ValueReferenceParser({ type: 'reference', body }, config.referenceRegex);
+    return result.data;
   }
 
   if (valueObj.type === 'function') {
@@ -90,7 +82,7 @@ function parseValueByType(value: unknown): unknown {
 
   if (
     typeof valueObj.type === 'string' &&
-    ['string', 'scope', 'props', 'state', 'expression', 'object'].includes(valueObj.type)
+    ['string', 'scope', 'reference', 'expression', 'object', 'function'].includes(valueObj.type)
   ) {
     const valueBody: ValueBody = {
       type: valueObj.type as ValueBody['type'],
@@ -107,20 +99,31 @@ function parseValueByType(value: unknown): unknown {
         return result.data;
       }
       case 'scope': {
-        const result: ParseResult<ScopeParseData> = ValueScopeParser(valueBody);
+        const result: ParseResult<AbstractScopeParseData> = ValueScopeParser(valueBody, config.scopeRegex);
         return result.data;
       }
-      case 'props': {
-        const result: ParseResult<VariableParseData> = ValuePropsParser(valueBody);
-        return result.data;
-      }
-      case 'state': {
-        const result: ParseResult<VariableParseData> = ValueStateParser(valueBody);
+      case 'reference': {
+        const result: ParseResult<AbstractReferenceParseData> = ValueReferenceParser(valueBody, config.referenceRegex);
         return result.data;
       }
       case 'expression': {
-        const result: ParseResult<ExpressionParseData> = ValueExpressionParser(valueBody);
+        const result: ParseResult<ExpressionParseData> = ValueExpressionParser(
+          valueBody,
+          config.referenceRegex,
+          config.scopeRegex,
+          config.innerReferenceRegex,
+          config.innerScopeRegex
+        );
         return result.data;
+      }
+      case 'function': {
+        const functionBody: FunctionBody = {
+          type: 'function',
+          params: valueBody.body.match(/^\{\{\{(.*)\}\}\}$/s)?.[1] ?? '',
+          body: valueBody.body.match(/^\{\{(.*)\}\}$/)?.[1] ?? valueBody.body,
+        };
+        const funcResult: ParseResult<FunctionParseData> = ValueFunctionParser(functionBody);
+        return funcResult.data;
       }
       default:
         return value;
@@ -138,7 +141,7 @@ function parseKey(key: string, registry: KeyParserRegistry): string {
   return key;
 }
 
-function walkJson(data: unknown, config: ParseConfig, path: string): unknown {
+function walkJson(data: unknown, config: ParserConfig, path: string): unknown {
   if (data === null || data === undefined) {
     return data;
   }
@@ -151,7 +154,7 @@ function walkJson(data: unknown, config: ParseConfig, path: string): unknown {
     const parsedArray: unknown[] = [];
     for (let i = 0; i < data.length; i++) {
       const itemPath = `${path}[${i}]`;
-      const parsedValue = parseValueByType(data[i]);
+      const parsedValue = parseValueByType(data[i], config);
       const parsedItem = walkJson(parsedValue, config, itemPath);
       parsedArray.push(parsedItem);
     }
@@ -161,12 +164,12 @@ function walkJson(data: unknown, config: ParseConfig, path: string): unknown {
   const obj = data as Record<string, unknown>;
   const parsedObj: Record<string, unknown> = {};
 
-  const mergedRegistry = { ...globalKeyParserRegistry, ...config.keyParsers };
+  const mergedRegistry = { ...config.keyParsers };
 
   for (const [key, value] of Object.entries(obj)) {
     const parsedKey = parseKey(key, mergedRegistry);
     const keyPath = path ? `${path}.${key}` : key;
-    const parsedValue = parseValueByType(value);
+    const parsedValue = parseValueByType(value, config);
     const finalValue = walkJson(parsedValue, config, keyPath);
 
     parsedObj[parsedKey] = finalValue;
@@ -179,13 +182,19 @@ function walkJson(data: unknown, config: ParseConfig, path: string): unknown {
   return parsedObj;
 }
 
-export function parseJson(json: unknown, config: ParseConfig = {}): unknown {
-  return walkJson(json, config, '');
+export function parseJson(input: unknown, config?: ParserConfig | ParserOptions): unknown {
+  const parserConfig = config instanceof Object && 'referencePrefixes' in config
+    ? config as ParserConfig
+    : createParserConfig(config as ParserOptions);
+  return walkJson(input, parserConfig, '');
 }
+
+export { createParserConfig };
 
 export type {
   KeyParserFunction,
   KeyParserRegistry,
   ParseCallback,
-  ParseConfig,
+  ParserConfig,
+  ParserOptions,
 };

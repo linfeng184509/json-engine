@@ -6,10 +6,9 @@ import type {
 
 import type {
   ExpressionParseData,
-  VariableParseData,
-  ScopeParseData,
+  AbstractReferenceParseData,
+  AbstractScopeParseData,
   FunctionParseData,
-  NestedReferenceResult,
 } from '@json-engine/core-engine';
 
 // ============ Core Structured Types (core-engine compatible) ============
@@ -17,47 +16,59 @@ import type {
 /**
  * 表达式值 - 带类型标记的 ExpressionParseData
  * 输入格式: { type: 'expression', body: '{{xxx}}' }
- * parseJson 输出: { expression: 'xxx' 或 NestedReferenceData }
+ * parseJson 输出: { _type: 'expression', expression: 'xxx' 或 AbstractReferenceParseData }
  */
 export interface ExpressionValue extends ExpressionParseData {
   _type: 'expression';
 }
 
 /**
- * State 引用 - 带类型标记的 VariableParseData
- * 输入格式: { type: 'state', body: '{{ref_state_xxx}}' }
- * parseJson 输出: { variable: 'xxx' }
- * 支持点号路径: { type: 'state', body: '{{ref_state_formData.name}}' }
+ * State 引用 - 基于 AbstractReferenceParseData
+ * 输入格式: { type: 'reference', body: '{{ref_state_xxx}}' }
+ * parseJson 输出: { _type: 'reference', prefix: 'state', variable: 'xxx' }
+ * 支持点号路径: { _type: 'reference', prefix: 'state', variable: 'formData', path: 'name' }
  */
-export interface StateRef extends VariableParseData {
-  _type: 'state';
+export interface StateRef extends AbstractReferenceParseData {
+  _type: 'reference';
+  prefix: 'state';
   path?: string;
 }
 
 /**
- * Props 引用 - 带类型标记的 VariableParseData
- * 输入格式: { type: 'props', body: '{{ref_props_xxx}}' }
- * parseJson 输出: { variable: 'xxx' }
- * 支持点号路径: { type: 'props', body: '{{ref_props_user.name}}' }
+ * Props 引用 - 基于 AbstractReferenceParseData
+ * 输入格式: { type: 'reference', body: '{{ref_props_xxx}}' }
+ * parseJson 输出: { _type: 'reference', prefix: 'props', variable: 'xxx' }
+ * 支持点号路径: { _type: 'reference', prefix: 'props', variable: 'user', path: 'name' }
  */
-export interface PropsRef extends VariableParseData {
-  _type: 'props';
+export interface PropsRef extends AbstractReferenceParseData {
+  _type: 'reference';
+  prefix: 'props';
   path?: string;
 }
 
 /**
- * Scope 引用 - 带类型标记的 ScopeParseData
+ * Computed 引用 - 基于 AbstractReferenceParseData
+ * 输入格式: { type: 'reference', body: '{{ref_computed_xxx}}' }
+ */
+export interface ComputedRef extends AbstractReferenceParseData {
+  _type: 'reference';
+  prefix: 'computed';
+  path?: string;
+}
+
+/**
+ * Scope 引用 - 基于 AbstractScopeParseData
  * 输入格式: { type: 'scope', body: '{{$_[core|goal]_xxx}}' }
- * parseJson 输出: { scope: 'core'|'goal', variable: 'xxx' }
+ * parseJson 输出: { _type: 'scope', scope: 'core'|'goal', variable: 'xxx' }
  */
-export interface ScopeRef extends ScopeParseData {
+export interface ScopeRef extends AbstractScopeParseData {
   _type: 'scope';
 }
 
 /**
  * 函数值 - 带类型标记的 FunctionParseData
  * 输入格式: { type: 'function', params: '{{{...}}}', body: '{{...}}' }
- * parseJson 输出: { params: {...}, body: '...' }
+ * parseJson 输出: { _type: 'function', params: {...}, body: '...' }
  */
 export interface FunctionValue extends FunctionParseData {
   _type: 'function';
@@ -356,8 +367,7 @@ export interface ParsedSchema {
 
 export type {
   ExpressionParseData,
-  VariableParseData,
-  ScopeParseData,
+  AbstractReferenceParseData as ReferenceParseData,
+  AbstractScopeParseData,
   FunctionParseData,
-  NestedReferenceResult,
 };

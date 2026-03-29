@@ -1,4 +1,4 @@
-import { registerKeyParser, unregisterKeyParser, clearKeyParsers } from '@json-engine/core-engine';
+import { createVueParserConfig, type ParserConfig } from '../config/vue-parser-config';
 
 const COMPONENT_NAME_KEY = 'vue-json:component-name';
 const STATE_KEY_KEY = 'vue-json:state-key';
@@ -24,26 +24,40 @@ function stateKeyParser(key: string): string {
   return key;
 }
 
+export function getVueParserConfig(): ParserConfig {
+  return createVueParserConfig({
+    keyParsers: {
+      [COMPONENT_NAME_KEY]: componentNameParser,
+      [STATE_KEY_KEY]: stateKeyParser,
+    },
+  });
+}
+
+export function getVueKeyParsers(): Record<string, (key: string) => string> {
+  return {
+    [COMPONENT_NAME_KEY]: componentNameParser,
+    [STATE_KEY_KEY]: stateKeyParser,
+  };
+}
+
 export function registerDefaultKeyParsers(): void {
-  registerKeyParser(COMPONENT_NAME_KEY, componentNameParser);
-  registerKeyParser(STATE_KEY_KEY, stateKeyParser);
+  // Deprecated: Use getVueParserConfig() instead
 }
 
 export function unregisterDefaultKeyParsers(): void {
-  unregisterKeyParser(COMPONENT_NAME_KEY);
-  unregisterKeyParser(STATE_KEY_KEY);
+  // Deprecated: Use getVueParserConfig() instead
 }
 
 export function registerVueJsonKeyParser(name: string, parser: (key: string) => string): void {
-  registerKeyParser(`vue-json:${name}`, parser);
+  // Deprecated: Use getVueParserConfig() with custom keyParsers
 }
 
 export function unregisterVueJsonKeyParser(name: string): void {
-  unregisterKeyParser(`vue-json:${name}`);
+  // Deprecated
 }
 
 export function clearVueJsonKeyParsers(): void {
-  clearKeyParsers();
+  // Deprecated
 }
 
 export { toPascalCase, isValidVariableName };

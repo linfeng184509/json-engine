@@ -4,12 +4,21 @@ import {
   ValueObjectParser,
   ValueConstraintParser,
   ValueScopeParser,
-  ValuePropsParser,
-  ValueStateParser,
+  ValueReferenceParser,
   ValueExpressionParser,
   ValueFunctionParser,
-  parseNestedReference,
 } from './types';
+import {
+  createReferenceRegex,
+  createScopeRegex,
+  createInnerReferenceRegex,
+  createInnerScopeRegex,
+} from './regex-factory';
+
+const DEFAULT_REFERENCE_REGEX = createReferenceRegex(['props', 'state', 'computed']);
+const DEFAULT_SCOPE_REGEX = createScopeRegex(['core', 'goal']);
+const DEFAULT_INNER_REF_REGEX = createInnerReferenceRegex(['props', 'state', 'computed']);
+const DEFAULT_INNER_SCOPE_REGEX = createInnerScopeRegex(['core', 'goal']);
 
 describe('ValueObjectParser', () => {
   it('should parse object with string value', () => {
@@ -18,6 +27,7 @@ describe('ValueObjectParser', () => {
     expect(result.success).toBe(true);
     expect(result.data?.key).toBe('key');
     expect(result.data?.value).toBe('value');
+    expect(result.data?._type).toBe('object');
   });
 
   it('should parse object with JSON number value', () => {
@@ -57,6 +67,7 @@ describe('ValueConstraintParser', () => {
     const result = ValueConstraintParser(input);
     expect(result.success).toBe(true);
     expect(result.data?.value).toBe('hello world');
+    expect(result.data?._type).toBe('string');
   });
 
   it('should parse empty string', () => {
@@ -84,77 +95,75 @@ describe('ValueConstraintParser', () => {
 describe('ValueScopeParser', () => {
   it('should parse core scope', () => {
     const input: ValueBody = { type: 'scope', body: '{{$_[core]_varName}}' };
-    const result = ValueScopeParser(input);
+    const result = ValueScopeParser(input, DEFAULT_SCOPE_REGEX);
     expect(result.success).toBe(true);
     expect(result.data?.scope).toBe('core');
     expect(result.data?.variable).toBe('varName');
+    expect(result.data?._type).toBe('scope');
   });
 
   it('should parse goal scope', () => {
     const input: ValueBody = { type: 'scope', body: '{{$_[goal]_varName}}' };
-    const result = ValueScopeParser(input);
+    const result = ValueScopeParser(input, DEFAULT_SCOPE_REGEX);
     expect(result.success).toBe(true);
     expect(result.data?.scope).toBe('goal');
     expect(result.data?.variable).toBe('varName');
   });
 
-  it('should throw error with correct message when scope is not core or goal', () => {
+  it('should throw error with correct message when scope is not in configured list', () => {
+    const customScopeRegex = createScopeRegex(['custom']);
     const input: ValueBody = { type: 'scope', body: '{{$_[other]_varName}}' };
-    expect(() => ValueScopeParser(input)).toThrow(
-      '[ValueScopeParser] 验证失败: body 格式不正确: "{{$_[other]_varName}}"。期望格式: {{$_[core|goal]_变量名}}'
+    expect(() => ValueScopeParser(input, customScopeRegex)).toThrow(
+      '[ValueScopeParser] 验证失败: body 格式不正确: "{{$_[other]_varName}}"。期望格式: {{$_[*]_变量名}}'
     );
   });
 
   it('should throw error with correct message when body format is invalid', () => {
     const input: ValueBody = { type: 'scope', body: 'invalid' };
-    expect(() => ValueScopeParser(input)).toThrow(
-      '[ValueScopeParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{$_[core|goal]_变量名}}'
+    expect(() => ValueScopeParser(input, DEFAULT_SCOPE_REGEX)).toThrow(
+      '[ValueScopeParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{$_[*]_变量名}}'
     );
   });
 });
 
-describe('ValuePropsParser', () => {
+describe('ValueReferenceParser', () => {
   it('should parse props variable', () => {
-    const input: ValueBody = { type: 'props', body: '{{ref_props_userId}}' };
-    const result = ValuePropsParser(input);
+    const input: ValueBody = { type: 'reference', body: '{{ref_props_userId}}' };
+    const result = ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX);
     expect(result.success).toBe(true);
+    expect(result.data?.prefix).toBe('props');
     expect(result.data?.variable).toBe('userId');
+    expect(result.data?._type).toBe('reference');
   });
 
-  it('should throw error with correct message when body format is invalid', () => {
-    const input: ValueBody = { type: 'props', body: 'invalid' };
-    expect(() => ValuePropsParser(input)).toThrow(
-      '[ValuePropsParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{ref_props_变量名}}'
-    );
-  });
-
-  it('should throw error with correct message when type is not props', () => {
-    const input: ValueBody = { type: 'state', body: '{{ref_props_userId}}' };
-    expect(() => ValuePropsParser(input)).toThrow(
-      '[ValuePropsParser] 验证失败: type 必须为 "props"，实际为 "state"。期望格式: {{ref_props_变量名}}'
-    );
-  });
-});
-
-describe('ValueStateParser', () => {
   it('should parse state variable', () => {
-    const input: ValueBody = { type: 'state', body: '{{ref_state_count}}' };
-    const result = ValueStateParser(input);
+    const input: ValueBody = { type: 'reference', body: '{{ref_state_count}}' };
+    const result = ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX);
     expect(result.success).toBe(true);
+    expect(result.data?.prefix).toBe('state');
     expect(result.data?.variable).toBe('count');
   });
 
+  it('should parse reference with path', () => {
+    const input: ValueBody = { type: 'reference', body: '{{ref_props_user.name}}' };
+    const result = ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.prefix).toBe('props');
+    expect(result.data?.variable).toBe('user');
+    expect(result.data?.path).toBe('name');
+  });
+
   it('should throw error with correct message when body format is invalid', () => {
-    const input: ValueBody = { type: 'state', body: 'invalid' };
-    expect(() => ValueStateParser(input)).toThrow(
-      '[ValueStateParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{ref_state_变量名}}'
+    const input: ValueBody = { type: 'reference', body: 'invalid' };
+    expect(() => ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX)).toThrow(
+      '[ValueReferenceParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{ref_*_变量名}}'
     );
   });
 
-  it('should throw error with correct message when type is not state', () => {
-    const input: ValueBody = { type: 'props', body: '{{ref_state_count}}' };
-    expect(() => ValueStateParser(input)).toThrow(
-      '[ValueStateParser] 验证失败: type 必须为 "state"，实际为 "props"。期望格式: {{ref_state_变量名}}'
+  it('should throw error with correct message when type is not reference', () => {
+    const input: ValueBody = { type: 'string', body: '{{ref_state_count}}' };
+    expect(() => ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX)).toThrow(
+      '[ValueReferenceParser] 验证失败: type 必须为 "reference"，实际为 "string"。期望格式: {{ref_*_变量名}}'
     );
   });
 });
@@ -162,56 +171,57 @@ describe('ValueStateParser', () => {
 describe('ValueExpressionParser', () => {
   it('should parse expression', () => {
     const input: ValueBody = { type: 'expression', body: '{{a + b}}' };
-    const result = ValueExpressionParser(input);
+    const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
     expect(result.data?.expression).toBe('a + b');
+    expect(result.data?._type).toBe('expression');
   });
 
   it('should trim whitespace from expression', () => {
     const input: ValueBody = { type: 'expression', body: '{{  a + b  }}' };
-    const result = ValueExpressionParser(input);
+    const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
     expect(result.data?.expression).toBe('a + b');
   });
 
-  it('should parse expression as nested reference for pure scope', () => {
-    const input: ValueBody = { type: 'expression', body: '{{$_[goal]_target}}' };
-    const result = ValueExpressionParser(input);
-    expect(result.success).toBe(true);
-    expect(result.data?.expression).toEqual({ type: 'scope', scope: 'goal', variable: 'target' });
-  });
-
-  it('should parse expression as nested reference for pure props', () => {
+  it('should parse expression as abstract reference for pure props', () => {
     const input: ValueBody = { type: 'expression', body: '{{ref_props_userId}}' };
-    const result = ValueExpressionParser(input);
+    const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
-    expect(result.data?.expression).toEqual({ type: 'props', variable: 'userId' });
+    expect(result.data?.expression).toEqual({ _type: 'reference', prefix: 'props', variable: 'userId' });
   });
 
-  it('should parse expression as nested reference for pure state', () => {
+  it('should parse expression as abstract reference for pure state', () => {
     const input: ValueBody = { type: 'expression', body: '{{ref_state_count}}' };
-    const result = ValueExpressionParser(input);
+    const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
-    expect(result.data?.expression).toEqual({ type: 'state', variable: 'count' });
+    expect(result.data?.expression).toEqual({ _type: 'reference', prefix: 'state', variable: 'count' });
+  });
+
+  it('should parse expression as abstract scope for pure scope', () => {
+    const input: ValueBody = { type: 'expression', body: '{{$_[goal]_target}}' };
+    const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.expression).toEqual({ _type: 'scope', scope: 'goal', variable: 'target' });
   });
 
   it('should keep expression as string for mixed content', () => {
     const input: ValueBody = { type: 'expression', body: '{{a + {{ref_props_x}}}}' };
-    const result = ValueExpressionParser(input);
+    const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
     expect(result.data?.expression).toBe('a + {{ref_props_x}}');
   });
 
   it('should throw error with correct message when body format is invalid', () => {
     const input: ValueBody = { type: 'expression', body: 'invalid' };
-    expect(() => ValueExpressionParser(input)).toThrow(
+    expect(() => ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow(
       '[ValueExpressionParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{ 表达式 }}'
     );
   });
 
   it('should throw error with correct message when type is not expression', () => {
     const input: ValueBody = { type: 'string', body: '{{a + b}}' };
-    expect(() => ValueExpressionParser(input)).toThrow(
+    expect(() => ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow(
       '[ValueExpressionParser] 验证失败: type 必须为 "expression"，实际为 "string"。期望格式: {{ 表达式 }}'
     );
   });
@@ -224,6 +234,7 @@ describe('ValueFunctionParser', () => {
     expect(result.success).toBe(true);
     expect(result.data?.params).toEqual({});
     expect(result.data?.body).toBe('return x');
+    expect(result.data?._type).toBe('function');
   });
 
   it('should parse function params as JSON object', () => {
@@ -278,49 +289,47 @@ describe('ValueFunctionParser', () => {
   });
 });
 
-describe('parseNestedReference', () => {
-  it('should parse pure scope reference', () => {
-    const result = parseNestedReference('{{$_[core]_userName}}');
-    expect(result).toEqual({ type: 'scope', scope: 'core', variable: 'userName' });
+describe('createReferenceRegex', () => {
+  it('should create regex for single prefix', () => {
+    const regex = createReferenceRegex(['props']);
+    expect(regex.test('{{ref_props_userId}}')).toBe(true);
+    expect(regex.test('{{ref_state_count}}')).toBe(false);
   });
 
-  it('should parse pure goal scope reference', () => {
-    const result = parseNestedReference('{{$_[goal]_target}}');
-    expect(result).toEqual({ type: 'scope', scope: 'goal', variable: 'target' });
+  it('should create regex for multiple prefixes', () => {
+    const regex = createReferenceRegex(['props', 'state']);
+    expect(regex.test('{{ref_props_userId}}')).toBe(true);
+    expect(regex.test('{{ref_state_count}}')).toBe(true);
+    expect(regex.test('{{ref_computed_total}}')).toBe(false);
+  });
+});
+
+describe('createScopeRegex', () => {
+  it('should create regex for single scope', () => {
+    const regex = createScopeRegex(['core']);
+    expect(regex.test('{{$_[core]_var}}')).toBe(true);
+    expect(regex.test('{{$_[goal]_var}}')).toBe(false);
   });
 
-  it('should parse pure props reference', () => {
-    const result = parseNestedReference('{{ref_props_itemId}}');
-    expect(result).toEqual({ type: 'props', variable: 'itemId' });
+  it('should create regex for multiple scopes', () => {
+    const regex = createScopeRegex(['core', 'goal']);
+    expect(regex.test('{{$_[core]_var}}')).toBe(true);
+    expect(regex.test('{{$_[goal]_var}}')).toBe(true);
   });
+});
 
-  it('should parse pure state reference', () => {
-    const result = parseNestedReference('{{ref_state_count}}');
-    expect(result).toEqual({ type: 'state', variable: 'count' });
+describe('createInnerReferenceRegex', () => {
+  it('should create regex for single prefix', () => {
+    const regex = createInnerReferenceRegex(['props']);
+    expect(regex.test('ref_props_userId')).toBe(true);
+    expect(regex.test('ref_state_count')).toBe(false);
   });
+});
 
-  it('should return original string for mixed content with scope', () => {
-    const result = parseNestedReference('handleClick({{$_[core]_id}})');
-    expect(result).toBe('handleClick({{$_[core]_id}})');
-  });
-
-  it('should return original string for mixed content with props', () => {
-    const result = parseNestedReference('prefix{{ref_props_x}}suffix');
-    expect(result).toBe('prefix{{ref_props_x}}suffix');
-  });
-
-  it('should return original string for non-reference content', () => {
-    const result = parseNestedReference('plain text');
-    expect(result).toBe('plain text');
-  });
-
-  it('should return empty string for empty input', () => {
-    const result = parseNestedReference('');
-    expect(result).toBe('');
-  });
-
-  it('should return original string for invalid scope format', () => {
-    const result = parseNestedReference('{{$_[invalid]_var}}');
-    expect(result).toBe('{{$_[invalid]_var}}');
+describe('createInnerScopeRegex', () => {
+  it('should create regex for single scope', () => {
+    const regex = createInnerScopeRegex(['core']);
+    expect(regex.test('$_[core]_var')).toBe(true);
+    expect(regex.test('$_[goal]_var')).toBe(false);
   });
 });
