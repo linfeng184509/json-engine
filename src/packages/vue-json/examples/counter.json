@@ -9,38 +9,41 @@
   "state": {
     "count": {
       "type": "ref",
-      "initial": "{{ref_props_initialCount}}"
+      "initial": { "type": "props", "body": "{{ref_props_initialCount}}" }
     }
   },
   "computed": {
     "doubleCount": {
-      "get": "return ref_state_count * 2;"
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return state.count.value * 2;}}" }
     }
   },
   "methods": {
-    "increment": "ref_state_count.value++;",
-    "decrement": "ref_state_count.value--;",
-    "reset": "ref_state_count.value = ref_props_initialCount;"
+    "increment": { "type": "function", "params": "{{{}}}", "body": "{{state.count.value++;}}" },
+    "decrement": { "type": "function", "params": "{{{}}}", "body": "{{state.count.value--;}}" },
+    "reset": { "type": "function", "params": "{{{}}}", "body": "{{state.count.value = props.initialCount;}}" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
       "props": {
-        "class": "counter"
+        "class": { "type": "string", "body": "'counter'" }
       },
       "children": [
+        { "type": "h2", "children": "Counter Example" },
         {
-          "type": "h2",
-          "children": ["Counter Example"]
+          "type": "p",
+          "children": [
+            "Count: ",
+            { "type": "expression", "body": "{{ref_state_count}}" }
+          ]
         },
         {
           "type": "p",
-          "children": ["Count: ", { "type": "text", "content": "{{ref_state_count}}" }]
-        },
-        {
-          "type": "p",
-          "children": ["Double: ", { "type": "text", "content": "{{ref_computed_doubleCount}}" }]
+          "children": [
+            "Double: ",
+            { "type": "expression", "body": "{{state.doubleCount.value}}" }
+          ]
         },
         {
           "type": "div",
@@ -49,28 +52,28 @@
               "type": "button",
               "directives": {
                 "vOn": {
-                  "click": "methods.decrement();"
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.decrement();}}" }
                 }
               },
-              "children": ["-"]
+              "children": "-"
             },
             {
               "type": "button",
               "directives": {
                 "vOn": {
-                  "click": "methods.reset();"
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.reset();}}" }
                 }
               },
-              "children": ["Reset"]
+              "children": "Reset"
             },
             {
               "type": "button",
               "directives": {
                 "vOn": {
-                  "click": "methods.increment();"
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.increment();}}" }
                 }
               },
-              "children": ["+"]
+              "children": "+"
             }
           ]
         }

@@ -9,8 +9,8 @@ import {
   type Ref,
   type Reactive,
 } from 'vue';
-import type { StateDefinition, StateItemDefinition, SetupContext } from '../types';
-import { evaluateExpression } from '../utils/expression';
+import type { StateDefinition, StateItemDefinition, SetupContext, ExpressionValue, StateRef, PropsRef } from '../types';
+import { evaluateExpression } from './value-resolver';
 import { ComponentCreationError } from '../utils/error';
 
 export function createState(
@@ -82,9 +82,24 @@ export function createState(
   return state;
 }
 
+/**
+ * 评估初始值
+ * 使用 _type 字段判断结构化类型
+ */
 function evaluateInitialValue(initial: unknown, context: SetupContext): unknown {
-  if (typeof initial === 'string' && initial.startsWith('{{') && initial.endsWith('}}')) {
-    return evaluateExpression(initial.slice(2, -2).trim(), {
+  if (initial === null || initial === undefined) {
+    return initial;
+  }
+
+  if (typeof initial !== 'object') {
+    return initial;
+  }
+
+  const typed = initial as Record<string, unknown> & { _type?: string };
+
+  // 处理 ExpressionValue（带 _type 标记）
+  if (typed._type === 'expression') {
+    return evaluateExpression((initial as ExpressionValue).expression, {
       props: context.props,
       state: {},
       computed: {},
@@ -96,6 +111,24 @@ function evaluateInitialValue(initial: unknown, context: SetupContext): unknown 
       provide: {},
     });
   }
+
+  // 处理 StateRef（带 _type 标记）
+  if (typed._type === 'state') {
+    // State 初始值不能引用自身（state 为空）
+    return undefined;
+  }
+
+  // 处理 PropsRef（带 _type 标记）
+  if (typed._type === 'props') {
+    const ref = initial as PropsRef;
+    return context.props[ref.variable];
+  }
+
+  // 处理 FunctionValue（带 _type 标记）- 不支持作为初始值
+  if (typed._type === 'function') {
+    return initial;
+  }
+
   return initial;
 }
 

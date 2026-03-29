@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { evaluateExpression, resolveReference, clearExpressionCache } from '../../src/utils/expression';
+import { resolveReference, evaluateFunction, clearExpressionCache } from '../../src/utils/expression';
+import { evaluateExpression } from '../../src/runtime/value-resolver';
 import type { RenderContext } from '../../src/types';
 
 describe('parseNestedReference integration', () => {

@@ -4,31 +4,143 @@ import type {
   Component,
 } from 'vue';
 
+import type {
+  ExpressionParseData,
+  VariableParseData,
+  ScopeParseData,
+  FunctionParseData,
+  NestedReferenceResult,
+} from '@json-engine/core-engine';
+
+// ============ Core Structured Types (core-engine compatible) ============
+
+/**
+ * 表达式值 - 带类型标记的 ExpressionParseData
+ * 输入格式: { type: 'expression', body: '{{xxx}}' }
+ * parseJson 输出: { expression: 'xxx' 或 NestedReferenceData }
+ */
+export interface ExpressionValue extends ExpressionParseData {
+  _type: 'expression';
+}
+
+/**
+ * State 引用 - 带类型标记的 VariableParseData
+ * 输入格式: { type: 'state', body: '{{ref_state_xxx}}' }
+ * parseJson 输出: { variable: 'xxx' }
+ */
+export interface StateRef extends VariableParseData {
+  _type: 'state';
+}
+
+/**
+ * Props 引用 - 带类型标记的 VariableParseData
+ * 输入格式: { type: 'props', body: '{{ref_props_xxx}}' }
+ * parseJson 输出: { variable: 'xxx' }
+ */
+export interface PropsRef extends VariableParseData {
+  _type: 'props';
+}
+
+/**
+ * Scope 引用 - 带类型标记的 ScopeParseData
+ * 输入格式: { type: 'scope', body: '{{$_[core|goal]_xxx}}' }
+ * parseJson 输出: { scope: 'core'|'goal', variable: 'xxx' }
+ */
+export interface ScopeRef extends ScopeParseData {
+  _type: 'scope';
+}
+
+/**
+ * 函数值 - 带类型标记的 FunctionParseData
+ * 输入格式: { type: 'function', params: '{{{...}}}', body: '{{...}}' }
+ * parseJson 输出: { params: {...}, body: '...' }
+ */
+export interface FunctionValue extends FunctionParseData {
+  _type: 'function';
+}
+
+// ============ Input Types (parseJson 前的输入格式) ============
+
+/**
+ * 表达式输入 - 需要 {{}} 包裹
+ */
+export interface ExpressionInput {
+  type: 'expression';
+  body: string;
+}
+
+/**
+ * State 引用输入 - 需要 {{}} 包裹
+ */
+export interface StateInput {
+  type: 'state';
+  body: string;
+}
+
+/**
+ * Props 引用输入 - 需要 {{}} 包裹
+ */
+export interface PropsInput {
+  type: 'props';
+  body: string;
+}
+
+/**
+ * Scope 引用输入 - 需要 {{}} 包裹
+ */
+export interface ScopeInput {
+  type: 'scope';
+  body: string;
+}
+
+/**
+ * 函数输入 - params 需要 {{{}}} 包裹，body 需要 {{}} 包裹
+ */
+export interface FunctionInput {
+  type: 'function';
+  params: string;
+  body: string;
+}
+
+// ============ Composite Types ============
+
+export type LiteralValue = string | number | boolean | null | undefined;
+export type PropertyValue = LiteralValue | ExpressionValue | StateRef | PropsRef | ScopeRef;
+export type InitialValue = LiteralValue | ExpressionValue | StateRef | PropsRef | ScopeRef;
+
+export type StructuredInput = ExpressionInput | StateInput | PropsInput | ScopeInput | FunctionInput;
+
+// ============ Props Definition ============
+
 export type ValueType = 'String' | 'Number' | 'Boolean' | 'Array' | 'Object' | 'Function' | 'Symbol' | 'BigInt';
 
 export interface PropDefinition {
   type?: ValueType | ValueType[];
   required?: boolean;
-  default?: unknown;
-  validator?: string;
+  default?: PropertyValue | StructuredInput;
+  validator?: FunctionValue;
 }
 
 export interface PropsDefinition {
   [propName: string]: PropDefinition;
 }
 
+// ============ Emits Definition ============
+
 export interface EmitDefinition {
   type?: ValueType | ValueType[];
-  validator?: string;
+  validator?: FunctionValue;
 }
 
 export interface EmitsDefinition {
   [emitName: string]: EmitDefinition | ValueType[];
 }
 
+// ============ State Definition ============
+
 export interface StateItemDefinition {
   type: 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'toRef' | 'toRefs' | 'readonly';
-  initial?: unknown;
+  initial?: InitialValue | StructuredInput;
   source?: string;
   key?: string;
 }
@@ -37,20 +149,28 @@ export interface StateDefinition {
   [stateName: string]: StateItemDefinition;
 }
 
-export interface ComputedDefinition {
-  [computedName: string]: {
-    get: string;
-    set?: string;
-  };
+// ============ Computed Definition ============
+
+export interface ComputedItemDefinition {
+  get: FunctionValue;
+  set?: FunctionValue;
 }
+
+export interface ComputedDefinition {
+  [computedName: string]: ComputedItemDefinition;
+}
+
+// ============ Methods Definition ============
 
 export interface MethodsDefinition {
-  [methodName: string]: string;
+  [methodName: string]: FunctionValue;
 }
 
+// ============ Watch Definition ============
+
 export interface WatchItemDefinition {
-  source: string;
-  handler: string;
+  source: ExpressionValue;
+  handler: FunctionValue;
   immediate?: boolean;
   deep?: boolean;
   flush?: 'pre' | 'post' | 'sync';
@@ -61,9 +181,11 @@ export interface WatchDefinition {
   [watchName: string]: WatchItemDefinition;
 }
 
+// ============ Provide/Inject Definition ============
+
 export interface ProvideItemDefinition {
   key: string;
-  value: string;
+  value: ExpressionValue | FunctionValue;
 }
 
 export interface ProvideDefinition {
@@ -72,13 +194,15 @@ export interface ProvideDefinition {
 
 export interface InjectItemDefinition {
   key: string;
-  default?: unknown;
+  default?: PropertyValue;
   from?: string;
 }
 
 export interface InjectDefinition {
   items: InjectItemDefinition[];
 }
+
+// ============ Lifecycle Definition ============
 
 export type LifecycleHookName =
   | 'onMounted'
@@ -92,16 +216,18 @@ export type LifecycleHookName =
   | 'onDeactivated';
 
 export interface LifecycleDefinition {
-  onMounted?: string | string[];
-  onUnmounted?: string | string[];
-  onUpdated?: string | string[];
-  onBeforeMount?: string | string[];
-  onBeforeUnmount?: string | string[];
-  onBeforeUpdate?: string | string[];
-  onErrorCaptured?: string | string[];
-  onActivated?: string | string[];
-  onDeactivated?: string | string[];
+  onMounted?: FunctionValue | FunctionValue[];
+  onUnmounted?: FunctionValue | FunctionValue[];
+  onUpdated?: FunctionValue | FunctionValue[];
+  onBeforeMount?: FunctionValue | FunctionValue[];
+  onBeforeUnmount?: FunctionValue | FunctionValue[];
+  onBeforeUpdate?: FunctionValue | FunctionValue[];
+  onErrorCaptured?: FunctionValue | FunctionValue[];
+  onActivated?: FunctionValue | FunctionValue[];
+  onDeactivated?: FunctionValue | FunctionValue[];
 }
+
+// ============ Components Definition ============
 
 export interface LocalComponentDefinition {
   type: 'local';
@@ -123,42 +249,47 @@ export interface ComponentsDefinition {
   [componentName: string]: ComponentDefinition;
 }
 
-export interface VNodeDirective {
-  vIf?: string;
-  vElseIf?: string;
-  vElse?: boolean;
-  vShow?: string;
+// ============ VNode Definition ============
+
+export interface VNodeDirectives {
+  vIf?: ExpressionValue;
+  vElseIf?: ExpressionValue;
+  vElse?: true;
+  vShow?: ExpressionValue;
   vFor?: {
-    source: string;
+    source: ExpressionValue;
     alias: string;
     index?: string;
   };
   vModel?: {
-    prop: string;
+    prop: StateRef | PropsRef;
     event?: string;
     modifiers?: string[];
   };
-  vOn?: Record<string, string>;
-  vBind?: Record<string, string>;
+  vOn?: Record<string, FunctionValue>;
+  vBind?: Record<string, ExpressionValue>;
   vSlot?: {
-    name?: string;
+    name?: ExpressionValue;
     props?: string[];
   };
-  vHtml?: string;
-  vText?: string;
-  vOnce?: boolean;
+  vHtml?: ExpressionValue;
+  vText?: ExpressionValue;
+  vOnce?: true;
 }
+
+export type VNodeChild = string | number | VNodeDefinition | ExpressionValue;
+export type VNodeChildren = VNodeChild | VNodeChild[];
 
 export interface VNodeDefinition {
   type: string;
-  props?: Record<string, unknown>;
+  props?: Record<string, PropertyValue>;
   children?: VNodeChildren;
-  directives?: VNodeDirective;
+  directives?: VNodeDirectives;
   key?: string | number;
   ref?: string;
 }
 
-export type VNodeChildren = string | VNodeDefinition | (string | VNodeDefinition | VNodeChildren)[];
+// ============ Render Definition ============
 
 export interface TemplateRenderDefinition {
   type: 'template';
@@ -167,15 +298,19 @@ export interface TemplateRenderDefinition {
 
 export interface FunctionRenderDefinition {
   type: 'function';
-  content: string;
+  content: FunctionValue;
 }
 
 export type RenderDefinition = TemplateRenderDefinition | FunctionRenderDefinition;
+
+// ============ Styles Definition ============
 
 export interface StylesDefinition {
   scoped?: boolean;
   css: string;
 }
+
+// ============ Schema Definition (输入格式) ============
 
 export interface VueJsonSchema {
   name: string;
@@ -195,6 +330,8 @@ export interface VueJsonSchema {
 
 export type VueJsonSchemaInput = string | VueJsonSchema;
 
+// ============ Parsed Schema (Runtime) ============
+
 export interface ParsedSchema {
   name: string;
   props?: ComponentObjectPropsOptions;
@@ -210,3 +347,13 @@ export interface ParsedSchema {
   render: RenderDefinition;
   styles?: StylesDefinition;
 }
+
+// ============ Re-export core-engine types ============
+
+export type {
+  ExpressionParseData,
+  VariableParseData,
+  ScopeParseData,
+  FunctionParseData,
+  NestedReferenceResult,
+};

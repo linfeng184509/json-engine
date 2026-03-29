@@ -66,7 +66,14 @@ describe('parseProps', () => {
 
   it('should parse prop with validator', () => {
     const props: PropsDefinition = {
-      status: { type: 'String', validator: 'return ["active", "inactive"].includes(payload)' },
+      status: {
+        type: 'String',
+        validator: {
+          _type: 'function',
+          params: {},
+          body: 'return ["active", "inactive"].includes(value);',
+        },
+      },
     };
 
     const result = parseProps(props, mockContext);
@@ -86,7 +93,7 @@ describe('parseProps', () => {
 
   it('should handle unknown type without adding error', () => {
     const props: PropsDefinition = {
-      unknown: { type: 'Unknown' } as any,
+      unknown: {} as any,
     };
 
     parseProps(props, mockContext);

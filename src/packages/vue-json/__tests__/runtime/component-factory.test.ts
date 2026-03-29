@@ -99,7 +99,10 @@ describe('component-factory', () => {
         },
         render: {
           type: 'template',
-          content: { type: 'div', children: '{{title}}' },
+          content: {
+            type: 'div',
+            children: { type: 'expression', body: '{{ref_props_title}}' },
+          },
         },
       };
 
@@ -116,7 +119,10 @@ describe('component-factory', () => {
         },
         render: {
           type: 'template',
-          content: { type: 'div', children: '{{count}}' },
+          content: {
+            type: 'div',
+            children: { type: 'expression', body: '{{ref_state_count}}' },
+          },
         },
       };
 
@@ -129,7 +135,11 @@ describe('component-factory', () => {
       const schema = {
         name: 'WithMethods',
         methods: {
-          increment: 'count++',
+          increment: {
+            type: 'function',
+            params: '{{{}}}',
+            body: '{{state.count.value++;}}',
+          },
         },
         render: {
           type: 'template',
@@ -146,7 +156,11 @@ describe('component-factory', () => {
       const schema = {
         name: 'WithLifecycle',
         lifecycle: {
-          onMounted: 'console.log("mounted")',
+          onMounted: {
+            type: 'function',
+            params: '{{{}}}',
+            body: '{{console.log("mounted");}}',
+          },
         },
         render: {
           type: 'template',

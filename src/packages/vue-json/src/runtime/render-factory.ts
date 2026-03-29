@@ -1,6 +1,13 @@
 import { h, type VNode, type Component } from 'vue';
-import type { VNodeDefinition, VNodeChildren, RenderDefinition, RenderContext } from '../types';
-import { evaluateExpression } from '../utils/expression';
+import type {
+  VNodeDefinition,
+  VNodeChildren,
+  RenderDefinition,
+  RenderContext,
+  FunctionValue,
+  PropertyValue,
+  ExpressionValue,
+} from '../types';
 import { DirectiveError } from '../utils/error';
 import {
   applyVIf,
@@ -12,19 +19,20 @@ import {
   applyVHtml,
   applyVText,
 } from './directive-runtime';
+import { resolvePropertyValue, evaluateExpression, executeFunction, isExpressionValue } from './value-resolver';
 
 export function renderVNode(
   definition: RenderDefinition,
   context: RenderContext
 ): VNode | null {
   if (definition.type === 'function') {
-    return renderFunction(definition.content, context);
+    return renderFunction(definition.content as FunctionValue, context);
   }
 
   return renderTemplate(definition.content, context);
 }
 
-function renderFunction(functionBody: string, context: RenderContext): VNode | null {
+function renderFunction(fnValue: FunctionValue, context: RenderContext): VNode | null {
   try {
     const fn = new Function(
       'h',
@@ -36,7 +44,7 @@ function renderFunction(functionBody: string, context: RenderContext): VNode | n
       'slots',
       'attrs',
       'provide',
-      `"use strict"; ${functionBody}`
+      `"use strict"; ${fnValue.body}`
     );
 
     const result = fn(
@@ -98,7 +106,7 @@ function resolveNodeType(type: string, context: RenderContext): string | Compone
 }
 
 function resolveNodeProps(
-  props: Record<string, unknown> | undefined,
+  props: Record<string, PropertyValue> | undefined,
   directives: VNodeDefinition['directives'],
   context: RenderContext
 ): Record<string, unknown> | null {
@@ -106,11 +114,7 @@ function resolveNodeProps(
 
   if (props) {
     for (const [key, value] of Object.entries(props)) {
-      if (typeof value === 'string') {
-        result[key] = evaluateExpression(value, context);
-      } else {
-        result[key] = value;
-      }
+      result[key] = resolvePropertyValue(value, context);
     }
   }
 
@@ -145,20 +149,25 @@ function resolveNodeChildren(
   if (!children) return undefined;
 
   if (typeof children === 'string') {
-    if (children.startsWith('{{') && children.endsWith('}}')) {
-      return String(evaluateExpression(children.slice(2, -2).trim(), context));
-    }
     return children;
+  }
+
+  if (typeof children === 'number') {
+    return children;
+  }
+
+  if (isExpressionValue(children)) {
+    return String(evaluateExpression(children.expression, context));
   }
 
   if (Array.isArray(children)) {
     const mapped = children
       .map((child) => {
-        if (typeof child === 'string') {
-          if (child.startsWith('{{') && child.endsWith('}}')) {
-            return evaluateExpression(child.slice(2, -2).trim(), context);
-          }
+        if (typeof child === 'string' || typeof child === 'number') {
           return child;
+        }
+        if (isExpressionValue(child)) {
+          return evaluateExpression(child.expression, context);
         }
         if (typeof child === 'object' && child !== null && 'type' in child) {
           return renderVNodeDefinition(child as VNodeDefinition, context);

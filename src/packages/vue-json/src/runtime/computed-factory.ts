@@ -1,5 +1,5 @@
 import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
-import type { ComputedDefinition, RenderContext, SetupContext } from '../types';
+import type { ComputedDefinition, RenderContext, SetupContext, FunctionValue } from '../types';
 import { ComponentCreationError } from '../utils/error';
 
 export function createComputed(
@@ -25,31 +25,12 @@ export function createComputed(
 
   for (const [computedName, computedDef] of Object.entries(definition)) {
     try {
-      const getter = new Function(
-        'props',
-        'state',
-        'computed',
-        'methods',
-        'emit',
-        'slots',
-        'attrs',
-        'provide',
-        `"use strict"; ${computedDef.get}`
-      );
+      const getterFn = computedDef.get;
+      const getter = createFunctionFromValue(getterFn);
 
       if (computedDef.set) {
-        const setter = new Function(
-          'props',
-          'state',
-          'computed',
-          'methods',
-          'emit',
-          'slots',
-          'attrs',
-          'provide',
-          'value',
-          `"use strict"; ${computedDef.set}`
-        );
+        const setterFn = computedDef.set;
+        const setter = createFunctionFromValue(setterFn);
 
         computeds[computedName] = computed({
           get: () =>
@@ -101,4 +82,21 @@ export function createComputed(
   }
 
   return computeds;
+}
+
+function createFunctionFromValue(fnValue: FunctionValue): (...args: unknown[]) => unknown {
+  const rawFn = new Function(
+    'props',
+    'state',
+    'computed',
+    'methods',
+    'emit',
+    'slots',
+    'attrs',
+    'provide',
+    'value',
+    `"use strict"; ${fnValue.body}`
+  );
+
+  return rawFn as (...args: unknown[]) => unknown;
 }

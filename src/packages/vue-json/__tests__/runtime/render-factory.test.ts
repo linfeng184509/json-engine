@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderVNode } from '../../src/runtime/render-factory';
-import type { RenderDefinition, RenderContext } from '../../src/types';
+import type { RenderDefinition, RenderContext, ExpressionValue, FunctionValue } from '../../src/types';
 
 describe('renderVNode', () => {
   let mockContext: RenderContext;
@@ -84,7 +84,7 @@ describe('renderVNode', () => {
       content: {
         type: 'div',
         directives: {
-          vIf: 'true',
+          vIf: { _type: 'expression', expression: 'true' },
         },
         children: 'Shown',
       },
@@ -101,7 +101,7 @@ describe('renderVNode', () => {
       content: {
         type: 'div',
         directives: {
-          vIf: 'false',
+          vIf: { _type: 'expression', expression: 'false' },
         },
         children: 'Hidden',
       },
@@ -119,7 +119,7 @@ describe('renderVNode', () => {
       content: {
         type: 'div',
         directives: {
-          vIf: 'ref_state_show',
+          vIf: { _type: 'expression', expression: 'ref_state_show' },
         },
         children: 'Shown',
       },
@@ -136,7 +136,7 @@ describe('renderVNode', () => {
       content: {
         type: 'div',
         directives: {
-          vShow: 'true',
+          vShow: { _type: 'expression', expression: 'true' },
         },
         children: 'Visible',
       },
@@ -150,7 +150,11 @@ describe('renderVNode', () => {
   it('should handle function render type', () => {
     const definition: RenderDefinition = {
       type: 'function',
-      content: 'return h("div", "Function rendered")',
+      content: {
+        _type: 'function',
+        params: {},
+        body: 'return h("div", "Function rendered");',
+      },
     };
 
     const result = renderVNode(definition, mockContext);
@@ -164,7 +168,7 @@ describe('renderVNode', () => {
       content: {
         type: 'div',
         directives: {
-          vHtml: '"<span>HTML content</span>"',
+          vHtml: { _type: 'expression', expression: '"<span>HTML content</span>"' },
         },
       },
     };
@@ -180,7 +184,7 @@ describe('renderVNode', () => {
       content: {
         type: 'span',
         directives: {
-          vText: '"Text content"',
+          vText: { _type: 'expression', expression: '"Text content"' },
         },
       },
     };
@@ -195,7 +199,7 @@ describe('renderVNode', () => {
       type: 'template',
       content: {
         type: 'span',
-        children: '{{ref_state_message}}',
+        children: { _type: 'expression', expression: 'ref_state_message' },
       },
     };
 
@@ -210,7 +214,7 @@ describe('renderVNode', () => {
       content: {
         type: 'div',
         props: {
-          title: 'ref_props_title',
+          title: { _type: 'expression', expression: 'ref_props_title' },
         },
         children: 'Content',
       },
@@ -226,7 +230,7 @@ describe('renderVNode', () => {
       type: 'template',
       content: {
         type: 'span',
-        children: '{{ref_state_count}} + 1',
+        children: 'ref_state_count + 1',
       },
     };
 

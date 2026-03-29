@@ -1,6 +1,7 @@
 import { watch, watchEffect, type WatchSource, type WatchCallback, type WatchOptions } from 'vue';
-import type { WatchDefinition, WatchItemDefinition, RenderContext, SetupContext } from '../types';
+import type { WatchDefinition, WatchItemDefinition, RenderContext, SetupContext, ExpressionValue, FunctionValue } from '../types';
 import { ComponentCreationError } from '../utils/error';
+import { evaluateExpression, executeFunction } from './value-resolver';
 
 export function setupWatchers(
   definition: WatchDefinition | undefined,
@@ -51,88 +52,24 @@ export function setupWatchers(
   }
 }
 
-function createWatchSource(sourceExpr: string, context: RenderContext): WatchSource {
+function createWatchSource(sourceExpr: ExpressionValue, context: RenderContext): WatchSource {
   return () => {
     try {
-      const fn = new Function(
-        'props',
-        'state',
-        'computed',
-        'methods',
-        'emit',
-        'slots',
-        'attrs',
-        'provide',
-        `"use strict"; return ${sourceExpr};`
-      );
-      return fn(
-        context.props,
-        context.state,
-        context.computed,
-        context.methods,
-        context.emit,
-        context.slots,
-        context.attrs,
-        context.provide
-      );
+      return evaluateExpression(sourceExpr.expression, context);
     } catch {
       return undefined;
     }
   };
 }
 
-function createWatchHandler(handlerBody: string, context: RenderContext): WatchCallback {
+function createWatchHandler(handlerFn: FunctionValue, context: RenderContext): WatchCallback {
   return (newValue: unknown, oldValue: unknown) => {
-    const fn = new Function(
-      'props',
-      'state',
-      'computed',
-      'methods',
-      'emit',
-      'slots',
-      'attrs',
-      'provide',
-      'newValue',
-      'oldValue',
-      `"use strict"; ${handlerBody}`
-    );
-    return fn(
-      context.props,
-      context.state,
-      context.computed,
-      context.methods,
-      context.emit,
-      context.slots,
-      context.attrs,
-      context.provide,
-      newValue,
-      oldValue
-    );
+    return executeFunction(handlerFn, context, [newValue, oldValue]);
   };
 }
 
-function createEffectFunction(effectBody: string, context: RenderContext): () => void {
+function createEffectFunction(effectFn: FunctionValue, context: RenderContext): () => void {
   return () => {
-    const fn = new Function(
-      'props',
-      'state',
-      'computed',
-      'methods',
-      'emit',
-      'slots',
-      'attrs',
-      'provide',
-      `"use strict"; ${effectBody}`
-    );
-    return fn(
-      context.props,
-      context.state,
-      context.computed,
-      context.methods,
-      context.emit,
-      context.slots,
-      context.attrs,
-      context.provide
-    );
+    return executeFunction(effectFn, context, []);
   };
 }

@@ -33,9 +33,20 @@ export {
 // Composables
 export { useVueJson, useJsonComponent, useJsonRenderer } from './composables';
 
-// Utils
+// Runtime (value-resolver)
 export {
   evaluateExpression,
+  executeFunction,
+  resolvePropertyValue,
+  isExpressionValue,
+  isFunctionValue,
+  isStateRef,
+  isPropsRef,
+  isScopeRef,
+} from './runtime/value-resolver';
+
+// Utils
+export {
   evaluateFunction,
   resolveReference,
   clearExpressionCache,

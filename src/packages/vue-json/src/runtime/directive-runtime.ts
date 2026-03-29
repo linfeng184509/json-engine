@@ -1,12 +1,25 @@
 import { h, createVNode, Fragment, type VNode } from 'vue';
-import { parseNestedReference } from '@json-engine/core-engine';
-import type { VNodeDefinition, RenderContext } from '../types';
-import { evaluateExpression } from '../utils/expression';
+import type {
+  VNodeDefinition,
+  RenderContext,
+  ExpressionValue,
+  FunctionValue,
+  StateRef,
+  PropsRef,
+} from '../types';
 import { createDirectiveError } from '../utils/error';
+import {
+  resolvePropertyValue,
+  evaluateExpression,
+  executeFunction,
+  isExpressionValue,
+  isStateRef,
+  isPropsRef,
+} from './value-resolver';
 
-export function applyVIf(condition: string, context: RenderContext): boolean {
+export function applyVIf(condition: ExpressionValue, context: RenderContext): boolean {
   try {
-    const result = evaluateExpression(condition, context);
+    const result = evaluateExpression(condition.expression, context);
     return Boolean(result);
   } catch (error) {
     throw createDirectiveError(
@@ -16,9 +29,9 @@ export function applyVIf(condition: string, context: RenderContext): boolean {
   }
 }
 
-export function applyVShow(vnode: VNode, condition: string, context: RenderContext): VNode {
+export function applyVShow(vnode: VNode, condition: ExpressionValue, context: RenderContext): VNode {
   try {
-    const result = evaluateExpression(condition, context);
+    const result = evaluateExpression(condition.expression, context);
     if (!result) {
       const existingStyle = vnode.props?.style;
       const newStyle =
@@ -50,7 +63,7 @@ export function applyVFor(
   if (!vFor) return [];
 
   try {
-    const source = evaluateExpression(vFor.source, context);
+    const source = evaluateExpression(vFor.source.expression, context);
     const items = Array.isArray(source)
       ? source
       : typeof source === 'object' && source !== null
@@ -94,38 +107,36 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
 
   if (node.props) {
     for (const [key, value] of Object.entries(node.props)) {
-      if (typeof value === 'string') {
-        props[key] = evaluateExpression(value, context);
-      } else {
-        props[key] = value;
-      }
+      props[key] = resolvePropertyValue(value, context);
     }
   }
 
   let children: string | number | VNode | undefined = undefined;
   if (node.children) {
-    if (typeof node.children === 'string') {
-      if (node.children.startsWith('{{') && node.children.endsWith('}}')) {
-        children = String(evaluateExpression(node.children.slice(2, -2).trim(), context));
-      } else {
-        children = node.children;
-      }
+    if (typeof node.children === 'string' || typeof node.children === 'number') {
+      children = String(node.children);
     } else if (Array.isArray(node.children)) {
       const mapped = node.children
         .map((child) => {
-          if (typeof child === 'string') {
-            if (child.startsWith('{{') && child.endsWith('}}')) {
-              return evaluateExpression(child.slice(2, -2).trim(), context);
-            }
+          if (typeof child === 'string' || typeof child === 'number') {
             return child;
           }
           if (typeof child === 'object' && child !== null && 'type' in child) {
+            if (isExpressionValue(child)) {
+              return evaluateExpression(child.expression, context);
+            }
             return renderVNodeDefinition(child as VNodeDefinition, context);
           }
           return child;
         })
         .filter((child) => child !== null) as (string | number | VNode)[];
       children = mapped.length > 0 ? createVNode(Fragment, null, mapped) : undefined;
+    } else if (typeof node.children === 'object' && 'type' in node.children) {
+      if (isExpressionValue(node.children)) {
+        children = String(evaluateExpression(node.children.expression, context));
+      } else {
+        children = renderVNodeDefinition(node.children as VNodeDefinition, context) ?? undefined;
+      }
     }
   }
 
@@ -142,12 +153,25 @@ export function applyVModel(
   const prop = vModel.event || 'modelValue';
 
   try {
-    const value = evaluateExpression(vModel.prop, context);
+    const propRef = vModel.prop;
+    let value: unknown;
+
+    if (isStateRef(propRef)) {
+      const stateValue = context.state[propRef.variable];
+      value = stateValue && typeof stateValue === 'object' && 'value' in stateValue
+        ? (stateValue as { value: unknown }).value
+        : stateValue;
+    } else if (isPropsRef(propRef)) {
+      value = context.props[propRef.variable];
+    } else {
+      throw createDirectiveError('v-model', 'vModel.prop must be a StateRef or PropsRef');
+    }
+
     result[prop] = value;
 
     const event = `update:${prop}`;
     result[`on${event.charAt(0).toUpperCase() + event.slice(1)}`] = (newValue: unknown) => {
-      setExpressionValue(vModel.prop, newValue, context);
+      setReferenceValue(propRef, newValue, context);
     };
 
     return result;
@@ -159,66 +183,15 @@ export function applyVModel(
   }
 }
 
-function setExpressionValue(expression: string, value: unknown, context: RenderContext): void {
-  const parsed = parseNestedReference(expression);
-
-  if (typeof parsed !== 'string' && parsed.type === 'state') {
-    const stateValue = context.state[parsed.variable];
+function setReferenceValue(ref: StateRef | PropsRef, value: unknown, context: RenderContext): void {
+  if (isStateRef(ref)) {
+    const stateValue = context.state[ref.variable];
     if (stateValue && typeof stateValue === 'object' && 'value' in stateValue) {
       (stateValue as { value: unknown }).value = value;
-      return;
     }
+  } else if (isPropsRef(ref)) {
+    context.props[ref.variable] = value;
   }
-
-  if (typeof parsed !== 'string' && parsed.type === 'props') {
-    context.props[parsed.variable] = value;
-    return;
-  }
-
-  const pathParts = expression.split('.').filter((part) => part.length > 0);
-
-  if (pathParts.length === 0) return;
-
-  const rootKey = pathParts[0];
-  const rootValue = context[rootKey as keyof RenderContext];
-
-  if (!rootValue) return;
-
-  let target: unknown = rootValue;
-  const remainingParts = pathParts.slice(1);
-
-  if (remainingParts.length === 0) {
-    if (rootKey === 'state' && typeof rootValue === 'object' && rootValue !== null) {
-      throw createDirectiveError('v-model', 'Cannot directly assign to state object');
-    }
-    return;
-  }
-
-  for (let i = 0; i < remainingParts.length - 1; i++) {
-    const part = remainingParts[i];
-    if (typeof target === 'object' && target !== null) {
-      if (isRefLike(target)) {
-        target = (target as { value: unknown }).value;
-      }
-      target = (target as Record<string, unknown>)[part];
-    } else {
-      return;
-    }
-  }
-
-  const finalKey = remainingParts[remainingParts.length - 1];
-
-  if (typeof target === 'object' && target !== null) {
-    if (isRefLike(target) && finalKey === 'value') {
-      (target as { value: unknown }).value = value;
-    } else {
-      (target as Record<string, unknown>)[finalKey] = value;
-    }
-  }
-}
-
-function isRefLike(obj: unknown): boolean {
-  return typeof obj === 'object' && obj !== null && 'value' in obj && '__v_isRef' in obj;
 }
 
 export function applyVOn(
@@ -249,29 +222,7 @@ export function applyVOn(
         $event.stopPropagation();
       }
 
-      const fn = new Function(
-        'props',
-        'state',
-        'computed',
-        'methods',
-        'emit',
-        'event',
-        'slots',
-        'attrs',
-        'provide',
-        `"use strict"; ${handler}`
-      );
-      fn(
-        context.props,
-        context.state,
-        context.computed,
-        context.methods,
-        context.emit,
-        $event,
-        context.slots,
-        context.attrs,
-        context.provide
-      );
+      executeFunction(handler, context, [$event]);
     };
   }
 
@@ -288,7 +239,7 @@ export function applyVBind(
 
   for (const [key, expression] of Object.entries(vBind)) {
     try {
-      result[key] = evaluateExpression(expression, context);
+      result[key] = evaluateExpression(expression.expression, context);
     } catch (error) {
       throw createDirectiveError(
         'v-bind',
@@ -300,9 +251,9 @@ export function applyVBind(
   return result;
 }
 
-export function applyVHtml(expression: string, context: RenderContext): string {
+export function applyVHtml(expression: ExpressionValue, context: RenderContext): string {
   try {
-    const result = evaluateExpression(expression, context);
+    const result = evaluateExpression(expression.expression, context);
     return String(result ?? '');
   } catch (error) {
     throw createDirectiveError(
@@ -312,9 +263,9 @@ export function applyVHtml(expression: string, context: RenderContext): string {
   }
 }
 
-export function applyVText(expression: string, context: RenderContext): string {
+export function applyVText(expression: ExpressionValue, context: RenderContext): string {
   try {
-    const result = evaluateExpression(expression, context);
+    const result = evaluateExpression(expression.expression, context);
     return String(result ?? '');
   } catch (error) {
     throw createDirectiveError(

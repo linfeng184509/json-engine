@@ -1,6 +1,24 @@
 import type { PropType, ComponentObjectPropsOptions } from 'vue';
-import type { PropsDefinition, PropDefinition, ValueType, ParserContext } from '../types';
+import type { PropsDefinition, PropDefinition, ValueType, ParserContext, PropertyValue, FunctionValue, ExpressionValue, StateRef, PropsRef, StructuredInput } from '../types';
 import { createValidationError } from '../utils/error';
+
+function isExpressionValue(value: unknown): value is ExpressionValue {
+  if (typeof value !== 'object' || value === null) return false;
+  const obj = value as Record<string, unknown>;
+  return obj._type === 'expression' && 'expression' in obj;
+}
+
+function isStateRef(value: unknown): value is StateRef {
+  if (typeof value !== 'object' || value === null) return false;
+  const obj = value as Record<string, unknown>;
+  return obj._type === 'state' && typeof obj.variable === 'string';
+}
+
+function isPropsRef(value: unknown): value is PropsRef {
+  if (typeof value !== 'object' || value === null) return false;
+  const obj = value as Record<string, unknown>;
+  return obj._type === 'props' && typeof obj.variable === 'string';
+}
 
 const TYPE_MAP: Record<ValueType, unknown> = {
   String: String,
@@ -23,14 +41,57 @@ function parsePropType(type: ValueType | ValueType[] | undefined): PropType<unkn
   return TYPE_MAP[type] as PropType<unknown>;
 }
 
-function parseDefaultValue(value: unknown): unknown {
-  if (typeof value === 'string') {
-    try {
-      return JSON.parse(value);
-    } catch {
-      return value;
-    }
+function isPropertyValue(value: unknown): value is PropertyValue {
+  if (value === null || value === undefined) return true;
+  if (typeof value !== 'object') return true;
+  
+  const obj = value as Record<string, unknown>;
+  if (typeof obj._type === 'string') {
+    return ['expression', 'state', 'props', 'scope'].includes(obj._type);
   }
+  return false;
+}
+
+function isFunctionValue(value: unknown): value is FunctionValue {
+  if (typeof value !== 'object' || value === null) return false;
+  const obj = value as Record<string, unknown>;
+  return obj._type === 'function' && typeof obj.body === 'string';
+}
+
+function parsePropertyValue(value: PropertyValue | StructuredInput): unknown {
+  if (value === null || value === undefined) {
+    return value;
+  }
+
+  if (typeof value !== 'object') {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  }
+
+  if (isExpressionValue(value)) {
+    throw createValidationError(
+      'default',
+      'Expression values in prop defaults are not supported at parse time. Use runtime evaluation.',
+      'literal value',
+      value as unknown
+    );
+  }
+
+  if (isStateRef(value) || isPropsRef(value)) {
+    throw createValidationError(
+      'default',
+      'State/Props references in prop defaults are not supported at parse time. Use runtime evaluation.',
+      'literal value',
+      value as unknown
+    );
+  }
+
   return value;
 }
 
@@ -63,11 +124,27 @@ export function parseProps(
       }
 
       if (def.default !== undefined) {
-        propOption.default = typeof def.default === 'function' ? def.default : () => parseDefaultValue(def.default);
+        if (!isPropertyValue(def.default)) {
+          throw createValidationError(
+            `props.${propName}.default`,
+            'Default must be a literal value or structured value',
+            'PropertyValue',
+            def.default
+          );
+        }
+        propOption.default = () => parsePropertyValue(def.default);
       }
 
       if (def.validator) {
-        propOption.validator = new Function('value', `"use strict"; ${def.validator}`) as (
+        if (!isFunctionValue(def.validator)) {
+          throw createValidationError(
+            `props.${propName}.validator`,
+            'Validator must be a FunctionValue',
+            'FunctionValue',
+            def.validator
+          );
+        }
+        propOption.validator = new Function('value', `"use strict"; ${def.validator.body}`) as (
           value: unknown
         ) => boolean;
       }

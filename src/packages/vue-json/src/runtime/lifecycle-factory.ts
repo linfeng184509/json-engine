@@ -9,8 +9,9 @@ import {
   onActivated,
   onDeactivated,
 } from 'vue';
-import type { LifecycleDefinition, RenderContext, SetupContext } from '../types';
+import type { LifecycleDefinition, RenderContext, SetupContext, FunctionValue } from '../types';
 import { ComponentCreationError } from '../utils/error';
+import { executeFunction } from './value-resolver';
 
 export function setupLifecycle(
   definition: LifecycleDefinition | undefined,
@@ -45,19 +46,19 @@ export function setupLifecycle(
 }
 
 function setupHook(
-  hookBodies: string | string[] | undefined,
+  hookFns: FunctionValue | FunctionValue[] | undefined,
   hookFn: (fn: () => void | boolean) => void,
   context: RenderContext,
   hookName: string,
   hasErrorArg = false
 ): void {
-  if (!hookBodies) return;
+  if (!hookFns) return;
 
-  const bodies = Array.isArray(hookBodies) ? hookBodies : [hookBodies];
+  const fns = Array.isArray(hookFns) ? hookFns : [hookFns];
 
-  for (const body of bodies) {
+  for (const fnValue of fns) {
     try {
-      const handler = createHookHandler(body, context, hasErrorArg);
+      const handler = createHookHandler(fnValue, context, hasErrorArg);
       hookFn(handler);
     } catch (error) {
       throw new ComponentCreationError(
@@ -69,54 +70,14 @@ function setupHook(
 }
 
 function createHookHandler(
-  body: string,
+  fnValue: FunctionValue,
   context: RenderContext,
   hasErrorArg: boolean
 ): (error?: Error) => void | boolean {
   return (error?: Error) => {
-    const baseArgs = [
-      context.props,
-      context.state,
-      context.computed,
-      context.methods,
-      context.emit,
-      context.slots,
-      context.attrs,
-      context.provide,
-    ];
-
-    let fn: Function;
-    let result: unknown;
-
     if (hasErrorArg) {
-      fn = new Function(
-        'props',
-        'state',
-        'computed',
-        'methods',
-        'emit',
-        'slots',
-        'attrs',
-        'provide',
-        'error',
-        `"use strict"; ${body}`
-      );
-      result = fn(...baseArgs, error);
-    } else {
-      fn = new Function(
-        'props',
-        'state',
-        'computed',
-        'methods',
-        'emit',
-        'slots',
-        'attrs',
-        'provide',
-        `"use strict"; ${body}`
-      );
-      result = fn(...baseArgs);
+      return executeFunction(fnValue, context, [error]) as void | boolean;
     }
-
-    return result as void | boolean;
+    return executeFunction(fnValue, context, []) as void | boolean;
   };
 }

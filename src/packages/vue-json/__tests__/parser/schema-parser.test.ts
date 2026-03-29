@@ -156,7 +156,13 @@ describe('parseSchema', () => {
     const schema = {
       name: 'WithComputed',
       computed: {
-        doubled: { get: 'count * 2' },
+        doubled: {
+          get: {
+            type: 'function',
+            params: '{{{}}}',
+            body: '{{return count * 2;}}',
+          },
+        },
       },
       render: {
         type: 'template' as const,
@@ -174,7 +180,11 @@ describe('parseSchema', () => {
     const schema = {
       name: 'WithMethods',
       methods: {
-        increment: 'count++',
+        increment: {
+          type: 'function',
+          params: '{{{}}}',
+          body: '{{count++;}}',
+        },
       },
       render: {
         type: 'template' as const,
@@ -193,8 +203,15 @@ describe('parseSchema', () => {
       name: 'WithWatch',
       watch: {
         countChange: {
-          source: 'count',
-          handler: 'console.log(newVal)',
+          source: {
+            type: 'expression',
+            body: '{{ref_state_count}}',
+          },
+          handler: {
+            type: 'function',
+            params: '{{{}}}',
+            body: '{{console.log(newValue);}}',
+          },
           immediate: true,
         },
       },
@@ -214,8 +231,16 @@ describe('parseSchema', () => {
     const schema = {
       name: 'WithLifecycle',
       lifecycle: {
-        onMounted: 'console.log("mounted")',
-        onUnmounted: 'console.log("unmounted")',
+        onMounted: {
+          type: 'function',
+          params: '{{{}}}',
+          body: '{{console.log("mounted");}}',
+        },
+        onUnmounted: {
+          type: 'function',
+          params: '{{{}}}',
+          body: '{{console.log("unmounted");}}',
+        },
       },
       render: {
         type: 'template' as const,
@@ -254,7 +279,11 @@ describe('parseSchema', () => {
       name: 'FunctionRender',
       render: {
         type: 'function' as const,
-        content: 'return h("div", "Hello")',
+        content: {
+          type: 'function',
+          params: '{{{}}}',
+          body: '{{return h("div", "Hello");}}',
+        },
       },
     };
 

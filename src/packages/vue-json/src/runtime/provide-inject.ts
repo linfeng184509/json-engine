@@ -1,7 +1,15 @@
 import { provide, inject } from 'vue';
-import type { ProvideDefinition, InjectDefinition, SetupContext, RenderContext } from '../types';
-import { evaluateExpression } from '../utils/expression';
+import type {
+  ProvideDefinition,
+  InjectDefinition,
+  SetupContext,
+  RenderContext,
+  ExpressionValue,
+  FunctionValue,
+  PropertyValue,
+} from '../types';
 import { ComponentCreationError } from '../utils/error';
+import { resolvePropertyValue, evaluateExpression, executeFunction, isExpressionValue, isFunctionValue } from './value-resolver';
 
 export function setupProvide(
   definition: ProvideDefinition | undefined,
@@ -28,7 +36,7 @@ export function setupProvide(
 
   for (const item of definition.items) {
     try {
-      const value = evaluateExpression(item.value, renderContext);
+      const value = resolveProvideValue(item.value, renderContext);
       provide(item.key, value);
       provided[item.key] = value;
     } catch (error) {
@@ -42,6 +50,19 @@ export function setupProvide(
   return provided;
 }
 
+function resolveProvideValue(
+  value: ExpressionValue | FunctionValue,
+  context: RenderContext
+): unknown {
+  if (isExpressionValue(value)) {
+    return evaluateExpression(value.expression, context);
+  }
+  if (isFunctionValue(value)) {
+    return executeFunction(value, context, []);
+  }
+  return value;
+}
+
 export function setupInject(
   definition: InjectDefinition | undefined,
   context: SetupContext
@@ -52,7 +73,8 @@ export function setupInject(
 
   for (const item of definition.items) {
     try {
-      const value = inject(item.key, item.default);
+      const defaultValue = item.default !== undefined ? resolveInjectDefault(item.default) : undefined;
+      const value = inject(item.key, defaultValue);
       injected[item.key] = value;
     } catch (error) {
       throw new ComponentCreationError(
@@ -63,4 +85,20 @@ export function setupInject(
   }
 
   return injected;
+}
+
+function resolveInjectDefault(defaultValue: PropertyValue): unknown {
+  if (defaultValue === null || defaultValue === undefined) {
+    return defaultValue;
+  }
+
+  if (typeof defaultValue !== 'object') {
+    return defaultValue;
+  }
+
+  if (isExpressionValue(defaultValue)) {
+    return undefined;
+  }
+
+  return defaultValue;
 }

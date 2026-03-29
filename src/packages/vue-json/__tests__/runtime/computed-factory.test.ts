@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createComputed } from '../../src/runtime/computed-factory';
-import type { ComputedDefinition, SetupContext } from '../../src/types';
+import type { ComputedDefinition, SetupContext, FunctionValue } from '../../src/types';
 
 describe('createComputed', () => {
   let mockContext: SetupContext;
@@ -30,8 +30,9 @@ describe('createComputed', () => {
   });
 
   it('should create computed with getter only', () => {
+    const getter: FunctionValue = { _type: 'function', params: {}, body: 'return state.count.value * 2;' };
     const definition: ComputedDefinition = {
-      doubled: { get: 'ref_state_count * 2' },
+      doubled: { get: getter },
     };
 
     const result = createComputed(definition, mockContext, state);
@@ -41,10 +42,12 @@ describe('createComputed', () => {
   });
 
   it('should create computed with getter and setter', () => {
+    const getter: FunctionValue = { _type: 'function', params: {}, body: 'return state.name.value + " Doe";' };
+    const setter: FunctionValue = { _type: 'function', params: {}, body: 'state.name.value = value;' };
     const definition: ComputedDefinition = {
       fullName: {
-        get: 'ref_state_name + " Doe"',
-        set: 'ref_state_name.value = newValue',
+        get: getter,
+        set: setter,
       },
     };
 
@@ -54,10 +57,13 @@ describe('createComputed', () => {
   });
 
   it('should create multiple computed properties', () => {
+    const getter1: FunctionValue = { _type: 'function', params: {}, body: 'return state.count.value * 2;' };
+    const getter2: FunctionValue = { _type: 'function', params: {}, body: 'return state.count.value * 3;' };
+    const getter3: FunctionValue = { _type: 'function', params: {}, body: 'return "Hello, " + state.name.value;' };
     const definition: ComputedDefinition = {
-      doubled: { get: 'ref_state_count * 2' },
-      tripled: { get: 'ref_state_count * 3' },
-      greeting: { get: '"Hello, " + ref_state_name' },
+      doubled: { get: getter1 },
+      tripled: { get: getter2 },
+      greeting: { get: getter3 },
     };
 
     const result = createComputed(definition, mockContext, state);
@@ -66,8 +72,9 @@ describe('createComputed', () => {
   });
 
   it('should handle complex getter expressions', () => {
+    const getter: FunctionValue = { _type: 'function', params: {}, body: 'return (state.count.value + 10) * 2;' };
     const definition: ComputedDefinition = {
-      complex: { get: '(ref_state_count + 10) * 2' },
+      complex: { get: getter },
     };
 
     const result = createComputed(definition, mockContext, state);
@@ -76,8 +83,9 @@ describe('createComputed', () => {
   });
 
   it('should handle string concatenation in getter', () => {
+    const getter: FunctionValue = { _type: 'function', params: {}, body: 'return "Count is: " + state.count.value;' };
     const definition: ComputedDefinition = {
-      message: { get: '"Count is: " + ref_state_count' },
+      message: { get: getter },
     };
 
     const result = createComputed(definition, mockContext, state);

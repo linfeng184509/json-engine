@@ -4,7 +4,7 @@ import {
   type PropType,
   type ComponentOptions,
 } from 'vue';
-import type { VueJsonSchemaInput, CreateComponentOptions, SetupContext } from '../types';
+import type { VueJsonSchemaInput, CreateComponentOptions, SetupContext, FunctionValue, RenderContext } from '../types';
 import { parseSchema } from '../parser';
 import { createState } from './state-factory';
 import { createComputed } from './computed-factory';
@@ -14,6 +14,7 @@ import { setupLifecycle } from './lifecycle-factory';
 import { renderVNode } from './render-factory';
 import { injectStyles, generateComponentId, removeStyles } from './style-injector';
 import { ComponentCreationError } from '../utils/error';
+import { executeFunction } from './value-resolver';
 
 const componentCache = new Map<string, Component>();
 
@@ -118,7 +119,7 @@ export function createComponent(
 }
 
 function createMethods(
-  definition: Record<string, string> | undefined,
+  definition: Record<string, FunctionValue> | undefined,
   setupContext: SetupContext,
   state: Record<string, unknown>,
   computed: Record<string, unknown>,
@@ -128,32 +129,20 @@ function createMethods(
 
   if (!definition) return methods;
 
-  for (const [methodName, body] of Object.entries(definition)) {
+  for (const [methodName, fnValue] of Object.entries(definition)) {
     methods[methodName] = (...args: unknown[]) => {
-      const fn = new Function(
-        'props',
-        'state',
-        'computed',
-        'methods',
-        'emit',
-        'slots',
-        'attrs',
-        'provide',
-        'args',
-        `"use strict"; ${body}`
-      );
-
-      return fn(
-        setupContext.props,
-        state,
-        computed,
+      const renderContext: RenderContext = {
+        props: setupContext.props,
+        state: state as RenderContext['state'],
+        computed: computed as RenderContext['computed'],
         methods,
-        setupContext.emit,
-        setupContext.slots,
-        setupContext.attrs,
-        provideRef.value,
-        args
-      );
+        emit: setupContext.emit,
+        slots: setupContext.slots,
+        attrs: setupContext.attrs,
+        provide: provideRef.value,
+        components: {},
+      };
+      return executeFunction(fnValue, renderContext, args);
     };
   }
 

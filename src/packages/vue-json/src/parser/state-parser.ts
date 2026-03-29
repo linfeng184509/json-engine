@@ -1,5 +1,16 @@
-import type { StateDefinition, StateItemDefinition, ParserContext } from '../types';
+import type { StateDefinition, StateItemDefinition, ParserContext, InitialValue } from '../types';
 import { createValidationError } from '../utils/error';
+
+function isInitialValue(value: unknown): value is InitialValue {
+  if (value === null || value === undefined) return true;
+  if (typeof value !== 'object') return true;
+
+  const obj = value as Record<string, unknown>;
+  if (typeof obj.type === 'string') {
+    return ['expression', 'state', 'props', 'scope'].includes(obj.type);
+  }
+  return true;
+}
 
 export function parseState(
   definition: StateDefinition,
@@ -26,6 +37,25 @@ export function parseState(
           message: 'State type not specified, defaulting to "ref"',
           suggestion: 'Add type: "ref" or "reactive"',
         });
+      }
+
+      const validTypes = ['ref', 'reactive', 'shallowRef', 'shallowReactive', 'toRef', 'toRefs', 'readonly'];
+      if (def.type && !validTypes.includes(def.type)) {
+        throw createValidationError(
+          `state.${stateName}.type`,
+          `Invalid state type: "${def.type}". Must be one of: ${validTypes.join(', ')}`,
+          validTypes.join(' | '),
+          def.type
+        );
+      }
+
+      if (def.initial !== undefined && !isInitialValue(def.initial)) {
+        throw createValidationError(
+          `state.${stateName}.initial`,
+          'Initial value must be a literal or structured value',
+          'InitialValue',
+          def.initial
+        );
       }
 
       result[stateName] = {

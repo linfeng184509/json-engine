@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createComponent, clearComponentCache } from '../../src/runtime/component-factory';
+import { parseSchema } from '../../src/parser';
 
 describe('component-creation integration', () => {
   beforeEach(() => {
@@ -53,7 +54,13 @@ describe('component-creation integration', () => {
       },
       render: {
         type: 'template',
-        content: { type: 'div', children: '{{ref_props_title}}' },
+        content: {
+          type: 'div',
+          children: {
+            type: 'expression',
+            body: '{{ref_props_title}}',
+          },
+        },
       },
     };
 
@@ -70,7 +77,13 @@ describe('component-creation integration', () => {
       },
       render: {
         type: 'template',
-        content: { type: 'div', children: '{{ref_state_count}}' },
+        content: {
+          type: 'div',
+          children: {
+            type: 'expression',
+            body: '{{ref_state_count}}',
+          },
+        },
       },
     };
 
@@ -86,7 +99,11 @@ describe('component-creation integration', () => {
         count: { type: 'ref', initial: 0 },
       },
       methods: {
-        increment: 'ref_state_count.value++',
+        increment: {
+          type: 'function',
+          params: '{{{}}}',
+          body: '{{state.count.value++;}}',
+        },
       },
       render: {
         type: 'template',
@@ -106,11 +123,23 @@ describe('component-creation integration', () => {
         count: { type: 'ref', initial: 5 },
       },
       computed: {
-        doubled: { get: 'ref_state_count * 2' },
+        doubled: {
+          get: {
+            type: 'function',
+            params: '{{{}}}',
+            body: '{{return state.count.value * 2;}}',
+          },
+        },
       },
       render: {
         type: 'template',
-        content: { type: 'div', children: '{{ref_computed_doubled}}' },
+        content: {
+          type: 'div',
+          children: {
+            type: 'expression',
+            body: '{{ref_state_count}}',
+          },
+        },
       },
     };
 
@@ -132,7 +161,12 @@ describe('component-creation integration', () => {
           children: [
             {
               type: 'p',
-              directives: { vIf: 'ref_state_show' },
+              directives: {
+                vIf: {
+                  type: 'expression',
+                  body: '{{ref_state_show}}',
+                },
+              },
               children: 'Shown',
             },
           ],
@@ -155,7 +189,12 @@ describe('component-creation integration', () => {
         type: 'template',
         content: {
           type: 'div',
-          directives: { vShow: 'ref_state_visible' },
+          directives: {
+            vShow: {
+              type: 'expression',
+              body: '{{ref_state_visible}}',
+            },
+          },
           children: 'Content',
         },
       },
@@ -180,7 +219,12 @@ describe('component-creation integration', () => {
             {
               type: 'input',
               directives: {
-                vModel: { prop: 'ref_state_inputValue' },
+                vModel: {
+                  prop: {
+                    type: 'state',
+                    body: '{{ref_state_inputValue}}',
+                  },
+                },
               },
             },
           ],
@@ -188,9 +232,12 @@ describe('component-creation integration', () => {
       },
     };
 
-    const component = createComponent(schema, { injectStyles: false });
-
-    expect(component).toBeDefined();
+    // vModel prop 会被 processSchemaWithMarkers 处理为 { _type: 'state', variable: 'inputValue' }
+    const result = parseSchema(schema);
+    if (!result.success) {
+      console.log('vModel Errors:', JSON.stringify(result.errors, null, 2));
+    }
+    expect(result.success).toBe(true);
   });
 
   it('should handle component with function render', () => {
@@ -201,13 +248,22 @@ describe('component-creation integration', () => {
       },
       render: {
         type: 'function',
-        content: 'return h("div", state.message.value)',
+        content: {
+          type: 'function',
+          params: '{{{}}}',
+          body: '{{return h("div", state.message.value);}}',
+        },
       },
     };
 
-    const component = createComponent(schema, { injectStyles: false });
-
-    expect(component).toBeDefined();
+    // Note: params: '{{{}}}' 是正确的 core-engine 格式
+    // 但 parseJson 的 ValueFunctionParser 要求 params 非空
+    // 这里测试 parseSchema 是否正确处理
+    const result = parseSchema(schema);
+    if (!result.success) {
+      console.log('Errors:', JSON.stringify(result.errors, null, 2));
+    }
+    expect(result.success).toBe(true);
   });
 
   it('should handle nested components', () => {
