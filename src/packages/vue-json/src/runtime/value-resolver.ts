@@ -226,7 +226,7 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
 /**
  * 转换函数体中的引用格式
  */
-function transformFunctionBody(body: string, stateTypes: Record<string, string>): string {
+export function transformFunctionBody(body: string, stateTypes: Record<string, string>): string {
   return body
     .replace(/\bref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       const parts = path.split('.');

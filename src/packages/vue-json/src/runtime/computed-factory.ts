@@ -1,11 +1,13 @@
 import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
 import type { ComputedDefinition, RenderContext, SetupContext, FunctionValue } from '../types';
 import { ComponentCreationError } from '../utils/error';
+import { transformFunctionBody } from './value-resolver';
 
 export function createComputed(
   definition: ComputedDefinition | undefined,
   context: SetupContext,
-  state: Record<string, unknown>
+  state: Record<string, unknown>,
+  stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'> = {}
 ): Record<string, ComputedRef<unknown> | WritableComputedRef<unknown>> {
   const computeds: Record<string, ComputedRef<unknown> | WritableComputedRef<unknown>> = {};
 
@@ -21,16 +23,17 @@ export function createComputed(
     attrs: context.attrs,
     emit: context.emit,
     provide: {},
+    stateTypes,
   };
 
   for (const [computedName, computedDef] of Object.entries(definition)) {
     try {
       const getterFn = computedDef.get;
-      const getter = createFunctionFromValue(getterFn);
+      const getter = createFunctionFromValue(getterFn, stateTypes);
 
       if (computedDef.set) {
         const setterFn = computedDef.set;
-        const setter = createFunctionFromValue(setterFn);
+        const setter = createFunctionFromValue(setterFn, stateTypes);
 
         computeds[computedName] = computed({
           get: () =>
@@ -84,7 +87,11 @@ export function createComputed(
   return computeds;
 }
 
-function createFunctionFromValue(fnValue: FunctionValue): (...args: unknown[]) => unknown {
+function createFunctionFromValue(
+  fnValue: FunctionValue,
+  stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>
+): (...args: unknown[]) => unknown {
+  const transformedBody = transformFunctionBody(fnValue.body, stateTypes);
   const rawFn = new Function(
     'props',
     'state',
@@ -95,7 +102,7 @@ function createFunctionFromValue(fnValue: FunctionValue): (...args: unknown[]) =
     'attrs',
     'provide',
     'value',
-    `"use strict"; ${fnValue.body}`
+    `"use strict"; ${transformedBody}`
   );
 
   return rawFn as (...args: unknown[]) => unknown;

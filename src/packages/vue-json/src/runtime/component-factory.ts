@@ -59,9 +59,8 @@ export function createComponent(
 
       const injected = schema.inject ? setupInject({ items: schema.inject.items }, context) : {};
       const state = createState(schema.state, context);
-      const computedRefs = createComputed(schema.computed, context, state);
 
-      // 收集 stateTypes 用于 function body 转换
+      // 收集 stateTypes 用于 function body 转换（必须在 createComputed 之前）
       const stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'> = {};
       if (schema.state) {
         for (const [key, def] of Object.entries(schema.state)) {
@@ -72,6 +71,8 @@ export function createComponent(
           }
         }
       }
+
+      const computedRefs = createComputed(schema.computed, context, state, stateTypes);
 
       const provideRef = { value: injected as Record<string, unknown> };
       const methods = createMethods(
