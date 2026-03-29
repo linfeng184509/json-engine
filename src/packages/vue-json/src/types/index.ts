@@ -1,4 +1,54 @@
+export type { Platform, PlatformFeatures, PlatformInfo } from './platform';
+export type {
+  FieldPermission,
+  SOPStepPermission,
+  PermissionProvider,
+  PermissionChecker,
+  AuthDirectiveConfig,
+  PrivacyType,
+  DataFilterOptions,
+  SOPStep,
+  SOPConfig,
+  PagePermission,
+} from './auth';
 export type { VueJsonSchema, VueJsonSchemaInput, ParsedSchema } from './schema';
+export type {
+  RouteConfig,
+  RouteMeta,
+  NavigationGuard,
+  NavigationGuardCallback,
+  RouteLocationNormalized,
+  RouteRecordNormalized,
+  RouterConfig,
+  RouterGuards,
+  Router,
+  NavigationResult,
+} from './router';
+export type {
+  GetterDefinition,
+  ActionDefinition,
+  StoreModuleConfig,
+  StoreConfig,
+  Store,
+  DefineStoreOptions,
+} from './store';
+export type {
+  PluginConfig,
+  UIComponentConfig,
+  UIThemeConfig,
+  UIConfig,
+  AxiosRequestConfig,
+  AxiosRetryConfig,
+  WSConfig,
+  NetworkConfig,
+  StorageConfig,
+  I18nLocaleConfig,
+  I18nConfig,
+  AuthConfig,
+  VueJsonAppSchema,
+  VueJsonSchema as VueJsonSchemaType,
+} from './app';
+export { SchemaValidationError } from './app';
 export type {
   ExpressionValue,
   FunctionValue,

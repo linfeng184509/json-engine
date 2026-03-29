@@ -27,7 +27,11 @@ const STRUCTURED_TYPE_VALUES = new Set([
   'function',
   'string',
   'object',
+  'import',
 ]);
+
+// 保留的顶级键，不进行递归处理
+const RESERVED_KEYS = new Set(['$import', '$ref', '$schema']);
 
 
 
@@ -53,6 +57,7 @@ function isStructuredType(obj: unknown): obj is Record<string, unknown> {
     case 'scope':
     case 'string':
     case 'object':
+    case 'import':
       return 'body' in record;
     default:
       return false;
@@ -148,13 +153,26 @@ function processSchemaWithMarkers(data: unknown): unknown {
         // 处理 object 类型
         return obj;
       }
+      case 'import': {
+        // 处理 import 类型 - 保留原始格式，由 app-factory 解析
+        const body = String(obj['body'] || '');
+        return {
+          _type: 'import',
+          path: body,
+        };
+      }
     }
   }
 
   // 递归处理对象的每个字段
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj)) {
-    result[key] = processSchemaWithMarkers(value);
+    // 保留 $import, $ref 等特殊键不进行递归处理
+    if (RESERVED_KEYS.has(key)) {
+      result[key] = value;
+    } else {
+      result[key] = processSchemaWithMarkers(value);
+    }
   }
   return result;
 }

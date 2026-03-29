@@ -4,6 +4,16 @@ import { parseSchema } from '../parser';
 import { createComponent, clearComponentCache } from '../runtime/component-factory';
 import { removeStyles } from '../runtime/style-injector';
 
+export { useCoreScope, createCoreScope, getCoreScope, setCoreScope } from './use-core-scope';
+export type {
+  CoreScope,
+  CoreScopeAuth,
+  CoreScopeI18n,
+  CoreScopeStorage,
+  CoreScopeApi,
+  CoreScopeWS,
+} from './use-core-scope';
+
 export interface UseVueJsonReturn {
   component: Ref<Component | null>;
   schema: Ref<ParsedSchema | null>;

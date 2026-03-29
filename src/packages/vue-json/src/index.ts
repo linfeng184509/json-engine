@@ -30,6 +30,55 @@ export {
   clearAllStyles,
 } from './runtime';
 
+// Platform
+export {
+  detect,
+  getPlatform,
+  getPlatformFeatures,
+  isPlatform,
+  isMobileDevice,
+} from './runtime/platform-detector';
+
+// Permission
+export {
+  registerPermissionProvider,
+  getPermissionProvider,
+  DefaultPermissionProvider,
+} from './runtime/permission-provider';
+export {
+  PermissionCheckerImpl,
+  has,
+  hasAny,
+  hasAll,
+  hasRole,
+  canAccessPage,
+  registerPagePermission,
+} from './runtime/permission-checker';
+export {
+  getFieldPermission,
+  canReadField,
+  canWriteField,
+  isFieldHidden,
+  isFieldPrivate,
+} from './runtime/field-permission';
+export {
+  maskName,
+  maskPhone,
+  maskIdCard,
+  maskEmail,
+  applyPrivacyMask,
+  filterData,
+  filterDataWithPrivacy,
+} from './runtime/data-filter';
+export {
+  getSOPStepPermission,
+  canExecuteSOPStep,
+  canViewSOPStep,
+  getAvailableFields,
+  validateSOPStepPermissions,
+  getNextAvailableSteps,
+} from './runtime/sop-permission';
+
 // Composables
 export { useVueJson, useJsonComponent, useJsonRenderer } from './composables';
 
