@@ -28,6 +28,7 @@ export interface RenderContext {
   attrs: Record<string, unknown>;
   emit: EmitFn;
   provide: Record<string, unknown>;
+  stateTypes?: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>;
 }
 
 export interface SetupContext {

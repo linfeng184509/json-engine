@@ -9,7 +9,7 @@ import {
   type Ref,
   type Reactive,
 } from 'vue';
-import type { StateDefinition, StateItemDefinition, SetupContext, ExpressionValue, StateRef, PropsRef } from '../types';
+import type { StateDefinition, StateItemDefinition, SetupContext, ExpressionValue, PropsRef } from '../types';
 import { evaluateExpression } from './value-resolver';
 import { ComponentCreationError } from '../utils/error';
 

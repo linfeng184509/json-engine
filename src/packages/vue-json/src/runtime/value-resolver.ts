@@ -10,6 +10,27 @@ import type {
 import type { NestedReferenceResult, NestedReferenceData } from '@json-engine/core-engine';
 
 /**
+ * 获取嵌套属性值
+ * 支持点号路径访问，如 'formData.name' → obj.formData.name
+ */
+function getNestedValue(obj: unknown, path: string): unknown {
+  if (!obj || !path) return obj;
+
+  const keys = path.split('.');
+  let result: unknown = obj;
+
+  for (const key of keys) {
+    if (result && typeof result === 'object') {
+      result = (result as Record<string, unknown>)[key];
+    } else {
+      return undefined;
+    }
+  }
+
+  return result;
+}
+
+/**
  * 判断是否为 ExpressionValue（带 _type 标记）
  */
 export function isExpressionValue(value: unknown): value is ExpressionValue {
@@ -61,7 +82,6 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
     return value;
   }
 
-  // 使用类型断言来获取 _type 字段
   const type = (value as unknown as { _type?: string })._type;
 
   switch (type) {
@@ -71,14 +91,23 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
     }
     case 'state': {
       const ref = value as StateRef;
-      const stateValue = context.state[ref.variable];
-      return stateValue && typeof stateValue === 'object' && 'value' in stateValue
-        ? stateValue.value
-        : stateValue;
+      const stateRef = context.state[ref.variable];
+      let stateValue: unknown = stateRef;
+      if (stateRef && typeof stateRef === 'object' && 'value' in stateRef) {
+        stateValue = (stateRef as { value: unknown }).value;
+      }
+      if (ref.path) {
+        return getNestedValue(stateValue, ref.path);
+      }
+      return stateValue;
     }
     case 'props': {
       const ref = value as PropsRef;
-      return context.props[ref.variable];
+      const propsValue = context.props[ref.variable];
+      if (ref.path) {
+        return getNestedValue(propsValue, ref.path);
+      }
+      return propsValue;
     }
     case 'scope': {
       const ref = value as ScopeRef;
@@ -97,26 +126,27 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
 
 /**
  * 评估表达式
- * @param expression - NestedReferenceResult 或字符串表达式
- * @param context - 渲染上下文
  */
 export function evaluateExpression(
   expression: NestedReferenceResult,
   context: RenderContext
 ): unknown {
   if (typeof expression === 'string') {
-    // 纯表达式字符串
     return evaluateStringExpression(expression, context);
   }
 
-  // NestedReferenceData - 直接引用
   const ref = expression as NestedReferenceData;
   switch (ref.type) {
     case 'state': {
-      const stateValue = context.state[ref.variable];
-      return stateValue && typeof stateValue === 'object' && 'value' in stateValue
-        ? (stateValue as { value: unknown }).value
-        : stateValue;
+      const stateRef = context.state[ref.variable];
+      let stateValue: unknown = stateRef;
+      if (stateRef && typeof stateRef === 'object' && 'value' in stateRef) {
+        stateValue = (stateRef as { value: unknown }).value;
+      }
+      if (ref.scope && typeof ref.scope === 'string' && !['core', 'goal'].includes(ref.scope)) {
+        return getNestedValue(stateValue, ref.scope);
+      }
+      return stateValue;
     }
     case 'props':
       return context.props[ref.variable];
@@ -141,13 +171,23 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     return '';
   }
 
-  // 替换引用格式为可执行代码
   const transformed = trimmed
-    .replace(/ref_state_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, varName) => {
-      return `state.${varName}.value`;
+    .replace(/ref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)/g, (_, path) => {
+      const parts = path.split('.');
+      const varName = parts[0];
+      const rest = parts.slice(1);
+      const stateTypes = context.stateTypes || {};
+      const stateType = stateTypes[varName];
+      const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
+
+      if (rest.length === 0) {
+        return needsValue ? `state.${varName}.value` : `state.${varName}`;
+      }
+      const middle = needsValue ? '.value.' : '.';
+      return `state.${varName}${middle}${rest.join('.')}`;
     })
-    .replace(/ref_props_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, varName) => {
-      return `props.${varName}`;
+    .replace(/ref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)/g, (_, path) => {
+      return `props.${path}`;
     })
     .replace(/ref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, varName) => {
       return `computed.${varName}.value`;
@@ -184,6 +224,29 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
 }
 
 /**
+ * 转换函数体中的引用格式
+ */
+function transformFunctionBody(body: string, stateTypes: Record<string, string>): string {
+  return body
+    .replace(/\bref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
+      const parts = path.split('.');
+      const varName = parts[0];
+      const rest = parts.slice(1);
+      const stateType = stateTypes[varName];
+      const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
+
+      if (rest.length === 0) {
+        return needsValue ? `state.${varName}.value` : `state.${varName}`;
+      }
+      const middle = needsValue ? '.value.' : '.';
+      return `state.${varName}${middle}${rest.join('.')}`;
+    })
+    .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
+      return `props.${path}`;
+    });
+}
+
+/**
  * 执行函数值
  */
 export function executeFunction(
@@ -191,6 +254,9 @@ export function executeFunction(
   context: RenderContext,
   args: unknown[] = []
 ): unknown {
+  const stateTypes = context.stateTypes || {};
+  const transformedBody = transformFunctionBody(fnValue.body, stateTypes);
+
   const fn = new Function(
     'props',
     'state',
@@ -201,7 +267,7 @@ export function executeFunction(
     'attrs',
     'provide',
     'args',
-    `"use strict"; ${fnValue.body}`
+    `"use strict"; ${transformedBody}`
   );
 
   return fn(

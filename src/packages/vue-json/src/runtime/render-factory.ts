@@ -6,7 +6,6 @@ import type {
   RenderContext,
   FunctionValue,
   PropertyValue,
-  ExpressionValue,
 } from '../types';
 import { DirectiveError } from '../utils/error';
 import {
@@ -19,7 +18,7 @@ import {
   applyVHtml,
   applyVText,
 } from './directive-runtime';
-import { resolvePropertyValue, evaluateExpression, executeFunction, isExpressionValue } from './value-resolver';
+import { resolvePropertyValue, evaluateExpression, isExpressionValue } from './value-resolver';
 
 export function renderVNode(
   definition: RenderDefinition,

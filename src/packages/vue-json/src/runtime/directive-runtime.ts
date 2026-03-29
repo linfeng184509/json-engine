@@ -3,7 +3,6 @@ import type {
   VNodeDefinition,
   RenderContext,
   ExpressionValue,
-  FunctionValue,
   StateRef,
   PropsRef,
 } from '../types';

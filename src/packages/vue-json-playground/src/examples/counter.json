@@ -14,13 +14,13 @@
   },
   "computed": {
     "doubleCount": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return state.count.value * 2;}}" }
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return ref_state_count * 2;}}" }
     }
   },
   "methods": {
-    "increment": { "type": "function", "params": "{{{}}}", "body": "{{state.count.value++;}}" },
-    "decrement": { "type": "function", "params": "{{{}}}", "body": "{{state.count.value--;}}" },
-    "reset": { "type": "function", "params": "{{{}}}", "body": "{{state.count.value = props.initialCount;}}" }
+    "increment": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_count++;}}" },
+    "decrement": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_count--;}}" },
+    "reset": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_count = ref_props_initialCount;}}" }
   },
   "render": {
     "type": "template",
@@ -42,7 +42,7 @@
           "type": "p",
           "children": [
             "Double: ",
-            { "type": "expression", "body": "{{ref_computed_doubleCount}}" }
+            { "type": "expression", "body": "{{computed.doubleCount.value}}" }
           ]
         },
         {

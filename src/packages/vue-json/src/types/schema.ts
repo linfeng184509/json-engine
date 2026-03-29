@@ -27,18 +27,22 @@ export interface ExpressionValue extends ExpressionParseData {
  * State 引用 - 带类型标记的 VariableParseData
  * 输入格式: { type: 'state', body: '{{ref_state_xxx}}' }
  * parseJson 输出: { variable: 'xxx' }
+ * 支持点号路径: { type: 'state', body: '{{ref_state_formData.name}}' }
  */
 export interface StateRef extends VariableParseData {
   _type: 'state';
+  path?: string;
 }
 
 /**
  * Props 引用 - 带类型标记的 VariableParseData
  * 输入格式: { type: 'props', body: '{{ref_props_xxx}}' }
  * parseJson 输出: { variable: 'xxx' }
+ * 支持点号路径: { type: 'props', body: '{{ref_props_user.name}}' }
  */
 export interface PropsRef extends VariableParseData {
   _type: 'props';
+  path?: string;
 }
 
 /**

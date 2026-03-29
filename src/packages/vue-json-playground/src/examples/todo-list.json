@@ -22,17 +22,17 @@
   },
   "computed": {
     "filteredTodos": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{const todos = state.todos.value; const filter = state.filter.value; if (filter === 'all') return todos; if (filter === 'active') return todos.filter(t => !t.completed); if (filter === 'completed') return todos.filter(t => t.completed); return todos;}}" }
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{const todos = ref_state_todos; const filter = ref_state_filter; if (filter === 'all') return todos; if (filter === 'active') return todos.filter(t => !t.completed); if (filter === 'completed') return todos.filter(t => t.completed); return todos;}}" }
     },
     "remainingCount": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return state.todos.value.filter(t => !t.completed).length;}}" }
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return ref_state_todos.filter(t => !t.completed).length;}}" }
     }
   },
   "methods": {
-    "addTodo": { "type": "function", "params": "{{{}}}", "body": "{{if (state.newTodo.value.trim()) { state.todos.value.push({ id: Date.now(), text: state.newTodo.value.trim(), completed: false }); state.newTodo.value = ''; }}}" },
-    "removeTodo": { "type": "function", "params": "{{{}}}", "body": "{{state.todos.value = state.todos.value.filter(t => t.id !== args[0]);}}" },
-    "toggleTodo": { "type": "function", "params": "{{{}}}", "body": "{{const todo = state.todos.value.find(t => t.id === args[0]); if (todo) todo.completed = !todo.completed;}}" },
-    "setFilter": { "type": "function", "params": "{{{}}}", "body": "{{state.filter.value = args[0];}}" }
+    "addTodo": { "type": "function", "params": "{{{}}}", "body": "{{if (ref_state_newTodo.trim()) { ref_state_todos.push({ id: Date.now(), text: ref_state_newTodo.trim(), completed: false }); ref_state_newTodo = ''; }}}" },
+    "removeTodo": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_todos = ref_state_todos.filter(t => t.id !== args[0]);}}" },
+    "toggleTodo": { "type": "function", "params": "{{{}}}", "body": "{{const todo = ref_state_todos.find(t => t.id === args[0]); if (todo) todo.completed = !todo.completed;}}" },
+    "setFilter": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_filter = args[0];}}" }
   },
   "render": {
     "type": "template",

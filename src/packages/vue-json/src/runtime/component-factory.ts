@@ -1,6 +1,5 @@
 import {
   defineComponent,
-  h,
   type Component,
   type PropType,
   type ComponentOptions,
@@ -62,13 +61,26 @@ export function createComponent(
       const state = createState(schema.state, context);
       const computedRefs = createComputed(schema.computed, context, state);
 
+      // 收集 stateTypes 用于 function body 转换
+      const stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'> = {};
+      if (schema.state) {
+        for (const [key, def] of Object.entries(schema.state)) {
+          if (def.type === 'toRef' || def.type === 'toRefs') {
+            stateTypes[key] = 'ref';
+          } else {
+            stateTypes[key] = def.type as 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly';
+          }
+        }
+      }
+
       const provideRef = { value: injected as Record<string, unknown> };
       const methods = createMethods(
         schema.methods,
         context,
         state,
         computedRefs,
-        provideRef
+        provideRef,
+        stateTypes
       );
 
       setupWatchers(schema.watch, context, state, computedRefs, methods);
@@ -86,6 +98,7 @@ export function createComponent(
           state,
           computed: computedRefs,
           methods,
+          stateTypes,
         });
       }
 
@@ -102,6 +115,7 @@ export function createComponent(
             attrs,
             emit,
             provide: provideRef.value,
+            stateTypes,
           });
         } catch (error) {
           console.error(`[vue-json-engine] Render error in ${schema.name}:`, error);
@@ -125,7 +139,8 @@ function createMethods(
   setupContext: SetupContext,
   state: Record<string, unknown>,
   computed: Record<string, unknown>,
-  provideRef: { value: Record<string, unknown> }
+  provideRef: { value: Record<string, unknown> },
+  stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>
 ): Record<string, (...args: unknown[]) => unknown> {
   const methods: Record<string, (...args: unknown[]) => unknown> = {};
 
@@ -143,6 +158,7 @@ function createMethods(
         attrs: setupContext.attrs,
         provide: provideRef.value,
         components: {},
+        stateTypes,
       };
       return executeFunction(fnValue, renderContext, args);
     };

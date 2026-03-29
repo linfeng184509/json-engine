@@ -9,7 +9,7 @@ import type {
   PropertyValue,
 } from '../types';
 import { ComponentCreationError } from '../utils/error';
-import { resolvePropertyValue, evaluateExpression, executeFunction, isExpressionValue, isFunctionValue } from './value-resolver';
+import { evaluateExpression, executeFunction, isExpressionValue, isFunctionValue } from './value-resolver';
 
 export function setupProvide(
   definition: ProvideDefinition | undefined,

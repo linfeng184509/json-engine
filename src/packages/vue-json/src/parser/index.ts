@@ -1,17 +1,9 @@
-import { parseJson } from '@json-engine/core-engine';
 import type {
   VueJsonSchema,
   VueJsonSchemaInput,
   ParsedSchema,
   ParseResult,
   ParserContext,
-  ExpressionValue,
-  StateRef,
-  PropsRef,
-  ScopeRef,
-  FunctionValue,
-  PropertyValue,
-  InitialValue,
 } from '../types';
 import { SchemaParseError, ValidationError } from '../utils/error';
 import { parseProps } from './props-parser';
@@ -37,14 +29,7 @@ const STRUCTURED_TYPE_VALUES = new Set([
   'object',
 ]);
 
-// 需要添加类型标记的 type 值
-const TYPE_MARKERS = new Set([
-  'expression',
-  'state',
-  'props',
-  'scope',
-  'function',
-]);
+
 
 /**
  * 检查对象是否是结构化类型
@@ -120,17 +105,21 @@ function processSchemaWithMarkers(data: unknown): unknown {
       case 'state': {
         // 处理 state 类型
         const body = String(obj['body'] || '');
+        const parsed = parseReferenceBody(body, 'state');
         return {
           _type: 'state',
-          variable: parseReferenceBody(body, 'state'),
+          variable: parsed.variable,
+          ...(parsed.path ? { path: parsed.path } : {}),
         };
       }
       case 'props': {
         // 处理 props 类型
         const body = String(obj['body'] || '');
+        const parsed = parseReferenceBody(body, 'props');
         return {
           _type: 'props',
-          variable: parseReferenceBody(body, 'props'),
+          variable: parsed.variable,
+          ...(parsed.path ? { path: parsed.path } : {}),
         };
       }
       case 'scope': {
@@ -215,17 +204,26 @@ function parseExpressionBody(body: string): string {
 }
 
 /**
- * 解析 state/props 的 body 字段，提取变量名
+ * 解析 state/props 的 body 字段，提取变量名和可选路径
+ * 支持点号路径格式：ref_state_formData.name → { variable: 'formData', path: 'name' }
  */
-function parseReferenceBody(body: string, type: 'state' | 'props'): string {
+function parseReferenceBody(body: string, type: 'state' | 'props'): { variable: string; path?: string } {
   const regex = type === 'state'
     ? /^\{\{ref_state_(.+)\}\}$/
     : /^\{\{ref_props_(.+)\}\}$/;
   const match = body.match(regex);
   if (match) {
-    return match[1];
+    const fullPath = match[1];
+    const dotIndex = fullPath.indexOf('.');
+    if (dotIndex > 0) {
+      return {
+        variable: fullPath.substring(0, dotIndex),
+        path: fullPath.substring(dotIndex + 1),
+      };
+    }
+    return { variable: fullPath };
   }
-  return body;
+  return { variable: body };
 }
 
 function createParserContext(schema: VueJsonSchema): ParserContext {

@@ -26,15 +26,15 @@
   },
   "computed": {
     "isValid": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return !state.errors.name && !state.errors.email && !state.errors.message && state.formData.name && state.formData.email && state.formData.message;}}" }
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return !ref_state_errors.name && !ref_state_errors.email && !ref_state_errors.message && ref_state_formData.name && ref_state_formData.email && ref_state_formData.message;}}" }
     }
   },
   "methods": {
-    "validateName": { "type": "function", "params": "{{{}}}", "body": "{{if (!state.formData.name) { state.errors.name = 'Name is required'; } else { state.errors.name = ''; }}}" },
-    "validateEmail": { "type": "function", "params": "{{{}}}", "body": "{{const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/; if (!state.formData.email) { state.errors.email = 'Email is required'; } else if (!emailRegex.test(state.formData.email)) { state.errors.email = 'Invalid email format'; } else { state.errors.email = ''; }}}" },
-    "validateMessage": { "type": "function", "params": "{{{}}}", "body": "{{if (!state.formData.message) { state.errors.message = 'Message is required'; } else if (state.formData.message.length < 10) { state.errors.message = 'Message must be at least 10 characters'; } else { state.errors.message = ''; }}}" },
-    "handleSubmit": { "type": "function", "params": "{{{}}}", "body": "{{methods.validateName(); methods.validateEmail(); methods.validateMessage(); if (computed.isValid.value) { state.isSubmitting.value = true; setTimeout(() => { alert('Form submitted: ' + JSON.stringify(state.formData)); state.isSubmitting.value = false; }, 1000); }}}" },
-    "resetForm": { "type": "function", "params": "{{{}}}", "body": "{{state.formData.name = ''; state.formData.email = ''; state.formData.message = ''; state.errors.name = ''; state.errors.email = ''; state.errors.message = '';}}" }
+    "validateName": { "type": "function", "params": "{{{}}}", "body": "{{if (!ref_state_formData.name) { ref_state_errors.name = 'Name is required'; } else { ref_state_errors.name = ''; }}}" },
+    "validateEmail": { "type": "function", "params": "{{{}}}", "body": "{{const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/; if (!ref_state_formData.email) { ref_state_errors.email = 'Email is required'; } else if (!emailRegex.test(ref_state_formData.email)) { ref_state_errors.email = 'Invalid email format'; } else { ref_state_errors.email = ''; }}}" },
+    "validateMessage": { "type": "function", "params": "{{{}}}", "body": "{{if (!ref_state_formData.message) { ref_state_errors.message = 'Message is required'; } else if (ref_state_formData.message.length < 10) { ref_state_errors.message = 'Message must be at least 10 characters'; } else { ref_state_errors.message = ''; }}}" },
+    "handleSubmit": { "type": "function", "params": "{{{}}}", "body": "{{methods.validateName(); methods.validateEmail(); methods.validateMessage(); if (computed.isValid.value) { ref_state_isSubmitting = true; setTimeout(() => { alert('Form submitted: ' + JSON.stringify(ref_state_formData)); ref_state_isSubmitting = false; }, 1000); }}}" },
+    "resetForm": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_formData.name = ''; ref_state_formData.email = ''; ref_state_formData.message = ''; ref_state_errors.name = ''; ref_state_errors.email = ''; ref_state_errors.message = '';}}" }
   },
   "render": {
     "type": "template",
@@ -89,10 +89,10 @@
                 "class": { "type": "string", "body": "'error'" }
               },
               "directives": {
-                "vIf": { "type": "expression", "body": "{{state.errors.name}}" }
+                "vIf": { "type": "expression", "body": "{{ref_state_errors.name}}" }
               },
               "children": [
-                { "type": "expression", "body": "{{state.errors.name}}" }
+                { "type": "expression", "body": "{{ref_state_errors.name}}" }
               ]
             }
           ]
@@ -131,10 +131,10 @@
                 "class": { "type": "string", "body": "'error'" }
               },
               "directives": {
-                "vIf": { "type": "expression", "body": "{{state.errors.email}}" }
+                "vIf": { "type": "expression", "body": "{{ref_state_errors.email}}" }
               },
               "children": [
-                { "type": "expression", "body": "{{state.errors.email}}" }
+                { "type": "expression", "body": "{{ref_state_errors.email}}" }
               ]
             }
           ]
@@ -173,10 +173,10 @@
                 "class": { "type": "string", "body": "'error'" }
               },
               "directives": {
-                "vIf": { "type": "expression", "body": "{{state.errors.message}}" }
+                "vIf": { "type": "expression", "body": "{{ref_state_errors.message}}" }
               },
               "children": [
-                { "type": "expression", "body": "{{state.errors.message}}" }
+                { "type": "expression", "body": "{{ref_state_errors.message}}" }
               ]
             }
           ]
@@ -194,7 +194,7 @@
                 "disabled": { "type": "expression", "body": "{{ref_state_isSubmitting}}" }
               },
               "children": [
-                { "type": "expression", "body": "{{state.isSubmitting.value ? 'Submitting...' : 'Submit'}}" }
+                { "type": "expression", "body": "{{ref_state_isSubmitting ? 'Submitting...' : 'Submit'}}" }
               ]
             },
             {
