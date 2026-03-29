@@ -100,20 +100,21 @@ describe('directive-runtime', () => {
       expect(result).toEqual({});
     });
 
-    it('should return binding props with modelValue', () => {
+    it('should return binding props with modelValue and onInput', () => {
       const prop: StateRef = { _type: 'state', variable: 'inputValue' };
       const vModel = { prop };
       const result = applyVModel(vModel, mockContext);
       expect(result).toHaveProperty('modelValue');
-      expect(result).toHaveProperty('onUpdate:modelValue');
+      expect(result).toHaveProperty('onInput');
     });
 
-    it('should use custom prop name', () => {
+    it('should use custom prop name but still use onInput', () => {
       const prop: StateRef = { _type: 'state', variable: 'inputValue' };
       const vModel = { prop, event: 'value' };
       const result = applyVModel(vModel, mockContext);
       expect(result).toHaveProperty('value');
-      expect(result).toHaveProperty('onUpdate:value');
+      expect(result).toHaveProperty('onInput');
+      expect(result).not.toHaveProperty('modelValue');
     });
   });
 

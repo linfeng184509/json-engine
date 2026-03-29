@@ -1,4 +1,4 @@
-import { h, createVNode, Fragment, type VNode } from 'vue';
+import { h, type VNode } from 'vue';
 import type {
   VNodeDefinition,
   RenderContext,
@@ -8,10 +8,8 @@ import type {
 } from '../types';
 import { createDirectiveError } from '../utils/error';
 import {
-  resolvePropertyValue,
   evaluateExpression,
   executeFunction,
-  isExpressionValue,
   isStateRef,
   isPropsRef,
 } from './value-resolver';
@@ -54,92 +52,63 @@ export function applyVShow(vnode: VNode, condition: ExpressionValue, context: Re
   }
 }
 
+export interface VForResult {
+  definition: VNodeDefinition;
+  context: RenderContext;
+}
+
 export function applyVFor(
   node: VNodeDefinition,
   vFor: NonNullable<VNodeDefinition['directives']>['vFor'],
   context: RenderContext
-): VNode[] {
+): VForResult[] {
   if (!vFor) return [];
 
   try {
-    const source = evaluateExpression(vFor.source.expression, context);
+    const rawSource = evaluateExpression(vFor.source.expression, context);
+    let source = rawSource;
+    if (rawSource && typeof rawSource === 'object' && !Array.isArray(rawSource)) {
+      const unwrapped = (rawSource as Record<string, unknown>).value;
+      if (unwrapped !== undefined) {
+        source = unwrapped;
+      }
+    }
     const items = Array.isArray(source)
       ? source
       : typeof source === 'object' && source !== null
         ? Object.entries(source)
         : [];
 
-    const nodes: VNode[] = [];
+    const results: VForResult[] = [];
 
     for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+      let item = items[i];
       const index = i;
+
+      if (item && typeof item === 'object' && 'value' in item) {
+        item = (item as { value: unknown }).value;
+      }
 
       const extendedContext: RenderContext = {
         ...context,
         state: {
           ...context.state,
-          [vFor.alias]: { value: Array.isArray(source) ? item : item[1] },
-          ...(vFor.index ? { [vFor.index]: { value: Array.isArray(source) ? index : item[0] } } : {}),
+          [vFor.alias]: item,
+          ...(vFor.index ? { [vFor.index]: index } : {}),
         },
       };
 
       const newNode = { ...node, directives: { ...node.directives, vFor: undefined } };
-      const childNode = renderVNodeDefinition(newNode, extendedContext);
-      if (childNode) {
-        nodes.push(childNode);
-      }
+      results.push({ definition: newNode, context: extendedContext });
     }
 
-    return nodes;
+    return results;
   } catch (error) {
     throw createDirectiveError(
       'v-for',
       `Failed to iterate: ${error instanceof Error ? error.message : String(error)}`
     );
   }
-}
-
-function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): VNode | null {
-  const type = node.type;
-  const props: Record<string, unknown> = {};
-
-  if (node.props) {
-    for (const [key, value] of Object.entries(node.props)) {
-      props[key] = resolvePropertyValue(value, context);
-    }
-  }
-
-  let children: string | number | VNode | undefined = undefined;
-  if (node.children) {
-    if (typeof node.children === 'string' || typeof node.children === 'number') {
-      children = String(node.children);
-    } else if (Array.isArray(node.children)) {
-      const mapped = node.children
-        .map((child) => {
-          if (typeof child === 'string' || typeof child === 'number') {
-            return child;
-          }
-          if (typeof child === 'object' && child !== null && 'type' in child) {
-            if (isExpressionValue(child)) {
-              return evaluateExpression(child.expression, context);
-            }
-            return renderVNodeDefinition(child as VNodeDefinition, context);
-          }
-          return child;
-        })
-        .filter((child) => child !== null) as (string | number | VNode)[];
-      children = mapped.length > 0 ? createVNode(Fragment, null, mapped) : undefined;
-    } else if (typeof node.children === 'object' && 'type' in node.children) {
-      if (isExpressionValue(node.children)) {
-        children = String(evaluateExpression(node.children.expression, context));
-      } else {
-        children = renderVNodeDefinition(node.children as VNodeDefinition, context) ?? undefined;
-      }
-    }
-  }
-
-  return h(type, Object.keys(props).length > 0 ? props : null, children);
 }
 
 export function applyVModel(
@@ -168,9 +137,9 @@ export function applyVModel(
 
     result[prop] = value;
 
-    const event = `update:${prop}`;
-    result[`on${event.charAt(0).toUpperCase() + event.slice(1)}`] = (newValue: unknown) => {
-      setReferenceValue(propRef, newValue, context);
+    result.onInput = (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      setReferenceValue(propRef, target.value, context);
     };
 
     return result;

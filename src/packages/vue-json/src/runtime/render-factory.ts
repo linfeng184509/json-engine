@@ -17,8 +17,10 @@ import {
   applyVBind,
   applyVHtml,
   applyVText,
+  type VForResult,
 } from './directive-runtime';
 import { resolvePropertyValue, evaluateExpression, isExpressionValue } from './value-resolver';
+import { parseExpressionBody } from '../parser';
 
 export function renderVNode(
   definition: RenderDefinition,
@@ -85,8 +87,11 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
     }
 
     if (node.directives.vFor) {
-      const nodes = applyVFor(node, node.directives.vFor, context);
-      return nodes.length > 0 ? nodes[0] : null;
+      const results: VForResult[] = applyVFor(node, node.directives.vFor, context);
+      const vnodes = results
+        .map((result) => renderVNodeDefinition(result.definition, result.context))
+        .filter((vn): vn is VNode => vn !== null);
+      return vnodes.length > 0 ? vnodes[0] : null;
     }
   }
 
@@ -168,8 +173,18 @@ function resolveNodeChildren(
         if (isExpressionValue(child)) {
           return evaluateExpression(child.expression, context);
         }
-        if (typeof child === 'object' && child !== null && 'type' in child) {
-          return renderVNodeDefinition(child as VNodeDefinition, context);
+        if (typeof child === 'object' && child !== null) {
+          if ('type' in child) {
+            const typeValue = (child as unknown as Record<string, unknown>).type;
+            if (typeValue === 'expression') {
+              const expressionBody = (child as unknown as Record<string, unknown>).body;
+              if (typeof expressionBody === 'string') {
+                const expression = parseExpressionBody(expressionBody);
+                return evaluateExpression(expression, context);
+              }
+            }
+            return renderVNodeDefinition(child as VNodeDefinition, context);
+          }
         }
         return child;
       })

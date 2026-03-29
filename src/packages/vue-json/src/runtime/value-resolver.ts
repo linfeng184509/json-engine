@@ -138,7 +138,10 @@ export function evaluateExpression(
   const ref = expression as NestedReferenceData;
   switch (ref.type) {
     case 'state': {
-      const stateRef = context.state[ref.variable];
+      let stateRef = context.state[ref.variable];
+      if (stateRef === undefined && context.computed) {
+        stateRef = context.computed[ref.variable];
+      }
       let stateValue: unknown = stateRef;
       if (stateRef && typeof stateRef === 'object' && 'value' in stateRef) {
         stateValue = (stateRef as { value: unknown }).value;
@@ -171,12 +174,13 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     return '';
   }
 
+  const stateTypes = context.stateTypes || {};
+
   const transformed = trimmed
-    .replace(/ref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)/g, (_, path) => {
+    .replace(/\bref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       const parts = path.split('.');
       const varName = parts[0];
       const rest = parts.slice(1);
-      const stateTypes = context.stateTypes || {};
       const stateType = stateTypes[varName];
       const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
 
@@ -186,11 +190,14 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       const middle = needsValue ? '.value.' : '.';
       return `state.${varName}${middle}${rest.join('.')}`;
     })
-    .replace(/ref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)/g, (_, path) => {
+    .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       return `props.${path}`;
     })
-    .replace(/ref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, varName) => {
+    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, varName) => {
       return `computed.${varName}.value`;
+    })
+    .replace(/\btodo\.(\w+)\b/g, (_, prop) => {
+      return `state.todo.${prop}`;
     });
 
   try {
@@ -206,7 +213,7 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       `"use strict"; return (${transformed});`
     );
 
-    return fn(
+    const result = fn(
       context.props,
       context.state,
       context.computed,
@@ -216,6 +223,11 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       context.attrs,
       context.provide
     );
+
+    if (result && typeof result === 'object' && 'value' in result) {
+      return (result as { value: unknown }).value;
+    }
+    return result;
   } catch (error) {
     throw new Error(
       `Failed to evaluate expression "${expression}": ${error instanceof Error ? error.message : String(error)}`
@@ -243,6 +255,9 @@ export function transformFunctionBody(body: string, stateTypes: Record<string, s
     })
     .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       return `props.${path}`;
+    })
+    .replace(/\btodo\.(\w+)\b/g, (_, prop) => {
+      return `state.todo.${prop}`;
     });
 }
 

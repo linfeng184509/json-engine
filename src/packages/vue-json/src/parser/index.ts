@@ -343,3 +343,4 @@ export { parseLifecycle } from './lifecycle-parser';
 export { parseComponents } from './components-parser';
 export { parseRender } from './render-parser';
 export { registerDefaultKeyParsers, unregisterDefaultKeyParsers } from './key-parsers';
+export { parseExpressionBody };
