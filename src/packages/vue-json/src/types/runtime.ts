@@ -29,6 +29,7 @@ export interface RenderContext {
   emit: EmitFn;
   provide: Record<string, unknown>;
   stateTypes?: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>;
+  coreScope?: Record<string, unknown>;
 }
 
 export interface SetupContext {
@@ -65,6 +66,7 @@ export interface CreateComponentOptions {
   cache?: boolean;
   injectStyles?: boolean;
   debug?: boolean;
+  extraComponents?: Record<string, Component>;
 }
 
 export interface UseVueJsonOptions {

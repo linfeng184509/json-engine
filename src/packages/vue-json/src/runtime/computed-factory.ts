@@ -7,7 +7,8 @@ export function createComputed(
   definition: ComputedDefinition | undefined,
   context: SetupContext,
   state: Record<string, unknown>,
-  stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'> = {}
+  stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'> = {},
+  coreScope?: Record<string, unknown>
 ): Record<string, ComputedRef<unknown> | WritableComputedRef<unknown>> {
   const computeds: Record<string, ComputedRef<unknown> | WritableComputedRef<unknown>> = {};
 
@@ -24,6 +25,7 @@ export function createComputed(
     emit: context.emit,
     provide: {},
     stateTypes,
+    coreScope,
   };
 
   for (const [computedName, computedDef] of Object.entries(definition)) {
@@ -45,7 +47,9 @@ export function createComputed(
               renderContext.emit,
               renderContext.slots,
               renderContext.attrs,
-              renderContext.provide
+              renderContext.provide,
+              undefined,
+              coreScope || {}
             ),
           set: (value: unknown) =>
             setter(
@@ -57,7 +61,8 @@ export function createComputed(
               renderContext.slots,
               renderContext.attrs,
               renderContext.provide,
-              value
+              value,
+              coreScope || {}
             ),
         });
       } else {
@@ -70,7 +75,9 @@ export function createComputed(
             renderContext.emit,
             renderContext.slots,
             renderContext.attrs,
-            renderContext.provide
+            renderContext.provide,
+            undefined,
+            coreScope || {}
           )
         );
       }
@@ -102,6 +109,7 @@ function createFunctionFromValue(
     'attrs',
     'provide',
     'value',
+    'coreScope',
     `"use strict"; ${transformedBody}`
   );
 

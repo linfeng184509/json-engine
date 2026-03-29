@@ -15,6 +15,7 @@ import { renderVNode } from './render-factory';
 import { injectStyles, generateComponentId, removeStyles } from './style-injector';
 import { ComponentCreationError } from '../utils/error';
 import { executeFunction } from './value-resolver';
+import { getCoreScope } from '../composables/use-core-scope';
 
 const componentCache = new Map<string, Component>();
 
@@ -22,7 +23,7 @@ export function createComponent(
   schemaInput: VueJsonSchemaInput,
   options: CreateComponentOptions = {}
 ): Component {
-  const { cache = true, injectStyles: shouldInjectStyles = true, debug = false } = options;
+  const { cache = true, injectStyles: shouldInjectStyles = true, debug = false, extraComponents = {} } = options;
 
   const cacheKey = typeof schemaInput === 'string' ? schemaInput : JSON.stringify(schemaInput);
 
@@ -60,7 +61,6 @@ export function createComponent(
       const injected = schema.inject ? setupInject({ items: schema.inject.items }, context) : {};
       const state = createState(schema.state, context);
 
-      // 收集 stateTypes 用于 function body 转换（必须在 createComputed 之前）
       const stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'> = {};
       if (schema.state) {
         for (const [key, def] of Object.entries(schema.state)) {
@@ -72,20 +72,23 @@ export function createComponent(
         }
       }
 
-      const computedRefs = createComputed(schema.computed, context, state, stateTypes);
+      const coreScope = getCoreScope();
+      const computedRefs = createComputed(schema.computed, context, state, stateTypes, coreScope as unknown as Record<string, unknown>);
 
       const provideRef = { value: injected as Record<string, unknown> };
+      
       const methods = createMethods(
         schema.methods,
         context,
         state,
         computedRefs,
         provideRef,
-        stateTypes
+        stateTypes,
+        coreScope as unknown as Record<string, unknown>
       );
 
       setupWatchers(schema.watch, context, state, computedRefs, methods);
-      setupLifecycle(schema.lifecycle, context, state, computedRefs, methods);
+      setupLifecycle(schema.lifecycle, context, state, computedRefs, methods, coreScope as unknown as Record<string, unknown>);
 
       const provided = schema.provide
         ? setupProvide(schema.provide, context, state, computedRefs, methods)
@@ -103,7 +106,6 @@ export function createComponent(
         });
       }
 
-      // 返回渲染函数和状态
       return () => {
         try {
           return renderVNode(schema.render, {
@@ -111,12 +113,13 @@ export function createComponent(
             state,
             computed: computedRefs,
             methods,
-            components: schema.components || {},
+            components: { ...schema.components, ...extraComponents },
             slots,
             attrs,
             emit,
             provide: provideRef.value,
             stateTypes,
+            coreScope: coreScope as unknown as Record<string, unknown>,
           });
         } catch (error) {
           console.error(`[vue-json-engine] Render error in ${schema.name}:`, error);
@@ -141,7 +144,8 @@ function createMethods(
   state: Record<string, unknown>,
   computed: Record<string, unknown>,
   provideRef: { value: Record<string, unknown> },
-  stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>
+  stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>,
+  coreScope: Record<string, unknown>
 ): Record<string, (...args: unknown[]) => unknown> {
   const methods: Record<string, (...args: unknown[]) => unknown> = {};
 
@@ -160,6 +164,7 @@ function createMethods(
         provide: provideRef.value,
         components: {},
         stateTypes,
+        coreScope,
       };
       return executeFunction(fnValue, renderContext, args);
     };

@@ -81,29 +81,59 @@ export function createCoreScope(): CoreScope {
 
   const api: CoreScopeApi = {
     get: async (url: string, options?: Record<string, unknown>) => {
-      const response = await fetch(url, { method: 'GET', ...options });
+      const token = storage.get('token');
+      const headers: Record<string, string> = {
+        ...(options?.headers as Record<string, string> || {}),
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const response = await fetch(url, { method: 'GET', ...options, headers });
       return response.json();
     },
     post: async (url: string, data?: unknown, options?: Record<string, unknown>) => {
+      const token = storage.get('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(options?.headers as Record<string, string> || {}),
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: data ? JSON.stringify(data) : undefined,
         ...options,
       });
       return response.json();
     },
     put: async (url: string, data?: unknown, options?: Record<string, unknown>) => {
+      const token = storage.get('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(options?.headers as Record<string, string> || {}),
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       const response = await fetch(url, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: data ? JSON.stringify(data) : undefined,
         ...options,
       });
       return response.json();
     },
     delete: async (url: string, options?: Record<string, unknown>) => {
-      const response = await fetch(url, { method: 'DELETE', ...options });
+      const token = storage.get('token');
+      const headers: Record<string, string> = {
+        ...(options?.headers as Record<string, string> || {}),
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const response = await fetch(url, { method: 'DELETE', ...options, headers });
       return response.json();
     },
   };

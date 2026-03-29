@@ -1,0 +1,49 @@
+{
+  "name": "NotFoundPage",
+  "methods": {
+    "goHome": { "type": "function", "params": "{{{}}}", "body": "{{window.location.hash = '#/';}}" }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": {
+        "class": { "type": "string", "body": "'not-found-container'" }
+      },
+      "children": [
+        {
+          "type": "a-result",
+          "props": {
+            "status": { "type": "string", "body": "'404'" },
+            "title": { "type": "string", "body": "'页面未找到'" },
+            "subTitle": { "type": "string", "body": "'抱歉，您访问的页面不存在'" }
+          },
+          "children": [
+            {
+              "type": "template",
+              "children": [
+                {
+                  "type": "a-button",
+                  "props": {
+                    "type": { "type": "string", "body": "'primary'" },
+                    "size": { "type": "string", "body": "'large'" }
+                  },
+                  "directives": {
+                    "vOn": {
+                      "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.goHome();}}" }
+                    }
+                  },
+                  "children": ["返回首页"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": true,
+    "css": ".not-found-container { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: #f0f2f5; }"
+  }
+}

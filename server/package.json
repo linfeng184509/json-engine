@@ -1,0 +1,19 @@
+{
+  "name": "@json-enterprise/websocket-server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "@types/ws": "^8.5.0",
+    "tsx": "^4.7.0"
+  }
+}

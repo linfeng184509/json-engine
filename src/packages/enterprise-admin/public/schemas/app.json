@@ -1,0 +1,45 @@
+{
+  "name": "EnterpriseAdminApp",
+  "version": "1.0.0",
+  "ui": {
+    "components": [
+      { "name": "AForm", "component": "ant-design-vue/es/form" },
+      { "name": "AFormItem", "component": "ant-design-vue/es/form/FormItem" },
+      { "name": "AInput", "component": "ant-design-vue/es/input" },
+      { "name": "AInputPassword", "component": "ant-design-vue/es/input/Password" },
+      { "name": "AButton", "component": "ant-design-vue/es/button" },
+      { "name": "ACheckbox", "component": "ant-design-vue/es/checkbox" },
+      { "name": "ASpin", "component": "ant-design-vue/es/spin" },
+      { "name": "ACard", "component": "ant-design-vue/es/card" },
+      { "name": "AAlert", "component": "ant-design-vue/es/alert" },
+      { "name": "ALayout", "component": "ant-design-vue/es/layout" },
+      { "name": "ALayoutHeader", "component": "ant-design-vue/es/layout/Header" },
+      { "name": "ALayoutContent", "component": "ant-design-vue/es/layout/Content" },
+      { "name": "AResult", "component": "ant-design-vue/es/result" }
+    ],
+    "theme": {
+      "primaryColor": "#1677ff",
+      "borderRadius": 6
+    }
+  },
+  "network": {
+    "axios": {
+      "baseURL": "/api",
+      "timeout": 10000,
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "storage": {
+    "prefix": "ea_",
+    "sync": true
+  },
+  "auth": {
+    "pagePermissions": {
+      "/dashboard": "dashboard:view",
+      "/system/user": "user:view",
+      "/system/role": "role:view"
+    }
+  }
+}

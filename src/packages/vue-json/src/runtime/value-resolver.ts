@@ -207,6 +207,9 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, varName) => {
       return `computed.${varName}.value`;
     })
+    .replace(/\$\_\[core\]_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, prop) => {
+      return `coreScope._${prop}`;
+    })
     .replace(/\btodo\.(\w+)\b/g, (_, prop) => {
       return `state.todo.${prop}`;
     });
@@ -221,6 +224,7 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       'slots',
       'attrs',
       'provide',
+      'coreScope',
       `"use strict"; return (${transformed});`
     );
 
@@ -232,7 +236,8 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       context.emit,
       context.slots,
       context.attrs,
-      context.provide
+      context.provide,
+      context.coreScope || {}
     );
 
     if (result && typeof result === 'object' && 'value' in result) {
@@ -267,6 +272,12 @@ export function transformFunctionBody(body: string, stateTypes: Record<string, s
     .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       return `props.${path}`;
     })
+    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, varName) => {
+      return `computed.${varName}.value`;
+    })
+    .replace(/\$\_\[core\]_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, prop) => {
+      return `coreScope._${prop}`;
+    })
     .replace(/\btodo\.(\w+)\b/g, (_, prop) => {
       return `state.todo.${prop}`;
     });
@@ -293,6 +304,7 @@ export function executeFunction(
     'attrs',
     'provide',
     'args',
+    'coreScope',
     `"use strict"; ${transformedBody}`
   );
 
@@ -305,6 +317,7 @@ export function executeFunction(
     context.slots,
     context.attrs,
     context.provide,
-    args
+    args,
+    context.coreScope || {}
   );
 }

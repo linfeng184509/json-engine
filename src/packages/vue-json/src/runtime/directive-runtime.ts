@@ -14,6 +14,23 @@ import {
   isPropsRef,
 } from './value-resolver';
 
+function getNestedValue(obj: unknown, path: string): unknown {
+  if (!obj || !path) return obj;
+
+  const keys = path.split('.');
+  let result: unknown = obj;
+
+  for (const key of keys) {
+    if (result && typeof result === 'object') {
+      result = (result as Record<string, unknown>)[key];
+    } else {
+      return undefined;
+    }
+  }
+
+  return result;
+}
+
 export function applyVIf(condition: ExpressionValue, context: RenderContext): boolean {
   try {
     const result = evaluateExpression(condition.expression, context);
@@ -126,9 +143,20 @@ export function applyVModel(
 
     if (isStateRef(propRef)) {
       const stateValue = context.state[propRef.variable];
-      value = stateValue && typeof stateValue === 'object' && 'value' in stateValue
-        ? (stateValue as { value: unknown }).value
-        : stateValue;
+      const stateType = context.stateTypes?.[propRef.variable];
+      const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
+      
+      if (needsValue) {
+        value = stateValue && typeof stateValue === 'object' && 'value' in stateValue
+          ? (stateValue as { value: unknown }).value
+          : stateValue;
+      } else {
+        value = stateValue;
+      }
+      
+      if (propRef.path) {
+        value = getNestedValue(value, propRef.path);
+      }
     } else if (isPropsRef(propRef)) {
       value = context.props[propRef.variable];
     } else {
@@ -154,8 +182,26 @@ export function applyVModel(
 function setReferenceValue(ref: StateRef | PropsRef, value: unknown, context: RenderContext): void {
   if (isStateRef(ref)) {
     const stateValue = context.state[ref.variable];
-    if (stateValue && typeof stateValue === 'object' && 'value' in stateValue) {
+    const stateType = context.stateTypes?.[ref.variable];
+    const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
+    
+    if (ref.path) {
+      const parentPath = ref.path.split('.');
+      const lastKey = parentPath.pop();
+      let target: Record<string, unknown> = needsValue 
+        ? (stateValue as { value: unknown }).value as Record<string, unknown>
+        : stateValue as Record<string, unknown>;
+      
+      for (const key of parentPath) {
+        target = target[key] as Record<string, unknown>;
+      }
+      if (lastKey) {
+        target[lastKey] = value;
+      }
+    } else if (needsValue && stateValue && typeof stateValue === 'object' && 'value' in stateValue) {
       (stateValue as { value: unknown }).value = value;
+    } else {
+      Object.assign(stateValue as object, value);
     }
   } else if (isPropsRef(ref)) {
     context.props[ref.variable] = value;

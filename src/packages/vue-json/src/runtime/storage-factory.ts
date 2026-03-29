@@ -88,7 +88,7 @@ export function createStorageAdapter(config?: StorageConfig): StorageAdapter {
 
 export function syncToStorage(key: string, value: unknown): void {
   const storageKey = prefix + key;
-  const serialized = serialize(value);
+  const serialized = typeof value === 'string' ? value : serialize(value);
 
   if (encryptionKey) {
     storageAdapter.setItem(storageKey, encrypt(serialized, encryptionKey));

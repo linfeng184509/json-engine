@@ -1,0 +1,302 @@
+{
+  "name": "DashboardPage",
+  "state": {
+    "user": {
+      "type": "ref",
+      "initial": null
+    },
+    "permissions": {
+      "type": "ref",
+      "initial": []
+    },
+    "loading": {
+      "type": "ref",
+      "initial": true
+    }
+  },
+  "computed": {
+    "greeting": {
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{var hour = new Date().getHours(); if (hour < 12) return '早上好'; if (hour < 18) return '下午好'; return '晚上好';}}" }
+    },
+    "canManageUsers": {
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_[core]_auth.has('user:view');}}" }
+    },
+    "canManageRoles": {
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_[core]_auth.has('role:view');}}" }
+    },
+    "canManageSystem": {
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_[core]_auth.has('system:manage');}}" }
+    }
+  },
+  "methods": {
+    "loadUserInfo": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{var token = $_[core]_storage.get('token'); if (!token) { window.location.hash = '#/login'; return; } ref_state_loading = true; Promise.all([$_[core]_api.get('/api/user/info'), $_[core]_api.get('/api/user/permissions')]).then(function(results) { var userInfo = results[0]; var perms = results[1]; ref_state_user = userInfo; ref_state_permissions = perms; $_[core]_storage.set('userInfo', userInfo); $_[core]_storage.set('permissions', perms); }).catch(function(err) { console.error('Failed to load user info:', err); window.location.hash = '#/login'; }).finally(function() { ref_state_loading = false; });}}"
+    },
+    "handleLogout": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{$_[core]_api.post('/api/auth/logout'); $_[core]_storage.remove('token'); $_[core]_storage.remove('userInfo'); $_[core]_storage.remove('permissions'); window.location.hash = '#/login';}}"
+    },
+    "checkPermission": {
+      "type": "function",
+      "params": "{{{\"perm\": \"string\"}}}",
+      "body": "{{return $_[core]_auth.has(perm);}}"
+    }
+  },
+  "lifecycle": {
+    "onMounted": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{methods.loadUserInfo();}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": {
+        "class": { "type": "string", "body": "'dashboard-container'" }
+      },
+      "children": [
+        {
+          "type": "ALayout",
+          "props": {
+            "class": { "type": "string", "body": "'dashboard-layout'" }
+          },
+          "children": [
+            {
+              "type": "ALayoutHeader",
+              "props": {
+                "class": { "type": "string", "body": "'dashboard-header'" }
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "props": {
+                    "class": { "type": "string", "body": "'header-content'" }
+                  },
+                  "children": [
+                    {
+                      "type": "h2",
+                      "props": {
+                        "class": { "type": "string", "body": "'header-title'" }
+                      },
+                      "children": ["企业管理系统 (vue-json 演示)"]
+                    },
+                    {
+                      "type": "div",
+                      "props": {
+                        "class": { "type": "string", "body": "'header-right'" }
+                      },
+                      "children": [
+                        {
+                          "type": "span",
+                          "directives": {
+                            "vIf": { "type": "expression", "body": "{{ref_state_user}}" }
+                          },
+                          "props": {
+                            "class": { "type": "string", "body": "'user-name'" }
+                          },
+                          "children": [
+                            { "type": "expression", "body": "{{ref_state_user?.nickname || ref_state_user?.username}}" }
+                          ]
+                        },
+                        {
+                          "type": "AButton",
+                          "props": {
+                            "type": { "type": "string", "body": "'link'" },
+                            "class": { "type": "string", "body": "'logout-btn'" }
+                          },
+                          "directives": {
+                            "vOn": {
+                              "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleLogout();}}" }
+                            }
+                          },
+                          "children": ["退出登录"]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ALayoutContent",
+              "props": {
+                "class": { "type": "string", "body": "'dashboard-content'" }
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": { "type": "expression", "body": "{{ref_state_loading}}" }
+                  },
+                  "props": {
+                    "class": { "type": "string", "body": "'loading-container'" }
+                  },
+                  "children": [
+                    {
+                      "type": "ASpin",
+                      "props": {
+                        "size": { "type": "string", "body": "'large'" }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": { "type": "expression", "body": "{{!ref_state_loading && ref_state_user}}" }
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "props": {
+                        "class": { "type": "string", "body": "'welcome-section'" }
+                      },
+                      "children": [
+                        {
+                          "type": "h1",
+                          "children": [
+                            { "type": "expression", "body": "{{computed.greeting.value}}" },
+                            "，",
+                            { "type": "expression", "body": "{{ref_state_user?.nickname || ref_state_user?.username}}" },
+                            "！"
+                          ]
+                        },
+                        {
+                          "type": "p",
+                          "props": {
+                            "class": { "type": "string", "body": "'welcome-desc'" }
+                          },
+                          "children": ["欢迎使用企业管理系统 - 此页面完全由 JSON Schema 驱动"]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "div",
+                      "props": {
+                        "class": { "type": "string", "body": "'cards-row'" }
+                      },
+                      "children": [
+                        {
+                          "type": "ACard",
+                          "props": {
+                            "title": { "type": "string", "body": "'用户信息 ($_core_storage)'" },
+                            "class": { "type": "string", "body": "'info-card'" }
+                          },
+                          "children": [
+                            {
+                              "type": "p",
+                              "children": ["用户名: ", { "type": "expression", "body": "{{ref_state_user?.username}}" }]
+                            },
+                            {
+                              "type": "p",
+                              "children": ["昵称: ", { "type": "expression", "body": "{{ref_state_user?.nickname}}" }]
+                            },
+                            {
+                              "type": "p",
+                              "children": ["邮箱: ", { "type": "expression", "body": "{{ref_state_user?.email}}" }]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ACard",
+                          "props": {
+                            "title": { "type": "string", "body": "'权限列表 ($_core_auth)'" },
+                            "class": { "type": "string", "body": "'info-card'" }
+                          },
+                          "children": [
+                            {
+                              "type": "p",
+                              "directives": {
+                                "vIf": { "type": "expression", "body": "{{computed.canManageUsers.value}}" }
+                              },
+                              "children": ["✓ 用户管理权限 (user:view)"]
+                            },
+                            {
+                              "type": "p",
+                              "directives": {
+                                "vIf": { "type": "expression", "body": "{{computed.canManageRoles.value}}" }
+                              },
+                              "children": ["✓ 角色管理权限 (role:view)"]
+                            },
+                            {
+                              "type": "p",
+                              "directives": {
+                                "vIf": { "type": "expression", "body": "{{computed.canManageSystem.value}}" }
+                              },
+                              "children": ["✓ 系统管理权限 (system:manage)"]
+                            },
+                            {
+                              "type": "p",
+                              "directives": {
+                                "vIf": { "type": "expression", "body": "{{!computed.canManageUsers.value && !computed.canManageRoles.value}}" }
+                              },
+                              "children": ["基础权限 (dashboard:view, profile:edit)"]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ACard",
+                      "props": {
+                        "title": { "type": "string", "body": "'vue-json 功能演示'" },
+                        "class": { "type": "string", "body": "'feature-card'" }
+                      },
+                      "children": [
+                        {
+                          "type": "div",
+                          "props": {
+                            "class": { "type": "string", "body": "'feature-list'" }
+                          },
+                          "children": [
+                            {
+                              "type": "p",
+                              "children": ["✓ $_[core]_api.get/post - API 请求"]
+                            },
+                            {
+                              "type": "p",
+                              "children": ["✓ $_[core]_storage.get/set/remove - 本地存储"]
+                            },
+                            {
+                              "type": "p",
+                              "children": ["✓ $_[core]_auth.has/hasAny/hasAll - 权限检查"]
+                            },
+                            {
+                              "type": "p",
+                              "children": ["✓ state/computed/methods/lifecycle - 响应式系统"]
+                            },
+                            {
+                              "type": "p",
+                              "children": ["✓ render template - VNode 渲染"]
+                            },
+                            {
+                              "type": "p",
+                              "children": ["✓ directives (vIf, vFor, vModel, vOn) - 指令系统"]
+                            },
+                            {
+                              "type": "p",
+                              "children": ["✓ styles scoped - 样式隔离"]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": true,
+    "css": ".dashboard-container { min-height: 100vh; background: #f0f2f5; } .dashboard-layout { min-height: 100vh; } .dashboard-header { background: #001529; padding: 0 24px; } .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1440px; margin: 0 auto; } .header-title { color: #ffffff; margin: 0; font-size: 18px; font-weight: 500; } .header-right { display: flex; align-items: center; gap: 16px; } .user-name { color: #ffffff; } .logout-btn { color: rgba(255, 255, 255, 0.85); } .dashboard-content { padding: 24px; max-width: 1440px; margin: 0 auto; } .loading-container { display: flex; justify-content: center; align-items: center; min-height: 400px; } .welcome-section { margin-bottom: 24px; } .welcome-section h1 { font-size: 28px; font-weight: 600; color: rgba(0, 0, 0, 0.85); margin-bottom: 8px; } .welcome-desc { font-size: 14px; color: rgba(0, 0, 0, 0.45); margin-bottom: 24px; } .cards-row { display: flex; gap: 16px; margin-bottom: 24px; } .info-card { flex: 1; } .feature-card { margin-top: 16px; } .feature-list p { margin: 8px 0; color: rgba(0, 0, 0, 0.65); }"
+  }
+}

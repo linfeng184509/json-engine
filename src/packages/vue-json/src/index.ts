@@ -28,6 +28,10 @@ export {
   updateStyles,
   generateComponentId,
   clearAllStyles,
+  createStorageAdapter,
+  syncToStorage,
+  syncFromStorage,
+  removeFromStorage,
 } from './runtime';
 
 // Platform
@@ -80,7 +84,8 @@ export {
 } from './runtime/sop-permission';
 
 // Composables
-export { useVueJson, useJsonComponent, useJsonRenderer } from './composables';
+export { useVueJson, useJsonComponent, useJsonRenderer, useCoreScope, createCoreScope, setCoreScope } from './composables';
+export type { CoreScope, CoreScopeAuth, CoreScopeI18n, CoreScopeStorage, CoreScopeApi, CoreScopeWS } from './composables';
 
 // Runtime (value-resolver)
 export {

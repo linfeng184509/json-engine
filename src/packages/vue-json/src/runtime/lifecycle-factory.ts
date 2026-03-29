@@ -18,7 +18,8 @@ export function setupLifecycle(
   context: SetupContext,
   state: Record<string, unknown>,
   computed: Record<string, unknown>,
-  methods: Record<string, (...args: unknown[]) => unknown>
+  methods: Record<string, (...args: unknown[]) => unknown>,
+  coreScope?: Record<string, unknown>
 ): void {
   if (!definition) return;
 
@@ -32,6 +33,7 @@ export function setupLifecycle(
     attrs: context.attrs,
     emit: context.emit,
     provide: {},
+    coreScope,
   };
 
   setupHook(definition.onMounted, onMounted, renderContext, 'onMounted');
