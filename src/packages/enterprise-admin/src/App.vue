@@ -111,7 +111,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #f0f2f5;
+  background: #f5f5f5;
 }
 
 .error-container {
@@ -119,7 +119,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #f0f2f5;
+  background: #f5f5f5;
 }
 
 .error-result {
@@ -131,12 +131,12 @@ onMounted(() => {
   width: 72px;
   height: 72px;
   margin: 0 auto 24px;
-  background: #fff2f0;
+  background: #fff1f0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
+  font-size: 38px;
   color: #ff4d4f;
 }
 

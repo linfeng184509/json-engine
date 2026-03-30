@@ -21,26 +21,26 @@
     "type": "template",
     "content": {
       "type": "div",
-      "props": { "class": { "type": "string", "body": "'container'" } },
+      "props": { "class": { "type": "string", "body": "'ea-login-container'" } },
       "children": [
-        { "type": "div", "props": { "class": { "type": "string", "body": "'left'" } }, "children": [
-          { "type": "div", "props": { "class": { "type": "string", "body": "'left-content'" } }, "children": [
-            { "type": "div", "props": { "class": { "type": "string", "body": "'logo'" } }, "children": [
-              { "type": "div", "props": { "class": { "type": "string", "body": "'logo-icon'" } }, "children": ["E"] },
-              { "type": "span", "props": { "class": { "type": "string", "body": "'logo-text'" } }, "children": ["Enterprise"] }
+        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-login-left'" } }, "children": [
+          { "type": "div", "props": { "class": { "type": "string", "body": "'ea-login-left-content'" } }, "children": [
+            { "type": "div", "props": { "class": { "type": "string", "body": "'ea-login-logo'" } }, "children": [
+              { "type": "div", "props": { "class": { "type": "string", "body": "'ea-login-logo-icon'" } }, "children": ["E"] },
+              { "type": "span", "props": { "class": { "type": "string", "body": "'ea-login-logo-text'" } }, "children": ["Enterprise Admin"] }
             ] },
-            { "type": "h1", "props": { "class": { "type": "string", "body": "'slogan'" } }, "children": ["企业级管理平台"] },
-            { "type": "p", "props": { "class": { "type": "string", "body": "'desc'" } }, "children": ["安全、高效、可扩展的企业管理系统解决方案"] }
+            { "type": "h1", "props": { "class": { "type": "string", "body": "'ea-login-slogan'" } }, "children": ["企业级管理平台"] },
+            { "type": "p", "props": { "class": { "type": "string", "body": "'ea-login-desc'" } }, "children": ["安全、高效、可扩展的企业管理系统解决方案"] }
           ] }
         ] },
-        { "type": "div", "props": { "class": { "type": "string", "body": "'right'" } }, "children": [
-          { "type": "div", "props": { "class": { "type": "string", "body": "'form-wrap'" } }, "children": [
-            { "type": "div", "props": { "class": { "type": "string", "body": "'form-header'" } }, "children": [
-              { "type": "h2", "props": { "class": { "type": "string", "body": "'form-title'" } }, "children": ["账户登录"] },
-              { "type": "p", "props": { "class": { "type": "string", "body": "'form-sub'" } }, "children": ["请输入您的账户信息"] }
+        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-login-right'" } }, "children": [
+          { "type": "div", "props": { "class": { "type": "string", "body": "'ea-login-form-wrap'" } }, "children": [
+            { "type": "div", "props": { "class": { "type": "string", "body": "'ea-login-form-header'" } }, "children": [
+              { "type": "h2", "props": { "class": { "type": "string", "body": "'ea-login-form-title'" } }, "children": ["账户登录"] },
+              { "type": "p", "props": { "class": { "type": "string", "body": "'ea-login-form-sub'" } }, "children": ["请输入您的账户信息"] }
             ] },
             { "type": "AForm", "props": { "layout": { "type": "string", "body": "'vertical'" } }, "directives": { "vOn": { "submit.prevent": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleLogin()}}" } } }, "children": [
-              { "type": "AAlert", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_errors.general}}" } }, "props": { "type": { "type": "string", "body": "'error'" }, "message": { "type": "expression", "body": "{{ref_state_errors.general}}" }, "showIcon": true, "style": { "type": "string", "body": "'margin-bottom:20px'" } } },
+              { "type": "AAlert", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_errors.general}}" } }, "props": { "type": { "type": "string", "body": "'error'" }, "message": { "type": "expression", "body": "{{ref_state_errors.general}}" }, "showIcon": true, "style": { "type": "string", "body": "'margin-bottom:16px'" } } },
               { "type": "AFormItem", "props": { "label": { "type": "string", "body": "'用户名'" }, "required": true, "validateStatus": { "type": "expression", "body": "{{ref_state_errors.username?'error':''}}" }, "help": { "type": "expression", "body": "{{ref_state_errors.username}}" } }, "children": [
                 { "type": "AInput", "props": { "size": { "type": "string", "body": "'large'" }, "placeholder": { "type": "string", "body": "'admin 或 user'" } }, "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formData.username}}" } } } }
               ] },
@@ -48,9 +48,9 @@
                 { "type": "AInputPassword", "props": { "size": { "type": "string", "body": "'large'" }, "placeholder": { "type": "string", "body": "'admin123 或 user123'" } }, "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formData.password}}" } } } }
               ] },
               { "type": "AFormItem", "props": { "label": { "type": "string", "body": "'验证码'" } }, "children": [
-                { "type": "div", "props": { "style": { "type": "string", "body": "'display:flex;gap:12px;align-items:center'" } }, "children": [
+                { "type": "div", "props": { "style": { "type": "string", "body": "'display:flex;gap:8px;align-items:center'" } }, "children": [
                   { "type": "AInput", "props": { "size": { "type": "string", "body": "'large'" }, "placeholder": { "type": "string", "body": "'请输入验证码'" }, "style": { "type": "string", "body": "'flex:1'" } }, "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formData.captchaCode}}" } } } },
-                  { "type": "img", "props": { "src": { "type": "expression", "body": "{{ref_state_captcha.captchaImage}}" }, "alt": { "type": "string", "body": "'验证码'" }, "style": { "type": "string", "body": "'height:40px;border-radius:4px;cursor:pointer'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.fetchCaptcha()}}" } } } }
+                  { "type": "img", "props": { "src": { "type": "expression", "body": "{{ref_state_captcha.captchaImage}}" }, "alt": { "type": "string", "body": "'验证码'" }, "style": { "type": "string", "body": "'height:40px;border-radius:6px;cursor:pointer'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.fetchCaptcha()}}" } } } }
                 ] }
               ] },
               { "type": "AFormItem", "children": [
@@ -62,14 +62,14 @@
                 { "type": "AButton", "props": { "type": { "type": "string", "body": "'primary'" }, "htmlType": { "type": "string", "body": "'submit'" }, "size": { "type": "string", "body": "'large'" }, "block": true, "loading": { "type": "expression", "body": "{{ref_state_loading}}" }, "disabled": { "type": "expression", "body": "{{computed.submitDisabled.value}}" } }, "children": ["登 录"] }
               ] }
             ] },
-            { "type": "div", "props": { "class": { "type": "string", "body": "'tips'" } }, "children": ["测试账号: admin / admin123 或 user / user123"] }
+            { "type": "div", "props": { "class": { "type": "string", "body": "'ea-login-tips'" } }, "children": ["测试账号：admin / admin123 或 user / user123"] }
           ] }
         ] }
       ]
     }
   },
   "styles": {
-    "scoped": true,
-    "css": ".container{min-height:100vh;display:flex}.left{display:none;flex:1;background:linear-gradient(135deg,#1890ff 0%,#096dd9 100%);padding:40px;position:relative;overflow:hidden}.left::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 70%)}@media(min-width:992px){.left{display:flex;align-items:center}}.left-content{position:relative;z-index:1;max-width:420px}.logo{display:flex;align-items:center;gap:12px;margin-bottom:48px}.logo-icon{width:44px;height:44px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#1890ff}.logo-text{font-size:24px;font-weight:600;color:#fff}.slogan{font-size:44px;font-weight:600;color:#fff;line-height:1.2;margin:0 0 16px}.desc{font-size:18px;color:rgba(255,255,255,0.85);margin:0}.right{flex:1;display:flex;align-items:center;justify-content:center;padding:32px;background:#f0f2f5}.form-wrap{width:100%;max-width:380px;background:#fff;padding:40px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}.form-header{text-align:center;margin-bottom:32px}.form-title{font-size:28px;font-weight:600;color:#262626;margin:0 0 8px}.form-sub{font-size:14px;color:#8c8c8c;margin:0}.tips{text-align:center;margin-top:24px;font-size:13px;color:#8c8c8c}"
+    "scoped": false,
+    "css": ".ea-login-container{min-height:100vh;display:flex}.ea-login-left{display:none;flex:1;background:linear-gradient(145deg, #1677ff, #0958d9);padding:64px;position:relative;overflow:hidden}@media(min-width:992px){.ea-login-left{display:flex;align-items:center}}.ea-login-left-content{position:relative;z-index:1;max-width:480px}.ea-login-logo{display:flex;align-items:center;gap:12px;margin-bottom:48px}.ea-login-logo-icon{width:36px;height:36px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#1677ff}.ea-login-logo-text{font-size:17px;font-weight:500;color:#fff}.ea-login-slogan{font-size:28px;font-weight:600;color:#fff;line-height:1.4;margin:0 0 8px}.ea-login-desc{font-size:14px;color:rgba(255,255,255,0.75);margin:0;line-height:1.6}.ea-login-right{flex:1;display:flex;align-items:center;justify-content:center;padding:32px;background:#f5f5f5}.ea-login-form-wrap{width:100%;max-width:400px;background:#fff;padding:40px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}.ea-login-form-header{text-align:center;margin-bottom:32px}.ea-login-form-title{font-size:22px;font-weight:600;color:rgba(0,0,0,0.88);margin:0 0 8px}.ea-login-form-sub{font-size:14px;color:rgba(0,0,0,0.45);margin:0}.ea-login-tips{text-align:center;margin-top:24px;font-size:13px;color:rgba(0,0,0,0.45)}"
   }
 }
