@@ -42,7 +42,7 @@ function isPropertyValue(value: unknown): value is PropertyValue {
   if (typeof value !== 'object') return true;
   const obj = value as Record<string, unknown>;
   if (typeof obj._type === 'string') {
-    return ['expression', 'state', 'props', 'scope'].includes(obj._type);
+    return ['expression', 'state', 'props', 'scope', 'echarts-option'].includes(obj._type);
   }
   return true;
 }

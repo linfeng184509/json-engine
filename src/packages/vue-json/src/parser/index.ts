@@ -28,6 +28,7 @@ const STRUCTURED_TYPE_VALUES = new Set([
   'string',
   'object',
   'import',
+  'echarts-option',
 ]);
 
 // 保留的顶级键，不进行递归处理
@@ -58,6 +59,7 @@ function isStructuredType(obj: unknown): obj is Record<string, unknown> {
     case 'string':
     case 'object':
     case 'import':
+    case 'echarts-option':
       return 'body' in record;
     default:
       return false;
