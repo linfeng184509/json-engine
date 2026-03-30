@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2023"],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@json-engine/vue-json": ["../../vue-json/src"],
+      "@json-engine/core-engine": ["../../core-engine/src"],
+      "@json-engine/plugin-antd": ["../../plugins/plugin-antd/src"]
+    }
+  },
+  "include": ["src/**/*"]
+}
