@@ -1,0 +1,161 @@
+{
+  "name": "ChartsPage",
+  "state": {
+    "barChartData": {
+      "type": "ref",
+      "initial": [120, 200, 150, 80, 70, 110, 130]
+    },
+    "pieChartData": {
+      "type": "ref",
+      "initial": [
+        { "value": 1048, "name": "搜索引擎" },
+        { "value": 735, "name": "直接访问" },
+        { "value": 580, "name": "邮件营销" },
+        { "value": 484, "name": "联盟广告" }
+      ]
+    },
+    "loading": {
+      "type": "ref",
+      "initial": false
+    }
+  },
+  "methods": {
+    "updateData": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{var newData=ref_state_barChartData.map(v=>v+Math.floor(Math.random()*100-50));ref_state_barChartData=newData}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": { "class": { "type": "string", "body": "'charts-container'" } },
+      "children": [
+        {
+          "type": "h2",
+          "props": { "class": { "type": "string", "body": "'charts-title'" } },
+          "children": ["ECharts 图表示例"]
+        },
+        {
+          "type": "div",
+          "props": { "class": { "type": "string", "body": "'chart-row'" } },
+          "children": [
+            {
+              "type": "ACard",
+              "props": {
+                "title": { "type": "string", "body": "'柱状图'" },
+                "class": { "type": "string", "body": "'chart-card'" }
+              },
+              "children": [
+                {
+                  "type": "ECharts",
+                  "props": {
+                    "option": {
+                      "type": "echarts-option",
+                      "body": {
+                        "xAxis": {
+                          "type": "category",
+                          "data": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+                        },
+                        "yAxis": {
+                          "type": "value"
+                        },
+                        "series": [
+                          {
+                            "type": "bar",
+                            "data": "{{ref_state_barChartData}}",
+                            "itemStyle": {
+                              "color": "#1677ff"
+                            }
+                          }
+                        ],
+                        "tooltip": {
+                          "trigger": "axis"
+                        }
+                      }
+                    },
+                    "autoResize": true,
+                    "height": 300
+                  }
+                },
+                {
+                  "type": "div",
+                  "props": { "class": { "type": "string", "body": "'chart-actions'" } },
+                  "children": [
+                    {
+                      "type": "AButton",
+                      "props": {
+                        "type": { "type": "string", "body": "'primary'" }
+                      },
+                      "directives": {
+                        "vOn": {
+                          "click": {
+                            "type": "function",
+                            "params": "{{{}}}",
+                            "body": "{{methods.updateData()}}"
+                          }
+                        }
+                      },
+                      "children": ["更新数据"]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ACard",
+              "props": {
+                "title": { "type": "string", "body": "'饼图'" },
+                "class": { "type": "string", "body": "'chart-card'" }
+              },
+              "children": [
+                {
+                  "type": "ECharts",
+                  "props": {
+                    "option": {
+                      "type": "echarts-option",
+                      "body": {
+                        "tooltip": {
+                          "trigger": "item"
+                        },
+                        "legend": {
+                          "orient": "vertical",
+                          "left": "left"
+                        },
+                        "series": [
+                          {
+                            "type": "pie",
+                            "radius": "60%",
+                            "data": "{{ref_state_pieChartData}}",
+                            "emphasis": {
+                              "itemStyle": {
+                                "shadowBlur": 10,
+                                "shadowOffsetX": 0,
+                                "shadowColor": "rgba(0, 0, 0, 0.5)"
+                              }
+                            },
+                            "label": {
+                              "show": true,
+                              "formatter": "{b}: {c} ({d}%)"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "autoResize": true,
+                    "height": 300
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": false,
+    "css": ".charts-container{max-width:1400px;margin:0 auto;padding:24px}.charts-title{font-size:24px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:24px}.chart-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:24px}.chart-card{background:#fff;border-radius:8px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.03)}.chart-card .ant-card-body{padding:16px}.chart-actions{margin-top:16px;display:flex;justify-content:flex-end}"
+  }
+}

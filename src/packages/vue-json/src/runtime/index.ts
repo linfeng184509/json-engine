@@ -23,3 +23,4 @@ export * from './ui-factory';
 export * from './multi-platform-config';
 export * from './auth-directive';
 export * from './schema-loader';
+export * from './echarts-factory';

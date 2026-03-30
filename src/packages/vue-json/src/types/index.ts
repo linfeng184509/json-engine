@@ -112,3 +112,8 @@ export type {
   CreateComponentOptions,
   UseVueJsonOptions,
 } from './runtime';
+export type {
+  EChartsOptionValue,
+  EChartsComponentProps,
+  EChartsNodeDefinition,
+} from './echarts';

@@ -39,7 +39,11 @@ export type {
   I18nConfig,
   AuthConfig,
   VueJsonAppSchema,
+  EChartsOptionValue,
+  EChartsComponentProps,
+  EChartsNodeDefinition,
 } from './types';
+export type { EChartsInstance } from './runtime/echarts-factory';
 
 // Parser
 export { parseSchema } from './parser';
@@ -52,6 +56,10 @@ export {
   toPascalCase,
   isValidVariableName,
 } from './parser/key-parsers';
+export {
+  createEChartsOptionParser,
+  EChartsOptionParser,
+} from './parser/echarts-option-parser';
 
 // Runtime
 export {
@@ -94,6 +102,14 @@ export {
   loadComponent,
   clearSchemaLoaderCache,
   preloadSchemas,
+  initECharts,
+  setupAutoResize,
+  disposeECharts,
+  setOption,
+  showLoading,
+  hideLoading,
+  isEChartsAvailable,
+  getEChartsVersion,
 } from './runtime';
 export type { SchemaLoadResult, SchemaLoadOptions } from './runtime';
 

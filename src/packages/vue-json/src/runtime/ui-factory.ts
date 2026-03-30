@@ -13,6 +13,17 @@ export function registerComponents(components: UIComponentConfig[]): void {
 }
 
 export function getComponent(name: string): unknown | undefined {
+  if (name === 'ECharts') {
+    const echartsComp = registeredComponents.get('ECharts');
+    if (!echartsComp) {
+      const { initEChartsComponent } = require('../components/EChartsComponent');
+      if (initEChartsComponent(registeredComponents)) {
+        return registeredComponents.get('ECharts');
+      }
+      return undefined;
+    }
+    return echartsComp;
+  }
   return registeredComponents.get(name) || libraryComponents[name];
 }
 
