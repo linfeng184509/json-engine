@@ -19,13 +19,6 @@ export function getEcharts(): EChartsModule | null {
     return echarts;
   }
 
-  // Try to get echarts from window (for browser/Vite environment)
-  if (typeof window !== 'undefined' && (window as any).echarts) {
-    echarts = (window as any).echarts;
-    return echarts;
-  }
-
-  // Fallback to require (for Node/SSR environment)
   try {
     echarts = require('echarts');
     return echarts;

@@ -8,12 +8,12 @@ import {
   type PropType,
   markRaw,
 } from 'vue';
-import { getEcharts } from '../runtime/echarts-factory';
+import * as echarts from 'echarts';
 
 type EChartsOption = Record<string, unknown>;
 
 export function initEChartsComponent(registry?: Map<string, unknown>): boolean {
-  const lib = getEcharts();
+  const lib = echarts;
   if (!lib) {
     return false;
   }
@@ -73,20 +73,14 @@ export const EChartsComponent = defineComponent({
     const DEBOUNCE_DELAY = 300;
 
     function initChart() {
-      const lib = getEcharts();
-      if (!lib || !containerRef.value) {
-        if (!lib) {
-          console.warn(
-            '[vue-json] ECharts not installed. Please install echarts package: npm install echarts'
-          );
-        }
+      if (!containerRef.value) {
         return;
       }
 
       try {
         const option = normalizeOption(props.option);
         chartInstance.value = markRaw(
-          lib.init(containerRef.value, props.theme, {
+          echarts.init(containerRef.value, props.theme, {
             width: props.width,
             height: props.height,
           })
