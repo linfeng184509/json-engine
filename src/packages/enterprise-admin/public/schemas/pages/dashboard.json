@@ -18,66 +18,66 @@
     "type": "template",
     "content": {
       "type": "div",
-      "props": { "class": { "type": "string", "body": "'app'" } },
+      "props": { "class": { "type": "string", "body": "'ea-dashboard'" } },
       "children": [
-        { "type": "ALayout", "props": { "class": { "type": "string", "body": "'layout'" } }, "children": [
-          { "type": "ALayoutHeader", "props": { "class": { "type": "string", "body": "'head'" } }, "children": [
-            { "type": "div", "props": { "class": { "type": "string", "body": "'head-in'" } }, "children": [
-              { "type": "div", "props": { "class": { "type": "string", "body": "'brand'" } }, "children": [
-                { "type": "div", "props": { "class": { "type": "string", "body": "'brand-icon'" } }, "children": ["E"] },
-                { "type": "span", "children": ["企业管理系统"] }
+        { "type": "ALayout", "props": { "class": { "type": "string", "body": "'ea-layout'" } }, "children": [
+          { "type": "ALayoutHeader", "props": { "class": { "type": "string", "body": "'ea-header'" } }, "children": [
+            { "type": "div", "props": { "class": { "type": "string", "body": "'ea-header-inner'" } }, "children": [
+              { "type": "div", "props": { "class": { "type": "string", "body": "'ea-brand'" } }, "children": [
+                { "type": "div", "props": { "class": { "type": "string", "body": "'ea-brand-icon'" } }, "children": ["E"] },
+                { "type": "span", "props": { "class": { "type": "string", "body": "'ea-brand-text'" } }, "children": ["企业管理系统"] }
               ] },
-              { "type": "div", "props": { "class": { "type": "string", "body": "'head-right'" } }, "children": [
-                { "type": "span", "directives": { "vIf": { "type": "expression", "body": "{{computed.hasUser.value}}" } }, "props": { "class": { "type": "string", "body": "'name'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
-                { "type": "AButton", "props": { "type": { "type": "string", "body": "'link'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.logout()}}" } } }, "children": ["退出"] }
+              { "type": "div", "props": { "class": { "type": "string", "body": "'ea-user-menu'" } }, "children": [
+                { "type": "span", "directives": { "vIf": { "type": "expression", "body": "{{computed.hasUser.value}}" } }, "props": { "class": { "type": "string", "body": "'ea-username'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
+                { "type": "AButton", "props": { "type": { "type": "string", "body": "'link'" }, "class": { "type": "string", "body": "'ea-logout-btn'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.logout()}}" } } }, "children": ["退出"] }
               ] }
             ] }
           ] },
-          { "type": "ALayoutContent", "props": { "class": { "type": "string", "body": "'main'" } }, "children": [
-            { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_loading}}" } }, "props": { "class": { "type": "string", "body": "'load'" } }, "children": [{ "type": "ASpin", "props": { "size": { "type": "string", "body": "'large'" } } }] },
-            { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{!ref_state_loading&&computed.hasUser.value}}" } }, "children": [
-              { "type": "div", "props": { "class": { "type": "string", "body": "'hi'" } }, "children": [
-                { "type": "h1", "children": [{ "type": "expression", "body": "{{computed.greeting.value}}" }, "，", { "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
-                { "type": "p", "children": ["欢迎使用企业管理系统，祝您工作愉快"] }
-              ] },
-              { "type": "div", "props": { "class": { "type": "string", "body": "'row'" } }, "children": [
-                { "type": "ACard", "props": { "class": { "type": "string", "body": "'card'" }, "bordered": false }, "children": [
-                  { "type": "div", "props": { "class": { "type": "string", "body": "'stat'" } }, "children": [
-                    { "type": "div", "props": { "class": { "type": "string", "body": "'stat-icon i1'" } }, "children": ["👤"] },
-                    { "type": "div", "children": [
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-v'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.username||'-'}}" }] },
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-l'" } }, "children": ["用户名"] }
+          { "type": "ALayoutContent", "props": { "class": { "type": "string", "body": "'ea-content'" } }, "children": [
+            { "type": "div", "props": { "class": { "type": "string", "body": "'ea-content-inner'" } }, "children": [
+              { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_loading}}" } }, "props": { "class": { "type": "string", "body": "'ea-loading'" } }, "children": [{ "type": "ASpin", "props": { "size": { "type": "string", "body": "'large'" } } }] },
+              { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{!ref_state_loading&&computed.hasUser.value}}" } }, "children": [
+                { "type": "div", "props": { "class": { "type": "string", "body": "'ea-welcome'" } }, "children": [
+                  { "type": "h1", "props": { "class": { "type": "string", "body": "'ea-welcome-title'" } }, "children": [{ "type": "expression", "body": "{{computed.greeting.value}}" }, "，", { "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
+                  { "type": "p", "props": { "class": { "type": "string", "body": "'ea-welcome-desc'" } }, "children": ["欢迎使用企业管理系统，祝您工作愉快"] }
+                ] },
+                { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stats-row'" } }, "children": [
+                  { "type": "ACard", "props": { "class": { "type": "string", "body": "'ea-stat-card'" }, "bordered": false }, "children": [
+                    { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat'" } }, "children": [
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-icon ea-stat-icon-user'" } }, "children": ["👤"] },
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-info'" } }, "children": [
+                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-value'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.username||'-'}}" }] },
+                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-label'" } }, "children": ["用户名"] }
+                      ] }
+                    ] }
+                  ] },
+                  { "type": "ACard", "props": { "class": { "type": "string", "body": "'ea-stat-card'" }, "bordered": false }, "children": [
+                    { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat'" } }, "children": [
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-icon ea-stat-icon-email'" } }, "children": ["✉️"] },
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-info'" } }, "children": [
+                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-value'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.email||'-'}}" }] },
+                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-label'" } }, "children": ["邮箱"] }
+                      ] }
+                    ] }
+                  ] },
+                  { "type": "ACard", "props": { "class": { "type": "string", "body": "'ea-stat-card'" }, "bordered": false }, "children": [
+                    { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat'" } }, "children": [
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-icon ea-stat-icon-perm'" } }, "children": ["🔐"] },
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-info'" } }, "children": [
+                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-value'" } }, "children": ["3"] },
+                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-label'" } }, "children": ["权限数"] }
+                      ] }
                     ] }
                   ] }
                 ] },
-                { "type": "ACard", "props": { "class": { "type": "string", "body": "'card'" }, "bordered": false }, "children": [
-                  { "type": "div", "props": { "class": { "type": "string", "body": "'stat'" } }, "children": [
-                    { "type": "div", "props": { "class": { "type": "string", "body": "'stat-icon i2'" } }, "children": ["✉️"] },
-                    { "type": "div", "children": [
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-v'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.email||'-'}}" }] },
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-l'" } }, "children": ["邮箱"] }
-                    ] }
-                  ] }
-                ] },
-                { "type": "ACard", "props": { "class": { "type": "string", "body": "'card'" }, "bordered": false }, "children": [
-                  { "type": "div", "props": { "class": { "type": "string", "body": "'stat'" } }, "children": [
-                    { "type": "div", "props": { "class": { "type": "string", "body": "'stat-icon i3'" } }, "children": ["🔐"] },
-                    { "type": "div", "children": [
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-v'" } }, "children": ["3"] },
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-l'" } }, "children": ["权限数"] }
-                    ] }
-                  ] }
-                ] }
-              ] },
-              { "type": "div", "props": { "class": { "type": "string", "body": "'row'" } }, "children": [
-                { "type": "ACard", "props": { "title": { "type": "string", "body": "'功能特性'" }, "class": { "type": "string", "body": "'card'" }, "bordered": false }, "children": [
-                  { "type": "div", "props": { "class": { "type": "string", "body": "'tags'" } }, "children": [
-                    { "type": "span", "children": ["API 请求"] },
-                    { "type": "span", "children": ["本地存储"] },
-                    { "type": "span", "children": ["权限检查"] },
-                    { "type": "span", "children": ["响应式系统"] },
-                    { "type": "span", "children": ["模板渲染"] },
-                    { "type": "span", "children": ["指令系统"] }
+                { "type": "ACard", "props": { "title": { "type": "string", "body": "'功能特性'" }, "class": { "type": "string", "body": "'ea-feature-card'" }, "bordered": false }, "children": [
+                  { "type": "div", "props": { "class": { "type": "string", "body": "'ea-tags'" } }, "children": [
+                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["API 请求"] },
+                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["本地存储"] },
+                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["权限检查"] },
+                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["响应式系统"] },
+                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["模板渲染"] },
+                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["指令系统"] }
                   ] }
                 ] }
               ] }
@@ -88,7 +88,7 @@
     }
   },
   "styles": {
-    "scoped": true,
-    "css": ".app{min-height:100vh;background:#f5f5f5}.layout{min-height:100vh}.head{background:#fff;padding:0 32px;height:56px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02),0 2px 4px 0 rgba(0,0,0,0.02)}.head-in{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;height:100%}.brand{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:500;color:rgba(0,0,0,0.85)}.brand-icon{width:32px;height:32px;background:#1677ff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600}.head-right{display:flex;align-items:center;gap:16px}.name{font-size:14px;color:rgba(0,0,0,0.65)}.main{padding:24px;max-width:1200px;margin:0 auto}.load{display:flex;justify-content:center;align-items:center;min-height:400px}.hi{margin-bottom:24px}.hi h1{font-size:24px;font-weight:500;color:rgba(0,0,0,0.85);margin:0 0 8px}.hi p{font-size:14px;color:rgba(0,0,0,0.45);margin:0}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px}.card{background:#fff;border-radius:8px}.card .ant-card-body{padding:24px}.stat{display:flex;align-items:center;gap:16px}.stat-icon{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px}.i1{background:#e6f4ff}.i2{background:#f6ffed}.i3{background:#fffbe6}.stat-v{font-size:20px;font-weight:500;color:rgba(0,0,0,0.85);margin-bottom:4px}.stat-l{font-size:12px;color:rgba(0,0,0,0.45)}.tags{display:flex;gap:8px;flex-wrap:wrap}.tags span{padding:8px 16px;background:#fafafa;border-radius:6px;font-size:12px;color:rgba(0,0,0,0.65)}"
+    "scoped": false,
+    "css": ".ea-dashboard{min-height:100vh;background:#f5f5f5}.ea-layout{min-height:100vh}.ea-header{background:#fff;padding:0 24px;height:56px;box-shadow:0 1px 4px -1px rgba(0,0,0,0.06),0 1px 6px -1px rgba(0,0,0,0.05)}.ea-header-inner{display:flex;justify-content:space-between;align-items:center;max-width:1400px;margin:0 auto;height:100%}.ea-brand{display:flex;align-items:center;gap:10px}.ea-brand-icon{width:32px;height:32px;background:#1677ff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600}.ea-brand-text{font-size:16px;font-weight:600;color:rgba(0,0,0,0.88)}.ea-user-menu{display:flex;align-items:center;gap:16px}.ea-username{font-size:14px;color:rgba(0,0,0,0.65)}.ea-logout-btn{color:rgba(0,0,0,0.65)}.ea-logout-btn:hover{color:#1677ff}.ea-content{background:#f5f5f5}.ea-content-inner{max-width:1400px;margin:0 auto;padding:24px}.ea-loading{display:flex;justify-content:center;align-items:center;min-height:400px}.ea-welcome{margin-bottom:24px}.ea-welcome-title{font-size:24px;font-weight:600;color:rgba(0,0,0,0.88);margin:0 0 8px}.ea-welcome-desc{font-size:14px;color:rgba(0,0,0,0.45);margin:0}.ea-stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px}.ea-stat-card{background:#fff;border-radius:8px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02)}.ea-stat-card .ant-card-body{padding:20px}.ea-stat{display:flex;align-items:center;gap:16px}.ea-stat-icon{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px}.ea-stat-icon-user{background:#e6f4ff}.ea-stat-icon-email{background:#f6ffed}.ea-stat-icon-perm{background:#fffbe6}.ea-stat-info{flex:1}.ea-stat-value{font-size:20px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:4px}.ea-stat-label{font-size:12px;color:rgba(0,0,0,0.45)}.ea-feature-card{background:#fff;border-radius:8px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02)}.ea-feature-card .ant-card-body{padding:20px}.ea-tags{display:flex;gap:8px;flex-wrap:wrap}.ea-tag{padding:6px 12px;background:#fafafa;border-radius:6px;font-size:12px;color:rgba(0,0,0,0.65);transition:all 0.2s}.ea-tag:hover{background:#e6f4ff;color:#1677ff}"
   }
 }
