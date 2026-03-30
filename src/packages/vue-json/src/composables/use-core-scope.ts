@@ -2,6 +2,19 @@ import { has, hasAny, hasAll, hasRole, canAccessPage } from '../runtime/permissi
 import { getFieldPermission, canReadField, canWriteField, isFieldHidden, isFieldPrivate } from '../runtime/field-permission';
 import { t, setLocale, getLocale } from '../runtime/i18n-factory';
 import { syncToStorage, syncFromStorage, removeFromStorage } from '../runtime/storage-factory';
+import type { SchemaLoadResult, SchemaLoadOptions } from '../runtime/schema-loader';
+import { getSchemaLoader } from '../runtime/schema-loader';
+import type { Component } from 'vue';
+
+let globalExtraComponents: Record<string, Component> = {};
+
+export function registerGlobalComponents(components: Record<string, Component>): void {
+  globalExtraComponents = { ...globalExtraComponents, ...components };
+}
+
+export function getGlobalComponents(): Record<string, Component> {
+  return globalExtraComponents;
+}
 
 export interface CoreScopeAuth {
   has: (permission: string) => boolean;
@@ -43,12 +56,41 @@ export interface CoreScopeWS {
   unsubscribe: (channel: string, handler: (data: unknown) => void) => void;
 }
 
+export interface CoreScopeLoader {
+  load: (path: string, options?: SchemaLoadOptions) => Promise<SchemaLoadResult>;
+  clearCache: () => void;
+  preload: (paths: string[], options?: SchemaLoadOptions) => Promise<SchemaLoadResult[]>;
+}
+
+export interface CoreScopeRouter {
+  push: (path: string) => void;
+  replace: (path: string) => void;
+  currentRoute: string;
+  go: (n: number) => void;
+  back: () => void;
+  forward: () => void;
+}
+
 export interface CoreScope {
   _auth: CoreScopeAuth;
   _i18n: CoreScopeI18n;
   _storage: CoreScopeStorage;
   _api: CoreScopeApi;
   _ws: CoreScopeWS;
+  _loader: CoreScopeLoader;
+  _router: CoreScopeRouter;
+}
+
+function getCurrentHashRoute(): string {
+  return window.location.hash.slice(1) || '/';
+}
+
+function setHashRoute(path: string, replace: boolean = false): void {
+  if (replace) {
+    window.location.replace(`#${path}`);
+  } else {
+    window.location.hash = path;
+  }
 }
 
 export function createCoreScope(): CoreScope {
@@ -150,12 +192,30 @@ export function createCoreScope(): CoreScope {
     },
   };
 
+  const schemaLoader = getSchemaLoader();
+  const loader: CoreScopeLoader = {
+    load: (path: string, options?: SchemaLoadOptions) => schemaLoader.load(path, options),
+    clearCache: () => schemaLoader.clearCache(),
+    preload: (paths: string[], options?: SchemaLoadOptions) => schemaLoader.preload(paths, options),
+  };
+
+  const router: CoreScopeRouter = {
+    push: (path: string) => setHashRoute(path, false),
+    replace: (path: string) => setHashRoute(path, true),
+    currentRoute: getCurrentHashRoute(),
+    go: (n: number) => window.history.go(n),
+    back: () => window.history.back(),
+    forward: () => window.history.forward(),
+  };
+
   return {
     _auth: auth,
     _i18n: i18n,
     _storage: storage,
     _api: api,
     _ws: ws,
+    _loader: loader,
+    _router: router,
   };
 }
 

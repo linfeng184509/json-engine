@@ -255,7 +255,14 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
  * 转换函数体中的引用格式
  */
 export function transformFunctionBody(body: string, stateTypes: Record<string, string>): string {
-  return body
+  let result = body;
+  
+  // Remove {{ }} wrapper if present
+  if (result.startsWith('{{') && result.endsWith('}}')) {
+    result = result.slice(2, -2);
+  }
+  
+  return result
     .replace(/\bref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       const parts = path.split('.');
       const varName = parts[0];
@@ -284,6 +291,31 @@ export function transformFunctionBody(body: string, stateTypes: Record<string, s
 }
 
 /**
+ * 解析函数参数
+ */
+function parseFunctionParams(params: Record<string, unknown> | string): string[] {
+  if (!params) return [];
+  
+  // If params is a string, parse it directly
+  if (typeof params === 'string') {
+    let cleaned = params.trim();
+    if (cleaned.startsWith('{{{') && cleaned.endsWith('}}}')) {
+      cleaned = cleaned.slice(3, -3).trim();
+    }
+    if (!cleaned) return [];
+    return cleaned.split(',').map(p => p.trim()).filter(p => p);
+  }
+  
+  // If params is an object, extract keys
+  if (typeof params === 'object') {
+    const keys = Object.keys(params);
+    return keys;
+  }
+  
+  return [];
+}
+
+/**
  * 执行函数值
  */
 export function executeFunction(
@@ -293,31 +325,51 @@ export function executeFunction(
 ): unknown {
   const stateTypes = context.stateTypes || {};
   const transformedBody = transformFunctionBody(fnValue.body, stateTypes);
+  
+  // Parse params and create bindings
+  const paramNames = parseFunctionParams(fnValue.params);
+  const paramBindings = paramNames.length > 0 
+    ? paramNames.map((name, index) => `var ${name} = args[${index}];`).join(' ')
+    : '';
 
-  const fn = new Function(
-    'props',
-    'state',
-    'computed',
-    'methods',
-    'emit',
-    'slots',
-    'attrs',
-    'provide',
-    'args',
-    'coreScope',
-    `"use strict"; ${transformedBody}`
-  );
+  try {
+    const fn = new Function(
+      'props',
+      'state',
+      'computed',
+      'methods',
+      'emit',
+      'slots',
+      'attrs',
+      'provide',
+      'args',
+      'coreScope',
+      `"use strict"; ${paramBindings} ${transformedBody}`
+    );
 
-  return fn(
-    context.props,
-    context.state,
-    context.computed,
-    context.methods,
-    context.emit,
-    context.slots,
-    context.attrs,
-    context.provide,
-    args,
-    context.coreScope || {}
-  );
+    return fn(
+      context.props,
+      context.state,
+      context.computed,
+      context.methods,
+      context.emit,
+      context.slots,
+      context.attrs,
+      context.provide,
+      args,
+      context.coreScope || {}
+    );
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    console.error('[vue-json-engine] Function execution error:', {
+      body: fnValue.body.substring(0, 100),
+      transformedBody: transformedBody.substring(0, 200),
+      params: fnValue.params,
+      paramNames,
+      argsLength: args.length,
+      errorMessage: err.message,
+      errorStack: err.stack
+    });
+    throw err;
+  }
 }

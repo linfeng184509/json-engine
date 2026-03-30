@@ -1,289 +1,75 @@
 {
   "name": "LoginPage",
-  "props": {
-    "title": {
-      "type": "String",
-      "default": "企业管理系统"
-    }
-  },
+  "props": { "title": { "type": "String", "default": "企业管理系统" } },
   "state": {
-    "formData": {
-      "type": "reactive",
-      "initial": {
-        "username": "",
-        "password": "",
-        "captchaCode": "",
-        "rememberMe": false
-      }
-    },
-    "captcha": {
-      "type": "ref",
-      "initial": {
-        "captchaId": "",
-        "captchaImage": ""
-      }
-    },
-    "loading": {
-      "type": "ref",
-      "initial": false
-    },
-    "errors": {
-      "type": "reactive",
-      "initial": {
-        "username": "",
-        "password": "",
-        "general": ""
-      }
-    }
+    "formData": { "type": "reactive", "initial": { "username": "", "password": "", "captchaCode": "", "rememberMe": true } },
+    "captcha": { "type": "ref", "initial": { "captchaId": "", "captchaImage": "" } },
+    "loading": { "type": "ref", "initial": false },
+    "errors": { "type": "reactive", "initial": { "username": "", "password": "", "general": "" } }
   },
   "computed": {
-    "isValid": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return ref_state_formData.username && ref_state_formData.password;}}" }
-    },
-    "submitDisabled": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return ref_state_loading || !computed.isValid.value;}}" }
-    }
+    "isValid": { "get": { "type": "function", "params": "{{{}}}", "body": "{{return ref_state_formData.username && ref_state_formData.password;}}" } },
+    "submitDisabled": { "get": { "type": "function", "params": "{{{}}}", "body": "{{return ref_state_loading || !computed.isValid.value;}}" } }
   },
   "methods": {
-    "fetchCaptcha": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_[core]_api.get('/api/auth/captcha').then(function(data) { ref_state_captcha = data; }).catch(function(err) { console.error('Failed to fetch captcha:', err); });}}"
-    },
-    "validateForm": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var valid = true; if (!ref_state_formData.username) { ref_state_errors.username = '请输入用户名'; valid = false; } else { ref_state_errors.username = ''; } if (!ref_state_formData.password) { ref_state_errors.password = '请输入密码'; valid = false; } else { ref_state_errors.password = ''; } return valid;}}"
-    },
-    "handleLogin": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{if (!methods.validateForm()) return; ref_state_loading = true; ref_state_errors.general = ''; $_[core]_api.post('/api/auth/login', { username: ref_state_formData.username, password: ref_state_formData.password, captchaId: ref_state_captcha.captchaId, captchaCode: ref_state_formData.captchaCode }).then(function(data) { if (data.success) { $_[core]_storage.set('token', data.token); $_[core]_storage.set('userInfo', { username: ref_state_formData.username }); window.location.hash = '#/dashboard'; } else { ref_state_errors.general = data.error || '登录失败'; methods.fetchCaptcha(); } ref_state_loading = false; }).catch(function(err) { ref_state_errors.general = '网络错误，请稍后重试'; ref_state_loading = false; });}}"
-    },
-    "handleUsernameBlur": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{if (!ref_state_formData.username) { ref_state_errors.username = '请输入用户名'; } else { ref_state_errors.username = ''; }}}"
-    },
-    "handlePasswordBlur": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{if (!ref_state_formData.password) { ref_state_errors.password = '请输入密码'; } else { ref_state_errors.password = ''; }}}"
-    }
+    "fetchCaptcha": { "type": "function", "params": "{{{}}}", "body": "{{$_[core]_api.get('/api/auth/captcha').then(function(d){ref_state_captcha=d;}).catch(function(e){console.error(e);})}}" },
+    "validateForm": { "type": "function", "params": "{{{}}}", "body": "{{var v=true;if(!ref_state_formData.username){ref_state_errors.username='请输入用户名';v=false}else{ref_state_errors.username=''}if(!ref_state_formData.password){ref_state_errors.password='请输入密码';v=false}else{ref_state_errors.password=''}return v}}" },
+    "handleLogin": { "type": "function", "params": "{{{}}}", "body": "{{if(!methods.validateForm())return;ref_state_loading=true;ref_state_errors.general='';$_[core]_api.post('/api/auth/login',{username:ref_state_formData.username,password:ref_state_formData.password,captchaId:ref_state_captcha.captchaId,captchaCode:ref_state_formData.captchaCode}).then(function(d){if(d.success){$_[core]_storage.set('token',d.token);$_[core]_storage.set('userInfo',{username:ref_state_formData.username});window.location.hash='#/dashboard'}else{ref_state_errors.general=d.error||'登录失败';methods.fetchCaptcha()}ref_state_loading=false}).catch(function(e){ref_state_errors.general='网络错误';ref_state_loading=false})}}" }
   },
-  "lifecycle": {
-    "onMounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{methods.fetchCaptcha();}}"
-    }
-  },
+  "lifecycle": { "onMounted": { "type": "function", "params": "{{{}}}", "body": "{{methods.fetchCaptcha()}}" } },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
-      "props": {
-        "class": { "type": "string", "body": "'login-container'" }
-      },
+      "props": { "class": { "type": "string", "body": "'container'" } },
       "children": [
-        {
-          "type": "div",
-          "props": {
-            "class": { "type": "string", "body": "'login-content'" }
-          },
-          "children": [
-            {
-              "type": "div",
-              "props": {
-                "class": { "type": "string", "body": "'login-header'" }
-              },
-              "children": [
-                {
-                  "type": "h1",
-                  "props": {
-                    "class": { "type": "string", "body": "'login-title'" }
-                  },
-                  "children": [
-                    { "type": "expression", "body": "{{ref_props_title}}" }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "AForm",
-              "props": {
-                "class": { "type": "string", "body": "'login-form'" },
-                "layout": { "type": "string", "body": "'vertical'" }
-              },
-              "directives": {
-                "vOn": {
-                  "submit.prevent": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleLogin();}}" }
-                }
-              },
-              "children": [
-                {
-                  "type": "AAlert",
-                  "directives": {
-                    "vIf": { "type": "expression", "body": "{{ref_state_errors.general}}" }
-                  },
-                  "props": {
-                    "type": { "type": "string", "body": "'error'" },
-                    "message": { "type": "expression", "body": "{{ref_state_errors.general}}" },
-                    "showIcon": true,
-                    "class": { "type": "string", "body": "'login-error'" }
-                  }
-                },
-                {
-                  "type": "AFormItem",
-                  "props": {
-                    "label": { "type": "string", "body": "'用户名'" },
-                    "required": true,
-                    "validateStatus": { "type": "expression", "body": "{{ref_state_errors.username ? 'error' : ''}}" },
-                    "help": { "type": "expression", "body": "{{ref_state_errors.username}}" }
-                  },
-                  "children": [
-                    {
-                      "type": "AInput",
-                      "props": {
-                        "placeholder": { "type": "string", "body": "'请输入用户名'" },
-                        "size": { "type": "string", "body": "'large'" },
-                        "allowClear": true
-                      },
-                      "directives": {
-                        "vModel": {
-                          "prop": { "type": "state", "body": "{{ref_state_formData.username}}" }
-                        },
-                        "vOn": {
-                          "blur": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleUsernameBlur();}}" }
-                        }
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "AFormItem",
-                  "props": {
-                    "label": { "type": "string", "body": "'密码'" },
-                    "required": true,
-                    "validateStatus": { "type": "expression", "body": "{{ref_state_errors.password ? 'error' : ''}}" },
-                    "help": { "type": "expression", "body": "{{ref_state_errors.password}}" }
-                  },
-                  "children": [
-                    {
-                      "type": "AInputPassword",
-                      "props": {
-                        "placeholder": { "type": "string", "body": "'请输入密码'" },
-                        "size": { "type": "string", "body": "'large'" },
-                        "allowClear": true
-                      },
-                      "directives": {
-                        "vModel": {
-                          "prop": { "type": "state", "body": "{{ref_state_formData.password}}" }
-                        },
-                        "vOn": {
-                          "blur": { "type": "function", "params": "{{{}}}", "body": "{{methods.handlePasswordBlur();}}" }
-                        }
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "AFormItem",
-                  "props": {
-                    "label": { "type": "string", "body": "'验证码'" }
-                  },
-                  "children": [
-                    {
-                      "type": "div",
-                      "props": {
-                        "class": { "type": "string", "body": "'captcha-row'" }
-                      },
-                      "children": [
-                        {
-                          "type": "AInput",
-                          "props": {
-                            "placeholder": { "type": "string", "body": "'请输入验证码'" },
-                            "size": { "type": "string", "body": "'large'" },
-                            "class": { "type": "string", "body": "'captcha-input'" }
-                          },
-                          "directives": {
-                            "vModel": {
-                              "prop": { "type": "state", "body": "{{ref_state_formData.captchaCode}}" }
-                            }
-                          }
-                        },
-                        {
-                          "type": "img",
-                          "props": {
-                            "src": { "type": "expression", "body": "{{ref_state_captcha.captchaImage}}" },
-                            "alt": { "type": "string", "body": "'验证码'" },
-                            "class": { "type": "string", "body": "'captcha-image'" }
-                          },
-                          "directives": {
-                            "vOn": {
-                              "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.fetchCaptcha();}}" }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "AFormItem",
-                  "children": [
-                    {
-                      "type": "ACheckbox",
-                      "directives": {
-                        "vModel": {
-                          "prop": { "type": "state", "body": "{{ref_state_formData.rememberMe}}" }
-                        }
-                      },
-                      "children": ["记住我"]
-                    }
-                  ]
-                },
-                {
-                  "type": "AFormItem",
-                  "children": [
-                    {
-                      "type": "AButton",
-                      "props": {
-                        "type": { "type": "string", "body": "'primary'" },
-                        "htmlType": { "type": "string", "body": "'submit'" },
-                        "size": { "type": "string", "body": "'large'" },
-                        "loading": { "type": "expression", "body": "{{ref_state_loading}}" },
-                        "disabled": { "type": "expression", "body": "{{computed.submitDisabled.value}}" },
-                        "block": true,
-                        "class": { "type": "string", "body": "'login-button'" }
-                      },
-                      "children": [
-                        { "type": "expression", "body": "{{ref_state_loading ? '登录中...' : '登录'}}" }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "div",
-              "props": {
-                "class": { "type": "string", "body": "'login-tips'" }
-              },
-              "children": [
-                {
-                  "type": "p",
-                  "children": ["测试账号: admin / admin123 或 user / user123"]
-                }
-              ]
-            }
-          ]
-        }
+        { "type": "div", "props": { "class": { "type": "string", "body": "'left'" } }, "children": [
+          { "type": "div", "props": { "class": { "type": "string", "body": "'left-content'" } }, "children": [
+            { "type": "div", "props": { "class": { "type": "string", "body": "'logo'" } }, "children": [
+              { "type": "div", "props": { "class": { "type": "string", "body": "'logo-icon'" } }, "children": ["E"] },
+              { "type": "span", "props": { "class": { "type": "string", "body": "'logo-text'" } }, "children": ["Enterprise"] }
+            ] },
+            { "type": "h1", "props": { "class": { "type": "string", "body": "'slogan'" } }, "children": ["企业级管理平台"] },
+            { "type": "p", "props": { "class": { "type": "string", "body": "'desc'" } }, "children": ["安全、高效、可扩展的企业管理系统解决方案"] }
+          ] }
+        ] },
+        { "type": "div", "props": { "class": { "type": "string", "body": "'right'" } }, "children": [
+          { "type": "div", "props": { "class": { "type": "string", "body": "'form-wrap'" } }, "children": [
+            { "type": "div", "props": { "class": { "type": "string", "body": "'form-header'" } }, "children": [
+              { "type": "h2", "props": { "class": { "type": "string", "body": "'form-title'" } }, "children": ["账户登录"] },
+              { "type": "p", "props": { "class": { "type": "string", "body": "'form-sub'" } }, "children": ["请输入您的账户信息"] }
+            ] },
+            { "type": "AForm", "props": { "layout": { "type": "string", "body": "'vertical'" } }, "directives": { "vOn": { "submit.prevent": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleLogin()}}" } } }, "children": [
+              { "type": "AAlert", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_errors.general}}" } }, "props": { "type": { "type": "string", "body": "'error'" }, "message": { "type": "expression", "body": "{{ref_state_errors.general}}" }, "showIcon": true, "style": { "type": "string", "body": "'margin-bottom:20px'" } } },
+              { "type": "AFormItem", "props": { "label": { "type": "string", "body": "'用户名'" }, "required": true, "validateStatus": { "type": "expression", "body": "{{ref_state_errors.username?'error':''}}" }, "help": { "type": "expression", "body": "{{ref_state_errors.username}}" } }, "children": [
+                { "type": "AInput", "props": { "size": { "type": "string", "body": "'large'" }, "placeholder": { "type": "string", "body": "'admin 或 user'" } }, "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formData.username}}" } } } }
+              ] },
+              { "type": "AFormItem", "props": { "label": { "type": "string", "body": "'密码'" }, "required": true, "validateStatus": { "type": "expression", "body": "{{ref_state_errors.password?'error':''}}" }, "help": { "type": "expression", "body": "{{ref_state_errors.password}}" } }, "children": [
+                { "type": "AInputPassword", "props": { "size": { "type": "string", "body": "'large'" }, "placeholder": { "type": "string", "body": "'admin123 或 user123'" } }, "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formData.password}}" } } } }
+              ] },
+              { "type": "AFormItem", "props": { "label": { "type": "string", "body": "'验证码'" } }, "children": [
+                { "type": "div", "props": { "style": { "type": "string", "body": "'display:flex;gap:12px;align-items:center'" } }, "children": [
+                  { "type": "AInput", "props": { "size": { "type": "string", "body": "'large'" }, "placeholder": { "type": "string", "body": "'请输入验证码'" }, "style": { "type": "string", "body": "'flex:1'" } }, "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formData.captchaCode}}" } } } },
+                  { "type": "img", "props": { "src": { "type": "expression", "body": "{{ref_state_captcha.captchaImage}}" }, "alt": { "type": "string", "body": "'验证码'" }, "style": { "type": "string", "body": "'height:40px;border-radius:4px;cursor:pointer'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.fetchCaptcha()}}" } } } }
+                ] }
+              ] },
+              { "type": "AFormItem", "children": [
+                { "type": "div", "props": { "style": { "type": "string", "body": "'display:flex;justify-content:space-between;align-items:center'" } }, "children": [
+                  { "type": "ACheckbox", "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formData.rememberMe}}" } } }, "children": ["记住我"] }
+                ] }
+              ] },
+              { "type": "AFormItem", "children": [
+                { "type": "AButton", "props": { "type": { "type": "string", "body": "'primary'" }, "htmlType": { "type": "string", "body": "'submit'" }, "size": { "type": "string", "body": "'large'" }, "block": true, "loading": { "type": "expression", "body": "{{ref_state_loading}}" }, "disabled": { "type": "expression", "body": "{{computed.submitDisabled.value}}" } }, "children": ["登 录"] }
+              ] }
+            ] },
+            { "type": "div", "props": { "class": { "type": "string", "body": "'tips'" } }, "children": ["测试账号: admin / admin123 或 user / user123"] }
+          ] }
+        ] }
       ]
     }
   },
   "styles": {
     "scoped": true,
-    "css": ".login-container { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 16px; } .login-content { width: 100%; max-width: 400px; background: #ffffff; border-radius: 8px; padding: 32px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); } .login-header { text-align: center; margin-bottom: 32px; } .login-title { font-size: 24px; font-weight: 600; color: rgba(0, 0, 0, 0.85); margin: 0; line-height: 32px; } .login-form { width: 100%; } .login-error { margin-bottom: 24px; } .captcha-row { display: flex; align-items: center; gap: 8px; } .captcha-input { flex: 1; } .captcha-image { width: 120px; height: 40px; cursor: pointer; border-radius: 6px; border: 1px solid #d9d9d9; } .login-button { margin-top: 8px; } .login-tips { margin-top: 16px; text-align: center; color: rgba(0, 0, 0, 0.45); font-size: 12px; }"
+    "css": ".container{min-height:100vh;display:flex}.left{display:none;flex:1;background:linear-gradient(135deg,#1890ff 0%,#096dd9 100%);padding:40px;position:relative;overflow:hidden}.left::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 70%)}@media(min-width:992px){.left{display:flex;align-items:center}}.left-content{position:relative;z-index:1;max-width:420px}.logo{display:flex;align-items:center;gap:12px;margin-bottom:48px}.logo-icon{width:44px;height:44px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#1890ff}.logo-text{font-size:24px;font-weight:600;color:#fff}.slogan{font-size:44px;font-weight:600;color:#fff;line-height:1.2;margin:0 0 16px}.desc{font-size:18px;color:rgba(255,255,255,0.85);margin:0}.right{flex:1;display:flex;align-items:center;justify-content:center;padding:32px;background:#f0f2f5}.form-wrap{width:100%;max-width:380px;background:#fff;padding:40px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}.form-header{text-align:center;margin-bottom:32px}.form-title{font-size:28px;font-weight:600;color:#262626;margin:0 0 8px}.form-sub{font-size:14px;color:#8c8c8c;margin:0}.tips{text-align:center;margin-top:24px;font-size:13px;color:#8c8c8c}"
   }
 }

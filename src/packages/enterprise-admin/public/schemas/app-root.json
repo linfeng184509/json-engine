@@ -1,0 +1,89 @@
+{
+  "name": "AppRoot",
+  "state": {
+    "isLoading": { "type": "ref", "initial": false },
+    "error": { "type": "ref", "initial": null },
+    "currentRoute": { "type": "ref", "initial": "/" },
+    "pageSchemaPath": { "type": "ref", "initial": null }
+  },
+  "computed": {
+    "hasToken": {
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_[core]_storage.get('token') != null;}}" }
+    }
+  },
+  "methods": {
+    "loadPage": {
+      "type": "function",
+      "params": "{{{ {\"route\": null} }}}",
+      "body": "{{var path = (route || ref_state_currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; for (var i = 0; i < routes.length; i++) { if (routes[i].path === path) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { ref_state_error = 'Page not found'; return; } if (matched.redirect) { $_[core]_router.replace(matched.redirect); return; } var token = $_[core]_storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_[core]_router.push('/login'); return; } if (path === '/login' && token) { $_[core]_router.replace('/dashboard'); return; } ref_state_isLoading = true; ref_state_error = null; ref_state_pageSchemaPath = matched.component; ref_state_isLoading = false;}}"
+    },
+    "handleHashChange": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ref_state_currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(ref_state_currentRoute);}}"
+    },
+    "retry": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{methods.loadPage(ref_state_currentRoute);}}"
+    }
+  },
+  "lifecycle": {
+    "onMounted": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ref_state_currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(ref_state_currentRoute); window.addEventListener('hashchange', methods.handleHashChange);}}"
+    },
+    "onUnmounted": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{window.removeEventListener('hashchange', methods.handleHashChange);}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": { "class": { "type": "string", "body": "'app-root'" } },
+      "children": [
+        {
+          "type": "div",
+          "directives": { "vIf": { "type": "expression", "body": "{{ref_state_isLoading}}" } },
+          "props": { "class": { "type": "string", "body": "'loading-container'" } },
+          "children": [
+            { "type": "span", "props": { "class": { "type": "string", "body": "'ant-spin ant-spin-spinning'" } }, "children": ["Loading..."] }
+          ]
+        },
+        {
+          "type": "div",
+          "directives": { "vIf": { "type": "expression", "body": "{{ref_state_error}}" } },
+          "props": { "class": { "type": "string", "body": "'error-container'" } },
+          "children": [
+            {
+              "type": "div",
+              "props": { "class": { "type": "string", "body": "'error-result'" } },
+              "children": [
+                { "type": "div", "props": { "class": { "type": "string", "body": "'error-icon'" } }, "children": ["!"] },
+                { "type": "h2", "children": ["Load Failed"] },
+                { "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_error}}" }] },
+                { "type": "button", "props": { "class": { "type": "string", "body": "'retry-btn'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.retry();}}" } } }, "children": ["Retry"] }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "PageLoader",
+          "directives": { "vIf": { "type": "expression", "body": "{{ref_state_pageSchemaPath && !ref_state_error}}" } },
+          "props": {
+            "schemaPath": { "type": "expression", "body": "{{ref_state_pageSchemaPath}}" },
+            "cache": true
+          }
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": true,
+    "css": "#app { min-height: 100vh; } .loading-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; } .error-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; } .error-result { text-align: center; padding: 24px; } .error-icon { width: 72px; height: 72px; margin: 0 auto 24px; background: #fff2f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #ff4d4f; } .error-result h2 { color: rgba(0, 0, 0, 0.85); font-size: 24px; margin-bottom: 8px; } .error-result p { color: rgba(0, 0, 0, 0.45); margin-bottom: 24px; } .retry-btn { background: #1677ff; color: #fff; border: none; padding: 8px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; } .retry-btn:hover { background: #4096ff; }"
+  }
+}

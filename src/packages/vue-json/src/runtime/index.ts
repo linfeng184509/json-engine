@@ -22,3 +22,4 @@ export * from './i18n-factory';
 export * from './ui-factory';
 export * from './multi-platform-config';
 export * from './auth-directive';
+export * from './schema-loader';

@@ -16,14 +16,26 @@ import { injectStyles, generateComponentId, removeStyles } from './style-injecto
 import { ComponentCreationError } from '../utils/error';
 import { executeFunction } from './value-resolver';
 import { getCoreScope } from '../composables/use-core-scope';
+import { PageLoader } from '../components/PageLoader';
+import type { SchemaLoaderImpl } from './schema-loader';
 
 const componentCache = new Map<string, Component>();
+
+const BUILTIN_COMPONENTS: Record<string, Component> = {
+  PageLoader,
+};
 
 export function createComponent(
   schemaInput: VueJsonSchemaInput,
   options: CreateComponentOptions = {}
 ): Component {
-  const { cache = true, injectStyles: shouldInjectStyles = true, debug = false, extraComponents = {} } = options;
+  const {
+    cache = true,
+    injectStyles: shouldInjectStyles = true,
+    debug = false,
+    extraComponents = {},
+    registerPageLoader = true,
+  } = options;
 
   const cacheKey = typeof schemaInput === 'string' ? schemaInput : JSON.stringify(schemaInput);
 
@@ -108,12 +120,18 @@ export function createComponent(
 
       return () => {
         try {
+          const allComponents: Record<string, Component> = {
+            ...schema.components,
+            ...(registerPageLoader ? BUILTIN_COMPONENTS : {}),
+            ...extraComponents,
+          };
+
           return renderVNode(schema.render, {
             props: context.props,
             state,
             computed: computedRefs,
             methods,
-            components: { ...schema.components, ...extraComponents },
+            components: allComponents,
             slots,
             attrs,
             emit,

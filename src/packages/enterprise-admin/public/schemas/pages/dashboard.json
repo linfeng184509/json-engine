@@ -1,302 +1,94 @@
 {
   "name": "DashboardPage",
   "state": {
-    "user": {
-      "type": "ref",
-      "initial": null
-    },
-    "permissions": {
-      "type": "ref",
-      "initial": []
-    },
-    "loading": {
-      "type": "ref",
-      "initial": true
-    }
+    "user": { "type": "ref", "initial": null },
+    "permissions": { "type": "ref", "initial": [] },
+    "loading": { "type": "ref", "initial": true }
   },
   "computed": {
-    "greeting": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{var hour = new Date().getHours(); if (hour < 12) return '早上好'; if (hour < 18) return '下午好'; return '晚上好';}}" }
-    },
-    "canManageUsers": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_[core]_auth.has('user:view');}}" }
-    },
-    "canManageRoles": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_[core]_auth.has('role:view');}}" }
-    },
-    "canManageSystem": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_[core]_auth.has('system:manage');}}" }
-    }
+    "greeting": { "get": { "type": "function", "params": "{{{}}}", "body": "{{var h=new Date().getHours();return h<12?'早上好':h<18?'下午好':'晚上好'}}" } },
+    "hasUser": { "get": { "type": "function", "params": "{{{}}}", "body": "{{return!!ref_state_user}}" } }
   },
   "methods": {
-    "loadUserInfo": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var token = $_[core]_storage.get('token'); if (!token) { window.location.hash = '#/login'; return; } ref_state_loading = true; Promise.all([$_[core]_api.get('/api/user/info'), $_[core]_api.get('/api/user/permissions')]).then(function(results) { var userInfo = results[0]; var perms = results[1]; ref_state_user = userInfo; ref_state_permissions = perms; $_[core]_storage.set('userInfo', userInfo); $_[core]_storage.set('permissions', perms); }).catch(function(err) { console.error('Failed to load user info:', err); window.location.hash = '#/login'; }).finally(function() { ref_state_loading = false; });}}"
-    },
-    "handleLogout": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_[core]_api.post('/api/auth/logout'); $_[core]_storage.remove('token'); $_[core]_storage.remove('userInfo'); $_[core]_storage.remove('permissions'); window.location.hash = '#/login';}}"
-    },
-    "checkPermission": {
-      "type": "function",
-      "params": "{{{\"perm\": \"string\"}}}",
-      "body": "{{return $_[core]_auth.has(perm);}}"
-    }
+    "loadData": { "type": "function", "params": "{{{}}}", "body": "{{var t=$_[core]_storage.get('token');if(!t){window.location.hash='#/login';return}ref_state_loading=true;var u=$_[core]_storage.get('userInfo');var p=$_[core]_storage.get('permissions');if(u)ref_state_user=u;if(p)ref_state_permissions=p;ref_state_loading=false}}" },
+    "logout": { "type": "function", "params": "{{{}}}", "body": "{{$_[core]_storage.remove('token');$_[core]_storage.remove('userInfo');$_[core]_storage.remove('permissions');window.location.hash='#/login'}}" }
   },
-  "lifecycle": {
-    "onMounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{methods.loadUserInfo();}}"
-    }
-  },
+  "lifecycle": { "onMounted": { "type": "function", "params": "{{{}}}", "body": "{{methods.loadData()}}" } },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
-      "props": {
-        "class": { "type": "string", "body": "'dashboard-container'" }
-      },
+      "props": { "class": { "type": "string", "body": "'app'" } },
       "children": [
-        {
-          "type": "ALayout",
-          "props": {
-            "class": { "type": "string", "body": "'dashboard-layout'" }
-          },
-          "children": [
-            {
-              "type": "ALayoutHeader",
-              "props": {
-                "class": { "type": "string", "body": "'dashboard-header'" }
-              },
-              "children": [
-                {
-                  "type": "div",
-                  "props": {
-                    "class": { "type": "string", "body": "'header-content'" }
-                  },
-                  "children": [
-                    {
-                      "type": "h2",
-                      "props": {
-                        "class": { "type": "string", "body": "'header-title'" }
-                      },
-                      "children": ["企业管理系统 (vue-json 演示)"]
-                    },
-                    {
-                      "type": "div",
-                      "props": {
-                        "class": { "type": "string", "body": "'header-right'" }
-                      },
-                      "children": [
-                        {
-                          "type": "span",
-                          "directives": {
-                            "vIf": { "type": "expression", "body": "{{ref_state_user}}" }
-                          },
-                          "props": {
-                            "class": { "type": "string", "body": "'user-name'" }
-                          },
-                          "children": [
-                            { "type": "expression", "body": "{{ref_state_user?.nickname || ref_state_user?.username}}" }
-                          ]
-                        },
-                        {
-                          "type": "AButton",
-                          "props": {
-                            "type": { "type": "string", "body": "'link'" },
-                            "class": { "type": "string", "body": "'logout-btn'" }
-                          },
-                          "directives": {
-                            "vOn": {
-                              "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleLogout();}}" }
-                            }
-                          },
-                          "children": ["退出登录"]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "ALayoutContent",
-              "props": {
-                "class": { "type": "string", "body": "'dashboard-content'" }
-              },
-              "children": [
-                {
-                  "type": "div",
-                  "directives": {
-                    "vIf": { "type": "expression", "body": "{{ref_state_loading}}" }
-                  },
-                  "props": {
-                    "class": { "type": "string", "body": "'loading-container'" }
-                  },
-                  "children": [
-                    {
-                      "type": "ASpin",
-                      "props": {
-                        "size": { "type": "string", "body": "'large'" }
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "div",
-                  "directives": {
-                    "vIf": { "type": "expression", "body": "{{!ref_state_loading && ref_state_user}}" }
-                  },
-                  "children": [
-                    {
-                      "type": "div",
-                      "props": {
-                        "class": { "type": "string", "body": "'welcome-section'" }
-                      },
-                      "children": [
-                        {
-                          "type": "h1",
-                          "children": [
-                            { "type": "expression", "body": "{{computed.greeting.value}}" },
-                            "，",
-                            { "type": "expression", "body": "{{ref_state_user?.nickname || ref_state_user?.username}}" },
-                            "！"
-                          ]
-                        },
-                        {
-                          "type": "p",
-                          "props": {
-                            "class": { "type": "string", "body": "'welcome-desc'" }
-                          },
-                          "children": ["欢迎使用企业管理系统 - 此页面完全由 JSON Schema 驱动"]
-                        }
-                      ]
-                    },
-                    {
-                      "type": "div",
-                      "props": {
-                        "class": { "type": "string", "body": "'cards-row'" }
-                      },
-                      "children": [
-                        {
-                          "type": "ACard",
-                          "props": {
-                            "title": { "type": "string", "body": "'用户信息 ($_core_storage)'" },
-                            "class": { "type": "string", "body": "'info-card'" }
-                          },
-                          "children": [
-                            {
-                              "type": "p",
-                              "children": ["用户名: ", { "type": "expression", "body": "{{ref_state_user?.username}}" }]
-                            },
-                            {
-                              "type": "p",
-                              "children": ["昵称: ", { "type": "expression", "body": "{{ref_state_user?.nickname}}" }]
-                            },
-                            {
-                              "type": "p",
-                              "children": ["邮箱: ", { "type": "expression", "body": "{{ref_state_user?.email}}" }]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "ACard",
-                          "props": {
-                            "title": { "type": "string", "body": "'权限列表 ($_core_auth)'" },
-                            "class": { "type": "string", "body": "'info-card'" }
-                          },
-                          "children": [
-                            {
-                              "type": "p",
-                              "directives": {
-                                "vIf": { "type": "expression", "body": "{{computed.canManageUsers.value}}" }
-                              },
-                              "children": ["✓ 用户管理权限 (user:view)"]
-                            },
-                            {
-                              "type": "p",
-                              "directives": {
-                                "vIf": { "type": "expression", "body": "{{computed.canManageRoles.value}}" }
-                              },
-                              "children": ["✓ 角色管理权限 (role:view)"]
-                            },
-                            {
-                              "type": "p",
-                              "directives": {
-                                "vIf": { "type": "expression", "body": "{{computed.canManageSystem.value}}" }
-                              },
-                              "children": ["✓ 系统管理权限 (system:manage)"]
-                            },
-                            {
-                              "type": "p",
-                              "directives": {
-                                "vIf": { "type": "expression", "body": "{{!computed.canManageUsers.value && !computed.canManageRoles.value}}" }
-                              },
-                              "children": ["基础权限 (dashboard:view, profile:edit)"]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "type": "ACard",
-                      "props": {
-                        "title": { "type": "string", "body": "'vue-json 功能演示'" },
-                        "class": { "type": "string", "body": "'feature-card'" }
-                      },
-                      "children": [
-                        {
-                          "type": "div",
-                          "props": {
-                            "class": { "type": "string", "body": "'feature-list'" }
-                          },
-                          "children": [
-                            {
-                              "type": "p",
-                              "children": ["✓ $_[core]_api.get/post - API 请求"]
-                            },
-                            {
-                              "type": "p",
-                              "children": ["✓ $_[core]_storage.get/set/remove - 本地存储"]
-                            },
-                            {
-                              "type": "p",
-                              "children": ["✓ $_[core]_auth.has/hasAny/hasAll - 权限检查"]
-                            },
-                            {
-                              "type": "p",
-                              "children": ["✓ state/computed/methods/lifecycle - 响应式系统"]
-                            },
-                            {
-                              "type": "p",
-                              "children": ["✓ render template - VNode 渲染"]
-                            },
-                            {
-                              "type": "p",
-                              "children": ["✓ directives (vIf, vFor, vModel, vOn) - 指令系统"]
-                            },
-                            {
-                              "type": "p",
-                              "children": ["✓ styles scoped - 样式隔离"]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
+        { "type": "ALayout", "props": { "class": { "type": "string", "body": "'layout'" } }, "children": [
+          { "type": "ALayoutHeader", "props": { "class": { "type": "string", "body": "'head'" } }, "children": [
+            { "type": "div", "props": { "class": { "type": "string", "body": "'head-in'" } }, "children": [
+              { "type": "div", "props": { "class": { "type": "string", "body": "'brand'" } }, "children": [
+                { "type": "div", "props": { "class": { "type": "string", "body": "'brand-icon'" } }, "children": ["E"] },
+                { "type": "span", "children": ["企业管理系统"] }
+              ] },
+              { "type": "div", "props": { "class": { "type": "string", "body": "'head-right'" } }, "children": [
+                { "type": "span", "directives": { "vIf": { "type": "expression", "body": "{{computed.hasUser.value}}" } }, "props": { "class": { "type": "string", "body": "'name'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
+                { "type": "AButton", "props": { "type": { "type": "string", "body": "'link'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.logout()}}" } } }, "children": ["退出"] }
+              ] }
+            ] }
+          ] },
+          { "type": "ALayoutContent", "props": { "class": { "type": "string", "body": "'main'" } }, "children": [
+            { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_loading}}" } }, "props": { "class": { "type": "string", "body": "'load'" } }, "children": [{ "type": "ASpin", "props": { "size": { "type": "string", "body": "'large'" } } }] },
+            { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{!ref_state_loading&&computed.hasUser.value}}" } }, "children": [
+              { "type": "div", "props": { "class": { "type": "string", "body": "'hi'" } }, "children": [
+                { "type": "h1", "children": [{ "type": "expression", "body": "{{computed.greeting.value}}" }, "，", { "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
+                { "type": "p", "children": ["欢迎使用企业管理系统，祝您工作愉快"] }
+              ] },
+              { "type": "div", "props": { "class": { "type": "string", "body": "'row'" } }, "children": [
+                { "type": "ACard", "props": { "class": { "type": "string", "body": "'card'" }, "bordered": false }, "children": [
+                  { "type": "div", "props": { "class": { "type": "string", "body": "'stat'" } }, "children": [
+                    { "type": "div", "props": { "class": { "type": "string", "body": "'stat-icon i1'" } }, "children": ["👤"] },
+                    { "type": "div", "children": [
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-v'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.username||'-'}}" }] },
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-l'" } }, "children": ["用户名"] }
+                    ] }
+                  ] }
+                ] },
+                { "type": "ACard", "props": { "class": { "type": "string", "body": "'card'" }, "bordered": false }, "children": [
+                  { "type": "div", "props": { "class": { "type": "string", "body": "'stat'" } }, "children": [
+                    { "type": "div", "props": { "class": { "type": "string", "body": "'stat-icon i2'" } }, "children": ["✉️"] },
+                    { "type": "div", "children": [
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-v'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.email||'-'}}" }] },
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-l'" } }, "children": ["邮箱"] }
+                    ] }
+                  ] }
+                ] },
+                { "type": "ACard", "props": { "class": { "type": "string", "body": "'card'" }, "bordered": false }, "children": [
+                  { "type": "div", "props": { "class": { "type": "string", "body": "'stat'" } }, "children": [
+                    { "type": "div", "props": { "class": { "type": "string", "body": "'stat-icon i3'" } }, "children": ["🔐"] },
+                    { "type": "div", "children": [
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-v'" } }, "children": ["3"] },
+                      { "type": "div", "props": { "class": { "type": "string", "body": "'stat-l'" } }, "children": ["权限数"] }
+                    ] }
+                  ] }
+                ] }
+              ] },
+              { "type": "div", "props": { "class": { "type": "string", "body": "'row'" } }, "children": [
+                { "type": "ACard", "props": { "title": { "type": "string", "body": "'功能特性'" }, "class": { "type": "string", "body": "'card'" }, "bordered": false }, "children": [
+                  { "type": "div", "props": { "class": { "type": "string", "body": "'tags'" } }, "children": [
+                    { "type": "span", "children": ["API 请求"] },
+                    { "type": "span", "children": ["本地存储"] },
+                    { "type": "span", "children": ["权限检查"] },
+                    { "type": "span", "children": ["响应式系统"] },
+                    { "type": "span", "children": ["模板渲染"] },
+                    { "type": "span", "children": ["指令系统"] }
+                  ] }
+                ] }
+              ] }
+            ] }
+          ] }
+        ] }
       ]
     }
   },
   "styles": {
     "scoped": true,
-    "css": ".dashboard-container { min-height: 100vh; background: #f0f2f5; } .dashboard-layout { min-height: 100vh; } .dashboard-header { background: #001529; padding: 0 24px; } .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1440px; margin: 0 auto; } .header-title { color: #ffffff; margin: 0; font-size: 18px; font-weight: 500; } .header-right { display: flex; align-items: center; gap: 16px; } .user-name { color: #ffffff; } .logout-btn { color: rgba(255, 255, 255, 0.85); } .dashboard-content { padding: 24px; max-width: 1440px; margin: 0 auto; } .loading-container { display: flex; justify-content: center; align-items: center; min-height: 400px; } .welcome-section { margin-bottom: 24px; } .welcome-section h1 { font-size: 28px; font-weight: 600; color: rgba(0, 0, 0, 0.85); margin-bottom: 8px; } .welcome-desc { font-size: 14px; color: rgba(0, 0, 0, 0.45); margin-bottom: 24px; } .cards-row { display: flex; gap: 16px; margin-bottom: 24px; } .info-card { flex: 1; } .feature-card { margin-top: 16px; } .feature-list p { margin: 8px 0; color: rgba(0, 0, 0, 0.65); }"
+    "css": ".app{min-height:100vh;background:#f0f2f5}.layout{min-height:100vh}.head{background:#fff;padding:0 32px;height:56px;box-shadow:0 1px 4px rgba(0,0,0,.04)}.head-in{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;height:100%}.brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:500;color:#262626}.brand-icon{width:32px;height:32px;background:#1890ff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600}.head-right{display:flex;align-items:center;gap:16px}.name{font-size:14px;color:#595959}.main{padding:24px;max-width:1200px;margin:0 auto}.load{display:flex;justify-content:center;align-items:center;min-height:400px}.hi{margin-bottom:24px}.hi h1{font-size:24px;font-weight:500;color:#262626;margin:0 0 8px}.hi p{font-size:14px;color:#8c8c8c;margin:0}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px}.card{background:#fff;border-radius:8px}.card .ant-card-body{padding:20px}.stat{display:flex;align-items:center;gap:16px}.stat-icon{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px}.i1{background:#e6f7ff}.i2{background:#f6ffed}.i3{background:#fff7e6}.stat-v{font-size:18px;font-weight:500;color:#262626;margin-bottom:4px}.stat-l{font-size:13px;color:#8c8c8c}.tags{display:flex;gap:8px;flex-wrap:wrap}.tags span{padding:6px 16px;background:#f5f5f5;border-radius:6px;font-size:13px;color:#595959}"
   }
 }

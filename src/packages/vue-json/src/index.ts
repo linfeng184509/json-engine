@@ -88,7 +88,14 @@ export {
   getCachedSchema,
   resolveImports,
   isSchemaWithImports,
+  createSchemaLoader,
+  getSchemaLoader,
+  setSchemaLoader,
+  loadComponent,
+  clearSchemaLoaderCache,
+  preloadSchemas,
 } from './runtime';
+export type { SchemaLoadResult, SchemaLoadOptions } from './runtime';
 
 // Platform
 export {
@@ -140,8 +147,30 @@ export {
 } from './runtime/sop-permission';
 
 // Composables
-export { useVueJson, useJsonComponent, useJsonRenderer, useCoreScope, createCoreScope, setCoreScope } from './composables';
-export type { CoreScope, CoreScopeAuth, CoreScopeI18n, CoreScopeStorage, CoreScopeApi, CoreScopeWS } from './composables';
+export {
+  useVueJson,
+  useJsonComponent,
+  useJsonRenderer,
+  useCoreScope,
+  createCoreScope,
+  setCoreScope,
+  registerGlobalComponents,
+  getGlobalComponents,
+} from './composables';
+export type {
+  CoreScope,
+  CoreScopeAuth,
+  CoreScopeI18n,
+  CoreScopeStorage,
+  CoreScopeApi,
+  CoreScopeWS,
+  CoreScopeLoader,
+  CoreScopeRouter,
+} from './composables';
+
+// Components
+export { PageLoader, createPageLoader, createDefaultLoadingSpinner, createDefaultErrorUI } from './components';
+export type { PageLoaderProps } from './components';
 
 // Runtime (value-resolver)
 export {

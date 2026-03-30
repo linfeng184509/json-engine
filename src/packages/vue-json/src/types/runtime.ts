@@ -67,6 +67,7 @@ export interface CreateComponentOptions {
   injectStyles?: boolean;
   debug?: boolean;
   extraComponents?: Record<string, Component>;
+  registerPageLoader?: boolean;
 }
 
 export interface UseVueJsonOptions {

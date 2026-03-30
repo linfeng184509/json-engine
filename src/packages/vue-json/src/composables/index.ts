@@ -4,7 +4,14 @@ import { parseSchema } from '../parser';
 import { createComponent, clearComponentCache } from '../runtime/component-factory';
 import { removeStyles } from '../runtime/style-injector';
 
-export { useCoreScope, createCoreScope, getCoreScope, setCoreScope } from './use-core-scope';
+export {
+  useCoreScope,
+  createCoreScope,
+  getCoreScope,
+  setCoreScope,
+  registerGlobalComponents,
+  getGlobalComponents,
+} from './use-core-scope';
 export type {
   CoreScope,
   CoreScopeAuth,
@@ -12,6 +19,8 @@ export type {
   CoreScopeStorage,
   CoreScopeApi,
   CoreScopeWS,
+  CoreScopeLoader,
+  CoreScopeRouter,
 } from './use-core-scope';
 
 export interface UseVueJsonReturn {

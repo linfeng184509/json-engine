@@ -10,3 +10,22 @@ declare module '*.json' {
   const content: unknown;
   export default content;
 }
+
+interface RouteConfig {
+  path: string;
+  name?: string;
+  component?: string;
+  redirect?: string;
+  meta?: {
+    title?: string;
+    requiresAuth?: boolean;
+    permissions?: string[];
+  };
+  children?: RouteConfig[];
+}
+
+declare global {
+  interface Window {
+    __APP_ROUTES__?: RouteConfig[];
+  }
+}
