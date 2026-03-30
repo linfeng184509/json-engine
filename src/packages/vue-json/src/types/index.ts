@@ -34,6 +34,7 @@ export type {
 } from './store';
 export type {
   PluginConfig,
+  PluginDeclaration,
   UIComponentConfig,
   UIThemeConfig,
   UIConfig,
@@ -49,6 +50,25 @@ export type {
   VueJsonSchema as VueJsonSchemaType,
 } from './app';
 export { SchemaValidationError } from './app';
+export type {
+  VueJsonPlugin,
+  ValueTypeDefinition,
+  ValueResolverFn,
+  PluginComponentDefinition,
+  ScopeExtension,
+  RuntimeExport,
+  PluginInstallContext,
+  RegisteredPlugin,
+  AxiosPluginConfig,
+  AntdPluginConfig,
+  RouterPluginConfig,
+  EChartsPluginConfig,
+  WebSocketPluginConfig,
+  StoragePluginConfig,
+  PiniaPluginConfig,
+  AuthPluginConfig,
+  I18nPluginConfig,
+} from './plugin';
 export type {
   ExpressionValue,
   FunctionValue,

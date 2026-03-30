@@ -1,0 +1,1 @@
+export { PluginRegistry, getPluginRegistry, resetPluginRegistry } from './plugin-registry';
