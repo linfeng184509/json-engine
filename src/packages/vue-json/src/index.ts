@@ -185,7 +185,7 @@ export type {
 } from './composables';
 
 // Components
-export { PageLoader, createPageLoader, createDefaultLoadingSpinner, createDefaultErrorUI } from './components';
+export { PageLoader, createPageLoader, createDefaultLoadingSpinner, createDefaultErrorUI, EChartsComponent } from './components';
 export type { PageLoaderProps } from './components';
 
 // Runtime (value-resolver)
