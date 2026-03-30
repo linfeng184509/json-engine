@@ -21,6 +21,10 @@ import {
   Result as AResult,
 } from 'ant-design-vue';
 import { EChartsComponent } from '@json-engine/vue-json';
+import * as echarts from 'echarts';
+
+// Register echarts globally for EChartsComponent to use
+(window as any).echarts = echarts;
 
 import { setupApp, connectWebSocket } from './setup-app';
 
