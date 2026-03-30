@@ -26,7 +26,6 @@ export type {
   RouterGuards,
   Router,
   NavigationResult,
-  PluginConfig,
   UIComponentConfig,
   UIThemeConfig,
   UIConfig,
@@ -42,8 +41,15 @@ export type {
   EChartsOptionValue,
   EChartsComponentProps,
   EChartsNodeDefinition,
+  VueJsonPlugin,
+  PluginDeclaration,
+  PluginConfig,
+  RenderContext,
 } from './types';
 export type { EChartsInstance } from './runtime/echarts-factory';
+
+// Plugin
+export { getPluginRegistry, PluginRegistry } from './plugin';
 
 // Parser
 export { parseSchema } from './parser';

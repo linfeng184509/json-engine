@@ -1,10 +1,35 @@
 import type { RouterConfig } from './router';
 import type { StoreConfig } from './store';
 import type { Platform } from './platform';
-import type { PluginDeclaration, PluginConfig as NewPluginConfig } from './plugin';
+import type { PluginDeclaration } from './plugin';
+import type {
+  AxiosPluginConfig,
+  AntdPluginConfig,
+  RouterPluginConfig,
+  EChartsPluginConfig,
+  WebSocketPluginConfig,
+  StoragePluginConfig,
+  PiniaPluginConfig,
+  AuthPluginConfig,
+  I18nPluginConfig,
+} from './plugin';
 
 export { PluginDeclaration };
-export type PluginConfig = NewPluginConfig;
+
+/**
+ * 插件配置集合
+ */
+export interface PluginConfig {
+  axios?: AxiosPluginConfig;
+  antd?: AntdPluginConfig;
+  router?: RouterPluginConfig;
+  echarts?: EChartsPluginConfig;
+  websocket?: WebSocketPluginConfig;
+  storage?: StoragePluginConfig;
+  pinia?: PiniaPluginConfig;
+  auth?: AuthPluginConfig;
+  i18n?: I18nPluginConfig;
+}
 
 export interface UIComponentConfig {
   name: string;

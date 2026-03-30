@@ -12,21 +12,6 @@ export interface PluginDeclaration {
 }
 
 /**
- * 插件配置集合
- */
-export interface PluginConfig {
-  axios?: AxiosPluginConfig;
-  antd?: AntdPluginConfig;
-  router?: RouterPluginConfig;
-  echarts?: EChartsPluginConfig;
-  websocket?: WebSocketPluginConfig;
-  storage?: StoragePluginConfig;
-  pinia?: PiniaPluginConfig;
-  auth?: AuthPluginConfig;
-  i18n?: I18nPluginConfig;
-}
-
-/**
  * Axios 插件配置
  */
 export interface AxiosPluginConfig {
