@@ -7,31 +7,62 @@ export interface EChartsOptionParseResult {
   theme?: string | object;
 }
 
-/**
- * ECharts 配置值解析器函数
- * 解析格式：{ type: 'echarts-option', body: { ... } }
- */
+const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
+
+function processValue(value: unknown): unknown {
+  if (value === null || value === undefined) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const match = value.match(EXPRESSION_REGEX);
+    if (match) {
+      return {
+        _type: 'expression',
+        expression: match[1].trim(),
+      };
+    }
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => processValue(item));
+  }
+
+  if (typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(value)) {
+      result[key] = processValue(val);
+    }
+    return result;
+  }
+
+  return value;
+}
+
 export function createEChartsOptionParser(): ValueParserFn {
   return function parseEChartsOption(body: string): unknown {
+    let parsed: unknown;
+
     if (typeof body !== 'string') {
-      return {
-        _type: 'echarts-option',
-        option: body,
-      };
+      parsed = body;
+    } else {
+      try {
+        parsed = JSON.parse(body);
+      } catch (error) {
+        throw new Error(
+          `[EChartsOptionParser] Failed to parse option: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
     }
 
-    try {
-      const parsed = JSON.parse(body);
-      return {
-        _type: 'echarts-option',
-        option: parsed,
-      };
-    } catch (error) {
-      throw new Error(
-        `[EChartsOptionParser] Failed to parse option: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
+    const processedOption = processValue(parsed);
+
+    return {
+      _type: 'echarts-option',
+      option: processedOption,
+    };
   };
 }
 
-export const EChartsOptionParser = createEChartsOptionParser;
+export const EChartsOptionParser = createEChartsOptionParser();

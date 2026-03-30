@@ -73,6 +73,50 @@ export function isScopeRef(value: unknown): value is ScopeRef {
 }
 
 /**
+ * 判断是否为 EChartsOption（带 _type 标记）
+ */
+export function isEChartsOption(value: unknown): value is { _type: 'echarts-option'; option: unknown } {
+  if (typeof value !== 'object' || value === null) return false;
+  return (value as Record<string, unknown>)['_type'] === 'echarts-option';
+}
+
+/**
+ * 递归解析对象中的所有表达式
+ */
+function resolveExpressionsDeep(value: unknown, context: RenderContext): unknown {
+  if (value === null || value === undefined) {
+    return value;
+  }
+
+  // Handle string expressions like {{ref_state_xxx}}
+  if (typeof value === 'string') {
+    const match = value.match(/^\{\{(.+)\}\}$/);
+    if (match) {
+      return evaluateStringExpression(match[1].trim(), context);
+    }
+    return value;
+  }
+
+  if (typeof value !== 'object') {
+    return value;
+  }
+
+  if (isExpressionValue(value)) {
+    return evaluateExpression(value.expression, context);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => resolveExpressionsDeep(item, context));
+  }
+
+  const result: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+    result[key] = resolveExpressionsDeep(val, context);
+  }
+  return result;
+}
+
+/**
  * 解析 PropertyValue，返回实际值
  */
 export function resolvePropertyValue(value: PropertyValue, context: RenderContext): unknown {
@@ -120,6 +164,10 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
         return (scopeValue as Record<string, unknown>)[ref.variable];
       }
       return undefined;
+    }
+    case 'echarts-option': {
+      const echartsOption = value as unknown as { _type: 'echarts-option'; option: unknown };
+      return resolveExpressionsDeep(echartsOption.option, context);
     }
     default:
       return value;

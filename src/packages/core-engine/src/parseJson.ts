@@ -130,6 +130,19 @@ function parseValueByType(
     }
   }
 
+  // Handle custom value parsers
+  if (typeof valueObj.type === 'string' && config.valueParsers && config.valueParsers[valueObj.type]) {
+    const parser = config.valueParsers[valueObj.type];
+    
+    // First, recursively walk the body to resolve any nested expressions
+    const body = valueObj.body !== undefined ? valueObj.body : valueObj;
+    const walkedBody = walkJson(body, config, '');
+    
+    // Convert to string for parser
+    const bodyStr = typeof walkedBody === 'string' ? walkedBody : JSON.stringify(walkedBody);
+    return parser(bodyStr);
+  }
+
   return value;
 }
 

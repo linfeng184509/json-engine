@@ -161,6 +161,14 @@ function processSchemaWithMarkers(data: unknown): unknown {
           path: body,
         };
       }
+      case 'echarts-option': {
+        // 处理 echarts-option 类型
+        const body = obj['body'];
+        return {
+          _type: 'echarts-option',
+          option: processSchemaWithMarkers(body),
+        };
+      }
     }
   }
 
