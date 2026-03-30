@@ -1,0 +1,32 @@
+{
+  "name": "@json-engine/plugin-axios",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@json-engine/vue-json": "0.0.1",
+    "axios": "^1.0.0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@json-engine/vue-json": "*",
+    "@types/node": "^22.0.0",
+    "axios": "^1.0.0",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.2",
+    "vue": "^3.4.0"
+  }
+}

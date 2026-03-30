@@ -1,6 +1,56 @@
 {
   "name": "EnterpriseAdminApp",
   "version": "1.0.0",
+  "plugins": [
+    { "name": "@json-engine/plugin-axios" },
+    { "name": "@json-engine/plugin-antd" },
+    { "name": "@json-engine/plugin-router" },
+    { "name": "@json-engine/plugin-websocket" },
+    { "name": "@json-engine/plugin-storage" },
+    { "name": "@json-engine/plugin-auth" },
+    { "name": "@json-engine/plugin-i18n" }
+  ],
+  "config": {
+    "axios": {
+      "baseURL": "/api",
+      "timeout": 10000,
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    "antd": {
+      "theme": {
+        "primaryColor": "#1677ff",
+        "borderRadius": 6
+      },
+      "locale": "zh_CN"
+    },
+    "router": {
+      "mode": "hash",
+      "base": "/"
+    },
+    "websocket": {
+      "url": "ws://localhost:8080",
+      "autoReconnect": true,
+      "reconnectInterval": 5000,
+      "heartbeatInterval": 30000
+    },
+    "storage": {
+      "prefix": "ea_",
+      "sync": true
+    },
+    "auth": {
+      "pagePermissions": {
+        "/dashboard": "dashboard:view",
+        "/system/user": "user:view",
+        "/system/role": "role:view"
+      }
+    },
+    "i18n": {
+      "locale": "zh_CN",
+      "fallbackLocale": "en"
+    }
+  },
   "router": {
     "history": "hash",
     "routes": [
@@ -53,34 +103,6 @@
     "theme": {
       "primaryColor": "#1677ff",
       "borderRadius": 6
-    }
-  },
-  "network": {
-    "axios": {
-      "baseURL": "/api",
-      "timeout": 10000,
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    },
-    "websocket": [
-      {
-        "url": "ws://localhost:8080",
-        "autoReconnect": true,
-        "reconnectInterval": 5000,
-        "heartbeatInterval": 30000
-      }
-    ]
-  },
-  "storage": {
-    "prefix": "ea_",
-    "sync": true
-  },
-  "auth": {
-    "pagePermissions": {
-      "/dashboard": "dashboard:view",
-      "/system/user": "user:view",
-      "/system/role": "role:view"
     }
   }
 }

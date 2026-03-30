@@ -12,6 +12,13 @@
   "dependencies": {
     "@json-engine/vue-json": "*",
     "@json-engine/core-engine": "*",
+    "@json-engine/plugin-axios": "*",
+    "@json-engine/plugin-antd": "*",
+    "@json-engine/plugin-router": "*",
+    "@json-engine/plugin-websocket": "*",
+    "@json-engine/plugin-storage": "*",
+    "@json-engine/plugin-auth": "*",
+    "@json-engine/plugin-i18n": "*",
     "vue": "^3.4.0",
     "ant-design-vue": "^4.2.0",
     "axios": "^1.7.0"

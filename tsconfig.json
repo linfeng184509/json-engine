@@ -20,7 +20,22 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Path aliases */
+    "paths": {
+      "@json-engine/vue-json": ["./src/packages/vue-json/src"],
+      "@json-engine/core-engine": ["./src/packages/core-engine/src"],
+      "@json-engine/plugin-axios": ["./src/packages/plugins/plugin-axios/src"],
+      "@json-engine/plugin-echarts": ["./src/packages/plugins/plugin-echarts/src"],
+      "@json-engine/plugin-antd": ["./src/packages/plugins/plugin-antd/src"],
+      "@json-engine/plugin-router": ["./src/packages/plugins/plugin-router/src"],
+      "@json-engine/plugin-websocket": ["./src/packages/plugins/plugin-websocket/src"],
+      "@json-engine/plugin-storage": ["./src/packages/plugins/plugin-storage/src"],
+      "@json-engine/plugin-pinia": ["./src/packages/plugins/plugin-pinia/src"],
+      "@json-engine/plugin-auth": ["./src/packages/plugins/plugin-auth/src"],
+      "@json-engine/plugin-i18n": ["./src/packages/plugins/plugin-i18n/src"]
+    }
   },
   "include": ["src"],
   "exclude": ["src/packages/vue-json/__tests__/**/*"]

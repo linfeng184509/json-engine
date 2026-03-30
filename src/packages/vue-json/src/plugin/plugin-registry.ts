@@ -1,4 +1,4 @@
-import type { RegisteredPlugin, VueJsonPlugin } from '../types/plugin';
+import type { RegisteredPlugin, VueJsonPlugin } from '../types/plugin.definitions';
 
 export interface PluginRegistryOptions {
   coreVersion: string;
@@ -215,8 +215,7 @@ let globalRegistry: PluginRegistry | null = null;
 
 export function getPluginRegistry(): PluginRegistry {
   if (!globalRegistry) {
-    const version = require('../../package.json').version;
-    globalRegistry = new PluginRegistry({ coreVersion: version });
+    globalRegistry = new PluginRegistry({ coreVersion: '0.0.1' });
   }
   return globalRegistry;
 }

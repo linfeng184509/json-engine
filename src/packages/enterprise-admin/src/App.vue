@@ -2,8 +2,6 @@
 import { ref, shallowRef, onMounted, type Component } from 'vue';
 import {
   loadComponent,
-  createCoreScope,
-  setCoreScope,
   registerGlobalComponents,
 } from '@json-engine/vue-json';
 import {
@@ -22,7 +20,7 @@ import {
 } from 'ant-design-vue';
 import { EChartsComponent } from '@json-engine/vue-json';
 
-import { setupApp, connectWebSocket } from './setup-app';
+import { setupApp } from './setup-app';
 
 import 'ant-design-vue/dist/reset.css';
 import './styles/main.css';
@@ -43,7 +41,6 @@ const antdComponents: Record<string, Component> = {
   ECharts: EChartsComponent,
 };
 
-// 注册全局组件，供 PageLoader 使用
 registerGlobalComponents(antdComponents);
 
 const appRootComponent = shallowRef<Component | null>(null);
@@ -51,9 +48,6 @@ const error = ref<string | null>(null);
 
 async function bootstrap(): Promise<void> {
   try {
-    const coreScope = createCoreScope();
-    setCoreScope(coreScope);
-
     const appConfigResponse = await fetch('/schemas/app.json');
     if (!appConfigResponse.ok) {
       throw new Error(`Failed to load app config: ${appConfigResponse.status}`);
@@ -62,7 +56,7 @@ async function bootstrap(): Promise<void> {
     
     window.__APP_ROUTES__ = appConfig.router?.routes || [];
     
-    setupApp(appConfig);
+    await setupApp(appConfig);
 
     const result = await loadComponent('/schemas/app-root.json', {
       cache: false,
@@ -72,11 +66,6 @@ async function bootstrap(): Promise<void> {
 
     if (result.success && result.component) {
       appRootComponent.value = result.component;
-
-      const token = coreScope._storage.get('token');
-      if (token) {
-        connectWebSocket();
-      }
     } else {
       error.value = result.error?.message || 'Failed to load app';
     }

@@ -1,7 +1,7 @@
 import type { RouterConfig } from './router';
 import type { StoreConfig } from './store';
 import type { Platform } from './platform';
-import type { PluginDeclaration } from './plugin';
+import type { PluginDeclaration } from './plugin.definitions';
 import type {
   AxiosPluginConfig,
   AntdPluginConfig,
@@ -12,9 +12,9 @@ import type {
   PiniaPluginConfig,
   AuthPluginConfig,
   I18nPluginConfig,
-} from './plugin';
+} from './plugin.definitions';
 
-export { PluginDeclaration };
+export type { PluginDeclaration };
 
 /**
  * 插件配置集合

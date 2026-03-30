@@ -68,7 +68,7 @@ export type {
   PiniaPluginConfig,
   AuthPluginConfig,
   I18nPluginConfig,
-} from './plugin';
+} from './plugin.definitions';
 export type {
   ExpressionValue,
   FunctionValue,

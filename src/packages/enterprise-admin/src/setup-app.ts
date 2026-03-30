@@ -1,18 +1,24 @@
 import {
   registerPermissionProvider,
-  createStorageAdapter,
   createCoreScope,
   setCoreScope,
   registerPagePermission,
+  getPluginRegistry,
 } from '@json-engine/vue-json';
 import type {
   PermissionProvider,
   FieldPermission,
   SOPStepPermission,
   VueJsonAppSchema,
-  StorageConfig,
-  WSConfig,
 } from '@json-engine/vue-json';
+
+import { axiosPlugin } from '@json-engine/plugin-axios';
+import { antdPlugin } from '@json-engine/plugin-antd';
+import { routerPlugin } from '@json-engine/plugin-router';
+import { websocketPlugin } from '@json-engine/plugin-websocket';
+import { storagePlugin } from '@json-engine/plugin-storage';
+import { authPlugin } from '@json-engine/plugin-auth';
+import { i18nPlugin } from '@json-engine/plugin-i18n';
 
 interface UserInfo {
   id: number;
@@ -114,8 +120,6 @@ class EnterprisePermissionProvider implements PermissionProvider {
 }
 
 let permissionProviderInstance: EnterprisePermissionProvider | null = null;
-let wsClient: WebSocket | null = null;
-const wsHandlers: Map<string, Set<(data: unknown) => void>> = new Map();
 let storagePrefix: string = 'ea_';
 
 export function getPermissionProviderInstance(): EnterprisePermissionProvider {
@@ -125,101 +129,46 @@ export function getPermissionProviderInstance(): EnterprisePermissionProvider {
   return permissionProviderInstance;
 }
 
-function initWebSocket(wsConfig: WSConfig, coreScope: VueJsonAppSchema): void {
-  const token = localStorage.getItem(`${storagePrefix}token`);
-  if (!token) return;
-
-  const wsUrl = `${wsConfig.url}?token=${encodeURIComponent(token)}`;
-
-  try {
-    wsClient = new WebSocket(wsUrl);
-
-    wsClient.onopen = () => {
-      console.log('[WebSocket] Connected');
-    };
-
-    wsClient.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        const { type, payload } = message;
-
-        const handlers = wsHandlers.get(type);
-        if (handlers) {
-          handlers.forEach(handler => handler(payload));
-        }
-
-        if (type === 'auth:kick') {
-          getPermissionProviderInstance().clear();
-          window.location.hash = '#/login';
-          alert('您已在其他设备登录，当前会话已失效');
-        }
-
-        if (type === 'heartbeat') {
-          wsClient?.send(JSON.stringify({ type: 'heartbeat:ack' }));
-        }
-      } catch (error) {
-        console.error('[WebSocket] Message parse error:', error);
-      }
-    };
-
-    wsClient.onclose = () => {
-      console.log('[WebSocket] Disconnected');
-      if (wsConfig.autoReconnect) {
-        setTimeout(() => initWebSocket(wsConfig, coreScope), wsConfig.reconnectInterval || 5000);
-      }
-    };
-
-    wsClient.onerror = (error) => {
-      console.error('[WebSocket] Error:', error);
-    };
-  } catch (error) {
-    console.error('[WebSocket] Connection failed:', error);
-  }
-}
-
-export function connectWebSocket(): void {
-  if (wsClient) {
-    wsClient.close();
-    wsClient = null;
-  }
-  wsHandlers.clear();
-}
-
-export function disconnectWebSocket(): void {
-  if (wsClient) {
-    wsClient.close();
-    wsClient = null;
-  }
-  wsHandlers.clear();
-}
-
 export function getStoragePrefix(): string {
   return storagePrefix;
 }
 
-export function setupApp(schema: VueJsonAppSchema): void {
-  const storageConfig: StorageConfig = schema.storage || { prefix: 'ea_', sync: true };
-  storagePrefix = storageConfig.prefix || 'ea_';
+export async function setupApp(schema: VueJsonAppSchema): Promise<void> {
+  const config = schema.config || {};
+  storagePrefix = (config.storage as { prefix?: string })?.prefix || 'ea_';
 
-  createStorageAdapter(storageConfig);
+  const registry = getPluginRegistry();
+
+  registry.register(axiosPlugin);
+  registry.register(antdPlugin);
+  registry.register(routerPlugin);
+  registry.register(websocketPlugin);
+  registry.register(storagePlugin);
+  registry.register(authPlugin);
+  registry.register(i18nPlugin);
+
+  if (schema.plugins) {
+    await registry.installFromSchema(schema.plugins, config as Record<string, unknown>);
+  }
 
   permissionProviderInstance = new EnterprisePermissionProvider(storagePrefix);
   registerPermissionProvider(permissionProviderInstance);
 
-  if (schema.auth?.pagePermissions) {
-    for (const [path, perm] of Object.entries(schema.auth.pagePermissions)) {
-      registerPagePermission(path, perm as string);
+  if (config.auth && typeof config.auth === 'object' && 'pagePermissions' in config.auth) {
+    const pagePerms = (config.auth as { pagePermissions?: Record<string, string> }).pagePermissions;
+    if (pagePerms) {
+      for (const [path, perm] of Object.entries(pagePerms)) {
+        registerPagePermission(path, perm);
+      }
     }
   }
 
+  const scopeExtensions = registry.getScopeExtensions();
   const coreScope = createCoreScope();
+
+  Object.assign(coreScope, scopeExtensions);
+
   setCoreScope(coreScope);
 
-  const wsConfigs = schema.network?.websocket;
-  if (wsConfigs && wsConfigs.length > 0) {
-    const token = localStorage.getItem(`${storagePrefix}token`);
-    if (token) {
-      initWebSocket(wsConfigs[0], schema);
-    }
-  }
+  console.log('[setupApp] Plugins installed:', registry.getInstalledPlugins().map((p) => p.definition.name));
 }

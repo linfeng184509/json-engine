@@ -182,7 +182,8 @@ export interface RuntimeExport {
   /** 导出名称 */
   name: string;
   /** 工厂函数 */
-  factory: (...args: unknown[]) => unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  factory: (...args: any[]) => unknown;
 }
 
 /**
