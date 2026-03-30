@@ -1,33 +1,30 @@
 import type { DesignNode, ApiEndpoint, DataSourceRef } from '../types'
-import type {
-  VueJsonSchema,
-  VNodeDefinition,
-  VNodeChildren,
-  StateDefinition,
-  MethodsDefinition,
-  FunctionValue,
-  StateRef,
-  PropertyValue,
-  StateItemDefinition,
-} from '@json-engine/vue-json/types'
+import type { VueJsonSchema } from '@json-engine/vue-json'
 import { collectVModelPaths } from './treeOperations'
 
-function toFunctionValue(expression: string): FunctionValue {
+interface VNodeDef {
+  type: string
+  props?: Record<string, unknown>
+  children?: unknown[]
+  directives?: Record<string, unknown>
+}
+
+function toFunctionValue(expression: string): unknown {
   return {
     _type: 'function',
     params: {},
     body: `{{${expression}}}`,
-  } as unknown as FunctionValue
+  }
 }
 
 function designNodeToVNode(
   node: DesignNode,
-  methods: MethodsDefinition,
+  methods: Record<string, unknown>,
   collectedStateFields: Set<string>
-): VNodeDefinition {
-  const vnode: VNodeDefinition = { type: node.type }
-  const props: Record<string, PropertyValue> = {}
-  const directives: VNodeDefinition['directives'] = {}
+): VNodeDef {
+  const vnode: VNodeDef = { type: node.type }
+  const props: Record<string, unknown> = {}
+  const directives: Record<string, unknown> = {}
 
   if (node.props) {
     for (const [key, value] of Object.entries(node.props)) {
@@ -37,21 +34,21 @@ function designNodeToVNode(
         const stateVar = statePath.replace('formData.', 'formData_').replace(/\./g, '_')
         
         directives.vModel = {
-          prop: { _type: 'reference', prefix: 'state', variable: stateVar } as StateRef,
+          prop: { _type: 'reference', prefix: 'state', variable: stateVar },
           event: modelProp === 'value' ? 'update:value' : `update:${modelProp}`,
         }
         
         collectedStateFields.add(stateVar)
       } else if (key === 'options' && Array.isArray(value)) {
-        props[key] = value as unknown as PropertyValue
+        props[key] = value
       } else if (value !== undefined && value !== null) {
-        props[key] = value as unknown as PropertyValue
+        props[key] = value
       }
     }
   }
 
   if (node.style && Object.keys(node.style).length > 0) {
-    props.style = node.style as unknown as PropertyValue
+    props.style = { ...node.style }
   }
 
   if (node.events) {
@@ -71,7 +68,7 @@ function designNodeToVNode(
           : eventName
         
         directives.vOn = directives.vOn || {}
-        directives.vOn[directiveName] = toFunctionValue(`methods.${methodName}()`)
+        ;(directives.vOn as Record<string, unknown>)[directiveName] = toFunctionValue(`methods.${methodName}()`)
       }
     }
   }
@@ -90,7 +87,7 @@ function designNodeToVNode(
       _type: 'function',
       params: {},
       body: `{{${apiCall}.then(function(d){ref_state_${stateVar}=d})}}`,
-    } as unknown as FunctionValue
+    }
   }
 
   if (Object.keys(props).length > 0) {
@@ -104,7 +101,7 @@ function designNodeToVNode(
   if (node.children?.length) {
     vnode.children = node.children.map(c => 
       designNodeToVNode(c, methods, collectedStateFields)
-    ) as VNodeChildren
+    )
   }
 
   if (node.slots) {
@@ -112,20 +109,19 @@ function designNodeToVNode(
       if (nodes.length === 1) {
         const slotContent = designNodeToVNode(nodes[0], methods, collectedStateFields)
         if (!vnode.children) vnode.children = []
-        ;(vnode.children as VNodeDefinition[]).push({
+        vnode.children.push({
           type: 'div',
           props: {},
           children: [slotContent],
-        } as unknown as VNodeDefinition)
+        })
       } else if (nodes.length > 1) {
         const slotChildren = nodes.map(n => designNodeToVNode(n, methods, collectedStateFields))
-        const slotContent: VNodeDefinition = {
+        if (!vnode.children) vnode.children = []
+        vnode.children.push({
           type: 'div',
           props: {},
           children: slotChildren,
-        }
-        if (!vnode.children) vnode.children = []
-        ;(vnode.children as VNodeDefinition[]).push(slotContent)
+        })
       }
     }
   }
@@ -167,8 +163,8 @@ export function generateVueJsonSchema(
   formName?: string,
   apiList?: ApiEndpoint[]
 ): VueJsonSchema {
-  const methods: MethodsDefinition = {}
-  const state: StateDefinition = {}
+  const methods: Record<string, unknown> = {}
+  const state: Record<string, unknown> = {}
   const collectedFields = new Set<string>()
   
   const vnode = designNodeToVNode(tree, methods, collectedFields)
@@ -178,9 +174,9 @@ export function generateVueJsonSchema(
   for (const field of collectedFields) {
     if (!state[field]) {
       if (field.startsWith('ds_')) {
-        state[field] = { type: 'ref', initial: null } as unknown as StateItemDefinition
+        state[field] = { type: 'ref', initial: null }
       } else {
-        state[field] = { type: 'ref', initial: '' } as unknown as StateItemDefinition
+        state[field] = { type: 'ref', initial: '' }
       }
     }
   }
@@ -189,25 +185,25 @@ export function generateVueJsonSchema(
   for (const p of vModelPaths) {
     const stateVar = p.replace('formData.', 'formData_').replace(/\./g, '_')
     if (!state[stateVar]) {
-      state[stateVar] = { type: 'ref', initial: '' } as unknown as StateItemDefinition
+      state[stateVar] = { type: 'ref', initial: '' }
     }
   }
   
   if (vModelPaths.length > 0) {
-    state.formData = { type: 'reactive', initial: {} } as unknown as StateItemDefinition
+    state.formData = { type: 'reactive', initial: {} }
   }
   
   const schema: VueJsonSchema = {
     name: formName || 'DesignedForm',
-    render: { type: 'template', content: vnode },
+    render: { type: 'template', content: vnode } as VueJsonSchema['render'],
   }
   
   if (Object.keys(state).length > 0) {
-    schema.state = state
+    schema.state = state as VueJsonSchema['state']
   }
   
   if (Object.keys(methods).length > 0) {
-    schema.methods = methods
+    schema.methods = methods as VueJsonSchema['methods']
   }
   
   const apiRefs = new Map<string, DataSourceRef>()
@@ -223,19 +219,19 @@ export function generateVueJsonSchema(
       const api = apiList.find(a => a.id === apiId)
       if (api) {
         const initMethod = `initData_${apiId}`
-        if (!schema.methods) schema.methods = {}
-        schema.methods[initMethod] = {
+        if (!schema.methods) schema.methods = {} as VueJsonSchema['methods']
+        ;(schema.methods as Record<string, unknown>)[initMethod] = {
           _type: 'function',
           params: {},
           body: `{{$_[core]_api.${ref.autoLoad !== false ? 'get' : 'post'}('${api.url}').then(function(d){ref_state_ds_${apiId}=d})}}`,
-        } as unknown as FunctionValue
+        }
         
-        if (!schema.lifecycle) schema.lifecycle = {}
-        schema.lifecycle.onMounted = {
+        if (!schema.lifecycle) schema.lifecycle = {} as VueJsonSchema['lifecycle']
+        ;(schema.lifecycle as Record<string, unknown>).onMounted = {
           _type: 'function',
           params: {},
           body: `{{methods.${initMethod}()}}`,
-        } as unknown as FunctionValue
+        }
       }
     }
   }

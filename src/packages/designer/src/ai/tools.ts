@@ -1,7 +1,9 @@
 import { ref, computed } from "vue"
 import type { AiTool, ToolResult, JSONSchema, ToolContext } from "./types"
 import { parseSchema } from "@json-engine/vue-json"
-import type { VueJsonSchemaInput } from "@json-engine/vue-json/types"
+import type { VueJsonSchema } from "@json-engine/vue-json"
+
+type VueJsonSchemaInput = string | VueJsonSchema
 
 const APPLY_SCHEMA_TOOL: AiTool = {
   name: "apply_schema",
