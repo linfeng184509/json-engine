@@ -20,6 +20,7 @@ import {
   LayoutContent as ALayoutContent,
   Result as AResult,
 } from 'ant-design-vue';
+import { EChartsComponent } from '@json-engine/vue-json';
 
 import { setupApp, connectWebSocket } from './setup-app';
 
@@ -39,6 +40,7 @@ const antdComponents: Record<string, Component> = {
   ALayoutHeader,
   ALayoutContent,
   AResult,
+  ECharts: EChartsComponent,
 };
 
 // 注册全局组件，供 PageLoader 使用
