@@ -1,5 +1,3 @@
-import type { RouterConfig } from './router';
-import type { StoreConfig } from './store';
 import type { Platform } from './platform';
 import type { PluginDeclaration } from './plugin.definitions';
 import type {
@@ -101,8 +99,8 @@ export interface VueJsonAppSchema {
   root?: VueJsonSchema | string;
   plugins?: PluginDeclaration[];
   config?: PluginConfig;
-  router?: RouterConfig | string;
-  stores?: StoreConfig | Record<string, unknown>;
+  router?: unknown;
+  stores?: Record<string, unknown>;
   ui?: UIConfig;
   network?: NetworkConfig;
   storage?: StorageConfig;

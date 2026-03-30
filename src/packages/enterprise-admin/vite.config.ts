@@ -29,6 +29,7 @@ export default defineConfig({
       '@json-engine/plugin-storage': resolve(__dirname, '../plugins/plugin-storage/src'),
       '@json-engine/plugin-auth': resolve(__dirname, '../plugins/plugin-auth/src'),
       '@json-engine/plugin-i18n': resolve(__dirname, '../plugins/plugin-i18n/src'),
+      '@json-engine/plugin-echarts': resolve(__dirname, '../plugins/plugin-echarts/src'),
     },
   },
   server: {

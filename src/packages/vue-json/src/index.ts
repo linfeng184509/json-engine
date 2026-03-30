@@ -3,50 +3,24 @@ export type {
   Platform,
   PlatformFeatures,
   PlatformInfo,
-  FieldPermission,
-  SOPStepPermission,
-  PermissionProvider,
-  PermissionChecker,
-  AuthDirectiveConfig,
-  PrivacyType,
-  DataFilterOptions,
-  SOPStep,
-  SOPConfig,
-  PagePermission,
   VueJsonSchema,
   VueJsonSchemaInput,
   ParsedSchema,
-  RouteConfig,
-  RouteMeta,
-  NavigationGuard,
-  NavigationGuardCallback,
-  RouteLocationNormalized,
-  RouteRecordNormalized,
-  RouterConfig,
-  RouterGuards,
-  Router,
-  NavigationResult,
-  UIComponentConfig,
-  UIThemeConfig,
-  UIConfig,
-  AxiosRequestConfig,
-  AxiosRetryConfig,
-  WSConfig,
-  NetworkConfig,
-  StorageConfig,
-  I18nLocaleConfig,
-  I18nConfig,
-  AuthConfig,
   VueJsonAppSchema,
-  EChartsOptionValue,
-  EChartsComponentProps,
-  EChartsNodeDefinition,
   VueJsonPlugin,
   PluginDeclaration,
   PluginConfig,
   RenderContext,
+  UIComponentConfig,
+  UIThemeConfig,
+  UIConfig,
+  AxiosRequestConfig,
+  WSConfig,
+  NetworkConfig,
+  StorageConfig,
+  I18nConfig,
+  AuthConfig,
 } from './types';
-export type { EChartsInstance } from './runtime/echarts-factory';
 
 // Plugin
 export { getPluginRegistry, PluginRegistry } from './plugin';
@@ -62,10 +36,6 @@ export {
   toPascalCase,
   isValidVariableName,
 } from './parser/key-parsers';
-export {
-  createEChartsOptionParser,
-  EChartsOptionParser,
-} from './parser/echarts-option-parser';
 
 // Runtime
 export {
@@ -82,19 +52,6 @@ export {
   updateStyles,
   generateComponentId,
   clearAllStyles,
-  createStorageAdapter,
-  syncToStorage,
-  syncFromStorage,
-  removeFromStorage,
-  createRouter,
-  registerRoutes,
-  addRouteGuard,
-  setupUIComponents,
-  registerComponents,
-  getComponent,
-  hasComponent,
-  configureTheme,
-  getTheme,
   loadSchema,
   validateSchema,
   cacheSchema,
@@ -108,14 +65,6 @@ export {
   loadComponent,
   clearSchemaLoaderCache,
   preloadSchemas,
-  initECharts,
-  setupAutoResize,
-  disposeECharts,
-  setOption,
-  showLoading,
-  hideLoading,
-  isEChartsAvailable,
-  getEChartsVersion,
 } from './runtime';
 export type { SchemaLoadResult, SchemaLoadOptions } from './runtime';
 
@@ -127,46 +76,6 @@ export {
   isPlatform,
   isMobileDevice,
 } from './runtime/platform-detector';
-
-// Permission
-export {
-  registerPermissionProvider,
-  getPermissionProvider,
-  DefaultPermissionProvider,
-} from './runtime/permission-provider';
-export {
-  PermissionCheckerImpl,
-  has,
-  hasAny,
-  hasAll,
-  hasRole,
-  canAccessPage,
-  registerPagePermission,
-} from './runtime/permission-checker';
-export {
-  getFieldPermission,
-  canReadField,
-  canWriteField,
-  isFieldHidden,
-  isFieldPrivate,
-} from './runtime/field-permission';
-export {
-  maskName,
-  maskPhone,
-  maskIdCard,
-  maskEmail,
-  applyPrivacyMask,
-  filterData,
-  filterDataWithPrivacy,
-} from './runtime/data-filter';
-export {
-  getSOPStepPermission,
-  canExecuteSOPStep,
-  canViewSOPStep,
-  getAvailableFields,
-  validateSOPStepPermissions,
-  getNextAvailableSteps,
-} from './runtime/sop-permission';
 
 // Composables
 export {
@@ -191,7 +100,7 @@ export type {
 } from './composables';
 
 // Components
-export { PageLoader, createPageLoader, createDefaultLoadingSpinner, createDefaultErrorUI, EChartsComponent } from './components';
+export { PageLoader, createPageLoader, createDefaultLoadingSpinner, createDefaultErrorUI } from './components';
 export type { PageLoaderProps } from './components';
 
 // Runtime (value-resolver)

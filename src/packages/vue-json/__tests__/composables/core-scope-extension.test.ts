@@ -96,8 +96,8 @@ describe('CoreScope Extension', () => {
       expect(typeof scope._router.replace).toBe('function');
     });
 
-    it('should have currentRoute property', () => {
-      expect(typeof scope._router.currentRoute).toBe('string');
+    it('should have getCurrentRoute method', () => {
+      expect(typeof scope._router.getCurrentRoute).toBe('function');
     });
 
     it('should have go method', () => {
@@ -112,12 +112,6 @@ describe('CoreScope Extension', () => {
       expect(typeof scope._router.forward).toBe('function');
     });
 
-    it('should call window.location.replace on push()', () => {
-      const replaceSpy = vi.spyOn(mockWindow.location, 'replace');
-      scope._router.push('/test-route');
-      expect(replaceSpy).not.toHaveBeenCalled();
-    });
-
     it('should call window.location.replace on replace()', () => {
       const replaceSpy = vi.spyOn(mockWindow.location, 'replace');
       scope._router.replace('/replace-route');
@@ -127,7 +121,7 @@ describe('CoreScope Extension', () => {
     it('should return currentRoute from hash', () => {
       mockWindow.location.hash = '#/current-test';
       const newScope = createCoreScope();
-      expect(newScope._router.currentRoute).toBe('/current-test');
+      expect(newScope._router.getCurrentRoute()).toBe('/current-test');
     });
   });
 

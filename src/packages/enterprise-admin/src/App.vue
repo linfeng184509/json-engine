@@ -18,7 +18,7 @@ import {
   LayoutContent as ALayoutContent,
   Result as AResult,
 } from 'ant-design-vue';
-import { EChartsComponent } from '@json-engine/vue-json';
+import { EChartsComponent } from '@json-engine/plugin-echarts';
 
 import { setupApp } from './setup-app';
 
