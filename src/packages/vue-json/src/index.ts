@@ -23,7 +23,7 @@ export type {
 } from './types';
 
 // Plugin
-export { getPluginRegistry, PluginRegistry } from './plugin';
+export { getPluginRegistry, PluginRegistry, loadAndInstallPlugins } from './plugin';
 
 // Parser
 export { parseSchema } from './parser';

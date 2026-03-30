@@ -1,1 +1,6 @@
-export { PluginRegistry, getPluginRegistry, resetPluginRegistry } from './plugin-registry';
+export {
+  PluginRegistry,
+  getPluginRegistry,
+  resetPluginRegistry,
+  loadAndInstallPlugins,
+} from './plugin-registry';

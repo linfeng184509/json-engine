@@ -1,4 +1,4 @@
-import type { RegisteredPlugin, VueJsonPlugin } from '../types/plugin.definitions';
+import type { RegisteredPlugin, VueJsonPlugin, PluginDeclaration } from '../types/plugin.definitions';
 
 export interface PluginRegistryOptions {
   coreVersion: string;
@@ -222,4 +222,52 @@ export function getPluginRegistry(): PluginRegistry {
 
 export function resetPluginRegistry(): void {
   globalRegistry = null;
+}
+
+/**
+ * 从声明动态加载并安装插件
+ * 
+ * @param declarations - 插件声明列表
+ * @param config - 插件配置
+ * @param loaders - 可选的插件加载器映射表，用于动态加载插件
+ */
+export async function loadAndInstallPlugins(
+  declarations: PluginDeclaration[],
+  config: Record<string, unknown>,
+  loaders?: Record<string, () => Promise<VueJsonPlugin>>
+): Promise<void> {
+  const registry = getPluginRegistry();
+
+  for (const decl of declarations) {
+    const pluginName = decl.name;
+
+    if (!registry.getPlugin(pluginName)) {
+      if (loaders && loaders[pluginName]) {
+        const plugin = await loaders[pluginName]();
+        registry.register(plugin);
+      } else {
+        try {
+          const module = await import(
+            /* @vite-ignore */
+            /* webpackIgnore: true */
+            pluginName
+          );
+
+          const plugin = module.default;
+
+          if (!plugin) {
+            throw new Error(`[loadAndInstallPlugins] Plugin ${pluginName} has no default export`);
+          }
+
+          registry.register(plugin);
+        } catch (error) {
+          throw new Error(
+            `[loadAndInstallPlugins] Failed to load plugin ${pluginName}: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      }
+    }
+  }
+
+  await registry.installFromSchema(declarations, config);
 }
