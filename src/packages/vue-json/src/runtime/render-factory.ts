@@ -99,6 +99,12 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
   const props = resolveNodeProps(node.props, node.directives, context);
   const children = resolveNodeChildren(node.children, node.directives, context);
 
+  const isComponent = typeof type !== 'string';
+
+  if (isComponent && children) {
+    return h(type, props, () => children);
+  }
+
   return h(type, props, children);
 }
 
