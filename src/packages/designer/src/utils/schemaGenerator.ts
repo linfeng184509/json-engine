@@ -1,6 +1,5 @@
 import type { DesignNode, ApiEndpoint, DataSourceRef } from '../types'
 import type { VueJsonSchema } from '@json-engine/vue-json'
-import { collectVModelPaths } from './treeOperations'
 
 function toFunctionValue(expression: string): { type: 'function'; params: string; body: string } {
   return {
@@ -14,13 +13,6 @@ function toStringValue(value: unknown): { type: 'string'; body: string } {
   return {
     type: 'string',
     body: `'${String(value)}'`,
-  }
-}
-
-function toExpressionValue(expression: string): { type: 'expression'; body: string } {
-  return {
-    type: 'expression',
-    body: `{{${expression}}}`,
   }
 }
 
@@ -38,10 +30,10 @@ function designNodeToVNode(
       if (key.startsWith('v-model:')) {
         const modelProp = key.replace('v-model:', '')
         const statePath = value as string
-        const refExpr = statePath.replace('$state.', 'ref_state_').replace(/\./g, '_')
+        const refExpr = statePath.replace('$state.', 'ref_state_')
 
         directives.vModel = {
-          prop: toExpressionValue(refExpr),
+          prop: { type: 'state', body: `{{${refExpr}}}` },
           event: modelProp === 'value' ? 'update:value' : `update:${modelProp}`,
         }
 
@@ -142,7 +134,7 @@ function collectStateRefs(tree: DesignNode, refs: Set<string>): void {
   if (tree.props) {
     for (const [key, value] of Object.entries(tree.props)) {
       if (key.startsWith('v-model:') && typeof value === 'string') {
-        const refExpr = value.replace('$state.', 'ref_state_').replace(/\./g, '_')
+        const refExpr = value.replace('$state.', 'ref_state_')
         refs.add(refExpr)
       }
     }
@@ -181,11 +173,35 @@ export function generateVueJsonSchema(
   collectStateRefs(tree, stateRefs)
 
   for (const ref of stateRefs) {
-    if (!state[ref]) {
-      if (ref.startsWith('ref_state_ds_')) {
-        state[ref] = { type: 'ref', initial: null }
+    if (ref.startsWith('ref_state_ds_')) {
+      const varName = ref.replace('ref_state_ds_', '')
+      if (!state[varName]) {
+        state[varName] = { type: 'ref', initial: null }
+      }
+    } else {
+      const varName = ref.replace('ref_state_', '')
+      const dotIndex = varName.indexOf('.')
+      if (dotIndex > 0) {
+        const baseName = varName.substring(0, dotIndex)
+        const pathParts = varName.substring(dotIndex + 1).split('.')
+        if (!state[baseName]) {
+          state[baseName] = { type: 'reactive', initial: {} }
+        }
+        const initial = (state[baseName] as { type: string; initial: Record<string, unknown> }).initial
+        let current = initial
+        for (let i = 0; i < pathParts.length - 1; i++) {
+          if (!current[pathParts[i]]) {
+            current[pathParts[i]] = {}
+          }
+          current = current[pathParts[i]] as Record<string, unknown>
+        }
+        if (!(pathParts[pathParts.length - 1] in current)) {
+          current[pathParts[pathParts.length - 1]] = ''
+        }
       } else {
-        state[ref] = { type: 'ref', initial: '' }
+        if (!state[varName]) {
+          state[varName] = { type: 'ref', initial: '' }
+        }
       }
     }
   }

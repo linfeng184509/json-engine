@@ -66,10 +66,9 @@ describe("schemaGenerator", () => {
     }
     const def = generateJsonVueDef(tree) as VueJsonSchema
     expect(def.state).toBeDefined()
-    expect(def.state!['ref_state_formData_name']).toBeDefined()
-    expect(def.state!['ref_state_formData_name'].type).toBe("ref")
-    expect(def.state!['ref_state_formData_email']).toBeDefined()
-    expect(def.state!['ref_state_formData_email'].type).toBe("ref")
+    expect(def.state!['formData']).toBeDefined()
+    expect(def.state!['formData'].type).toBe("reactive")
+    expect(def.state!['formData'].initial).toEqual({ name: '', email: '' })
   })
 
   it("should generate methods with core-engine function format", () => {

@@ -28,6 +28,7 @@ import {
   setCoreScope,
   loadAndInstallPlugins,
   registerGlobalComponents,
+  getGlobalComponents,
 } from '@json-engine/vue-json'
 import { antdPlugin } from '@json-engine/plugin-antd'
 import * as Antd from 'ant-design-vue'
@@ -206,9 +207,11 @@ function updatePreviewComponent() {
   
   try {
     const schema = generateVueJsonSchema(props.tree)
+    const globalComponents = getGlobalComponents()
     previewComponent.value = createComponent(schema, {
       cache: false,
       injectStyles: true,
+      extraComponents: globalComponents,
     })
   } catch (error) {
     console.error('[FormPreview] Component creation failed:', error)
