@@ -20,7 +20,7 @@ import { renderVNode } from './render-factory';
 import { injectStyles, generateComponentId } from './style-injector';
 import { ComponentCreationError } from '../utils/error';
 import { executeFunction } from './value-resolver';
-import { getGlobalComponents } from '../composables/use-core-scope';
+import { getGlobalComponents, getCoreScope } from '../composables/use-core-scope';
 import { getPluginRegistry } from '../plugin/plugin-registry';
 import type { PluginComponentDefinition } from '../types';
 import type { CoreScope } from '../composables/use-core-scope';
@@ -44,15 +44,15 @@ const BUILTIN_COMPONENTS: Record<string, Component> = {
 function getAllAvailableComponents(extraComponents: Record<string, Component>): Record<string, Component> {
   const globalComponents = getGlobalComponents();
   const registryComponents = getPluginRegistry().getAllComponents();
-  
+
   const result: Record<string, Component> = {};
-  
+
   for (const [name, def] of Object.entries(registryComponents)) {
     if (def && typeof def === 'object' && 'component' in def) {
       result[name] = (def as PluginComponentDefinition).component;
     }
   }
-  
+
   return {
     ...globalComponents,
     ...result,
@@ -70,7 +70,7 @@ export function createComponentCreator(
     debug = false,
     extraComponents = {},
     registerPageLoader = true,
-    coreScope,
+    coreScope = getCoreScope(),
   } = options;
 
   const cacheKey = typeof schemaInput === 'string' ? schemaInput : JSON.stringify(schemaInput);
@@ -120,7 +120,7 @@ export function createComponentCreator(
         }
       }
 
-      const computedRefs = createComputed(schema.computed, context, state, stateTypes, (coreScope ?? {}) as Record<string, unknown>);
+      const computedRefs = createComputed(schema.computed, context, state, stateTypes, coreScope as unknown as Record<string, unknown>);
 
       const provideRef = { value: injected as Record<string, unknown> };
 
@@ -131,11 +131,11 @@ export function createComponentCreator(
         computedRefs,
         provideRef,
         stateTypes,
-        (coreScope ?? {}) as Record<string, unknown>
+        coreScope
       );
 
       setupWatchers(schema.watch, context, state, computedRefs, methods);
-      setupLifecycle(schema.lifecycle, context, state, computedRefs, methods, (coreScope ?? {}) as Record<string, unknown>);
+      setupLifecycle(schema.lifecycle, context, state, computedRefs, methods, coreScope as unknown as Record<string, unknown>);
 
       const provided = schema.provide
         ? setupProvide(schema.provide, context, state, computedRefs, methods)
@@ -171,7 +171,7 @@ export function createComponentCreator(
             emit,
             provide: provideRef.value,
             stateTypes,
-            coreScope: (coreScope ?? {}) as Record<string, unknown>,
+            coreScope: coreScope as unknown as Record<string, unknown>,
           });
         } catch (error) {
           console.error(`[vue-json-engine] Render error in ${schema.name}:`, error);
@@ -197,7 +197,7 @@ function createMethods(
   computed: Record<string, unknown>,
   provideRef: { value: Record<string, unknown> },
   stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>,
-  coreScope: Record<string, unknown>
+  coreScope: CoreScope
 ): Record<string, (...args: unknown[]) => unknown> {
   const methods: Record<string, (...args: unknown[]) => unknown> = {};
 
@@ -216,7 +216,7 @@ function createMethods(
         provide: provideRef.value,
         components: {},
         stateTypes,
-        coreScope,
+        coreScope: coreScope as unknown as Record<string, unknown>,
       };
       return executeFunction(fnValue, renderContext, args);
     };
