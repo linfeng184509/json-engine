@@ -10,6 +10,7 @@ export type {
   VueJsonPlugin,
   PluginDeclaration,
   PluginConfig,
+  PluginInstallContext,
   RenderContext,
   UIComponentConfig,
   UIThemeConfig,

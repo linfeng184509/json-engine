@@ -1,8 +1,9 @@
-import type { VueJsonPlugin } from '@json-engine/vue-json';
-import { antdConfigSchema } from './config-schema';
-import { createAntdFactory } from './runtime/antd-factory';
-import { createAButton } from './components/Button';
-import type { AntdPluginConfig } from './types';
+import type { VueJsonPlugin, PluginInstallContext } from '@json-engine/vue-json'
+import { registerGlobalComponents } from '@json-engine/vue-json'
+import { antdConfigSchema } from './config-schema'
+import { createAntdFactory } from './runtime/antd-factory'
+import { getAntdComponents } from './antdComponents'
+import type { AntdPluginConfig } from './types'
 
 export const antdPlugin: VueJsonPlugin = {
   name: '@json-engine/plugin-antd',
@@ -11,13 +12,6 @@ export const antdPlugin: VueJsonPlugin = {
 
   configSchema: antdConfigSchema,
 
-  components: [
-    {
-      name: 'AButton',
-      component: { render: createAButton },
-    },
-  ],
-
   runtimeExports: [
     {
       name: 'createAntdFactory',
@@ -25,10 +19,16 @@ export const antdPlugin: VueJsonPlugin = {
     },
   ],
 
-  onInstall(context) {
-    const config = context.config as AntdPluginConfig;
-    console.log(`[plugin-antd] Installed with config:`, config);
-  },
-};
+  onInstall(context: PluginInstallContext) {
+    const config = context.config as AntdPluginConfig
+    console.log(`[plugin-antd] Installing with config:`, config)
 
-export default antdPlugin;
+    const allComponents = getAntdComponents()
+    registerGlobalComponents(allComponents)
+    console.log(`[plugin-antd] Registered ${Object.keys(allComponents).length} components`)
+  },
+}
+
+export { getAntdComponents, getAntdComponentCategories } from './antdComponents'
+
+export default antdPlugin
