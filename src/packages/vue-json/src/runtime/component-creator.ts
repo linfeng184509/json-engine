@@ -20,6 +20,9 @@ import { renderVNode } from './render-factory';
 import { injectStyles, generateComponentId } from './style-injector';
 import { ComponentCreationError } from '../utils/error';
 import { executeFunction } from './value-resolver';
+import { getGlobalComponents } from '../composables/use-core-scope';
+import { getPluginRegistry } from '../plugin/plugin-registry';
+import type { PluginComponentDefinition } from '../types';
 import type { CoreScope } from '../composables/use-core-scope';
 import { PageLoader } from '../components/PageLoader';
 
@@ -37,6 +40,25 @@ const componentCache = new Map<string, Component>();
 const BUILTIN_COMPONENTS: Record<string, Component> = {
   PageLoader,
 };
+
+function getAllAvailableComponents(extraComponents: Record<string, Component>): Record<string, Component> {
+  const globalComponents = getGlobalComponents();
+  const registryComponents = getPluginRegistry().getAllComponents();
+  
+  const result: Record<string, Component> = {};
+  
+  for (const [name, def] of Object.entries(registryComponents)) {
+    if (def && typeof def === 'object' && 'component' in def) {
+      result[name] = (def as PluginComponentDefinition).component;
+    }
+  }
+  
+  return {
+    ...globalComponents,
+    ...result,
+    ...extraComponents,
+  };
+}
 
 export function createComponentCreator(
   schemaInput: VueJsonSchemaInput,
@@ -134,9 +156,8 @@ export function createComponentCreator(
       return () => {
         try {
           const allComponents: Record<string, Component> = {
-            ...schema.components,
             ...(registerPageLoader ? BUILTIN_COMPONENTS : {}),
-            ...extraComponents,
+            ...getAllAvailableComponents(extraComponents),
           };
 
           return renderVNode(schema.render, {

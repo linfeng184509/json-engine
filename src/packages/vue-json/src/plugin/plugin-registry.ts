@@ -209,6 +209,14 @@ export class PluginRegistry {
   getInstalledPlugins(): RegisteredPlugin[] {
     return Array.from(this.plugins.values()).filter((p) => p.installed);
   }
+
+  /**
+   * 获取所有已注册的组件
+   * 返回 Record<string, Component> 格式，值为完整的 PluginComponentDefinition
+   */
+  getAllComponents(): Record<string, unknown> {
+    return Object.fromEntries(this.components);
+  }
 }
 
 let globalRegistry: PluginRegistry | null = null;

@@ -2,46 +2,12 @@
 import { ref, shallowRef, onMounted, type Component } from 'vue';
 import {
   loadComponent,
-  registerGlobalComponents,
 } from '@json-engine/vue-json';
-import {
-  Form as AForm,
-  FormItem as AFormItem,
-  Input as AInput,
-  InputPassword as AInputPassword,
-  Checkbox as ACheckbox,
-  Button as AButton,
-  Spin as ASpin,
-  Card as ACard,
-  Layout as ALayout,
-  LayoutHeader as ALayoutHeader,
-  LayoutContent as ALayoutContent,
-  Result as AResult,
-} from 'ant-design-vue';
-import { EChartsComponent } from '@json-engine/plugin-echarts';
 
 import { setupApp } from './setup-app';
 
 import 'ant-design-vue/dist/reset.css';
 import './styles/main.css';
-
-const antdComponents: Record<string, Component> = {
-  AForm,
-  AFormItem,
-  AInput,
-  AInputPassword,
-  ACheckbox,
-  AButton,
-  ASpin,
-  ACard,
-  ALayout,
-  ALayoutHeader,
-  ALayoutContent,
-  AResult,
-  ECharts: EChartsComponent,
-};
-
-registerGlobalComponents(antdComponents);
 
 const appRootComponent = shallowRef<Component | null>(null);
 const error = ref<string | null>(null);
@@ -61,7 +27,6 @@ async function bootstrap(): Promise<void> {
     const result = await loadComponent('/schemas/app-root.json', {
       cache: false,
       injectStyles: true,
-      extraComponents: antdComponents,
     });
 
     if (result.success && result.component) {
