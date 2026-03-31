@@ -9,6 +9,7 @@
       'canvas-node--form': node.type === 'AForm',
       'canvas-node--form-item': node.type === 'AFormItem'
     }"
+    :style="mergedStyle"
     @click.stop="onClick"
     @contextmenu.stop="onContextMenu"
     @dragover.prevent.stop="onDragOver"
@@ -75,13 +76,21 @@ const getLabel = computed(() => {
   return props.node.props?.label || props.node.props?.placeholder || props.node.label
 })
 
+const mergedStyle = computed(() => {
+  const nodeStyle = props.node.style || {}
+  return {
+    ...nodeStyle,
+  }
+})
+
 function resolveComp(type: string) {
   try { return resolveComponent(type, false) } catch { return type }
 }
 
 const previewComponent = computed(() => {
   const p = props.node.props || {}
-  const style: any = { pointerEvents: 'none' }
+  const nodeStyle = props.node.style || {}
+  const style = { ...nodeStyle, pointerEvents: 'none' }
 
   if (props.node.type === 'AInput') {
     return h(resolveComp('AInput'), { placeholder: p.placeholder || '请输入', disabled: true, style, allowClear: p.allowClear, size: p.size })
