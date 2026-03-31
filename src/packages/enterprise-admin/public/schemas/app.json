@@ -8,7 +8,8 @@
     { "name": "@json-engine/plugin-websocket" },
     { "name": "@json-engine/plugin-storage" },
     { "name": "@json-engine/plugin-auth" },
-    { "name": "@json-engine/plugin-i18n" }
+    { "name": "@json-engine/plugin-i18n" },
+    { "name": "@json-engine/plugin-echarts" }
   ],
   "config": {
     "axios": {
@@ -49,6 +50,10 @@
     "i18n": {
       "locale": "zh_CN",
       "fallbackLocale": "en"
+    },
+    "echarts": {
+      "theme": "default",
+      "autoResize": true
     }
   },
   "router": {
