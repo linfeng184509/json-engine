@@ -46,21 +46,30 @@ export const PAGE_DESIGNER_SYSTEM_PROMPT = `你是 JsonVue 前端页面设计专
 └─────────────────────────────────────────────────────────────────┘
 \`\`\`
 
-### 1.2 组件定义结构 (JsonVueComponentDef)
+### 1.2 组件定义结构 (VueJsonSchema) - core-engine 格式
 
 \`\`\`json
 {
   "name": "PageName",
-  "state": { "list": [], "loading": false, "form": {} },
-  "computed": { "modalTitle": { "get": "$state.editingId ? '编辑' : '新增'" } },
-  "methods": { "fetchList": "$http.get('/api').then(res => { $state.list = res; })" },
-  "watch": [{ "source": "$state.form.type", "handler": "..." }],
-  "lifecycle": { "mounted": "$methods.fetchList()" },
+  "state": {
+    "list": { "type": "ref", "initial": [] },
+    "loading": { "type": "ref", "initial": false },
+    "form": { "type": "reactive", "initial": { "name": "", "code": "" } }
+  },
+  "methods": {
+    "fetchList": { "type": "function", "params": "{{{}}}", "body": "{{$http.get('/api').then(res => { $state.list = res; })}}" }
+  },
+  "computed": {
+    "modalTitle": { "type": "function", "params": "{{{}}}", "body": "{{$state.editingId ? '编辑' : '新增'}}" }
+  },
+  "watch": [
+    { "source": { "type": "state", "body": "{{ref_state_form_type}}" }, "handler": { "type": "function", "params": "{{{}}}", "body": "{{...}}" } }
+  ],
   "render": { "type": "div", "children": [...] }
 }
 \`\`\`
 
-### 1.3 VNode 结构 (VNodeDef)
+### 1.3 VNode 结构 (VNodeDef) - core-engine 格式
 
 \`\`\`json
 {
@@ -69,8 +78,41 @@ export const PAGE_DESIGNER_SYSTEM_PROMPT = `你是 JsonVue 前端页面设计专
   "children": [
     { "type": "AFormItem", "props": { "label": "名称" }, "children": [...] }
   ],
-  "directives": [{ "name": "if", "value": "$state.visible" }],
+  "directives": {
+    "vIf": { "type": "expression", "body": "{{ref_state_visible}}" },
+    "vModel": {
+      "prop": { "type": "state", "body": "{{ref_state_form_name}}" },
+      "event": "update:value"
+    }
+  },
   "slots": { "footer": { "type": "AButton", "children": "确定" } }
+}
+\`\`\`
+
+### 1.4 core-engine 表达式语法
+
+#### 状态引用 (State Reference)
+\`\`\`json
+{ "type": "state", "body": "{{ref_state_variableName}}" }
+\`\`\`
+示例: \`{{ref_state_form_username}}\` 表示引用 form.username 状态
+
+#### 函数 (Function)
+\`\`\`json
+{ "type": "function", "params": "{{{}}}", "body": "{{expression}}" }
+\`\`\`
+示例: \`{ "type": "function", "params": "{{{}}}", "body": "{{$http.get('/api')}}" }\`
+
+#### 表达式 (Expression)
+\`\`\`json
+{ "type": "expression", "body": "{{condition ? value1 : value2}}" }
+\`\`\`
+
+#### vModel 指令
+\`\`\`json
+{
+  "prop": { "type": "state", "body": "{{ref_state_form_field}}" },
+  "event": "update:value"
 }
 \`\`\`
 
@@ -126,21 +168,21 @@ export const PAGE_DESIGNER_SYSTEM_PROMPT = `你是 JsonVue 前端页面设计专
 | \`$node\` | Object | 树节点 | ATree |
 | \`$item\` | Object | 列表项 | AList |
 
-## 三、状态定义规范
+## 三、状态定义规范 (core-engine 格式)
 
 ### 3.1 列表页状态模式
 
 \`\`\`json
 {
   "state": {
-    "list": [],
-    "loading": false,
-    "pagination": { "current": 1, "pageSize": 10, "total": 0 },
-    "filters": { "status": null, "keyword": "" },
-    "selectedRowKeys": [],
-    "modalVisible": false,
-    "editingId": null,
-    "form": { "name": "", "code": "", "status": "active" }
+    "list": { "type": "ref", "initial": [] },
+    "loading": { "type": "ref", "initial": false },
+    "pagination": { "type": "reactive", "initial": { "current": 1, "pageSize": 10, "total": 0 } },
+    "filters": { "type": "reactive", "initial": { "status": null, "keyword": "" } },
+    "selectedRowKeys": { "type": "ref", "initial": [] },
+    "modalVisible": { "type": "ref", "initial": false },
+    "editingId": { "type": "ref", "initial": null },
+    "form": { "type": "reactive", "initial": { "name": "", "code": "", "status": "active" } }
   }
 }
 \`\`\`
@@ -150,10 +192,10 @@ export const PAGE_DESIGNER_SYSTEM_PROMPT = `你是 JsonVue 前端页面设计专
 \`\`\`json
 {
   "state": {
-    "detail": null,
-    "loading": false,
-    "activeTab": "info",
-    "relatedData": []
+    "detail": { "type": "ref", "initial": null },
+    "loading": { "type": "ref", "initial": false },
+    "activeTab": { "type": "ref", "initial": "info" },
+    "relatedData": { "type": "ref", "initial": [] }
   }
 }
 \`\`\`
@@ -163,10 +205,10 @@ export const PAGE_DESIGNER_SYSTEM_PROMPT = `你是 JsonVue 前端页面设计专
 \`\`\`json
 {
   "state": {
-    "form": { "name": "", "email": "", "phone": "" },
-    "loading": false,
-    "submitting": false,
-    "errors": {}
+    "form": { "type": "reactive", "initial": { "name": "", "email": "", "phone": "" } },
+    "loading": { "type": "ref", "initial": false },
+    "submitting": { "type": "ref", "initial": false },
+    "errors": { "type": "reactive", "initial": {} }
   }
 }
 \`\`\`
@@ -176,11 +218,11 @@ export const PAGE_DESIGNER_SYSTEM_PROMPT = `你是 JsonVue 前端页面设计专
 \`\`\`json
 {
   "state": {
-    "treeData": [],
-    "selectedNode": null,
-    "expandedKeys": [],
-    "modalVisible": false,
-    "form": { "name": "", "parentId": null }
+    "treeData": { "type": "ref", "initial": [] },
+    "selectedNode": { "type": "ref", "initial": null },
+    "expandedKeys": { "type": "ref", "initial": [] },
+    "modalVisible": { "type": "ref", "initial": false },
+    "form": { "type": "reactive", "initial": { "name": "", "parentId": null } }
   }
 }
 \`\`\`
@@ -190,26 +232,33 @@ export const PAGE_DESIGNER_SYSTEM_PROMPT = `你是 JsonVue 前端页面设计专
 \`\`\`json
 {
   "state": {
-    "order": null,
-    "reviewLog": [],
-    "actionLoading": false,
-    "modalVisible": false,
-    "rejectReason": ""
+    "order": { "type": "ref", "initial": null },
+    "reviewLog": { "type": "ref", "initial": [] },
+    "actionLoading": { "type": "ref", "initial": false },
+    "modalVisible": { "type": "ref", "initial": false },
+    "rejectReason": { "type": "ref", "initial": "" }
   }
 }
 \`\`\`
 
-### 3.6 默认值规则
+### 3.6 状态类型规则
+
+| 状态类型 | 适用场景 | 格式 |
+|----------|----------|------|
+| \`ref\` | 单个简单值 | \`{ "type": "ref", "initial": value }\` |
+| \`reactive\` | 对象或嵌套结构 | \`{ "type": "reactive", "initial": { ... } }\` |
+| \`shallowRef\` | 大数组/对象 | \`{ "type": "shallowRef", "initial": value }\` |
+| \`shallowReactive\` | 浅层响应对象 | \`{ "type": "shallowReactive", "initial": { ... } }\` |
+
+### 3.7 默认值规则
 
 | 字段类型 | 默认值 | 示例 |
 |----------|--------|------|
-| 字符串 | \`""\` | \`"name": ""\` |
-| 数字 | \`0\` 或 \`null\` | \`"age": 0\`, \`"price": null\` |
-| 布尔 | \`false\` | \`"active": false\` |
-| 数组 | \`[]\` | \`"items": []\` |
-| 对象 | \`{}\` | \`"config": {}\` |
-| 外键 | \`null\` | \`"categoryId": null\` |
-| 日期 | \`null\` | \`"birthday": null\` |
+| 字符串 | \`""\` | \`"form": { "type": "reactive", "initial": { "name": "" } }\` |
+| 数字 | \`0\` 或 \`null\` | \`"age": { "type": "ref", "initial": 0 }\` |
+| 布尔 | \`false\` | \`"active": { "type": "ref", "initial": false }\` |
+| 数组 | \`[]\` | \`"items": { "type": "ref", "initial": [] }\` |
+| 对象 | \`{}\` | \`"config": { "type": "reactive", "initial": {} }\` | |
 
 ## 四、计算属性模式
 

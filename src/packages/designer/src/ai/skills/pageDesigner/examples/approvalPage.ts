@@ -3,51 +3,46 @@ import type { SkillExample } from '../types'
 const APPROVAL_PAGE_EXAMPLE: SkillExample = {
   input: "创建一个采购订单审批页面，显示订单详情和审批记录，支持通过/拒绝操作",
   pageType: 'approval',
-  description: '审批流程页面，包含订单详情、审批记录、操作按钮',
+  description: '审批流程页面，包含订单详情、审批记录、操作按钮 - core-engine 格式',
   output: {
     name: "PurchaseOrderApprovalPage",
     state: {
-      order: null,
-      reviewLog: [],
-      loading: false,
-      actionLoading: false,
-      rejectModalVisible: false,
-      rejectReason: ""
-    },
-    computed: {
-      statusTag: {
-        get: "$state.order?.status === 'approved' ? { color: 'green', text: '已通过' } : $state.order?.status === 'rejected' ? { color: 'red', text: '已拒绝' } : { color: 'orange', text: '待审批' }"
-      },
-      canApprove: {
-        get: "$state.order?.status === 'pending'"
-      }
+      order: { type: 'ref', initial: null },
+      reviewLog: { type: 'reactive', initial: [] },
+      loading: { type: 'ref', initial: false },
+      actionLoading: { type: 'ref', initial: false },
+      rejectModalVisible: { type: 'ref', initial: false },
+      rejectReason: { type: 'ref', initial: "" }
     },
     methods: {
-      fetchOrder: "$state.loading = true; $http.get('/purchase-orders/' + $route.params.id).then(res => { $state.order = res.order; $state.reviewLog = res.reviewLog || []; }).finally(() => { $state.loading = false; })",
-      handleApprove: "$state.actionLoading = true; $http.post('/purchase-orders/' + $state.order.id + '/approve').then(() => { $message.success('审批通过'); $methods.fetchOrder(); }).catch(err => { $message.error(err.response?.data?.message || '审批失败'); }).finally(() => { $state.actionLoading = false; })",
-      openRejectModal: "$state.rejectReason = ''; $state.rejectModalVisible = true",
-      handleReject: "if(!$state.rejectReason) { $message.error('请输入拒绝原因'); return; } $state.actionLoading = true; $http.post('/purchase-orders/' + $state.order.id + '/reject', { reason: $state.rejectReason }).then(() => { $message.success('已拒绝'); $state.rejectModalVisible = false; $methods.fetchOrder(); }).catch(err => { $message.error(err.response?.data?.message || '操作失败'); }).finally(() => { $state.actionLoading = false; })",
-      goBack: "$router.back()"
-    },
-    lifecycle: {
-      mounted: "$methods.fetchOrder()"
+      fetchOrder: { type: 'function', params: '{{{}}}', body: '{{ ref_state_loading = true; $http.get("/purchase-orders/" + $route.params.id).then(res => { ref_state_order = res.order; ref_state_reviewLog = res.reviewLog || []; }).finally(() => { ref_state_loading = false; }) }}' },
+      handleApprove: { type: 'function', params: '{{{}}}', body: '{{ ref_state_actionLoading = true; $http.post("/purchase-orders/" + ref_state_order.id + "/approve").then(() => { $message.success("审批通过"); $methods.fetchOrder(); }).catch(err => { $message.error(err.response?.data?.message || "审批失败"); }).finally(() => { ref_state_actionLoading = false; }) }}' },
+      openRejectModal: { type: 'function', params: '{{{}}}', body: '{{ ref_state_rejectReason = ""; ref_state_rejectModalVisible = true }}' },
+      handleReject: { type: 'function', params: '{{{}}}', body: '{{ if(!ref_state_rejectReason) { $message.error("请输入拒绝原因"); return; } ref_state_actionLoading = true; $http.post("/purchase-orders/" + ref_state_order.id + "/reject", { reason: ref_state_rejectReason }).then(() => { $message.success("已拒绝"); ref_state_rejectModalVisible = false; $methods.fetchOrder(); }).catch(err => { $message.error(err.response?.data?.message || "操作失败"); }).finally(() => { ref_state_actionLoading = false; }) }}' },
+      goBack: { type: 'function', params: '{{{}}}', body: '{{ $router.back() }}' }
     },
     render: {
       type: "div",
-      props: { class: "approval-page" },
+      props: { style: { padding: "24px" } },
       children: [
         {
           type: "div",
-          props: { class: "page-header", style: { display: "flex", alignItems: "center", marginBottom: "16px" } },
+          props: { style: { display: "flex", alignItems: "center", marginBottom: "16px" } },
           children: [
-            { type: "AButton", props: { onClick: "$methods.goBack()" }, children: "返回" },
-            { type: "h1", props: { style: { margin: "0 16px" } }, children: "{{ $state.order?.orderNo }}" },
-            { type: "ATag", props: { color: "$state.statusTag.color" }, children: "{{ $state.statusTag.text }}" }
+            { type: "AButton", props: { onClick: { type: 'expression', body: '{{ $methods.goBack() }}' } }, children: "返回" },
+            { type: "h1", props: { style: { margin: "0 16px" } }, children: "{{{ ref_state_order?.orderNo }}}" },
+            { 
+              type: "ATag", 
+              props: { 
+                color: { type: 'expression', body: '{{ ref_state_order?.status === \'approved\' ? \'green\' : ref_state_order?.status === \'rejected\' ? \'red\' : \'orange\' }}' }
+              }, 
+              children: '{{{ ref_state_order?.status === \'approved\' ? \'已通过\' : ref_state_order?.status === \'rejected\' ? \'已拒绝\' : \'待审批\' }}}' 
+            }
           ]
         },
         {
           type: "ASpin",
-          props: { spinning: "$state.loading" },
+          props: { spinning: { type: 'expression', body: '{{ ref_state_loading }}' } },
           children: [
             {
               type: "ACard",
@@ -57,11 +52,11 @@ const APPROVAL_PAGE_EXAMPLE: SkillExample = {
                   type: "ADescriptions",
                   props: { column: 2, bordered: true },
                   children: [
-                    { type: "ADescriptionsItem", props: { label: "供应商" }, children: "{{ $state.order?.supplierName }}" },
-                    { type: "ADescriptionsItem", props: { label: "总金额" }, children: "¥{{ $state.order?.totalAmount }}" },
-                    { type: "ADescriptionsItem", props: { label: "总数量" }, children: "{{ $state.order?.totalQty }}" },
-                    { type: "ADescriptionsItem", props: { label: "期望日期" }, children: "{{ $state.order?.expectedDate || '-' }}" },
-                    { type: "ADescriptionsItem", props: { label: "备注", span: 2 }, children: "{{ $state.order?.remark || '-' }}" }
+                    { type: "ADescriptionsItem", props: { label: "供应商" }, children: "{{{ ref_state_order?.supplierName }}}" },
+                    { type: "ADescriptionsItem", props: { label: "总金额" }, children: '¥{{{ ref_state_order?.totalAmount }}}' },
+                    { type: "ADescriptionsItem", props: { label: "总数量" }, children: "{{{ ref_state_order?.totalQty }}}" },
+                    { type: "ADescriptionsItem", props: { label: "期望日期" }, children: '{{{ ref_state_order?.expectedDate || "-" }}}' },
+                    { type: "ADescriptionsItem", props: { label: "备注", span: 2 }, children: '{{{ ref_state_order?.remark || "-" }}}' }
                   ]
                 }
               ]
@@ -73,8 +68,8 @@ const APPROVAL_PAGE_EXAMPLE: SkillExample = {
                 {
                   type: "ATable",
                   props: {
-                    columns: "[{ title: '商品', dataIndex: 'productName' }, { title: '数量', dataIndex: 'qty', width: 80 }, { title: '单价', dataIndex: 'price', width: 100 }, { title: '金额', dataIndex: 'amount', width: 120 }]",
-                    dataSource: "$state.order?.items",
+                    columns: { type: 'expression', body: '{{ [{ title: "商品", dataIndex: "productName" }, { title: "数量", dataIndex: "qty", width: 80 }, { title: "单价", dataIndex: "price", width: 100 }, { title: "金额", dataIndex: "amount", width: 120 }] }}' },
+                    dataSource: { type: 'expression', body: '{{ ref_state_order?.items }}' },
                     rowKey: "productId",
                     pagination: false,
                     size: "small"
@@ -89,7 +84,7 @@ const APPROVAL_PAGE_EXAMPLE: SkillExample = {
                 {
                   type: "ATimeline",
                   props: {
-                    items: "$state.reviewLog.map(log => ({ color: log.action === 'create' ? 'blue' : log.action === 'submit' ? 'cyan' : log.action === 'approve' ? 'green' : 'red', children: log.operator + ' ' + log.note + ' - ' + new Date(log.time).toLocaleString('zh-CN') }))"
+                    items: { type: 'expression', body: '{{ ref_state_reviewLog.map(log => ({ color: log.action === \'create\' ? \'blue\' : log.action === \'submit\' ? \'cyan\' : log.action === \'approve\' ? \'green\' : \'red\', children: log.operator + " " + log.note + " - " + new Date(log.time).toLocaleString(\'zh-CN\') })) }}' }
                   }
                 }
               ]
@@ -98,17 +93,32 @@ const APPROVAL_PAGE_EXAMPLE: SkillExample = {
               type: "div",
               props: { style: { marginTop: "16px", textAlign: "right" } },
               children: [
-                { type: "AButton", props: { type: "primary", loading: "$state.actionLoading", disabled: "!$state.canApprove", onClick: "$methods.handleApprove()" }, children: "通过" },
-                { type: "AButton", props: { style: "margin-left: 8px", danger: true, disabled: "!$state.canApprove", onClick: "$methods.openRejectModal()" }, children: "拒绝" }
+                { type: "AButton", props: { type: "primary", loading: { type: 'expression', body: '{{ ref_state_actionLoading }}' }, disabled: { type: 'expression', body: '{{ ref_state_order?.status !== "pending" }}' }, onClick: { type: 'expression', body: '{{ $methods.handleApprove() }}' } }, children: "通过" },
+                { type: "AButton", props: { style: { marginLeft: "8px" }, danger: true, disabled: { type: 'expression', body: '{{ ref_state_order?.status !== "pending" }}' }, onClick: { type: 'expression', body: '{{ $methods.openRejectModal() }}' } }, children: "拒绝" }
               ]
             }
           ]
         },
         {
           type: "AModal",
-          props: { title: "拒绝原因", open: "$state.rejectModalVisible", onOk: "$methods.handleReject()", onCancel: "$state.rejectModalVisible = false", confirmLoading: "$state.actionLoading" },
+          props: { 
+            title: "拒绝原因", 
+            open: { type: 'expression', body: '{{ ref_state_rejectModalVisible }}' }, 
+            onOk: { type: 'expression', body: '{{ $methods.handleReject() }}' }, 
+            onCancel: { type: 'expression', body: '{{ ref_state_rejectModalVisible = false }}' }, 
+            confirmLoading: { type: 'expression', body: '{{ ref_state_actionLoading }}' } 
+          },
           children: [
-            { type: "ATextArea", props: { value: "$state.rejectReason", onInput: "$state.rejectReason = $event.target.value", rows: 4, placeholder: "请输入拒绝原因" } }
+            { 
+              type: "ATextArea", 
+              directives: {
+                vModel: {
+                  prop: { type: 'state', body: '{{ref_state_rejectReason}}' },
+                  event: 'update:value'
+                }
+              },
+              props: { rows: 4, placeholder: "请输入拒绝原因" } 
+            }
           ]
         }
       ]

@@ -2,6 +2,8 @@ import { ref, computed } from "vue"
 import type { AiTool, ToolResult, JSONSchema, ToolContext } from "./types"
 import { parseSchema } from "@json-engine/vue-json"
 import type { VueJsonSchema } from "@json-engine/vue-json"
+import { getAllPrototypes } from "../registry/componentRegistry"
+import type { FieldPrototype } from "../types"
 
 type VueJsonSchemaInput = string | VueJsonSchema
 
@@ -116,51 +118,15 @@ Use this to understand available components before generating page configuration
     }
   },
   execute: async (params: Record<string, unknown>, _context?: ToolContext): Promise<ToolResult> => {
-    const components = [
-      { name: "AForm", label: "表单容器", category: "layout", isContainer: true, props: ["layout", "labelCol", "wrapperCol"] },
-      { name: "AFormItem", label: "表单项", category: "layout", isContainer: true, props: ["label", "name", "required", "rules"] },
-      { name: "ACard", label: "卡片", category: "layout", isContainer: true, props: ["title", "bordered", "size"] },
-      { name: "ATabs", label: "标签页", category: "layout", isContainer: true, props: ["activeKey"] },
-      { name: "ATabPane", label: "标签页面", category: "layout", isContainer: true, props: ["key", "tab"] },
-      { name: "ARow", label: "行布局", category: "layout", isContainer: true, props: ["gutter"] },
-      { name: "ACol", label: "列布局", category: "layout", isContainer: true, props: ["span", "offset"] },
-      { name: "AInput", label: "文本输入", category: "basic", props: ["value", "placeholder", "disabled", "maxlength"] },
-      { name: "AInputPassword", label: "密码输入", category: "basic", props: ["value", "placeholder", "visibilityToggle"] },
-      { name: "ATextArea", label: "多行文本", category: "basic", props: ["value", "placeholder", "rows", "maxlength"] },
-      { name: "AInputNumber", label: "数字输入", category: "basic", props: ["value", "min", "max", "step", "precision"] },
-      { name: "AInputSearch", label: "搜索输入", category: "basic", props: ["value", "placeholder", "onSearch"] },
-      { name: "ASelect", label: "下拉选择", category: "selection", props: ["value", "options", "mode", "allowClear", "showSearch"] },
-      { name: "ARadioGroup", label: "单选组", category: "selection", props: ["value", "options"] },
-      { name: "ACheckbox", label: "复选框", category: "selection", props: ["checked"] },
-      { name: "ACheckboxGroup", label: "复选组", category: "selection", props: ["value", "options"] },
-      { name: "ASwitch", label: "开关", category: "selection", props: ["checked", "checkedChildren", "unCheckedChildren"] },
-      { name: "ACascader", label: "级联选择", category: "selection", props: ["value", "options", "multiple"] },
-      { name: "ATreeSelect", label: "树选择", category: "selection", props: ["value", "treeData", "multiple"] },
-      { name: "ADatePicker", label: "日期选择", category: "date", props: ["value", "format", "showTime"] },
-      { name: "ARangePicker", label: "日期范围", category: "date", props: ["value", "format"] },
-      { name: "ATimePicker", label: "时间选择", category: "date", props: ["value", "format"] },
-      { name: "AUpload", label: "文件上传", category: "advanced", props: ["action", "multiple", "accept", "maxCount"] },
-      { name: "ARate", label: "评分", category: "advanced", props: ["value", "count", "allowHalf"] },
-      { name: "ASlider", label: "滑块", category: "advanced", props: ["value", "min", "max", "range"] },
-      { name: "ATransfer", label: "穿梭框", category: "advanced", props: ["dataSource", "targetKeys", "titles"] },
-      { name: "ATable", label: "数据表格", category: "data", isContainer: false, props: ["columns", "dataSource", "loading", "pagination", "rowSelection"] },
-      { name: "ATree", label: "树形控件", category: "data", isContainer: false, props: ["treeData", "selectedKeys", "expandedKeys"] },
-      { name: "AList", label: "列表", category: "data", isContainer: true, props: ["dataSource", "loading"] },
-      { name: "ADescriptions", label: "描述列表", category: "data", isContainer: true, props: ["column", "bordered", "title"] },
-      { name: "AStatistic", label: "统计数值", category: "data", isContainer: false, props: ["title", "value", "suffix", "prefix"] },
-      { name: "ATimeline", label: "时间轴", category: "data", isContainer: true, props: ["items", "mode"] },
-      { name: "ATag", label: "标签", category: "data", isContainer: false, props: ["color", "closable"] },
-      { name: "ABadge", label: "徽标", category: "data", isContainer: false, props: ["count", "dot"] },
-      { name: "AButton", label: "按钮", category: "action", props: ["type", "loading", "disabled", "danger", "onClick"] },
-      { name: "AModal", label: "模态框", category: "action", isContainer: true, props: ["title", "open", "onOk", "onCancel", "width", "confirmLoading"] },
-      { name: "ADrawer", label: "抽屉", category: "action", isContainer: true, props: ["title", "open", "onClose", "width", "placement"] },
-      { name: "APopconfirm", label: "气泡确认", category: "action", isContainer: true, props: ["title", "onConfirm", "onCancel"] },
-      { name: "APagination", label: "分页", category: "navigation", props: ["current", "pageSize", "total", "onChange"] },
-      { name: "ASteps", label: "步骤条", category: "navigation", props: ["current", "items"] },
-      { name: "AAlert", label: "警告提示", category: "feedback", props: ["type", "message", "description", "closable"] },
-      { name: "ASpin", label: "加载中", category: "feedback", isContainer: true, props: ["spinning", "tip"] },
-      { name: "AResult", label: "结果页", category: "feedback", isContainer: true, props: ["status", "title", "subTitle"] }
-    ]
+    const prototypes = getAllPrototypes()
+
+    const components = prototypes.map((proto: FieldPrototype) => ({
+      name: proto.type,
+      label: proto.label,
+      category: proto.category,
+      isContainer: proto.isContainer || false,
+      props: Object.keys(proto.propEditors || {})
+    }))
 
     let filtered = components
 

@@ -3,31 +3,20 @@ import type { SkillExample } from '../types'
 const DETAIL_PAGE_EXAMPLE: SkillExample = {
   input: "创建一个客户详情页，显示客户基本信息和相关订单列表",
   pageType: 'detail',
-  description: '详情页面，包含描述列表、标签页、相关数据表格',
+  description: '详情页面，包含描述列表、标签页、相关数据表格 - core-engine 格式',
   output: {
     name: "CustomerDetailPage",
     state: {
-      customer: null,
-      orders: [],
-      loading: false,
-      activeTab: "info"
-    },
-    computed: {
-      statusTag: {
-        get: "$state.customer?.status === 'active' ? { color: 'green', text: '启用' } : { color: 'default', text: '停用' }"
-      },
-      orderColumns: {
-        get: "[{ title: '订单号', dataIndex: 'orderNo' }, { title: '金额', dataIndex: 'amount', width: 120 }, { title: '状态', dataIndex: 'status', width: 100 }, { title: '创建时间', dataIndex: 'createdAt', width: 180 }]"
-      }
+      customer: { type: 'ref', initial: null },
+      orders: { type: 'ref', initial: [] },
+      loading: { type: 'ref', initial: false },
+      activeTab: { type: 'ref', initial: "info" }
     },
     methods: {
-      fetchCustomer: "$state.loading = true; $http.get('/customers/' + $route.params.id).then(res => { $state.customer = res; }).finally(() => { $state.loading = false; })",
-      fetchOrders: "$http.get('/orders', { params: { customerId: $route.params.id } }).then(res => { $state.orders = res; })",
-      goBack: "$router.back()",
-      editCustomer: "$router.push('/customers/' + $route.params.id + '/edit')"
-    },
-    lifecycle: {
-      mounted: "$methods.fetchCustomer(); $methods.fetchOrders()"
+      fetchCustomer: { type: 'function', params: '{{{}}}', body: '{{ref_state_loading = true; $http.get("/customers/" + $route.params.id).then(res => { ref_state_customer = res; }).finally(() => { ref_state_loading = false; })}}' },
+      fetchOrders: { type: 'function', params: '{{{}}}', body: '{{$http.get("/orders", { params: { customerId: $route.params.id } }).then(res => { ref_state_orders = res; })}}' },
+      goBack: { type: 'function', params: '{{{}}}', body: '{{$router.back();}}' },
+      editCustomer: { type: 'function', params: '{{{}}}', body: '{{$router.push("/customers/" + $route.params.id + "/edit");}}' }
     },
     render: {
       type: "div",
@@ -37,35 +26,27 @@ const DETAIL_PAGE_EXAMPLE: SkillExample = {
           type: "div",
           props: { class: "page-header" },
           children: [
-            { type: "AButton", props: { onClick: "$methods.goBack()" }, "children": "返回" },
-            { type: "h1", props: { style: { margin: "0 16px" } }, children: "{{ $state.customer?.name }}" },
-            { type: "ATag", props: { color: "$state.statusTag.color" }, children: "{{ $state.statusTag.text }}" },
-            { type: "AButton", props: { type: "primary", style: "margin-left: auto", onClick: "$methods.editCustomer()" }, children: "编辑" }
+            { type: "AButton", props: { onClick: "$methods.goBack()" }, children: "返回" },
+            { type: "h1", props: { style: { margin: "0 16px" } }, children: "客户详情" },
+            { type: "AButton", props: { type: "primary", style: "margin-left: auto" }, children: "编辑" }
           ]
         },
         {
           type: "ASpin",
-          props: { spinning: "$state.loading" },
+          props: { spinning: { type: 'state', body: '{{ref_state_loading}}' } },
           children: [
             {
               type: "ACard",
               children: [
                 {
                   type: "ADescriptions",
-                  props: { column: 2, bordered: true },
-                  children: [
-                    { type: "ADescriptionsItem", props: { label: "客户编码" }, children: "{{ $state.customer?.code }}" },
-                    { type: "ADescriptionsItem", props: { label: "联系人" }, children: "{{ $state.customer?.contact || '-' }}" },
-                    { type: "ADescriptionsItem", props: { label: "电话" }, children: "{{ $state.customer?.phone || '-' }}" },
-                    { type: "ADescriptionsItem", props: { label: "邮箱" }, children: "{{ $state.customer?.email || '-' }}" },
-                    { type: "ADescriptionsItem", props: { label: "地址", span: 2 }, children: "{{ $state.customer?.address || '-' }}" }
-                  ]
+                  props: { column: 2, bordered: true }
                 }
               ]
             },
             {
               type: "ATabs",
-              props: { activeKey: "$state.activeTab", onChange: "$state.activeTab = $args[0]" },
+              props: { activeKey: { type: 'state', body: '{{ref_state_activeTab}}' } },
               children: [
                 {
                   type: "ATabPane",
@@ -74,10 +55,9 @@ const DETAIL_PAGE_EXAMPLE: SkillExample = {
                     {
                       type: "ATable",
                       props: {
-                        columns: "$state.orderColumns",
-                        dataSource: "$state.orders",
+                        dataSource: { type: 'state', body: '{{ref_state_orders}}' },
                         rowKey: "id",
-                        pagination: "{ pageSize: 10 }"
+                        pagination: { pageSize: 10 }
                       }
                     }
                   ]
