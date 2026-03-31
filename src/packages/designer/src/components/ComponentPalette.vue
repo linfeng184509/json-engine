@@ -47,8 +47,28 @@ const collapsedCategories = reactive(new Set<string>())
 
 function getCategoryLabel(name: string): string {
   const labels: Record<string, Record<string, string>> = {
-    'zh-CN': { layout: '布局组件', basic: '基础组件', selection: '选择组件', date: '日期组件', advanced: '高级组件' },
-    'en-US': { layout: 'Layout', basic: 'Basic', selection: 'Selection', date: 'Date', advanced: 'Advanced' }
+    'zh-CN': {
+      layout: '布局组件',
+      basic: '基础组件',
+      selection: '选择组件',
+      date: '日期组件',
+      advanced: '高级组件',
+      display: '数据展示',
+      button: '按钮类',
+      navigation: '导航组件',
+      feedback: '反馈组件',
+    },
+    'en-US': {
+      layout: 'Layout',
+      basic: 'Basic',
+      selection: 'Selection',
+      date: 'Date',
+      advanced: 'Advanced',
+      display: 'Display',
+      button: 'Button',
+      navigation: 'Navigation',
+      feedback: 'Feedback',
+    }
   }
   return labels[locale.value]?.[name] || name
 }

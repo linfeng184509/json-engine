@@ -69,7 +69,8 @@ const isDropTarget = computed(() => props.dropTargetId === props.node.id)
 const isDropBefore = computed(() => isDropTarget.value && props.dropPosition === 'before')
 const isDropAfter = computed(() => isDropTarget.value && props.dropPosition === 'after')
 const isDropInside = computed(() => isDropTarget.value && props.dropPosition === 'inside')
-const isContainer = computed(() => props.node.type === 'AForm' || props.node.type === 'AFormItem')
+const containerTypes = ['AForm', 'AFormItem', 'ARow', 'ACol', 'ALayout', 'ALayoutHeader', 'ALayoutFooter', 'ALayoutSider', 'ALayoutContent', 'ASpace', 'AButtonGroup', 'ATabs', 'ACard']
+const isContainer = computed(() => containerTypes.includes(props.node.type))
 const hasChildren = computed(() => props.node.children && props.node.children.length > 0)
 
 const getLabel = computed(() => {
@@ -91,62 +92,177 @@ const previewComponent = computed(() => {
   const p = props.node.props || {}
   const nodeStyle = props.node.style || {}
   const style = { ...nodeStyle, pointerEvents: 'none' }
+  const type = props.node.type
 
-  if (props.node.type === 'AInput') {
-    return h(resolveComp('AInput'), { placeholder: p.placeholder || '请输入', disabled: true, style, allowClear: p.allowClear, size: p.size })
+  const containerTypes = ['AForm', 'AFormItem', 'ARow', 'ACol', 'ALayout', 'ALayoutHeader', 'ALayoutFooter', 'ALayoutSider', 'ALayoutContent', 'ASpace', 'AButtonGroup', 'ATabs']
+  if (containerTypes.includes(type)) {
+    return null
   }
-  if (props.node.type === 'AInputPassword') {
-    return h(resolveComp('AInputPassword'), { placeholder: p.placeholder || '请输入密码', disabled: true, style })
-  }
-  if (props.node.type === 'ATextArea') {
-    return h(resolveComp('ATextArea'), { placeholder: p.placeholder || '请输入', disabled: true, rows: p.rows || 3, style })
-  }
-  if (props.node.type === 'AInputNumber') {
-    return h(resolveComp('AInputNumber'), { placeholder: p.placeholder || '请输入', disabled: true, style: { ...style, width: '100%' } })
-  }
-  if (props.node.type === 'ASelect') {
-    return h(resolveComp('ASelect'), { placeholder: p.placeholder || '请选择', disabled: true, style: { ...style, width: '100%' } })
-  }
-  if (props.node.type === 'ASwitch') {
-    return h(resolveComp('ASwitch'), { disabled: true, checkedChildren: p.checkedChildren, unCheckedChildren: p.unCheckedChildren, style })
-  }
-  if (props.node.type === 'ADatePicker') {
-    return h(resolveComp('ADatePicker'), { placeholder: p.placeholder || '请选择日期', disabled: true, style: { ...style, width: '100%' } })
-  }
-  if (props.node.type === 'ATimePicker') {
-    return h(resolveComp('ATimePicker'), { placeholder: p.placeholder || '请选择时间', disabled: true, style: { ...style, width: '100%' } })
-  }
-  if (props.node.type === 'ARadioGroup') {
+
+  const widthFull = { ...style, width: '100%' }
+
+  if (type === 'ARadioGroup') {
     const Radio = resolveComp('ARadio')
-    return h(resolveComp('ARadioGroup'), { disabled: true, style }, () => [
+    return h(resolveComp('ARadioGroup'), { disabled: true, style, ...p }, () => [
       h(Radio, { value: '1' }, () => '选项1'),
       h(Radio, { value: '2' }, () => '选项2')
     ])
   }
-  if (props.node.type === 'ACheckboxGroup') {
-    const Cb = resolveComp('ACheckbox')
-    return h(resolveComp('ACheckboxGroup'), { disabled: true, style }, () => [
-      h(Cb, { value: '1' }, () => '选项1'),
-      h(Cb, { value: '2' }, () => '选项2')
+  if (type === 'ACheckboxGroup') {
+    const Checkbox = resolveComp('ACheckbox')
+    return h(resolveComp('ACheckboxGroup'), { disabled: true, style, ...p }, () => [
+      h(Checkbox, { value: '1' }, () => '选项1'),
+      h(Checkbox, { value: '2' }, () => '选项2')
     ])
   }
-  if (props.node.type === 'ACascader') {
-    return h(resolveComp('ACascader'), { placeholder: p.placeholder || '请选择', disabled: true, style: { ...style, width: '100%' } })
+  if (type === 'ASelect') {
+    const Option = resolveComp('ASelectOption')
+    return h(resolveComp('ASelect'), { disabled: true, style: widthFull, ...p }, () => [
+      h(Option, { value: '1' }, () => '选项1'),
+      h(Option, { value: '2' }, () => '选项2')
+    ])
   }
-  if (props.node.type === 'AUpload') {
+  if (type === 'ATabs') {
+    const TabPane = resolveComp('ATabPane')
+    return h(resolveComp('ATabs'), { ...p }, () => [
+      h(TabPane, { key: '1', tab: '标签1' }, () => '内容1'),
+      h(TabPane, { key: '2', tab: '标签2' }, () => '内容2')
+    ])
+  }
+  if (type === 'AMenu') {
+    const MenuItem = resolveComp('AMenuItem')
+    return h(resolveComp('AMenu'), { mode: 'inline', disabled: true, style, ...p }, () => [
+      h(MenuItem, { key: '1' }, () => '菜单项1'),
+      h(MenuItem, { key: '2' }, () => '菜单项2')
+    ])
+  }
+  if (type === 'ASteps') {
+    const Step = resolveComp('AStep')
+    return h(resolveComp('ASteps'), { current: 0, style, ...p }, () => [
+      h(Step, { title: '步骤1' }),
+      h(Step, { title: '步骤2' }),
+      h(Step, { title: '步骤3' })
+    ])
+  }
+  if (type === 'ABreadcrumb') {
+    const Item = resolveComp('ABreadcrumbItem')
+    return h(resolveComp('ABreadcrumb'), { style, ...p }, () => [
+      h(Item, {}, () => '首页'),
+      h(Item, {}, () => '列表'),
+    ])
+  }
+  if (type === 'AButtonGroup') {
+    return null
+  }
+  if (type === 'AButton') {
+    return h(resolveComp('AButton'), { disabled: true, style, ...p }, () => p.label || '按钮')
+  }
+  if (type === 'ATag') {
+    return h(resolveComp('ATag'), { style, ...p }, () => '标签')
+  }
+  if (type === 'AAvatar') {
+    return h(resolveComp('AAvatar'), { style, ...p }, () => 'U')
+  }
+  if (type === 'AStatistic') {
+    return h(resolveComp('AStatistic'), { style, ...p, value: 1234 }, () => null)
+  }
+  if (type === 'ACard') {
+    return h(resolveComp('ACard'), { style, ...p }, () => h('div', { style: { padding: '16px', color: '#999' } }, '卡片内容'))
+  }
+  if (type === 'AAlert') {
+    return h(resolveComp('AAlert'), { style, ...p, message: p.message || '提示信息' })
+  }
+  if (type === 'AProgress') {
+    return h(resolveComp('AProgress'), { style, ...p, percent: 60 })
+  }
+  if (type === 'ASkeleton') {
+    return h(resolveComp('ASkeleton'), { style, ...p, active: true })
+  }
+  if (type === 'AResult') {
+    return h(resolveComp('AResult'), { style, ...p, title: '操作成功' })
+  }
+  if (type === 'APagination') {
+    return h(resolveComp('APagination'), { style, ...p, total: 100, pageSize: 10 })
+  }
+  if (type === 'ATable') {
+    const columns = [
+      { title: '列1', dataIndex: 'col1', key: 'col1' },
+      { title: '列2', dataIndex: 'col2', key: 'col2' },
+    ]
+    const dataSource = [{ key: '1', col1: '数据1', col2: '数据2' }]
+    return h(resolveComp('ATable'), { columns, dataSource, size: 'small', pagination: false, style, ...p })
+  }
+  if (type === 'AList') {
+    const Item = resolveComp('AListItem')
+    return h(resolveComp('AList'), { style, ...p }, () => [
+      h(Item, {}, () => '列表项1'),
+      h(Item, {}, () => '列表项2'),
+    ])
+  }
+  if (type === 'ADescriptions') {
+    const Item = resolveComp('ADescriptionsItem')
+    return h(resolveComp('ADescriptions'), { style, column: 2, ...p }, () => [
+      h(Item, { label: '标签1' }, () => '内容1'),
+      h(Item, { label: '标签2' }, () => '内容2'),
+    ])
+  }
+  if (type === 'ATree') {
+    const treeData = [
+      { title: '节点1', key: '1' },
+      { title: '节点2', key: '2', children: [{ title: '子节点', key: '2-1' }] },
+    ]
+    return h(resolveComp('ATree'), { treeData, defaultExpandAll: true, style, ...p })
+  }
+  if (type === 'ATransfer') {
+    const dataSource = [
+      { key: '1', title: '选项1' },
+      { key: '2', title: '选项2' },
+      { key: '3', title: '选项3' },
+    ]
+    return h(resolveComp('ATransfer'), { dataSource, targetKeys: ['1'], style, ...p })
+  }
+  if (type === 'ASpin') {
+    return h(resolveComp('ASpin'), { style, ...p }, () => h('div', { style: { padding: '16px' } }, '内容区域'))
+  }
+  if (type === 'AUpload') {
     return h(resolveComp('AUpload'), { disabled: true, style }, () => h('div', { style: { padding: '16px', textAlign: 'center', border: '1px dashed #d9d9d9', borderRadius: '4px' } }, '点击上传'))
   }
-  if (props.node.type === 'ARate') {
-    return h(resolveComp('ARate'), { disabled: true, style })
+  if (type === 'ADivider') {
+    return h(resolveComp('ADivider'), { style, ...p })
   }
-  if (props.node.type === 'ASlider') {
-    return h(resolveComp('ASlider'), { disabled: true, style })
+
+  const Component = resolveComp(type)
+  if (typeof Component === 'string') {
+    return h('div', { style: { padding: '8px 12px', color: '#666', fontSize: '12px', textAlign: 'center', border: '1px dashed #d9d9d9', borderRadius: '4px' } }, `[${type}]`)
   }
-  if (props.node.type === 'ATransfer') {
-    return h('div', { style: { ...style, padding: '8px', color: '#999', fontSize: '12px', textAlign: 'center', border: '1px solid #e8e8e8', borderRadius: '4px' } }, '穿梭框')
-  }
-  return null
+
+  const widthTypes = ['ADatePicker', 'ATimePicker', 'ACascader', 'ATreeSelect', 'AInputNumber']
+  const finalStyle = widthTypes.includes(type) ? widthFull : style
+
+  return h(Component, {
+    disabled: true,
+    style: finalStyle,
+    placeholder: p.placeholder || getDefaultPlaceholder(type),
+    ...p
+  })
 })
+
+function getDefaultPlaceholder(type: string): string {
+  const map: Record<string, string> = {
+    AInput: '请输入',
+    AInputPassword: '请输入密码',
+    ATextArea: '请输入',
+    AInputNumber: '请输入',
+    ASelect: '请选择',
+    ACascader: '请选择',
+    ADatePicker: '请选择日期',
+    ATimePicker: '请选择时间',
+    ATreeSelect: '请选择',
+    AAutoComplete: '请输入',
+    AMentions: '请输入',
+  }
+  return map[type] || ''
+}
 
 function onClick(e: MouseEvent) { emit('select', props.node.id) }
 function onContextMenu(e: MouseEvent) { e.preventDefault(); emit('contextMenu', props.node.id, e.clientX, e.clientY) }

@@ -144,6 +144,9 @@ async function initializePlugins() {
       ATransfer: Antd.Transfer,
       ATable: Antd.Table,
       ATree: Antd.Tree,
+      ATreeNode: Antd.TreeNode,
+      ATreeSelect: Antd.TreeSelect,
+      ATreeSelectNode: Antd.TreeSelectNode,
       AList: Antd.List,
       AListItem: Antd.List.Item,
       AListItemMeta: Antd.List.Item.Meta,
@@ -191,6 +194,14 @@ async function initializePlugins() {
       AImagePreviewGroup: Antd.ImagePreviewGroup,
       AAnchor: Antd.Anchor,
       AAnchorLink: Antd.Anchor.Link,
+      AButtonGroup: Antd.Button.Group,
+      AMenu: Antd.Menu,
+      AMenuItem: Antd.Menu.Item,
+      ASubMenu: Antd.Menu.SubMenu,
+      AProgress: Antd.Progress,
+      ASkeleton: Antd.Skeleton,
+      AAutoComplete: Antd.AutoComplete,
+      AMentions: Antd.Mentions,
     })
     
     isInitialized.value = true
