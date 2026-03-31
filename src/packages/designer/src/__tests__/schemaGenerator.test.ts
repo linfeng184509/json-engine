@@ -4,7 +4,7 @@ import type { DesignNode } from "../types"
 import type { VueJsonSchema, TemplateRenderDefinition } from "@json-engine/vue-json/types"
 
 describe("schemaGenerator", () => {
-  it("should generate VueJsonSchema from design tree", () => {
+  it("should generate VueJsonSchema from design tree with core-engine format", () => {
     const tree: DesignNode = {
       id: "root",
       type: "AForm",
@@ -25,14 +25,15 @@ describe("schemaGenerator", () => {
     const def = generateJsonVueDef(tree, "MyForm") as VueJsonSchema
     expect(def.name).toBe("MyForm")
     expect(def.render).toBeDefined()
-    
+
     const renderDef = def.render as TemplateRenderDefinition
     expect(renderDef.type).toBe("template")
-    
+
     const content = renderDef.content as { type: string; props?: Record<string, unknown>; children?: unknown[] }
     expect(content.type).toBe("AForm")
-    expect(content.props?.layout).toBe("vertical")
-    
+    expect(content.props?.layout).toEqual({ type: "string", body: "'vertical'" })
+    expect(content.props?.layout).toEqual({ type: 'string', body: "'vertical'" })
+
     const children = content.children as unknown[]
     expect((children[0] as { type: string })?.type).toBe("AFormItem")
   })
@@ -54,7 +55,7 @@ describe("schemaGenerator", () => {
     expect(json).not.toContain('"id"')
   })
 
-  it("should auto-generate state from v-model bindings", () => {
+  it("should auto-generate state from v-model bindings with proper refs", () => {
     const tree: DesignNode = {
       id: "root",
       type: "AForm",
@@ -65,6 +66,25 @@ describe("schemaGenerator", () => {
     }
     const def = generateJsonVueDef(tree) as VueJsonSchema
     expect(def.state).toBeDefined()
-    expect(def.state!.formData).toBeDefined()
+    expect(def.state!['ref_state_formData_name']).toBeDefined()
+    expect(def.state!['ref_state_formData_name'].type).toBe("ref")
+    expect(def.state!['ref_state_formData_email']).toBeDefined()
+    expect(def.state!['ref_state_formData_email'].type).toBe("ref")
+  })
+
+  it("should generate methods with core-engine function format", () => {
+    const tree: DesignNode = {
+      id: "root",
+      type: "AButton",
+      events: { onClick: "handleClick()" }
+    }
+    const def = generateJsonVueDef(tree) as VueJsonSchema
+    expect(def.methods).toBeDefined()
+    const methodKeys = Object.keys(def.methods!)
+    expect(methodKeys.length).toBeGreaterThan(0)
+    const handleClickKey = methodKeys.find(k => k.toLowerCase().includes('click'))
+    expect(handleClickKey).toBeDefined()
+    expect(def.methods![handleClickKey!].type).toBe("function")
+    expect(def.methods![handleClickKey!].params).toBe("{{{}}}")
   })
 })
