@@ -1,4 +1,4 @@
-import type { VueJsonPlugin } from '@json-engine/vue-json';
+import type { VueJsonPlugin, PluginInstallContext } from '@json-engine/vue-json';
 import { routerConfigSchema } from './config-schema';
 import { createRouterInstance } from './runtime/router-factory';
 import { createRouterScope } from './scope/router-scope';
@@ -25,7 +25,7 @@ export const routerPlugin: VueJsonPlugin = {
     },
   ],
 
-  onInstall(context) {
+  onInstall(context: PluginInstallContext) {
     const config = context.config as RouterPluginConfig;
     console.log(`[plugin-router] Installed with config:`, config);
   },

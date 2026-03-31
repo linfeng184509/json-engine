@@ -1,0 +1,428 @@
+{
+  "name": "BasicDataConfigPage",
+  "state": {
+    "treeData": { "type": "ref", "initial": [] },
+    "expandedKeys": { "type": "ref", "initial": [] },
+    "selectedKey": { "type": "ref", "initial": null },
+    "selectedNode": { "type": "ref", "initial": null },
+    "loading": { "type": "ref", "initial": true },
+    "editForm": { "type": "reactive", "initial": { "code": "", "name": "", "read": true, "write": true, "hidden": false, "privacy": false } }
+  },
+  "computed": {
+    "isFieldSelected": {
+      "get": {
+        "type": "function",
+        "params": "{{}}",
+        "body": "return ref_state_selectedNode && ref_state_selectedNode.type==='field'"
+      }
+    },
+    "isNotRoot": {
+      "get": {
+        "type": "function",
+        "params": "{{}}",
+        "body": "return ref_state_selectedNode && ref_state_selectedNode.parentId"
+      }
+    },
+    "hasSelected": {
+      "get": {
+        "type": "function",
+        "params": "{{}}",
+        "body": "return !!ref_state_selectedKey"
+      }
+    }
+  },
+  "methods": {
+    "loadTreeData": {
+      "type": "function",
+      "params": "{{}}",
+      "body": "ref_state_loading=true; $_[core]_api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; ref_state_treeData=transform(raw); ref_state_expandedKeys=['p1','m1','m2']; ref_state_loading=false}).catch(function(e){console.error(e); ref_state_loading=false})",
+      "cached": false
+    },
+    "onSelect": {
+      "type": "function",
+      "params": "{{ {keys: []} }}",
+      "body": "var key=keys[0]; if(!key){ref_state_selectedKey=null; ref_state_selectedNode=null; return} ref_state_selectedKey=key; var node=methods.findNode(ref_state_treeData,key); ref_state_selectedNode=node; if(node&&node.type==='field'){ref_state_editForm.code=node.code; ref_state_editForm.name=node.name; ref_state_editForm.read=node.permissions?.read??true; ref_state_editForm.write=node.permissions?.write??true; ref_state_editForm.hidden=node.permissions?.hidden??false; ref_state_editForm.privacy=node.permissions?.privacy??false} else if(node){ref_state_editForm.code=node.code; ref_state_editForm.name=node.name}",
+      "cached": false
+    },
+    "findNode": {
+      "type": "function",
+      "params": "{{ {nodes: [], key: ''} }}",
+      "body": "for(var i=0;i<nodes.length;i++){var n=nodes[i]; if(n.key===key)return n; if(n.children){var f=methods.findNode(n.children,key); if(f)return f}} return null",
+      "cached": false
+    },
+    "onExpand": {
+      "type": "function",
+      "params": "{{ {keys: []} }}",
+      "body": "ref_state_expandedKeys=keys",
+      "cached": false
+    },
+    "getNodeTypeText": {
+      "type": "function",
+      "params": "{{ {type: ''} }}",
+      "body": "var map={'platform':'平台','menu':'菜单','page':'页面','feature':'功能','form':'表单','field':'字段'}; return map[type]||type",
+      "cached": false
+    }
+  },
+  "lifecycle": {
+    "onMounted": {
+      "type": "function",
+      "params": "{{}}",
+      "body": "methods.loadTreeData()"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": {
+        "style": {
+          "type": "string",
+          "body": "'padding: 24px'"
+        }
+      },
+      "children": [
+        {
+          "type": "div",
+          "props": {
+            "style": {
+              "type": "string",
+              "body": "'margin-bottom: 16px'"
+            }
+          },
+          "children": [
+            {
+              "type": "AButton",
+              "props": {
+                "type": {
+                  "type": "string",
+                  "body": "'primary'"
+                },
+                "icon": {
+                  "type": "string",
+                  "body": "'plus'"
+                },
+                "disabled": {
+                  "type": "expression",
+                  "body": "computed.hasSelected.value && ref_state_selectedNode.type!=='field'"
+                }
+              },
+              "children": ["新增节点"]
+            }
+          ]
+        },
+        {
+          "type": "div",
+          "props": {
+            "style": {
+              "type": "string",
+              "body": "'display: flex; gap: 24px; height: calc(100vh - 200px)'"
+            }
+          },
+          "children": [
+            {
+              "type": "ACard",
+              "props": {
+                "title": {
+                  "type": "string",
+                  "body": "'层级结构'"
+                },
+                "style": {
+                  "type": "string",
+                  "body": "'width: 360px; flex-shrink: 0'"
+                }
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": {
+                      "type": "expression",
+                      "body": "ref_state_loading"
+                    }
+                  },
+                  "props": {
+                    "style": {
+                      "type": "string",
+                      "body": "'text-align: center; padding: 40px 0'"
+                    }
+                  },
+                  "children": [{"type": "ASpin"}]
+                },
+                {
+                  "type": "ACollapse",
+                  "props": {
+                    "accordion": true,
+                    "style": {
+                      "type": "string",
+                      "body": "'width: 100%'"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "ACollapsePanel",
+                      "props": {
+                        "key": "p1",
+                        "header": {
+                          "type": "string",
+                          "body": "'企业管理平台 (平台)'"
+                        }
+                      },
+                      "children": ["Dashboard > 用户管理 展开查看..."]
+                    },
+                    {
+                      "type": "ACollapsePanel",
+                      "props": {
+                        "key": "m2",
+                        "header": {
+                          "type": "string",
+                          "body": "'系统管理 (菜单)'"
+                        }
+                      },
+                      "children": ["用户管理 (页面) > 用户表单 (功能) > 基本信息 (表单)"]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ACard",
+              "props": {
+                "title": {
+                  "type": "string",
+                  "body": "'配置详情'"
+                },
+                "style": {
+                  "type": "string",
+                  "body": "'flex: 1'"
+                }
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": {
+                      "type": "expression",
+                      "body": "!computed.hasSelected.value"
+                    }
+                  },
+                  "props": {
+                    "style": {
+                      "type": "string",
+                      "body": "'text-align: center; padding: 60px 0; color: #999'"
+                    }
+                  },
+                  "children": ["请从左侧选择一个节点"]
+                },
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": {
+                      "type": "expression",
+                      "body": "computed.hasSelected.value"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "props": {
+                        "style": {
+                          "type": "string",
+                          "body": "'margin-bottom: 16px'"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "ATag",
+                          "props": {
+                            "color": {
+                              "type": "expression",
+                              "body": "ref_state_selectedNode.type==='platform' ? 'blue' : ref_state_selectedNode.type==='menu' ? 'green' : ref_state_selectedNode.type==='page' ? 'orange' : ref_state_selectedNode.type==='feature' ? 'purple' : ref_state_selectedNode.type==='form' ? 'cyan' : 'gold'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "methods.getNodeTypeText(ref_state_selectedNode.type)"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "span",
+                          "props": {
+                            "style": {
+                              "type": "string",
+                              "body": "'margin-left: 8px; font-weight: 500'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "ref_state_selectedNode.name"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ADescriptions",
+                      "props": {
+                        "column": 2,
+                        "bordered": true,
+                        "size": {
+                          "type": "string",
+                          "body": "'small'"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "ADescriptionsItem",
+                          "props": {
+                            "label": {
+                              "type": "string",
+                              "body": "'编码'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "ref_state_selectedNode.code"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ADescriptionsItem",
+                          "props": {
+                            "label": {
+                              "type": "string",
+                              "body": "'名称'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "ref_state_selectedNode.name"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ADescriptionsItem",
+                          "props": {
+                            "label": {
+                              "type": "string",
+                              "body": "'类型'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "methods.getNodeTypeText(ref_state_selectedNode.type)"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ADescriptionsItem",
+                          "props": {
+                            "label": {
+                              "type": "string",
+                              "body": "'ID'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "ref_state_selectedNode.id"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "div",
+                      "directives": {
+                        "vIf": {
+                          "type": "expression",
+                          "body": "computed.isFieldSelected.value"
+                        }
+                      },
+                      "props": {
+                        "style": {
+                          "type": "string",
+                          "body": "'margin-top: 24px'"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "ATitle",
+                          "props": {
+                            "level": 5
+                          },
+                          "children": ["字段权限"]
+                        },
+                        {
+                          "type": "ACheckbox",
+                          "props": {
+                            "checked": {
+                              "type": "expression",
+                              "body": "ref_state_editForm.read"
+                            },
+                            "style": {
+                              "type": "string",
+                              "body": "'margin-right: 24px'"
+                            }
+                          },
+                          "children": ["可读"]
+                        },
+                        {
+                          "type": "ACheckbox",
+                          "props": {
+                            "checked": {
+                              "type": "expression",
+                              "body": "ref_state_editForm.write"
+                            },
+                            "style": {
+                              "type": "string",
+                              "body": "'margin-right: 24px'"
+                            }
+                          },
+                          "children": ["可写"]
+                        },
+                        {
+                          "type": "ACheckbox",
+                          "props": {
+                            "checked": {
+                              "type": "expression",
+                              "body": "ref_state_editForm.hidden"
+                            },
+                            "style": {
+                              "type": "string",
+                              "body": "'margin-right: 24px'"
+                            }
+                          },
+                          "children": ["隐藏"]
+                        },
+                        {
+                          "type": "ACheckbox",
+                          "props": {
+                            "checked": {
+                              "type": "expression",
+                              "body": "ref_state_editForm.privacy"
+                            }
+                          },
+                          "children": ["隐私"]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": false,
+    "css": ""
+  }
+}

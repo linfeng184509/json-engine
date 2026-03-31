@@ -8,7 +8,21 @@ export interface RouteDefinition {
   path: string;
   name?: string;
   component?: string;
+  redirect?: string;
   children?: RouteDefinition[];
+  meta?: {
+    title?: string;
+    requiresAuth?: boolean;
+    permissions?: string[];
+    layout?: string;
+  };
+}
+
+export interface MatchedRoute {
+  path: string;
+  route: RouteDefinition;
+  children?: MatchedRoute[];
+  params: Record<string, string>;
 }
 
 export interface CoreScopeRouter {
@@ -18,4 +32,5 @@ export interface CoreScopeRouter {
   forward: () => void;
   go: (n: number) => void;
   getCurrentRoute: () => string;
+  getMatchedRoute: () => MatchedRoute | null;
 }

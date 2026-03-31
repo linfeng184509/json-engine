@@ -7,7 +7,6 @@ import {
   type PropType,
   h,
   type VNode,
-  type Slot,
   type SlotsType,
 } from 'vue';
 import type { SchemaLoadResult, SchemaLoadOptions } from '../runtime/schema-loader';
@@ -16,6 +15,7 @@ import { getGlobalComponents } from '../composables/use-core-scope';
 
 export interface PageLoaderProps {
   schemaPath: string;
+  layout?: string;
   cache?: boolean;
   extraComponents?: Record<string, Component>;
 }
@@ -26,6 +26,10 @@ export const PageLoader = defineComponent({
     schemaPath: {
       type: String as PropType<string>,
       required: true,
+    },
+    layout: {
+      type: String as PropType<string>,
+      default: null,
     },
     cache: {
       type: Boolean as PropType<boolean>,
@@ -45,6 +49,7 @@ export const PageLoader = defineComponent({
     const isLoading = ref(true);
     const error = ref<Error | null>(null);
     const pageComponent = shallowRef<Component | null>(null);
+    const layoutComponent = shallowRef<Component | null>(null);
     const loadResult = shallowRef<SchemaLoadResult | null>(null);
 
     const schemaLoader = getSchemaLoader();
@@ -53,6 +58,7 @@ export const PageLoader = defineComponent({
       isLoading.value = true;
       error.value = null;
       pageComponent.value = null;
+      layoutComponent.value = null;
 
       const globalComponents = getGlobalComponents();
       const mergedComponents: Record<string, Component> = { ...globalComponents, ...props.extraComponents };
@@ -62,13 +68,26 @@ export const PageLoader = defineComponent({
         extraComponents: mergedComponents,
       };
 
-      const result = await schemaLoader.load(props.schemaPath, options);
-      loadResult.value = result;
+      try {
+        const result = await schemaLoader.load(props.schemaPath, options);
+        loadResult.value = result;
 
-      if (result.success && result.component) {
-        pageComponent.value = result.component;
-      } else {
-        error.value = result.error || new Error('Unknown error loading schema');
+        if (result.success && result.component) {
+          pageComponent.value = result.component;
+        } else {
+          error.value = result.error || new Error('Unknown error loading schema');
+        }
+
+        if (props.layout) {
+          const layoutResult = await schemaLoader.load(props.layout, options);
+          if (layoutResult.success && layoutResult.component) {
+            layoutComponent.value = layoutResult.component;
+          } else {
+            error.value = layoutResult.error || new Error('Unknown error loading layout');
+          }
+        }
+      } catch (e) {
+        error.value = e instanceof Error ? e : new Error(String(e));
       }
 
       isLoading.value = false;
@@ -79,9 +98,9 @@ export const PageLoader = defineComponent({
     }
 
     watch(
-      () => props.schemaPath,
-      (newPath, oldPath) => {
-        if (newPath !== oldPath) {
+      () => [props.schemaPath, props.layout],
+      (newVals, oldVals) => {
+        if (newVals[0] !== oldVals?.[0] || newVals[1] !== oldVals?.[1]) {
           loadSchema();
         }
       }
@@ -110,6 +129,10 @@ export const PageLoader = defineComponent({
           h('p', error.value.message),
           h('button', { class: 'page-loader-retry-btn', onClick: retry }, 'Retry'),
         ]);
+      }
+
+      if (layoutComponent.value && pageComponent.value) {
+        return h(layoutComponent.value, { pageContent: h(pageComponent.value!) });
       }
 
       if (pageComponent.value) {

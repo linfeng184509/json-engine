@@ -10,5 +10,6 @@ export function createRouterScope(config: RouterPluginConfig): CoreScopeRouter {
     forward: router.forward,
     go: router.go,
     getCurrentRoute: router.getCurrentRoute,
+    getMatchedRoute: router.getMatchedRoute,
   };
 }

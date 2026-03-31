@@ -296,3 +296,39 @@ export function applyVOnce(
 ): VNode {
   return h(type, props, children);
 }
+
+export interface VSlotProps {
+  name?: string;
+  props?: Record<string, unknown>;
+}
+
+export function applyVSlot(
+  vSlot: NonNullable<VNodeDefinition['directives']>['vSlot'],
+  context: RenderContext
+): VSlotProps | null {
+  if (!vSlot) return null;
+
+  const result: VSlotProps = {};
+
+  if (vSlot.name) {
+    try {
+      const slotName = evaluateExpression(vSlot.name.expression, context);
+      result.name = String(slotName ?? 'default');
+    } catch {
+      result.name = 'default';
+    }
+  } else {
+    result.name = 'default';
+  }
+
+  if (vSlot.props && Array.isArray(vSlot.props)) {
+    result.props = {};
+    for (const propKey of vSlot.props) {
+      if (propKey in context.state) {
+        result.props[propKey] = context.state[propKey];
+      }
+    }
+  }
+
+  return result;
+}

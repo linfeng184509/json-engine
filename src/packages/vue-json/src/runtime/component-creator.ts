@@ -25,6 +25,7 @@ import { getPluginRegistry } from '../plugin/plugin-registry';
 import type { PluginComponentDefinition } from '../types';
 import type { CoreScope } from '../composables/use-core-scope';
 import { PageLoader } from '../components/PageLoader';
+import { Slot } from '../components/Slot';
 
 export interface ComponentCreatorOptions {
   cache?: boolean;
@@ -39,6 +40,7 @@ const componentCache = new Map<string, Component>();
 
 const BUILTIN_COMPONENTS: Record<string, Component> = {
   PageLoader,
+  Slot,
 };
 
 function getAllAvailableComponents(extraComponents: Record<string, Component>): Record<string, Component> {

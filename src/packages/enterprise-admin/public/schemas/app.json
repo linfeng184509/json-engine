@@ -74,7 +74,19 @@
         "meta": {
           "title": "首页",
           "requiresAuth": true,
-          "permissions": ["dashboard:view"]
+          "permissions": ["dashboard:view"],
+          "layout": "/schemas/pages/app-layout.json"
+        }
+      },
+      {
+        "path": "/basic-data-config",
+        "name": "BasicDataConfig",
+        "component": "/schemas/pages/basic-data-config.json",
+        "meta": {
+          "title": "基础数据配置",
+          "requiresAuth": true,
+          "permissions": ["system:manage"],
+          "layout": "/schemas/pages/app-layout.json"
         }
       },
       {

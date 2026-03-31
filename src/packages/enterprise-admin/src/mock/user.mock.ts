@@ -48,6 +48,7 @@ const userMenus: Record<number, MenuItem[]> = {
         { key: 'role', title: 'Role Management', path: '/system/role' },
       ],
     },
+    { key: 'basic-data-config', title: '基础数据配置', icon: 'database', path: '/basic-data-config' },
   ],
   2: [
     { key: 'dashboard', title: 'Dashboard', icon: 'dashboard', path: '/dashboard' },

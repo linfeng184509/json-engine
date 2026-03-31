@@ -4,7 +4,8 @@
     "isLoading": { "type": "ref", "initial": false },
     "error": { "type": "ref", "initial": null },
     "currentRoute": { "type": "ref", "initial": "/" },
-    "pageSchemaPath": { "type": "ref", "initial": null }
+    "pageSchemaPath": { "type": "ref", "initial": null },
+    "layoutSchemaPath": { "type": "ref", "initial": null }
   },
   "computed": {
     "hasToken": {
@@ -15,7 +16,7 @@
     "loadPage": {
       "type": "function",
       "params": "{{{ {\"route\": null} }}}",
-      "body": "{{var path = (route || ref_state_currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; for (var i = 0; i < routes.length; i++) { if (routes[i].path === path) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { ref_state_error = 'Page not found'; return; } if (matched.redirect) { $_[core]_router.replace(matched.redirect); return; } var token = $_[core]_storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_[core]_router.push('/login'); return; } if (path === '/login' && token) { $_[core]_router.replace('/dashboard'); return; } ref_state_isLoading = true; ref_state_error = null; ref_state_pageSchemaPath = matched.component; ref_state_isLoading = false;}}"
+      "body": "{{var path = (route || ref_state_currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; for (var i = 0; i < routes.length; i++) { if (routes[i].path === path) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { ref_state_error = 'Page not found'; return; } if (matched.redirect) { $_[core]_router.replace(matched.redirect); return; } var token = $_[core]_storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_[core]_router.push('/login'); return; } if (path === '/login' && token) { $_[core]_router.replace('/dashboard'); return; } ref_state_isLoading = true; ref_state_error = null; ref_state_pageSchemaPath = matched.component; ref_state_layoutSchemaPath = matched.meta?.layout || null; ref_state_isLoading = false;}}"
     },
     "handleHashChange": {
       "type": "function",
@@ -76,6 +77,7 @@
           "directives": { "vIf": { "type": "expression", "body": "{{ref_state_pageSchemaPath && !ref_state_error}}" } },
           "props": {
             "schemaPath": { "type": "expression", "body": "{{ref_state_pageSchemaPath}}" },
+            "layout": { "type": "expression", "body": "{{ref_state_layoutSchemaPath}}" },
             "cache": true
           }
         }

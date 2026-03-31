@@ -2,7 +2,6 @@
   "name": "DashboardPage",
   "state": {
     "user": { "type": "ref", "initial": null },
-    "permissions": { "type": "ref", "initial": [] },
     "loading": { "type": "ref", "initial": true },
     "visitData": { "type": "ref", "initial": [120, 200, 150, 80, 70, 110, 130] },
     "categoryData": {
@@ -16,12 +15,10 @@
     }
   },
   "computed": {
-    "greeting": { "get": { "type": "function", "params": "{{{}}}", "body": "{{var h=new Date().getHours();return h<12?'早上好':h<18?'下午好':'晚上好'}}" } },
-    "hasUser": { "get": { "type": "function", "params": "{{{}}}", "body": "{{return!!ref_state_user}}" } }
+    "greeting": { "get": { "type": "function", "params": "{{{}}}", "body": "{{var h=new Date().getHours();return h<12?'早上好':h<18?'下午好':'晚上好'}}" } }
   },
   "methods": {
-    "loadData": { "type": "function", "params": "{{{}}}", "body": "{{var t=$_[core]_storage.get('token');if(!t){window.location.hash='#/login';return}ref_state_loading=true;var u=$_[core]_storage.get('userInfo');var p=$_[core]_storage.get('permissions');if(u)ref_state_user=u;if(p)ref_state_permissions=p;ref_state_loading=false}}" },
-    "logout": { "type": "function", "params": "{{{}}}", "body": "{{$_[core]_storage.remove('token');$_[core]_storage.remove('userInfo');$_[core]_storage.remove('permissions');window.location.hash='#/login'}}" },
+    "loadData": { "type": "function", "params": "{{{}}}", "body": "{{var t=$_[core]_storage.get('token');if(!t){window.location.hash='#/login';return}ref_state_loading=true;var u=$_[core]_storage.get('userInfo');var p=$_[core]_storage.get('permissions');if(u)ref_state_user=u;ref_state_loading=false}}" },
     "updateVisitData": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_visitData = ref_state_visitData.map(v => v + Math.floor(Math.random() * 100 - 50))}}" }
   },
   "lifecycle": { "onMounted": { "type": "function", "params": "{{{}}}", "body": "{{methods.loadData()}}" } },
@@ -29,76 +26,49 @@
     "type": "template",
     "content": {
       "type": "div",
-      "props": { "class": { "type": "string", "body": "'ea-dashboard'" } },
+      "props": { "style": { "type": "string", "body": "'max-width: 1400px; margin: 0 auto; padding: 24px'" } },
       "children": [
-        { "type": "ALayout", "props": { "class": { "type": "string", "body": "'ea-layout'" } }, "children": [
-          { "type": "ALayoutHeader", "props": { "class": { "type": "string", "body": "'ea-header'" } }, "children": [
-            { "type": "div", "props": { "class": { "type": "string", "body": "'ea-header-inner'" } }, "children": [
-              { "type": "div", "props": { "class": { "type": "string", "body": "'ea-brand'" } }, "children": [
-                { "type": "div", "props": { "class": { "type": "string", "body": "'ea-brand-icon'" } }, "children": ["E"] },
-                { "type": "span", "props": { "class": { "type": "string", "body": "'ea-brand-text'" } }, "children": ["企业管理系统"] }
-              ] },
-              { "type": "div", "props": { "class": { "type": "string", "body": "'ea-user-menu'" } }, "children": [
-                { "type": "span", "directives": { "vIf": { "type": "expression", "body": "{{computed.hasUser.value}}" } }, "props": { "class": { "type": "string", "body": "'ea-username'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
-                { "type": "AButton", "props": { "type": { "type": "string", "body": "'link'" }, "class": { "type": "string", "body": "'ea-logout-btn'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.logout()}}" } } }, "children": ["退出"] }
+        { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_loading}}" } }, "props": { "style": { "type": "string", "body": "'display: flex; justify-content: center; align-items: center; min-height: 400px'" } }, "children": [{ "type": "ASpin", "props": { "size": { "type": "string", "body": "'large'" } } }] },
+        { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{!ref_state_loading}}" } }, "children": [
+          { "type": "div", "props": { "style": { "type": "string", "body": "'margin-bottom: 24px'" } }, "children": [
+            { "type": "h1", "props": { "style": { "type": "string", "body": "'font-size: 24px; font-weight: 600; color: rgba(0,0,0,0.88); margin: 0 0 8px'" } }, "children": [{ "type": "expression", "body": "{{computed.greeting.value}}" }, "，", { "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
+            { "type": "p", "props": { "style": { "type": "string", "body": "'font-size: 14px; color: rgba(0,0,0,0.45); margin: 0'" } }, "children": ["欢迎使用企业管理系统，祝您工作愉快"] }
+          ] },
+          { "type": "div", "props": { "style": { "type": "string", "body": "'display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px'" } }, "children": [
+            { "type": "ACard", "props": { "bordered": false }, "children": [
+              { "type": "div", "props": { "style": { "type": "string", "body": "'display: flex; align-items: center; gap: 16px'" } }, "children": [
+                { "type": "div", "props": { "style": { "type": "string", "body": "'width: 48px; height: 48px; border-radius: 8px; background: #e6f4ff; display: flex; align-items: center; justify-content: center; font-size: 22px'" } }, "children": ["👤"] },
+                { "type": "div", "children": [
+                  { "type": "div", "props": { "style": { "type": "string", "body": "'font-size: 20px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 4px'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.username||'-'}}" }] },
+                  { "type": "div", "props": { "style": { "type": "string", "body": "'font-size: 12px; color: rgba(0,0,0,0.45)'" } }, "children": ["用户名"] }
+                ] }
+              ] }
+            ] },
+            { "type": "ACard", "props": { "bordered": false }, "children": [
+              { "type": "div", "props": { "style": { "type": "string", "body": "'display: flex; align-items: center; gap: 16px'" } }, "children": [
+                { "type": "div", "props": { "style": { "type": "string", "body": "'width: 48px; height: 48px; border-radius: 8px; background: #f6ffed; display: flex; align-items: center; justify-content: center; font-size: 22px'" } }, "children": ["✉️"] },
+                { "type": "div", "children": [
+                  { "type": "div", "props": { "style": { "type": "string", "body": "'font-size: 20px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 4px'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.email||'-'}}" }] },
+                  { "type": "div", "props": { "style": { "type": "string", "body": "'font-size: 12px; color: rgba(0,0,0,0.45)'" } }, "children": ["邮箱"] }
+                ] }
               ] }
             ] }
           ] },
-          { "type": "ALayoutContent", "props": { "class": { "type": "string", "body": "'ea-content'" } }, "children": [
-            { "type": "div", "props": { "class": { "type": "string", "body": "'ea-content-inner'" } }, "children": [
-              { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_loading}}" } }, "props": { "class": { "type": "string", "body": "'ea-loading'" } }, "children": [{ "type": "ASpin", "props": { "size": { "type": "string", "body": "'large'" } } }] },
-              { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{!ref_state_loading&&computed.hasUser.value}}" } }, "children": [
-                { "type": "div", "props": { "class": { "type": "string", "body": "'ea-welcome'" } }, "children": [
-                  { "type": "h1", "props": { "class": { "type": "string", "body": "'ea-welcome-title'" } }, "children": [{ "type": "expression", "body": "{{computed.greeting.value}}" }, "，", { "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
-                  { "type": "p", "props": { "class": { "type": "string", "body": "'ea-welcome-desc'" } }, "children": ["欢迎使用企业管理系统，祝您工作愉快"] }
-                ] },
-                { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stats-row'" } }, "children": [
-                  { "type": "ACard", "props": { "class": { "type": "string", "body": "'ea-stat-card'" }, "bordered": false }, "children": [
-                    { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat'" } }, "children": [
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-icon ea-stat-icon-user'" } }, "children": ["👤"] },
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-info'" } }, "children": [
-                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-value'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.username||'-'}}" }] },
-                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-label'" } }, "children": ["用户名"] }
-                      ] }
-                    ] }
-                  ] },
-                  { "type": "ACard", "props": { "class": { "type": "string", "body": "'ea-stat-card'" }, "bordered": false }, "children": [
-                    { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat'" } }, "children": [
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-icon ea-stat-icon-email'" } }, "children": ["✉️"] },
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-info'" } }, "children": [
-                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-value'" } }, "children": [{ "type": "expression", "body": "{{ref_state_user?.email||'-'}}" }] },
-                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-label'" } }, "children": ["邮箱"] }
-                      ] }
-                    ] }
-                  ] },
-                  { "type": "ACard", "props": { "class": { "type": "string", "body": "'ea-stat-card'" }, "bordered": false }, "children": [
-                    { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat'" } }, "children": [
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-icon ea-stat-icon-perm'" } }, "children": ["🔐"] },
-                      { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-info'" } }, "children": [
-                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-value'" } }, "children": ["3"] },
-                        { "type": "div", "props": { "class": { "type": "string", "body": "'ea-stat-label'" } }, "children": ["权限数"] }
-                      ] }
-                    ] }
-                  ] }
-                ] },
-                { "type": "div", "props": { "class": { "type": "string", "body": "'ea-charts-row'" } }, "children": [
-                  { "type": "ACard", "props": { "title": { "type": "string", "body": "'访问趋势'" }, "class": { "type": "string", "body": "'ea-chart-card'" } }, "children": [
-                    { "type": "ECharts", "props": { "option": { "type": "echarts-option", "body": { "xAxis": { "type": "category", "data": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"] }, "yAxis": { "type": "value" }, "series": [{ "type": "bar", "data": "{{ref_state_visitData}}", "itemStyle": { "color": "#1677ff" } }], "tooltip": { "trigger": "axis" } } }, "autoResize": true, "height": 300 } },
-                    { "type": "div", "props": { "class": { "type": "string", "body": "'ea-chart-actions'" } }, "children": [{ "type": "AButton", "props": { "type": { "type": "string", "body": "'primary'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.updateVisitData()}}" } } }, "children": ["更新数据"] }] }
-                  ] },
-                  { "type": "ACard", "props": { "title": { "type": "string", "body": "'访问来源'" }, "class": { "type": "string", "body": "'ea-chart-card'" } }, "children": [{ "type": "ECharts", "props": { "option": { "type": "echarts-option", "body": { "tooltip": { "trigger": "item" }, "legend": { "orient": "vertical", "left": "left" }, "series": [{ "type": "pie", "radius": "60%", "data": "{{ref_state_categoryData}}", "label": { "show": true, "formatter": "{b}: {c} ({d}%)" } }] } }, "autoResize": true, "height": 300 } }] }
-                ] },
-                { "type": "ACard", "props": { "title": { "type": "string", "body": "'功能特性'" }, "class": { "type": "string", "body": "'ea-feature-card'" }, "bordered": false }, "children": [
-                  { "type": "div", "props": { "class": { "type": "string", "body": "'ea-tags'" } }, "children": [
-                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["API 请求"] },
-                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["本地存储"] },
-                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["权限检查"] },
-                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["响应式系统"] },
-                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["模板渲染"] },
-                    { "type": "span", "props": { "class": { "type": "string", "body": "'ea-tag'" } }, "children": ["指令系统"] }
-                  ] }
-                ] }
-              ] }
+          { "type": "div", "props": { "style": { "type": "string", "body": "'display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; margin-bottom: 24px'" } }, "children": [
+            { "type": "ACard", "props": { "title": { "type": "string", "body": "'访问趋势'" } }, "children": [
+              { "type": "ECharts", "props": { "option": { "type": "echarts-option", "body": { "xAxis": { "type": "category", "data": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"] }, "yAxis": { "type": "value" }, "series": [{ "type": "bar", "data": "{{ref_state_visitData}}", "itemStyle": { "color": "#1677ff" } }], "tooltip": { "trigger": "axis" } } }, "autoResize": true, "height": 300 } },
+              { "type": "div", "props": { "style": { "type": "string", "body": "'margin-top: 16px; display: flex; justify-content: flex-end'" } }, "children": [{ "type": "AButton", "props": { "type": { "type": "string", "body": "'primary'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.updateVisitData()}}" } } }, "children": ["更新数据"] }] }
+            ] },
+            { "type": "ACard", "props": { "title": { "type": "string", "body": "'访问来源'" } }, "children": [{ "type": "ECharts", "props": { "option": { "type": "echarts-option", "body": { "tooltip": { "trigger": "item" }, "legend": { "orient": "vertical", "left": "left" }, "series": [{ "type": "pie", "radius": "60%", "data": "{{ref_state_categoryData}}", "label": { "show": true, "formatter": "{b}: {c} ({d}%)" } }] } }, "autoResize": true, "height": 300 } }] }
+          ] },
+          { "type": "ACard", "props": { "title": { "type": "string", "body": "'功能特性'" }, "bordered": false }, "children": [
+            { "type": "div", "props": { "style": { "type": "string", "body": "'display: flex; flex-wrap: wrap; gap: 8px'" } }, "children": [
+              { "type": "span", "props": { "style": { "type": "string", "body": "'background: #f5f5f5; padding: 4px 12px; border-radius: 4px; font-size: 13px'" } }, "children": ["API 请求"] },
+              { "type": "span", "props": { "style": { "type": "string", "body": "'background: #f5f5f5; padding: 4px 12px; border-radius: 4px; font-size: 13px'" } }, "children": ["本地存储"] },
+              { "type": "span", "props": { "style": { "type": "string", "body": "'background: #f5f5f5; padding: 4px 12px; border-radius: 4px; font-size: 13px'" } }, "children": ["权限检查"] },
+              { "type": "span", "props": { "style": { "type": "string", "body": "'background: #f5f5f5; padding: 4px 12px; border-radius: 4px; font-size: 13px'" } }, "children": ["响应式系统"] },
+              { "type": "span", "props": { "style": { "type": "string", "body": "'background: #f5f5f5; padding: 4px 12px; border-radius: 4px; font-size: 13px'" } }, "children": ["模板渲染"] },
+              { "type": "span", "props": { "style": { "type": "string", "body": "'background: #f5f5f5; padding: 4px 12px; border-radius: 4px; font-size: 13px'" } }, "children": ["指令系统"] }
             ] }
           ] }
         ] }
@@ -107,6 +77,6 @@
   },
   "styles": {
     "scoped": false,
-    "css": ".ea-dashboard{min-height:100vh;background:#f5f5f5}.ea-layout{min-height:100vh}.ea-header{background:#fff!important;padding:0 24px;height:56px;box-shadow:0 1px 4px -1px rgba(0,0,0,0.06),0 1px 6px -1px rgba(0,0,0,0.05);border-bottom:1px solid #f0f0f0}.ea-header-inner{display:flex;justify-content:space-between;align-items:center;max-width:1400px;margin:0 auto;height:100%}.ea-brand{display:flex;align-items:center;gap:10px}.ea-brand-icon{width:32px;height:32px;background:#1677ff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600}.ea-brand-text{font-size:16px;font-weight:600;color:rgba(0,0,0,0.88)}.ea-user-menu{display:flex;align-items:center;gap:16px}.ea-username{font-size:14px;color:rgba(0,0,0,0.65)}.ea-logout-btn{color:rgba(0,0,0,0.65)}.ea-logout-btn:hover{color:#1677ff}.ea-content{background:#f5f5f5}.ea-content-inner{max-width:1400px;margin:0 auto;padding:24px}.ea-loading{display:flex;justify-content:center;align-items:center;min-height:400px}.ea-welcome{margin-bottom:24px}.ea-welcome-title{font-size:24px;font-weight:600;color:rgba(0,0,0,0.88);margin:0 0 8px}.ea-welcome-desc{font-size:14px;color:rgba(0,0,0,0.45);margin:0}.ea-stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px}.ea-stat-card{background:#fff;border-radius:8px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02)}.ea-stat-card .ant-card-body{padding:20px}.ea-stat{display:flex;align-items:center;gap:16px}.ea-stat-icon{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px}.ea-stat-icon-user{background:#e6f4ff}.ea-stat-icon-email{background:#f6ffed}.ea-stat-icon-perm{background:#fffbe6}.ea-stat-info{flex:1}.ea-stat-value{font-size:20px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:4px}.ea-stat-label{font-size:12px;color:rgba(0,0,0,0.45)}.ea-feature-card{background:#fff;border-radius:8px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.03)}.ea-feature-card .ant-card-body{padding:16px}.ea-tags{display:flex;flex-wrap:wrap;gap:8px}.ea-tag{display:inline-block;padding:4px 12px;background:#f5f5f5;border-radius:4px;font-size:12px;color:rgba(0,0,0,0.65)}.ea-charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:24px;margin-top:24px}.ea-chart-card{background:#fff;border-radius:8px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.03)}.ea-chart-card .ant-card-body{padding:16px}.ea-chart-actions{margin-top:16px;display:flex;justify-content:flex-end}"
+    "css": ""
   }
 }

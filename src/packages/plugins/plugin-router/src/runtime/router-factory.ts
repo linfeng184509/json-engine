@@ -1,4 +1,4 @@
-import type { RouterPluginConfig } from '../types';
+import type { RouterPluginConfig, RouteDefinition, MatchedRoute } from '../types';
 
 export interface RouterInstance {
   push: (path: string) => void;
@@ -7,10 +7,55 @@ export interface RouterInstance {
   forward: () => void;
   go: (n: number) => void;
   getCurrentRoute: () => string;
+  getMatchedRoute: () => MatchedRoute | null;
 }
 
 function getHashPath(): string {
   return window.location.hash.slice(1) || '/';
+}
+
+function matchRoute(path: string, routes: RouteDefinition[]): MatchedRoute | null {
+  const cleanPath = path.split('?')[0] || '/';
+
+  for (const route of routes) {
+    if (route.path === cleanPath) {
+      return {
+        path: cleanPath,
+        route,
+        params: {},
+      };
+    }
+
+    if (route.children && route.children.length > 0) {
+      const childPath = cleanPath.startsWith(route.path)
+        ? cleanPath.slice(route.path.length) || '/'
+        : null;
+
+      if (childPath !== null) {
+        const childMatch = matchRoute(childPath, route.children);
+        if (childMatch) {
+          return {
+            path: cleanPath,
+            route,
+            params: {},
+            children: [childMatch],
+          };
+        }
+      }
+    }
+  }
+
+  for (const route of routes) {
+    if (route.path === '/:pathMatch(.*)*') {
+      return {
+        path: cleanPath,
+        route,
+        params: { pathMatch: cleanPath },
+      };
+    }
+  }
+
+  return null;
 }
 
 export function createRouterInstance(config: RouterPluginConfig): RouterInstance {
@@ -51,6 +96,12 @@ export function createRouterInstance(config: RouterPluginConfig): RouterInstance
     return window.location.pathname;
   };
 
+  const getMatchedRoute = (): MatchedRoute | null => {
+    const currentPath = getCurrentRoute();
+    const routes = (window as any).__APP_ROUTES__ || [];
+    return matchRoute(currentPath, routes);
+  };
+
   return {
     push,
     replace,
@@ -58,5 +109,6 @@ export function createRouterInstance(config: RouterPluginConfig): RouterInstance
     forward,
     go,
     getCurrentRoute,
+    getMatchedRoute,
   };
 }
