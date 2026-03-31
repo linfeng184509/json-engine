@@ -46,7 +46,7 @@ describe("schemaGenerator", () => {
       children: [{
         id: "item1",
         type: "AInput",
-        designerMeta: { icon: "E", propEditors: [] }
+        designerMeta: { icon: "E", propEditors: {} }
       }]
     }
     const def = generateJsonVueDef(tree)

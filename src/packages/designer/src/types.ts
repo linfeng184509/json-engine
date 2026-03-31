@@ -1,3 +1,5 @@
+import type { PropsDefinition, PropDefinition, FunctionValue } from '@json-engine/vue-json'
+
 /**
  * Design tree node - internal representation used during design.
  * Includes designer-specific metadata that is stripped on export.
@@ -43,30 +45,34 @@ export interface DesignerMeta {
   category?: string
   /** Default props when creating a new instance */
   defaultProps?: Record<string, unknown>
-  /** Property editor definitions for the right panel */
-  propEditors?: PropEditorDef[]
+  /** Property editor definitions for the right panel (extends vue-json PropsDefinition) */
+  propEditors?: PropEditorsDefinition
 }
 
 /**
- * Property editor definition - controls how a prop is edited in the property panel
+ * Property editor definition - extends vue-json PropDefinition with designer-specific fields.
+ * Strictly follows core-engine design specification.
  */
-export interface PropEditorDef {
-  /** Prop key name (maps to node.props[key]) */
-  name: string
+export interface PropEditorDefinition extends PropDefinition {
+  /** Editor widget type for design-time editing */
+  editor?: 'string' | 'number' | 'boolean' | 'select' | 'expression' | 'json' | 'i18n'
   /** Display label in the property panel */
-  label: string
-  /** Setter type controlling which editor widget is used */
-  setter: 'string' | 'number' | 'boolean' | 'select' | 'expression' | 'json'
-  /** Options for select setter */
+  label?: string
+  /** Options for select editor */
   options?: { label: string; value: unknown }[]
-  /** Default value */
-  default?: unknown
   /** Property group for panel organization */
   group?: 'basic' | 'validation' | 'layout' | 'style'
-  /** Placeholder text for input setters */
+  /** Placeholder text for input editors */
   placeholder?: string
-  /** Help text shown below the setter */
+  /** Help text shown below the editor */
   help?: string
+}
+
+/**
+ * Props definition with designer extensions - uses vue-json PropsDefinition as base
+ */
+export interface PropEditorsDefinition extends PropsDefinition {
+  [propName: string]: PropEditorDefinition
 }
 
 /**
@@ -85,8 +91,8 @@ export interface FieldPrototype {
   defaultProps?: Record<string, unknown>
   /** Default children (e.g., ASelectOption nodes for ASelect) */
   defaultChildren?: DesignNode[]
-  /** Property editor definitions */
-  propEditors: PropEditorDef[]
+  /** Property editor definitions (uses vue-json PropsDefinition format) */
+  propEditors: PropEditorsDefinition
   /** Whether this component is a container (can have children dropped into it) */
   isContainer?: boolean
   /** Auto-wrap in parent component when dropped (e.g., AInput -> AFormItem) */
@@ -178,3 +184,5 @@ export interface DataSourceRef {
   /** Transform response data (JavaScript expression) */
   transform?: string
 }
+
+export type { PropsDefinition, PropDefinition, FunctionValue }

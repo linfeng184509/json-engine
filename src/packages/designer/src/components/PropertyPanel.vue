@@ -22,13 +22,19 @@
               <span>{{ collapsedGroups.has(group.name) ? '▶' : '▼' }}</span>
             </div>
             <div v-show="!collapsedGroups.has(group.name)" class="property-group-content">
-              <template v-for="editor in group.editors" :key="editor.name">
-                <StringSetter v-if="editor.setter === 'string'" :label="editor.label" :model-value="getPropValue(editor.name) as string" :placeholder="editor.placeholder" :help="editor.help" @update:model-value="setPropValue(editor.name, $event)" />
-                <NumberSetter v-else-if="editor.setter === 'number'" :label="editor.label" :model-value="getPropValue(editor.name) as number" :placeholder="editor.placeholder" :help="editor.help" @update:model-value="setPropValue(editor.name, $event)" />
-                <BooleanSetter v-else-if="editor.setter === 'boolean'" :label="editor.label" :model-value="getPropValue(editor.name) as boolean" @update:model-value="setPropValue(editor.name, $event)" />
-                <SelectSetter v-else-if="editor.setter === 'select'" :label="editor.label" :model-value="getPropValue(editor.name)" :options="editor.options || []" @update:model-value="setPropValue(editor.name, $event)" />
-                <ExpressionSetter v-else-if="editor.setter === 'expression'" :label="editor.label" :model-value="getPropValue(editor.name) as string" :placeholder="editor.placeholder" :help="editor.help" @update:model-value="setPropValue(editor.name, $event)" />
-                <StringSetter v-else-if="editor.setter === 'json'" :label="editor.label" :model-value="getPropValue(editor.name) as string" :placeholder="editor.placeholder" :help="editor.help" @update:model-value="setPropValue(editor.name, $event)" />
+              <template v-for="[propName, editorDef] in group.editors" :key="propName">
+                <component 
+                  :is="getSetterComponent(editorDef.editor)" 
+                  :label="editorDef.label || propName"
+                  :model-value="getPropValue(propName)"
+                  :placeholder="editorDef.placeholder"
+                  :help="editorDef.help"
+                  :type="editorDef.type"
+                  :required="editorDef.required"
+                  :validator="editorDef.validator"
+                  :options="editorDef.options"
+                  @update:model-value="setPropValue(propName, $event)" 
+                />
               </template>
             </div>
           </div>
@@ -58,13 +64,9 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import type { DesignNode, PropEditorDef, ApiEndpoint, DataSourceRef } from '../types'
+import type { DesignNode, PropEditorsDefinition, ApiEndpoint, DataSourceRef, PropEditorDefinition } from '../types'
 import { useLocale } from '../i18n'
-import StringSetter from '../setters/StringSetter.vue'
-import NumberSetter from '../setters/NumberSetter.vue'
-import BooleanSetter from '../setters/BooleanSetter.vue'
-import SelectSetter from '../setters/SelectSetter.vue'
-import ExpressionSetter from '../setters/ExpressionSetter.vue'
+import { getSetterComponent } from '../setters'
 import StyleSetter from '../setters/StyleSetter.vue'
 import EventSetter from '../setters/EventSetter.vue'
 import LifecycleSetter from '../setters/LifecycleSetter.vue'
@@ -72,7 +74,7 @@ import DependencySetter from '../setters/DependencySetter.vue'
 import I18nSetter from '../setters/I18nSetter.vue'
 import DataSourceSetter from '../setters/DataSourceSetter.vue'
 
-const { locale, t } = useLocale()
+const { t } = useLocale()
 
 const props = defineProps<{
   selectedNode: DesignNode | null
@@ -108,14 +110,6 @@ const dynamicTabs = computed(() => [
   { key: 'datasource', label: '📡 数据源' },
 ])
 
-const tabs = [
-  { key: 'props', label: '属性' },
-  { key: 'style', label: '样式' },
-  { key: 'events', label: '事件' },
-  { key: 'lifecycle', label: '生命周期' },
-  { key: 'dependency', label: '联动' },
-]
-
 const groupLabels = computed(() => ({
   basic: t.value.property.groups.basic,
   validation: t.value.property.groups.validation,
@@ -123,15 +117,23 @@ const groupLabels = computed(() => ({
   style: t.value.property.groups.style
 }))
 
-const groupedEditors = computed(() => {
+interface EditorGroup {
+  name: string
+  editors: [string, PropEditorDefinition][]
+}
+
+const groupedEditors = computed((): EditorGroup[] => {
   if (!props.selectedNode?.designerMeta?.propEditors) return []
-  const editors = props.selectedNode.designerMeta.propEditors
-  const groups: Record<string, PropEditorDef[]> = {}
-  for (const editor of editors) {
-    const groupName = editor.group || 'basic'
+  const propEditors = props.selectedNode.designerMeta.propEditors
+
+  const groups: Record<string, [string, PropEditorDefinition][]> = {}
+
+  for (const [propName, editorDef] of Object.entries(propEditors)) {
+    const groupName = editorDef.group || 'basic'
     if (!groups[groupName]) groups[groupName] = []
-    groups[groupName].push(editor)
+    groups[groupName].push([propName, editorDef])
   }
+
   return Object.entries(groups).map(([name, editors]) => ({ name, editors }))
 })
 

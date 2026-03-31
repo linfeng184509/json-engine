@@ -2,12 +2,15 @@
 export type {
   DesignNode,
   DesignerMeta,
-  PropEditorDef,
+  PropEditorsDefinition,
+  PropEditorDefinition,
   FieldPrototype,
   DropPosition,
   DragData,
   DesignerConfig,
-  DesignerEvent
+  DesignerEvent,
+  PropsDefinition,
+  PropDefinition,
 } from './types'
 
 // Registry
