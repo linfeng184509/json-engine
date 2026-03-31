@@ -1,7 +1,7 @@
 import type { Component } from 'vue';
 import type { VueJsonSchemaInput } from '../types';
 import { parseSchema } from '../parser';
-import { createComponent } from './component-factory';
+import { createComponentCreator } from './component-creator';
 import { SchemaParseError } from '../utils/error';
 
 export interface SchemaLoadResult {
@@ -46,7 +46,7 @@ export class SchemaLoaderImpl {
         return { success: false, error, schema };
       }
 
-      const component = createComponent(schema, {
+      const component = createComponentCreator(schema, {
         cache,
         injectStyles,
         debug,

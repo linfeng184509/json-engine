@@ -1,5 +1,5 @@
 {
-  "name": "@json-engine/core-engine",
+  "name": "@json-engine/types",
   "version": "0.0.1",
   "type": "module",
   "main": "./dist/index.js",
@@ -15,7 +15,10 @@
   ],
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@json-engine/core-engine": "*",
+    "vue": "^3.4.0"
   }
 }
