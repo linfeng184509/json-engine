@@ -1,20 +1,42 @@
 import type {
   PropertyValue,
-  ExpressionValue,
-  FunctionValue,
-  StateRef,
-  PropsRef,
-  ScopeRef,
   RenderContext,
 } from '../types';
 import type { AbstractReferenceParseData, AbstractScopeParseData } from '@json-engine/core-engine';
+import {
+  isReferenceParseData,
+  isExpressionParseData,
+  isFunctionParseData,
+  isScopeParseData,
+} from '@json-engine/core-engine';
+import type { FunctionValue } from '../types';
 
 type ExpressionResult = string | AbstractReferenceParseData | AbstractScopeParseData;
 
-/**
- * 获取嵌套属性值
- * 支持点号路径访问，如 'formData.name' → obj.formData.name
- */
+export {
+  isReferenceParseData,
+  isExpressionParseData,
+  isFunctionParseData,
+  isScopeParseData,
+};
+
+export function isStateReference(value: unknown): value is AbstractReferenceParseData & { prefix: 'state' } {
+  return isReferenceParseData(value) && value.prefix === 'state';
+}
+
+export function isPropsReference(value: unknown): value is AbstractReferenceParseData & { prefix: 'props' } {
+  return isReferenceParseData(value) && value.prefix === 'props';
+}
+
+export function isComputedReference(value: unknown): value is AbstractReferenceParseData & { prefix: 'computed' } {
+  return isReferenceParseData(value) && value.prefix === 'computed';
+}
+
+export function isEChartsOption(value: unknown): value is { _type: 'echarts-option'; option: unknown } {
+  if (typeof value !== 'object' || value === null) return false;
+  return (value as Record<string, unknown>)._type === 'echarts-option';
+}
+
 function getNestedValue(obj: unknown, path: string): unknown {
   if (!obj || !path) return obj;
 
@@ -32,63 +54,11 @@ function getNestedValue(obj: unknown, path: string): unknown {
   return result;
 }
 
-/**
- * 判断是否为 ExpressionValue（带 _type 标记）
- */
-export function isExpressionValue(value: unknown): value is ExpressionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)['_type'] === 'expression';
-}
-
-/**
- * 判断是否为 FunctionValue（带 _type 标记）
- */
-export function isFunctionValue(value: unknown): value is FunctionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)['_type'] === 'function';
-}
-
-/**
- * 判断是否为 StateRef（带 _type 标记）
- */
-export function isStateRef(value: unknown): value is StateRef {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)['_type'] === 'state';
-}
-
-/**
- * 判断是否为 PropsRef（带 _type 标记）
- */
-export function isPropsRef(value: unknown): value is PropsRef {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)['_type'] === 'props';
-}
-
-/**
- * 判断是否为 ScopeRef（带 _type 标记）
- */
-export function isScopeRef(value: unknown): value is ScopeRef {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)['_type'] === 'scope';
-}
-
-/**
- * 判断是否为 EChartsOption（带 _type 标记）
- */
-export function isEChartsOption(value: unknown): value is { _type: 'echarts-option'; option: unknown } {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)['_type'] === 'echarts-option';
-}
-
-/**
- * 递归解析对象中的所有表达式
- */
 function resolveExpressionsDeep(value: unknown, context: RenderContext): unknown {
   if (value === null || value === undefined) {
     return value;
   }
 
-  // Handle string expressions like {{ref_state_xxx}}
   if (typeof value === 'string') {
     const match = value.match(/^\{\{(.+)\}\}$/);
     if (match) {
@@ -101,8 +71,8 @@ function resolveExpressionsDeep(value: unknown, context: RenderContext): unknown
     return value;
   }
 
-  if (isExpressionValue(value)) {
-    return evaluateExpression(value.expression, context);
+  if (isExpressionParseData(value)) {
+    return evaluateExpression(value.expression as ExpressionResult, context);
   }
 
   if (Array.isArray(value)) {
@@ -116,9 +86,6 @@ function resolveExpressionsDeep(value: unknown, context: RenderContext): unknown
   return result;
 }
 
-/**
- * 解析 PropertyValue，返回实际值
- */
 export function resolvePropertyValue(value: PropertyValue, context: RenderContext): unknown {
   if (value === null || value === undefined) {
     return value;
@@ -128,16 +95,17 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
     return value;
   }
 
-  const type = (value as unknown as { _type?: string })._type;
+  if (isExpressionParseData(value)) {
+    return evaluateExpression(value.expression as ExpressionResult, context);
+  }
 
-  switch (type) {
-    case 'expression': {
-      const expr = value as ExpressionValue;
-      return evaluateExpression(expr.expression, context);
-    }
-    case 'state': {
-      const ref = value as StateRef;
-      const stateRef = context.state[ref.variable];
+  if (isReferenceParseData(value)) {
+    const ref = value as AbstractReferenceParseData;
+    if (ref.prefix === 'state') {
+      let stateRef = context.state[ref.variable];
+      if (stateRef === undefined && context.computed) {
+        stateRef = context.computed[ref.variable];
+      }
       let stateValue: unknown = stateRef;
       if (stateRef && typeof stateRef === 'object' && 'value' in stateRef) {
         stateValue = (stateRef as { value: unknown }).value;
@@ -147,36 +115,44 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
       }
       return stateValue;
     }
-    case 'props': {
-      const ref = value as PropsRef;
+    if (ref.prefix === 'props') {
       const propsValue = context.props[ref.variable];
       if (ref.path) {
         return getNestedValue(propsValue, ref.path);
       }
       return propsValue;
     }
-    case 'scope': {
-      const ref = value as ScopeRef;
-      const scopeKey = ref.scope as 'core' | 'goal';
-      const contextRecord = context as unknown as Record<string, unknown>;
-      const scopeValue = contextRecord[scopeKey];
-      if (scopeValue && typeof scopeValue === 'object') {
-        return (scopeValue as Record<string, unknown>)[ref.variable];
+    if (ref.prefix === 'computed') {
+      const computedRef = context.computed[ref.variable];
+      let computedValue: unknown = computedRef;
+      if (computedRef && typeof computedRef === 'object' && 'value' in computedRef) {
+        computedValue = (computedRef as { value: unknown }).value;
       }
-      return undefined;
+      if (ref.path) {
+        return getNestedValue(computedValue, ref.path);
+      }
+      return computedValue;
     }
-    case 'echarts-option': {
-      const echartsOption = value as unknown as { _type: 'echarts-option'; option: unknown };
-      return resolveExpressionsDeep(echartsOption.option, context);
-    }
-    default:
-      return value;
   }
+
+  if (isScopeParseData(value)) {
+    const scopeKey = value.scope as 'core' | 'goal';
+    const contextRecord = context as unknown as Record<string, unknown>;
+    const scopeValue = contextRecord[scopeKey];
+    if (scopeValue && typeof scopeValue === 'object') {
+      return (scopeValue as Record<string, unknown>)[value.variable];
+    }
+    return undefined;
+  }
+
+  const valueRecord = value as unknown as Record<string, unknown>;
+  if (valueRecord._type === 'echarts-option') {
+    return resolveExpressionsDeep(valueRecord.option, context);
+  }
+
+  return value;
 }
 
-/**
- * 评估表达式
- */
 export function evaluateExpression(
   expression: ExpressionResult,
   context: RenderContext
@@ -207,6 +183,17 @@ export function evaluateExpression(
       }
       return context.props[ref.variable];
     }
+    if (ref.prefix === 'computed') {
+      const computedRef = context.computed[ref.variable];
+      let computedValue: unknown = computedRef;
+      if (computedRef && typeof computedRef === 'object' && 'value' in computedRef) {
+        computedValue = (computedRef as { value: unknown }).value;
+      }
+      if (ref.path) {
+        return getNestedValue(computedValue, ref.path);
+      }
+      return computedValue;
+    }
     return undefined;
   }
 
@@ -224,9 +211,6 @@ export function evaluateExpression(
   return undefined;
 }
 
-/**
- * 评估字符串表达式（处理引用格式）
- */
 function evaluateStringExpression(expression: string, context: RenderContext): unknown {
   const trimmed = expression.trim();
   if (!trimmed) {
@@ -252,14 +236,11 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       return `props.${path}`;
     })
-    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, varName) => {
+    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*)\b/g, (_, varName) => {
       return `computed.${varName}.value`;
     })
     .replace(/\$\_\[core\]_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, prop) => {
       return `coreScope._${prop}`;
-    })
-    .replace(/\btodo\.(\w+)\b/g, (_, prop) => {
-      return `state.todo.${prop}`;
     });
 
   try {
@@ -299,13 +280,9 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
   }
 }
 
-/**
- * 转换函数体中的引用格式
- */
 export function transformFunctionBody(body: string, stateTypes: Record<string, string>): string {
   let result = body;
   
-  // Remove {{ }} wrapper if present
   if (result.startsWith('{{') && result.endsWith('}}')) {
     result = result.slice(2, -2);
   }
@@ -328,58 +305,44 @@ export function transformFunctionBody(body: string, stateTypes: Record<string, s
     .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       return `props.${path}`;
     })
-    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, varName) => {
+    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*)\b/g, (_, varName) => {
       return `computed.${varName}.value`;
     })
     .replace(/\$\_\[core\]_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, prop) => {
       return `coreScope._${prop}`;
-    })
-    .replace(/\btodo\.(\w+)\b/g, (_, prop) => {
-      return `state.todo.${prop}`;
     });
 }
 
-/**
- * 解析函数参数
- */
 function parseFunctionParams(params: Record<string, unknown> | string): string[] {
   if (!params) return [];
   
-  // If params is a string, parse it directly
   if (typeof params === 'string') {
     let cleaned = params.trim();
     if (cleaned.startsWith('{{{') && cleaned.endsWith('}}}')) {
       cleaned = cleaned.slice(3, -3).trim();
     }
-    // Handle {{ }} wrapped object format
     if (cleaned.startsWith('{{') && cleaned.endsWith('}}')) {
       cleaned = cleaned.slice(2, -2).trim();
-      // Try to parse as JSON object
       try {
         const parsed = JSON.parse(cleaned);
         if (typeof parsed === 'object' && parsed !== null) {
           return Object.keys(parsed);
         }
       } catch {
-        // Not JSON, continue with comma split
+        // Not JSON
       }
     }
     if (!cleaned) return [];
     return cleaned.split(',').map(p => p.trim()).filter(p => p);
   }
   
-  // If params is an object, extract keys
   if (typeof params === 'object') {
-    const keys = Object.keys(params);
-    return keys;
+    return Object.keys(params);
   }
   
   return [];
 }
 
-/**
- * 执行函数值
- */
 export function executeFunction(
   fnValue: FunctionValue,
   context: RenderContext,
@@ -388,7 +351,6 @@ export function executeFunction(
   const stateTypes = context.stateTypes || {};
   const transformedBody = transformFunctionBody(fnValue.body, stateTypes);
   
-  // Parse params and create bindings
   const paramNames = parseFunctionParams(fnValue.params);
   const paramBindings = paramNames.length > 0 
     ? paramNames.map((name, index) => `var ${name} = args[${index}];`).join(' ')
@@ -430,7 +392,6 @@ export function executeFunction(
       paramNames,
       argsLength: args.length,
       errorMessage: err.message,
-      errorStack: err.stack
     });
     throw err;
   }

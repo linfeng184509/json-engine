@@ -56,11 +56,9 @@ describe('ApiCallParser', () => {
     expect(() => parseApiCall(input)).toThrow('[api-call-parser]');
   });
 
-  it('should return object with _type for missing required fields', () => {
+  it('should throw error for missing required fields', () => {
     const input = JSON.stringify({ method: 'GET' });
-    const result = parseApiCall(input) as { _type: string };
-
-    expect(result._type).toBe('api-call');
+    expect(() => parseApiCall(input)).toThrow('[api-call-parser]');
   });
 
   it('should handle non-string input', () => {

@@ -1,12 +1,12 @@
 import type { MethodsDefinition, ParserContext, FunctionValue } from '../types';
-import { isFunctionValue } from '../runtime/value-resolver';
+import { isFunctionParseData } from '@json-engine/core-engine';
 import { createValidationError } from '../utils/error';
 
 function validateFunctionValue(fn: unknown, path: string): FunctionValue {
-  if (!isFunctionValue(fn)) {
+  if (!isFunctionParseData(fn)) {
     throw createValidationError(
       path,
-      'Must be a FunctionValue with _type="function", params, and body',
+      'Must be a FunctionValue with _type="function"',
       '{ _type: "function", params: {}, body: "..." }',
       fn
     );

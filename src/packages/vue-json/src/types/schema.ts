@@ -13,66 +13,17 @@ import type {
 
 // ============ Core Structured Types (core-engine compatible) ============
 
-/**
- * 表达式值 - 带类型标记的 ExpressionParseData
- * 输入格式: { type: 'expression', body: '{{xxx}}' }
- * parseJson 输出: { _type: 'expression', expression: 'xxx' 或 AbstractReferenceParseData }
- */
-export interface ExpressionValue extends ExpressionParseData {
-  _type: 'expression';
-}
+export type ExpressionValue = ExpressionParseData;
 
-/**
- * State 引用 - 基于 AbstractReferenceParseData
- * 输入格式: { type: 'reference', body: '{{ref_state_xxx}}' }
- * parseJson 输出: { _type: 'reference', prefix: 'state', variable: 'xxx' }
- * 支持点号路径: { _type: 'reference', prefix: 'state', variable: 'formData', path: 'name' }
- */
-export interface StateRef extends AbstractReferenceParseData {
-  _type: 'reference';
-  prefix: 'state';
-  path?: string;
-}
+export type StateRef = AbstractReferenceParseData & { prefix: 'state' };
 
-/**
- * Props 引用 - 基于 AbstractReferenceParseData
- * 输入格式: { type: 'reference', body: '{{ref_props_xxx}}' }
- * parseJson 输出: { _type: 'reference', prefix: 'props', variable: 'xxx' }
- * 支持点号路径: { _type: 'reference', prefix: 'props', variable: 'user', path: 'name' }
- */
-export interface PropsRef extends AbstractReferenceParseData {
-  _type: 'reference';
-  prefix: 'props';
-  path?: string;
-}
+export type PropsRef = AbstractReferenceParseData & { prefix: 'props' };
 
-/**
- * Computed 引用 - 基于 AbstractReferenceParseData
- * 输入格式: { type: 'reference', body: '{{ref_computed_xxx}}' }
- */
-export interface ComputedRef extends AbstractReferenceParseData {
-  _type: 'reference';
-  prefix: 'computed';
-  path?: string;
-}
+export type ComputedRef = AbstractReferenceParseData & { prefix: 'computed' };
 
-/**
- * Scope 引用 - 基于 AbstractScopeParseData
- * 输入格式: { type: 'scope', body: '{{$_[core|goal]_xxx}}' }
- * parseJson 输出: { _type: 'scope', scope: 'core'|'goal', variable: 'xxx' }
- */
-export interface ScopeRef extends AbstractScopeParseData {
-  _type: 'scope';
-}
+export type ScopeRef = AbstractScopeParseData;
 
-/**
- * 函数值 - 带类型标记的 FunctionParseData
- * 输入格式: { type: 'function', params: '{{{...}}}', body: '{{...}}' }
- * parseJson 输出: { _type: 'function', params: {...}, body: '...' }
- */
-export interface FunctionValue extends FunctionParseData {
-  _type: 'function';
-}
+export type FunctionValue = FunctionParseData;
 
 // ============ Input Types (parseJson 前的输入格式) ============
 

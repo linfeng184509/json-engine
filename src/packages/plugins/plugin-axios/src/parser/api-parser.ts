@@ -1,4 +1,5 @@
 import type { ValueParserFn } from '@json-engine/core-engine';
+import { createError } from '@json-engine/core-engine';
 import type { ApiCallValue } from '../types';
 
 export function createApiCallParser(): ValueParserFn {
@@ -11,8 +12,11 @@ export function createApiCallParser(): ValueParserFn {
       const parsed = JSON.parse(body);
       
       if (!parsed.method || !parsed.url) {
-        console.warn('[api-call-parser] Missing required fields: method, url');
-        return { _type: 'api-call', ...parsed };
+        throw createError(
+          'api-call-parser',
+          'Missing required fields: method, url',
+          '{"method": "GET", "url": "/api/..."}'
+        );
       }
 
       return {
@@ -24,8 +28,13 @@ export function createApiCallParser(): ValueParserFn {
         headers: parsed.headers,
       } as ApiCallValue;
     } catch (error) {
-      throw new Error(
-        `[api-call-parser] Failed to parse: ${error instanceof Error ? error.message : String(error)}`
+      if (error instanceof Error && error.message.startsWith('[api-call-parser]')) {
+        throw error;
+      }
+      throw createError(
+        'api-call-parser',
+        `Failed to parse: ${error instanceof Error ? error.message : String(error)}`,
+        '{"method": "GET", "url": "/api/..."}'
       );
     }
   };

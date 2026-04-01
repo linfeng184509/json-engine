@@ -10,8 +10,8 @@ import { createDirectiveError } from '../utils/error';
 import {
   evaluateExpression,
   executeFunction,
-  isStateRef,
-  isPropsRef,
+  isStateReference,
+  isPropsReference,
 } from './value-resolver';
 
 function getNestedValue(obj: unknown, path: string): unknown {
@@ -141,7 +141,7 @@ export function applyVModel(
     const propRef = vModel.prop;
     let value: unknown;
 
-    if (isStateRef(propRef)) {
+    if (isStateReference(propRef)) {
       const stateValue = context.state[propRef.variable];
       const stateType = context.stateTypes?.[propRef.variable];
       const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
@@ -157,7 +157,7 @@ export function applyVModel(
       if (propRef.path) {
         value = getNestedValue(value, propRef.path);
       }
-    } else if (isPropsRef(propRef)) {
+    } else if (isPropsReference(propRef)) {
       value = context.props[propRef.variable];
     } else {
       throw createDirectiveError('v-model', 'vModel.prop must be a StateRef or PropsRef');
@@ -180,7 +180,7 @@ export function applyVModel(
 }
 
 function setReferenceValue(ref: StateRef | PropsRef, value: unknown, context: RenderContext): void {
-  if (isStateRef(ref)) {
+  if (isStateReference(ref)) {
     const stateValue = context.state[ref.variable];
     const stateType = context.stateTypes?.[ref.variable];
     const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
@@ -203,7 +203,7 @@ function setReferenceValue(ref: StateRef | PropsRef, value: unknown, context: Re
     } else {
       Object.assign(stateValue as object, value);
     }
-  } else if (isPropsRef(ref)) {
+  } else if (isPropsReference(ref)) {
     context.props[ref.variable] = value;
   }
 }

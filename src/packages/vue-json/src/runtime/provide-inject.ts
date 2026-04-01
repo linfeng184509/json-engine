@@ -4,12 +4,11 @@ import type {
   InjectDefinition,
   SetupContext,
   RenderContext,
-  ExpressionValue,
-  FunctionValue,
   PropertyValue,
 } from '../types';
+import type { ExpressionParseData, FunctionParseData } from '@json-engine/core-engine';
 import { ComponentCreationError } from '../utils/error';
-import { evaluateExpression, executeFunction, isExpressionValue, isFunctionValue } from './value-resolver';
+import { evaluateExpression, executeFunction, isExpressionParseData, isFunctionParseData } from './value-resolver';
 
 export function setupProvide(
   definition: ProvideDefinition | undefined,
@@ -51,13 +50,13 @@ export function setupProvide(
 }
 
 function resolveProvideValue(
-  value: ExpressionValue | FunctionValue,
+  value: ExpressionParseData | FunctionParseData,
   context: RenderContext
 ): unknown {
-  if (isExpressionValue(value)) {
-    return evaluateExpression(value.expression, context);
+  if (isExpressionParseData(value)) {
+    return evaluateExpression(value.expression as string | Parameters<typeof evaluateExpression>[0], context);
   }
-  if (isFunctionValue(value)) {
+  if (isFunctionParseData(value)) {
     return executeFunction(value, context, []);
   }
   return value;
@@ -96,7 +95,7 @@ function resolveInjectDefault(defaultValue: PropertyValue): unknown {
     return defaultValue;
   }
 
-  if (isExpressionValue(defaultValue)) {
+  if (isExpressionParseData(defaultValue)) {
     return undefined;
   }
 

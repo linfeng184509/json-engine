@@ -20,7 +20,7 @@ import {
   applyVText,
   type VForResult,
 } from './directive-runtime';
-import { resolvePropertyValue, evaluateExpression, isExpressionValue } from './value-resolver';
+import { resolvePropertyValue, evaluateExpression, isExpressionParseData } from './value-resolver';
 
 export function renderVNode(
   definition: RenderDefinition,
@@ -166,8 +166,8 @@ function resolveNodeChildren(
     return children;
   }
 
-  if (isExpressionValue(children)) {
-    return String(evaluateExpression(children.expression, context));
+  if (isExpressionParseData(children)) {
+    return String(evaluateExpression(children.expression as string | AbstractReferenceParseData | AbstractScopeParseData, context));
   }
 
   if (Array.isArray(children)) {
@@ -176,8 +176,8 @@ function resolveNodeChildren(
         if (typeof child === 'string' || typeof child === 'number') {
           return child;
         }
-        if (isExpressionValue(child)) {
-          return evaluateExpression(child.expression, context);
+        if (isExpressionParseData(child)) {
+          return evaluateExpression(child.expression as string | AbstractReferenceParseData | AbstractScopeParseData, context);
         }
         if (typeof child === 'object' && child !== null) {
           if ('type' in child) {

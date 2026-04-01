@@ -1,9 +1,9 @@
 import type { WatchDefinition, WatchItemDefinition, ParserContext, ExpressionValue, FunctionValue } from '../types';
-import { isExpressionValue, isFunctionValue } from '../runtime/value-resolver';
+import { isExpressionParseData, isFunctionParseData } from '@json-engine/core-engine';
 import { createValidationError } from '../utils/error';
 
 function validateExpressionValue(expr: unknown, path: string): ExpressionValue {
-  if (!isExpressionValue(expr)) {
+  if (!isExpressionParseData(expr)) {
     throw createValidationError(
       path,
       'Must be an ExpressionValue with _type="expression"',
@@ -15,10 +15,10 @@ function validateExpressionValue(expr: unknown, path: string): ExpressionValue {
 }
 
 function validateFunctionValue(fn: unknown, path: string): FunctionValue {
-  if (!isFunctionValue(fn)) {
+  if (!isFunctionParseData(fn)) {
     throw createValidationError(
       path,
-      'Must be a FunctionValue with _type="function", params, and body',
+      'Must be a FunctionValue with _type="function"',
       '{ _type: "function", params: {}, body: "..." }',
       fn
     );

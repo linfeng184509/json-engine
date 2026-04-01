@@ -102,11 +102,14 @@ export {
   evaluateExpression,
   executeFunction,
   resolvePropertyValue,
-  isExpressionValue,
-  isFunctionValue,
-  isStateRef,
-  isPropsRef,
-  isScopeRef,
+  isReferenceParseData,
+  isExpressionParseData,
+  isFunctionParseData,
+  isScopeParseData,
+  isStateReference,
+  isPropsReference,
+  isComputedReference,
+  isEChartsOption,
 } from './runtime/value-resolver';
 
 // Utils

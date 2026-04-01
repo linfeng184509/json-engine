@@ -1,24 +1,7 @@
 import type { PropType, ComponentObjectPropsOptions } from 'vue';
-import type { PropsDefinition, PropDefinition, ValueType, ParserContext, PropertyValue, FunctionValue, ExpressionValue, StateRef, PropsRef, StructuredInput } from '../types';
+import type { PropsDefinition, PropDefinition, ValueType, ParserContext, PropertyValue } from '../types';
+import { isExpressionParseData, isFunctionParseData, isReferenceParseData } from '@json-engine/core-engine';
 import { createValidationError } from '../utils/error';
-
-function isExpressionValue(value: unknown): value is ExpressionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return obj._type === 'expression' && 'expression' in obj;
-}
-
-function isStateRef(value: unknown): value is StateRef {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return obj._type === 'state' && typeof obj.variable === 'string';
-}
-
-function isPropsRef(value: unknown): value is PropsRef {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return obj._type === 'props' && typeof obj.variable === 'string';
-}
 
 const TYPE_MAP: Record<ValueType, unknown> = {
   String: String,
@@ -47,18 +30,12 @@ function isPropertyValue(value: unknown): value is PropertyValue {
   
   const obj = value as Record<string, unknown>;
   if (typeof obj._type === 'string') {
-    return ['expression', 'state', 'props', 'scope'].includes(obj._type);
+    return ['expression', 'reference', 'scope'].includes(obj._type);
   }
-  return false;
+  return true;
 }
 
-function isFunctionValue(value: unknown): value is FunctionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return obj._type === 'function' && typeof obj.body === 'string';
-}
-
-function parsePropertyValue(value: PropertyValue | StructuredInput): unknown {
+function parsePropertyValue(value: PropertyValue): unknown {
   if (value === null || value === undefined) {
     return value;
   }
@@ -74,7 +51,7 @@ function parsePropertyValue(value: PropertyValue | StructuredInput): unknown {
     return value;
   }
 
-  if (isExpressionValue(value)) {
+  if (isExpressionParseData(value)) {
     throw createValidationError(
       'default',
       'Expression values in prop defaults are not supported at parse time. Use runtime evaluation.',
@@ -83,10 +60,10 @@ function parsePropertyValue(value: PropertyValue | StructuredInput): unknown {
     );
   }
 
-  if (isStateRef(value) || isPropsRef(value)) {
+  if (isReferenceParseData(value)) {
     throw createValidationError(
       'default',
-      'State/Props references in prop defaults are not supported at parse time. Use runtime evaluation.',
+      'Reference values in prop defaults are not supported at parse time. Use runtime evaluation.',
       'literal value',
       value as unknown
     );
@@ -132,11 +109,11 @@ export function parseProps(
             def.default
           );
         }
-        propOption.default = () => parsePropertyValue(def.default);
+        propOption.default = () => parsePropertyValue(def.default as PropertyValue);
       }
 
       if (def.validator) {
-        if (!isFunctionValue(def.validator)) {
+        if (!isFunctionParseData(def.validator)) {
           throw createValidationError(
             `props.${propName}.validator`,
             'Validator must be a FunctionValue',

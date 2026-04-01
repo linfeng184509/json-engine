@@ -277,7 +277,38 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
   };
 };
 
+function isScopeParseData(value: unknown): value is AbstractScopeParseData {
+  if (typeof value !== 'object' || value === null) return false;
+  return (value as Record<string, unknown>)._type === 'scope';
+}
+
+function isReferenceParseData(value: unknown): value is AbstractReferenceParseData {
+  if (typeof value !== 'object' || value === null) return false;
+  return (value as Record<string, unknown>)._type === 'reference';
+}
+
+function isExpressionParseData(value: unknown): value is ExpressionParseData {
+  if (typeof value !== 'object' || value === null) return false;
+  return (value as Record<string, unknown>)._type === 'expression';
+}
+
+function isFunctionParseData(value: unknown): value is FunctionParseData {
+  if (typeof value !== 'object' || value === null) return false;
+  return (value as Record<string, unknown>)._type === 'function';
+}
+
+function isStringParseData(value: unknown): value is StringParseData {
+  if (typeof value !== 'object' || value === null) return false;
+  return (value as Record<string, unknown>)._type === 'string';
+}
+
+function isObjectParseResult(value: unknown): value is ObjectParseResult {
+  if (typeof value !== 'object' || value === null) return false;
+  return (value as Record<string, unknown>)._type === 'object';
+}
+
 export {
+  createError,
   parseNestedReference,
   ValueObjectParser,
   ValueConstraintParser,
@@ -285,6 +316,12 @@ export {
   ValueReferenceParser,
   ValueExpressionParser,
   ValueFunctionParser,
+  isScopeParseData,
+  isReferenceParseData,
+  isExpressionParseData,
+  isFunctionParseData,
+  isStringParseData,
+  isObjectParseResult,
 };
 
 export type {

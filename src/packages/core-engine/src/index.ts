@@ -16,6 +16,7 @@ export type {
 } from './types';
 
 export {
+  createError,
   parseNestedReference,
   ValueObjectParser,
   ValueConstraintParser,
@@ -23,6 +24,12 @@ export {
   ValueReferenceParser,
   ValueExpressionParser,
   ValueFunctionParser,
+  isScopeParseData,
+  isReferenceParseData,
+  isExpressionParseData,
+  isFunctionParseData,
+  isStringParseData,
+  isObjectParseResult,
 } from './types';
 
 export {

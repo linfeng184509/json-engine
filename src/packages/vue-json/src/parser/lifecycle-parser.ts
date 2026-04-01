@@ -1,4 +1,5 @@
 import type { LifecycleDefinition, ParserContext, FunctionValue } from '../types';
+import { isFunctionParseData } from '@json-engine/core-engine';
 import { createValidationError } from '../utils/error';
 
 const LIFECYCLE_HOOKS = [
@@ -13,32 +14,39 @@ const LIFECYCLE_HOOKS = [
   'onDeactivated',
 ] as const;
 
-function isFunctionValue(value: unknown): value is FunctionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return typeof obj.body === 'string' && obj.params !== undefined && obj.params !== null;
-}
-
 function validateFunctionValue(fn: unknown, path: string): FunctionValue {
-  if (!isFunctionValue(fn)) {
+  if (!isFunctionParseData(fn)) {
     throw createValidationError(
       path,
-      'Must be a FunctionValue with type, params, and body',
-      '{ type: "function", params: "", body: "..." }',
+      'Must be a FunctionValue with _type="function"',
+      '{ _type: "function", params: {}, body: "..." }',
       fn
     );
   }
 
-  if (fn.params === undefined || fn.params === null) {
+  if (typeof fn.body !== 'string') {
     throw createValidationError(
-      path,
-      'FunctionValue must have a params field (can be empty string)',
-      '{ type: "function", params: "", body: "..." }',
-      fn
+      `${path}.body`,
+      'FunctionValue.body must be a string',
+      'string',
+      fn.body
+    );
+  }
+
+  if (typeof fn.params !== 'object' || fn.params === null) {
+    throw createValidationError(
+      `${path}.params`,
+      'FunctionValue.params must be an object',
+      'object',
+      fn.params
     );
   }
 
   return fn;
+}
+
+function isFunctionValue(value: unknown): value is FunctionValue {
+  return isFunctionParseData(value);
 }
 
 function parseHookValue(value: FunctionValue | FunctionValue[] | undefined, path: string): FunctionValue[] | undefined {

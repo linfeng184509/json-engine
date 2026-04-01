@@ -16,14 +16,10 @@ function stateValueParser(body: string): unknown {
   try {
     const result = ValueReferenceParser(valueBody, regex);
     if (result.success && result.data) {
-      return {
-        _type: 'state',
-        variable: result.data.variable,
-        path: result.data.path,
-      };
+      return result.data;
     }
   } catch {
-    // Fallback: treat body as variable name
+    // Fallback: try to parse body directly
   }
   const match = body.match(/^\{\{ref_state_(.+)\}\}$/);
   if (match) {
@@ -31,14 +27,15 @@ function stateValueParser(body: string): unknown {
     const dotIndex = fullPath.indexOf('.');
     if (dotIndex > 0) {
       return {
-        _type: 'state',
+        _type: 'reference',
+        prefix: 'state',
         variable: fullPath.substring(0, dotIndex),
         path: fullPath.substring(dotIndex + 1),
       };
     }
-    return { _type: 'state', variable: fullPath };
+    return { _type: 'reference', prefix: 'state', variable: fullPath };
   }
-  return { _type: 'state', variable: body };
+  return { _type: 'reference', prefix: 'state', variable: body };
 }
 
 function propsValueParser(body: string): unknown {
@@ -47,14 +44,10 @@ function propsValueParser(body: string): unknown {
   try {
     const result = ValueReferenceParser(valueBody, regex);
     if (result.success && result.data) {
-      return {
-        _type: 'props',
-        variable: result.data.variable,
-        path: result.data.path,
-      };
+      return result.data;
     }
   } catch {
-    // Fallback: treat body as variable name
+    // Fallback: try to parse body directly
   }
   const match = body.match(/^\{\{ref_props_(.+)\}\}$/);
   if (match) {
@@ -62,14 +55,15 @@ function propsValueParser(body: string): unknown {
     const dotIndex = fullPath.indexOf('.');
     if (dotIndex > 0) {
       return {
-        _type: 'props',
+        _type: 'reference',
+        prefix: 'props',
         variable: fullPath.substring(0, dotIndex),
         path: fullPath.substring(dotIndex + 1),
       };
     }
-    return { _type: 'props', variable: fullPath };
+    return { _type: 'reference', prefix: 'props', variable: fullPath };
   }
-  return { _type: 'props', variable: body };
+  return { _type: 'reference', prefix: 'props', variable: body };
 }
 
 function importValueParser(body: string): unknown {

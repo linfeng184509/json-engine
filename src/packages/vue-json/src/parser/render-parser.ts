@@ -8,7 +8,7 @@ import type {
   PropertyValue,
   FunctionValue,
 } from '../types';
-import { isExpressionValue, isFunctionValue, isStateRef, isPropsRef } from '../runtime/value-resolver';
+import { isExpressionParseData, isFunctionParseData, isReferenceParseData } from '@json-engine/core-engine';
 import { createValidationError } from '../utils/error';
 
 function isPropertyValue(value: unknown): value is PropertyValue {
@@ -16,7 +16,7 @@ function isPropertyValue(value: unknown): value is PropertyValue {
   if (typeof value !== 'object') return true;
   const obj = value as Record<string, unknown>;
   if (typeof obj._type === 'string') {
-    return ['expression', 'state', 'props', 'scope', 'echarts-option'].includes(obj._type);
+    return ['expression', 'reference', 'scope', 'echarts-option'].includes(obj._type);
   }
   return true;
 }
@@ -25,7 +25,7 @@ function validatePropertyValue(value: unknown, path: string): void {
   if (!isPropertyValue(value)) {
     throw createValidationError(
       path,
-      'Must be a literal or structured value (ExpressionValue, StateRef, PropsRef)',
+      'Must be a literal or structured value (ExpressionValue, ReferenceParseData)',
       'PropertyValue',
       value
     );
@@ -33,10 +33,10 @@ function validatePropertyValue(value: unknown, path: string): void {
 }
 
 function validateFunctionValue(fn: unknown, path: string): void {
-  if (!isFunctionValue(fn)) {
+  if (!isFunctionParseData(fn)) {
     throw createValidationError(
       path,
-      'Must be a FunctionValue with _type="function", params, and body',
+      'Must be a FunctionValue with _type="function"',
       '{ _type: "function", params: {}, body: "..." }',
       fn
     );
@@ -89,7 +89,7 @@ function validateVNodeChildren(children: VNodeChildren, path: string, context: P
 
 function validateVNodeDirectives(directives: VNodeDirectives, path: string, context: ParserContext): void {
   if (directives.vIf !== undefined) {
-    if (!isExpressionValue(directives.vIf)) {
+    if (!isExpressionParseData(directives.vIf)) {
       context.errors.push({
         path: `${path}.vIf`,
         message: 'vIf must be an ExpressionValue',
@@ -99,7 +99,7 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
   }
 
   if (directives.vElseIf !== undefined) {
-    if (!isExpressionValue(directives.vElseIf)) {
+    if (!isExpressionParseData(directives.vElseIf)) {
       context.errors.push({
         path: `${path}.vElseIf`,
         message: 'vElseIf must be an ExpressionValue',
@@ -109,7 +109,7 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
   }
 
   if (directives.vShow !== undefined) {
-    if (!isExpressionValue(directives.vShow)) {
+    if (!isExpressionParseData(directives.vShow)) {
       context.errors.push({
         path: `${path}.vShow`,
         message: 'vShow must be an ExpressionValue',
@@ -119,7 +119,7 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
   }
 
   if (directives.vFor) {
-    if (!isExpressionValue(directives.vFor.source)) {
+    if (!isExpressionParseData(directives.vFor.source)) {
       context.errors.push({
         path: `${path}.vFor.source`,
         message: 'vFor.source must be an ExpressionValue',
@@ -136,10 +136,10 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
   }
 
   if (directives.vModel) {
-    if (!isStateRef(directives.vModel.prop) && !isPropsRef(directives.vModel.prop)) {
+    if (!isReferenceParseData(directives.vModel.prop)) {
       context.errors.push({
         path: `${path}.vModel.prop`,
-        message: 'vModel.prop must be a StateRef or PropsRef',
+        message: 'vModel.prop must be a ReferenceParseData (state or props reference)',
         value: directives.vModel.prop,
       });
     }
@@ -147,7 +147,7 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
 
   if (directives.vOn) {
     for (const [event, handler] of Object.entries(directives.vOn)) {
-      if (!isFunctionValue(handler)) {
+      if (!isFunctionParseData(handler)) {
         context.errors.push({
           path: `${path}.vOn.${event}`,
           message: 'vOn handler must be a FunctionValue',
@@ -159,7 +159,7 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
 
   if (directives.vBind) {
     for (const [attr, expr] of Object.entries(directives.vBind)) {
-      if (!isExpressionValue(expr)) {
+      if (!isExpressionParseData(expr)) {
         context.errors.push({
           path: `${path}.vBind.${attr}`,
           message: 'vBind value must be an ExpressionValue',
@@ -170,7 +170,7 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
   }
 
   if (directives.vHtml !== undefined) {
-    if (!isExpressionValue(directives.vHtml)) {
+    if (!isExpressionParseData(directives.vHtml)) {
       context.errors.push({
         path: `${path}.vHtml`,
         message: 'vHtml must be an ExpressionValue',
@@ -180,7 +180,7 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
   }
 
   if (directives.vText !== undefined) {
-    if (!isExpressionValue(directives.vText)) {
+    if (!isExpressionParseData(directives.vText)) {
       context.errors.push({
         path: `${path}.vText`,
         message: 'vText must be an ExpressionValue',
