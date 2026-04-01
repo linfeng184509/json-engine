@@ -262,7 +262,7 @@
                                 "onClick": {
                                   "type": "function",
                                   "params": "{{{}}}",
-                                  "body": "methods.handleSearch()"
+                                  "body": "{{methods.handleSearch()}}"
                                 }
                               },
                               "children": ["查询"]
@@ -273,7 +273,7 @@
                                 "onClick": {
                                   "type": "function",
                                   "params": "{{{}}}",
-                                  "body": "methods.handleReset()"
+                                  "body": "{{methods.handleReset()}}"
                                 }
                               },
                               "children": ["重置"]
@@ -309,7 +309,7 @@
                     "onClick": {
                       "type": "function",
                       "params": "{{{}}}",
-                      "body": "methods.handleAdd()"
+                      "body": "{{methods.handleAdd()}}"
                     }
                   },
                   "children": ["新增角色"]
@@ -321,7 +321,7 @@
               "props": {
                 "dataSource": {
                   "type": "expression",
-                  "body": "ref_state_roleList"
+                  "body": "{{ref_state_roleList}}"
                 },
                 "rowKey": {
                   "type": "string",
@@ -329,16 +329,16 @@
                 },
                 "loading": {
                   "type": "expression",
-                  "body": "ref_state_loading"
+                  "body": "{{ref_state_loading}}"
                 },
                 "pagination": {
                   "type": "expression",
-                  "body": "ref_state_pagination"
+                  "body": "{{ref_state_pagination}}"
                 },
                 "onChange": {
                   "type": "function",
                   "params": "{{{}}}",
-                  "body": "methods.handleTableChange(args[0])"
+                  "body": "{{methods.handleTableChange(args[0])}}"
                 }
               },
               "children": [
@@ -404,13 +404,14 @@
                         "color": {
                           "type": "function",
                           "params": "{{{}}}",
-                          "body": "methods.getStatusTag(args[0]).color"
+                          "body": "{{methods.getStatusTag(args[0]).color}}"
                         }
                       },
                       "children": [
                         {
-                          "type": "expression",
-                          "body": "methods.getStatusTag(args[0]).text"
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{return methods.getStatusTag(args[0]).text}}"
                         }
                       ]
                     }
@@ -427,8 +428,9 @@
                   },
                   "children": [
                     {
-                      "type": "expression",
-                      "body": "methods.getPermissionCount(args[0].permissions)"
+                      "type": "function",
+                      "params": "{{{}}}",
+                      "body": "{{return methods.getPermissionCount(args[0].permissions)}}"
                     }
                   ]
                 },
@@ -477,7 +479,7 @@
                             "onClick": {
                               "type": "function",
                               "params": "{{{}}}",
-                              "body": "methods.handleEdit(args[0])"
+                              "body": "{{methods.handleEdit(args[0])}}"
                             }
                           },
                           "children": ["编辑"]
@@ -496,7 +498,7 @@
                             "onClick": {
                               "type": "function",
                               "params": "{{{}}}",
-                              "body": "methods.handleConfigPermissions(args[0])"
+                              "body": "{{methods.handleConfigPermissions(args[0])}}"
                             }
                           },
                           "children": ["配置权限"]
@@ -515,13 +517,14 @@
                             "onClick": {
                               "type": "function",
                               "params": "{{{}}}",
-                              "body": "methods.handleToggleStatus(args[0])"
+                              "body": "{{methods.handleToggleStatus(args[0])}}"
                             }
                           },
                           "children": [
                             {
-                              "type": "expression",
-                              "body": "args[0].status === 'active' ? '停用' : '启用'"
+                              "type": "function",
+                              "params": "{{{}}}",
+                              "body": "{{return args[0].status === 'active' ? '停用' : '启用'}}"
                             }
                           ]
                         },
@@ -540,7 +543,7 @@
                             "onClick": {
                               "type": "function",
                               "params": "{{{}}}",
-                              "body": "methods.handleDelete(args[0])"
+                              "body": "{{methods.handleDelete(args[0])}}"
                             }
                           },
                           "children": ["删除"]
@@ -562,21 +565,21 @@
              },
             "visible": {
               "type": "expression",
-              "body": "ref_state_modalVisible"
+              "body": "{{ref_state_modalVisible}}"
             },
             "onOk": {
               "type": "function",
               "params": "{{{}}}",
-              "body": "methods.handleModalOk()"
+              "body": "{{methods.handleModalOk()}}"
             },
             "onCancel": {
               "type": "function",
               "params": "{{{}}}",
-              "body": "methods.handleModalCancel()"
+              "body": "{{methods.handleModalCancel()}}"
             },
             "confirmLoading": {
               "type": "expression",
-              "body": "ref_state_confirmLoading"
+              "body": "{{ref_state_confirmLoading}}"
             },
             "width": 500
           },
@@ -741,21 +744,21 @@
             },
             "visible": {
               "type": "expression",
-              "body": "ref_state_deleteModalVisible"
+              "body": "{{ref_state_deleteModalVisible}}"
             },
             "onOk": {
               "type": "function",
               "params": "{{{}}}",
-              "body": "methods.confirmDelete()"
+              "body": "{{methods.confirmDelete()}}"
             },
             "onCancel": {
               "type": "function",
               "params": "{{{}}}",
-              "body": "methods.cancelDelete()"
+              "body": "{{methods.cancelDelete()}}"
             },
             "confirmLoading": {
               "type": "expression",
-              "body": "ref_state_confirmLoading"
+              "body": "{{ref_state_confirmLoading}}"
             }
           },
           "children": [
@@ -764,15 +767,15 @@
               "children": [
                 {
                   "type": "expression",
-                  "body": "'确定要删除角色 '"
+                  "body": "{{'确定要删除角色 '}}"
                 },
                 {
                   "type": "expression",
-                  "body": "{{ref_state_deletingRole.value?.name}}"
+                  "body": "{{ref_state_deletingRole?.value?.name || ''}}"
                 },
                 {
                   "type": "expression",
-                  "body": "' 吗？'"
+                  "body": "{{' 吗？'}}"
                 }
               ]
             }

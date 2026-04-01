@@ -160,10 +160,7 @@
                       "body": "{{[ref_state_selectedKey]}}"
                     },
                     "blockNode": true,
-                    "showLine": {
-                      "type": "string",
-                      "body": "true"
-                    }
+                    "showLine": true
                   },
                   "directives": {
                     "vOn": {

@@ -44,7 +44,8 @@
       "pagePermissions": {
         "/dashboard": "dashboard:view",
         "/system/user": "user:view",
-        "/system/role": "role:view"
+        "/system/role": "role:view",
+        "/system/role/:id/permissions": "role:edit"
       }
     },
     "i18n": {
@@ -86,6 +87,28 @@
           "title": "基础数据配置",
           "requiresAuth": true,
           "permissions": ["system:manage"],
+          "layout": "/schemas/pages/app-layout.json"
+        }
+      },
+      {
+        "path": "/system/role",
+        "name": "RoleManagement",
+        "component": "/schemas/pages/role-management.json",
+        "meta": {
+          "title": "角色管理",
+          "requiresAuth": true,
+          "permissions": ["role:view"],
+          "layout": "/schemas/pages/app-layout.json"
+        }
+      },
+      {
+        "path": "/system/role/:id/permissions",
+        "name": "RolePermissionConfig",
+        "component": "/schemas/pages/role-permission-config.json",
+        "meta": {
+          "title": "权限配置",
+          "requiresAuth": true,
+          "permissions": ["role:edit"],
           "layout": "/schemas/pages/app-layout.json"
         }
       },

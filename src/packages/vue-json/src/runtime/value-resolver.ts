@@ -240,6 +240,14 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       if (rest.length === 0) {
         return needsValue ? `state.${varName}.value` : `state.${varName}`;
       }
+
+      if (needsValue && rest[0] === 'value') {
+        if (rest.length === 1) {
+          return `state.${varName}.value`;
+        }
+        return `state.${varName}.value.${rest.slice(1).join('.')}`;
+      }
+
       const middle = needsValue ? '.value.' : '.';
       return `state.${varName}${middle}${rest.join('.')}`;
     })
@@ -324,6 +332,14 @@ export function transformFunctionBody(body: string, stateTypes: Record<string, s
       if (rest.length === 0) {
         return needsValue ? `state.${varName}.value` : `state.${varName}`;
       }
+
+      if (needsValue && rest[0] === 'value') {
+        if (rest.length === 1) {
+          return `state.${varName}.value`;
+        }
+        return `state.${varName}.value.${rest.slice(1).join('.')}`;
+      }
+
       const middle = needsValue ? '.value.' : '.';
       return `state.${varName}${middle}${rest.join('.')}`;
     })
