@@ -10,6 +10,7 @@ import type {
   FunctionValue,
   RenderContext,
 } from '../types';
+import { createParserCache } from '@json-engine/core-engine';
 import { parseSchema } from '../parser';
 import { createState } from './state-factory';
 import { createComputed } from './computed-factory';
@@ -36,7 +37,11 @@ export interface ComponentCreatorOptions {
   coreScope?: CoreScope;
 }
 
-const componentCache = new Map<string, Component>();
+const componentCache = createParserCache({
+  enabled: true,
+  maxSize: 500,
+  ttl: 0,
+});
 
 const BUILTIN_COMPONENTS: Record<string, Component> = {
   PageLoader,
@@ -75,10 +80,11 @@ export function createComponentCreator(
     coreScope = getCoreScope(),
   } = options;
 
-  const cacheKey = typeof schemaInput === 'string' ? schemaInput : JSON.stringify(schemaInput);
+  const cacheKey = typeof schemaInput === 'string' ? schemaInput : (schemaInput.name || JSON.stringify(schemaInput));
 
-  if (cache && componentCache.has(cacheKey)) {
-    return componentCache.get(cacheKey)!;
+  if (cache) {
+    const cached = componentCache.get<Component>(cacheKey);
+    if (cached) return cached;
   }
 
   const parseResult = parseSchema(schemaInput);
@@ -232,5 +238,9 @@ export function clearComponentCache(): void {
 }
 
 export function getCachedComponents(): Map<string, Component> {
-  return new Map(componentCache);
+  const result = new Map<string, Component>();
+  for (const [key, value] of componentCache.entries()) {
+    result.set(key, value as Component);
+  }
+  return result;
 }

@@ -1,4 +1,4 @@
-import { createParserConfig, parseNestedReference } from '@json-engine/core-engine';
+import { createParserConfig, parseNestedReference, createParserCache } from '@json-engine/core-engine';
 import type { RenderContext } from '../types/runtime';
 import { createExpressionError } from './error';
 
@@ -7,7 +7,11 @@ const vueParserConfig = createParserConfig({
   scopeNames: ['core', 'goal'],
 });
 
-const functionCache = new Map<string, Function>();
+const functionCache = createParserCache({
+  enabled: true,
+  maxSize: 1000,
+  ttl: 0,
+});
 
 export function resolveReference(expression: string, context: RenderContext): unknown {
   const { referenceRegex, scopeRegex, innerReferenceRegex, innerScopeRegex } = vueParserConfig;
@@ -62,8 +66,8 @@ export function evaluateFunction(
   }
 
   try {
-    const cachedFn = functionCache.get(functionBody);
-    const fn =
+    const cachedFn = functionCache.get<Function>(functionBody);
+    const fn: Function =
       cachedFn ||
       new Function(
         'props',

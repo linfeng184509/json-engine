@@ -1,5 +1,6 @@
 import type { Component } from 'vue';
 import type { VueJsonSchemaInput } from '../types';
+import { createParserCache } from '@json-engine/core-engine';
 import { parseSchema } from '../parser';
 import { createComponentCreator } from './component-creator';
 import { SchemaParseError } from '../utils/error';
@@ -24,15 +25,19 @@ interface CachedSchema {
 }
 
 export class SchemaLoaderImpl {
-  private schemaCache: Map<string, CachedSchema> = new Map();
+  private schemaCache = createParserCache({
+    enabled: true,
+    maxSize: 100,
+    ttl: 10 * 60 * 1000,
+  });
 
   async load(path: string, options: SchemaLoadOptions = {}): Promise<SchemaLoadResult> {
     const { cache = true, extraComponents = {}, injectStyles = true, debug = false } = options;
 
     try {
-      if (cache && this.schemaCache.has(path)) {
-        const cached = this.schemaCache.get(path)!;
-        if (cached.component) {
+      if (cache) {
+        const cached = this.schemaCache.get<CachedSchema>(path);
+        if (cached?.component) {
           return { success: true, component: cached.component, schema: cached.schema };
         }
       }
@@ -76,7 +81,7 @@ export class SchemaLoaderImpl {
   }
 
   getCached(path: string): CachedSchema | undefined {
-    return this.schemaCache.get(path);
+    return this.schemaCache.get<CachedSchema>(path);
   }
 
   hasCached(path: string): boolean {

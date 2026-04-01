@@ -1,8 +1,12 @@
 import type { VueJsonAppSchema } from '../types/app';
 import { SchemaValidationError } from '../types/app';
+import { createParserCache } from '@json-engine/core-engine';
 
-const schemaCache = new Map<string, { schema: VueJsonAppSchema; timestamp: number }>();
-const CACHE_TTL = 5 * 60 * 1000;
+const schemaCache = createParserCache({
+  enabled: true,
+  maxSize: 50,
+  ttl: 5 * 60 * 1000,
+});
 
 function hasImportReferences(schema: Record<string, unknown>): boolean {
   if ('$import' in schema) return true;
@@ -47,11 +51,9 @@ export async function loadSchema(source: string | object): Promise<VueJsonAppSch
     return source as VueJsonAppSchema;
   }
 
-  if (schemaCache.has(source)) {
-    const cached = schemaCache.get(source)!;
-    if (Date.now() - cached.timestamp < CACHE_TTL) {
-      return cached.schema;
-    }
+  const cached = schemaCache.get<VueJsonAppSchema>(source);
+  if (cached) {
+    return cached;
   }
 
   let schema: VueJsonAppSchema;
@@ -90,7 +92,7 @@ export function validateSchema(schema: unknown): schema is VueJsonAppSchema {
 }
 
 export function cacheSchema(url: string, schema: VueJsonAppSchema): void {
-  schemaCache.set(url, { schema, timestamp: Date.now() });
+  schemaCache.set(url, schema);
 }
 
 export function clearSchemaCache(url?: string): void {
@@ -102,7 +104,7 @@ export function clearSchemaCache(url?: string): void {
 }
 
 export function getCachedSchema(url: string): VueJsonAppSchema | undefined {
-  return schemaCache.get(url)?.schema;
+  return schemaCache.get<VueJsonAppSchema>(url);
 }
 
 function isString(value: unknown): value is string {

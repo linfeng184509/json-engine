@@ -134,6 +134,8 @@ export function parseSchema(input: VueJsonSchemaInput): ParseResult<ParsedSchema
         path: error.path,
         message: error.message,
         value: error instanceof ValidationError ? error.actualValue : undefined,
+        expectedType: error instanceof ValidationError ? error.expectedType : undefined,
+        actualType: error instanceof ValidationError ? typeof error.actualValue : undefined,
       });
     } else {
       context.errors.push({

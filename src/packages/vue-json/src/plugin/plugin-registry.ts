@@ -40,20 +40,35 @@ export class PluginRegistry {
   async installFromSchema(
     declarations: { name: string; version?: string }[],
     config: Record<string, unknown>
-  ): Promise<void> {
+  ): Promise<{ installed: string[]; failed: { name: string; error: string }[] }> {
+    const installed: string[] = [];
+    const failed: { name: string; error: string }[] = [];
+
     for (const decl of declarations) {
-      const registered = this.plugins.get(decl.name);
-      if (!registered) {
-        throw new Error(`[PluginRegistry] Unknown plugin: ${decl.name}`);
-      }
+      try {
+        const registered = this.plugins.get(decl.name);
+        if (!registered) {
+          failed.push({ name: decl.name, error: `Unknown plugin: ${decl.name}` });
+          console.warn(`[PluginRegistry] Unknown plugin: ${decl.name}`);
+          continue;
+        }
 
-      if (registered.installed) {
-        continue;
-      }
+        if (registered.installed) {
+          installed.push(decl.name);
+          continue;
+        }
 
-      const pluginConfig = this.getPluginConfig(decl.name, config);
-      await this.install(decl.name, pluginConfig);
+        const pluginConfig = this.getPluginConfig(decl.name, config);
+        await this.install(decl.name, pluginConfig);
+        installed.push(decl.name);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        failed.push({ name: decl.name, error: errorMsg });
+        console.warn(`[PluginRegistry] Failed to install plugin "${decl.name}": ${errorMsg}`);
+      }
     }
+
+    return { installed, failed };
   }
 
   /**
@@ -66,6 +81,16 @@ export class PluginRegistry {
     }
 
     const { definition } = registered;
+
+    // 验证配置 Schema
+    if (definition.configSchema) {
+      const errors = this.validatePluginConfig(name, config, definition.configSchema);
+      if (errors.length > 0) {
+        throw new Error(
+          `[PluginRegistry] Invalid config for plugin "${name}": ${errors.join('; ')}`
+        );
+      }
+    }
 
     this.checkPeerDependencies(definition);
 
@@ -128,6 +153,62 @@ export class PluginRegistry {
         `[PluginRegistry] Plugin version ${pluginVersion} is incompatible with core version ${this.coreVersion}. Major and minor versions must match.`
       );
     }
+  }
+
+  /**
+   * 验证插件配置
+   */
+  private validatePluginConfig(
+    _pluginName: string,
+    config: unknown,
+    schema: object
+  ): string[] {
+    const errors: string[] = [];
+    const configObj = config as Record<string, unknown> | undefined;
+    const schemaObj = schema as Record<string, unknown>;
+
+    // 基础类型检查
+    if (schemaObj.type === 'object' && schemaObj.properties) {
+      const properties = schemaObj.properties as Record<string, Record<string, unknown>>;
+      const required = (schemaObj.required as string[]) || [];
+
+      // 检查必填字段
+      for (const field of required) {
+        if (!configObj || !(field in configObj)) {
+          errors.push(`Missing required field: ${field}`);
+        }
+      }
+
+      // 检查字段类型
+      if (configObj) {
+        for (const [field, fieldSchema] of Object.entries(properties)) {
+          if (field in configObj) {
+            const value = configObj[field];
+            const expectedType = fieldSchema.type as string;
+
+            if (expectedType && !this.checkType(value, expectedType)) {
+              errors.push(
+                `Field "${field}" expected type "${expectedType}", got "${typeof value}"`
+              );
+            }
+          }
+        }
+      }
+    }
+
+    return errors;
+  }
+
+  /**
+   * 检查值类型
+   */
+  private checkType(value: unknown, expectedType: string): boolean {
+    if (value === null || value === undefined) {
+      return expectedType === 'null' || expectedType === 'undefined';
+    }
+
+    const actualType = Array.isArray(value) ? 'array' : typeof value;
+    return actualType === expectedType;
   }
 
   /**
@@ -238,12 +319,13 @@ export function resetPluginRegistry(): void {
  * @param declarations - 插件声明列表
  * @param config - 插件配置
  * @param loaders - 可选的插件加载器映射表，用于动态加载插件
+ * @returns 安装结果，包含成功和失败的插件列表
  */
 export async function loadAndInstallPlugins(
   declarations: PluginDeclaration[],
   config: Record<string, unknown>,
   loaders?: Record<string, () => Promise<VueJsonPlugin>>
-): Promise<void> {
+): Promise<{ installed: string[]; failed: { name: string; error: string }[] }> {
   const registry = getPluginRegistry();
 
   for (const decl of declarations) {
@@ -251,8 +333,14 @@ export async function loadAndInstallPlugins(
 
     if (!registry.getPlugin(pluginName)) {
       if (loaders && loaders[pluginName]) {
-        const plugin = await loaders[pluginName]();
-        registry.register(plugin);
+        try {
+          const plugin = await loaders[pluginName]();
+          registry.register(plugin);
+        } catch (error) {
+          console.warn(
+            `[loadAndInstallPlugins] Failed to load plugin ${pluginName}: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
       } else {
         try {
           const module = await import(
@@ -264,12 +352,13 @@ export async function loadAndInstallPlugins(
           const plugin = module.default;
 
           if (!plugin) {
-            throw new Error(`[loadAndInstallPlugins] Plugin ${pluginName} has no default export`);
+            console.warn(`[loadAndInstallPlugins] Plugin ${pluginName} has no default export`);
+            continue;
           }
 
           registry.register(plugin);
         } catch (error) {
-          throw new Error(
+          console.warn(
             `[loadAndInstallPlugins] Failed to load plugin ${pluginName}: ${error instanceof Error ? error.message : String(error)}`
           );
         }
@@ -277,5 +366,5 @@ export async function loadAndInstallPlugins(
     }
   }
 
-  await registry.installFromSchema(declarations, config);
+  return registry.installFromSchema(declarations, config);
 }

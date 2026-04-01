@@ -9,7 +9,7 @@ import type {
   FunctionValue,
 } from '../types';
 import { isExpressionParseData, isFunctionParseData, isReferenceParseData } from '@json-engine/core-engine';
-import { createValidationError } from '../utils/error';
+import { createValidationError, ValidationError } from '../utils/error';
 
 function isPropertyValue(value: unknown): value is PropertyValue {
   if (value === null || value === undefined) return true;
@@ -88,105 +88,125 @@ function validateVNodeChildren(children: VNodeChildren, path: string, context: P
 }
 
 function validateVNodeDirectives(directives: VNodeDirectives, path: string, context: ParserContext): void {
-  if (directives.vIf !== undefined) {
-    if (!isExpressionParseData(directives.vIf)) {
-      context.errors.push({
-        path: `${path}.vIf`,
-        message: 'vIf must be an ExpressionValue',
-        value: directives.vIf,
-      });
-    }
-  }
-
-  if (directives.vElseIf !== undefined) {
-    if (!isExpressionParseData(directives.vElseIf)) {
-      context.errors.push({
-        path: `${path}.vElseIf`,
-        message: 'vElseIf must be an ExpressionValue',
-        value: directives.vElseIf,
-      });
-    }
-  }
-
-  if (directives.vShow !== undefined) {
-    if (!isExpressionParseData(directives.vShow)) {
-      context.errors.push({
-        path: `${path}.vShow`,
-        message: 'vShow must be an ExpressionValue',
-        value: directives.vShow,
-      });
-    }
-  }
-
-  if (directives.vFor) {
-    if (!isExpressionParseData(directives.vFor.source)) {
-      context.errors.push({
-        path: `${path}.vFor.source`,
-        message: 'vFor.source must be an ExpressionValue',
-        value: directives.vFor.source,
-      });
-    }
-    if (typeof directives.vFor.alias !== 'string') {
-      context.errors.push({
-        path: `${path}.vFor.alias`,
-        message: 'vFor.alias must be a string',
-        value: directives.vFor.alias,
-      });
-    }
-  }
-
-  if (directives.vModel) {
-    if (!isReferenceParseData(directives.vModel.prop)) {
-      context.errors.push({
-        path: `${path}.vModel.prop`,
-        message: 'vModel.prop must be a ReferenceParseData (state or props reference)',
-        value: directives.vModel.prop,
-      });
-    }
-  }
-
-  if (directives.vOn) {
-    for (const [event, handler] of Object.entries(directives.vOn)) {
-      if (!isFunctionParseData(handler)) {
-        context.errors.push({
-          path: `${path}.vOn.${event}`,
-          message: 'vOn handler must be a FunctionValue',
-          value: handler,
-        });
+  try {
+    if (directives.vIf !== undefined) {
+      if (!isExpressionParseData(directives.vIf)) {
+        throw createValidationError(
+          `${path}.vIf`,
+          'vIf must be an ExpressionValue',
+          'ExpressionValue',
+          directives.vIf
+        );
       }
     }
-  }
 
-  if (directives.vBind) {
-    for (const [attr, expr] of Object.entries(directives.vBind)) {
-      if (!isExpressionParseData(expr)) {
-        context.errors.push({
-          path: `${path}.vBind.${attr}`,
-          message: 'vBind value must be an ExpressionValue',
-          value: expr,
-        });
+    if (directives.vElseIf !== undefined) {
+      if (!isExpressionParseData(directives.vElseIf)) {
+        throw createValidationError(
+          `${path}.vElseIf`,
+          'vElseIf must be an ExpressionValue',
+          'ExpressionValue',
+          directives.vElseIf
+        );
       }
     }
-  }
 
-  if (directives.vHtml !== undefined) {
-    if (!isExpressionParseData(directives.vHtml)) {
-      context.errors.push({
-        path: `${path}.vHtml`,
-        message: 'vHtml must be an ExpressionValue',
-        value: directives.vHtml,
-      });
+    if (directives.vShow !== undefined) {
+      if (!isExpressionParseData(directives.vShow)) {
+        throw createValidationError(
+          `${path}.vShow`,
+          'vShow must be an ExpressionValue',
+          'ExpressionValue',
+          directives.vShow
+        );
+      }
     }
-  }
 
-  if (directives.vText !== undefined) {
-    if (!isExpressionParseData(directives.vText)) {
-      context.errors.push({
-        path: `${path}.vText`,
-        message: 'vText must be an ExpressionValue',
-        value: directives.vText,
-      });
+    if (directives.vFor) {
+      if (!isExpressionParseData(directives.vFor.source)) {
+        throw createValidationError(
+          `${path}.vFor.source`,
+          'vFor.source must be an ExpressionValue',
+          'ExpressionValue',
+          directives.vFor.source
+        );
+      }
+      if (typeof directives.vFor.alias !== 'string') {
+        throw createValidationError(
+          `${path}.vFor.alias`,
+          'vFor.alias must be a string',
+          'string',
+          directives.vFor.alias
+        );
+      }
     }
+
+    if (directives.vModel) {
+      if (!isReferenceParseData(directives.vModel.prop)) {
+        throw createValidationError(
+          `${path}.vModel.prop`,
+          'vModel.prop must be a ReferenceParseData (state or props reference)',
+          'ReferenceParseData',
+          directives.vModel.prop
+        );
+      }
+    }
+
+    if (directives.vOn) {
+      for (const [event, handler] of Object.entries(directives.vOn)) {
+        if (!isFunctionParseData(handler)) {
+          throw createValidationError(
+            `${path}.vOn.${event}`,
+            'vOn handler must be a FunctionValue',
+            'FunctionValue',
+            handler
+          );
+        }
+      }
+    }
+
+    if (directives.vBind) {
+      for (const [attr, expr] of Object.entries(directives.vBind)) {
+        if (!isExpressionParseData(expr)) {
+          throw createValidationError(
+            `${path}.vBind.${attr}`,
+            'vBind value must be an ExpressionValue',
+            'ExpressionValue',
+            expr
+          );
+        }
+      }
+    }
+
+    if (directives.vHtml !== undefined) {
+      if (!isExpressionParseData(directives.vHtml)) {
+        throw createValidationError(
+          `${path}.vHtml`,
+          'vHtml must be an ExpressionValue',
+          'ExpressionValue',
+          directives.vHtml
+        );
+      }
+    }
+
+    if (directives.vText !== undefined) {
+      if (!isExpressionParseData(directives.vText)) {
+        throw createValidationError(
+          `${path}.vText`,
+          'vText must be an ExpressionValue',
+          'ExpressionValue',
+          directives.vText
+        );
+      }
+    }
+  } catch (error) {
+    context.errors.push({
+      path: error instanceof ValidationError ? error.path : path,
+      message: error instanceof Error ? error.message : String(error),
+      value: error instanceof ValidationError ? error.actualValue : undefined,
+      expectedType: error instanceof ValidationError ? error.expectedType : undefined,
+      actualType: error instanceof ValidationError ? typeof error.actualValue : undefined,
+    });
   }
 }
 

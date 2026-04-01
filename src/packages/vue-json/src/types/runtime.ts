@@ -10,6 +10,8 @@ export interface ParseError {
   path: string;
   message: string;
   value?: unknown;
+  expectedType?: string;
+  actualType?: string;
 }
 
 export interface ParseWarning {
