@@ -157,6 +157,15 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
     return valueRecord.value;
   }
 
+  if (valueRecord._type === 'object') {
+    const objValue = value as { _type: 'object'; value: Record<string, unknown> };
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(objValue.value)) {
+      result[key] = resolvePropertyValue(val as PropertyValue, context);
+    }
+    return result;
+  }
+
   if (isFunctionParseData(value)) {
     const fnValue = value as FunctionValue;
     return (...args: unknown[]) => executeFunction(fnValue, context, args);

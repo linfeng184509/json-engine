@@ -2,7 +2,7 @@ import type {
   ValueBody,
   FunctionBody,
   ParseResult,
-  ObjectParseData,
+  ObjectParseResult,
   AbstractScopeParseData,
   AbstractReferenceParseData,
   ExpressionParseData,
@@ -90,7 +90,11 @@ function parseValueByType(
 
     switch (valueBody.type) {
       case 'object': {
-        const result: ParseResult<ObjectParseData> = ValueObjectParser(valueBody);
+        const result: ParseResult<ObjectParseResult> = ValueObjectParser(
+          valueBody,
+          config.innerReferenceRegex,
+          config.innerScopeRegex
+        );
         return result.data;
       }
       case 'string': {

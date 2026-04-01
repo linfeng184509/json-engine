@@ -222,23 +222,56 @@ interface FunctionParseData {
 ```typescript
 interface ObjectParseResult {
   _type: 'object';
-  key: string;
-  value: unknown;
+  value: Record<string, unknown>;
 }
 ```
 
-**语法格式**: `{{{key: value}}}`
+**语法格式**: `{{{ key1: value1, key2: value2, ... }}}`
 
 **解析规则**:
-- 用于动态对象属性定义
-- key 和 value 都会被解析
+- 支持多键值对对象
+- 支持 JSON 格式的值（字符串、数字、布尔值、null、对象、数组）
+- 支持 `"ref_state_xxx"`、`"ref_props_xxx"`、`"ref_computed_xxx"` 引用
+- 支持 `"$_core_xxx"`、`"$_goal_xxx"` scope 引用
+- 支持嵌套对象和数组
+- 支持引用值在对象、数组中的递归解析
+
+**正确示例**:
+
+```json
+// 静态对象
+{ "type": "object", "body": "{{{ \"padding\": \"24px\", \"margin\": \"16px\" }}}" }
+
+// 包含引用
+{ "type": "object", "body": "{{{ \"name\": \"ref_state_userName\", \"age\": \"ref_state_age\" }}}" }
+
+// 混合值
+{ "type": "object", "body": "{{{ \"padding\": \"24px\", \"active\": true, \"count\": 10, \"name\": \"ref_state_name\" }}}" }
+
+// 嵌套对象
+{ "type": "object", "body": "{{{ \"style\": { \"padding\": \"24px\" }, \"active\": true }}}" }
+
+// 数组
+{ "type": "object", "body": "{{{ \"items\": [1, 2, 3], \"names\": [\"a\", \"b\"] }}}" }
+
+// 数组中的引用
+{ "type": "object", "body": "{{{ \"items\": [\"ref_state_item1\", \"ref_state_item2\"] }}}" }
+```
+
+**输出示例**:
 
 ```json
 // 输入
-{ "type": "object", "body": "{{{dynamicKey: dynamicValue}}}" }
+{ "type": "object", "body": "{{{ \"padding\": \"24px\", \"name\": \"ref_state_userName\" }}}" }
 
 // 输出
-{ "_type": "object", "key": "dynamicKey", "value": "dynamicValue" }
+{ 
+  "_type": "object", 
+  "value": {
+    "padding": "24px",
+    "name": { "_type": "reference", "prefix": "state", "variable": "userName" }
+  }
+}
 ```
 
 ---

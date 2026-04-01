@@ -53,8 +53,7 @@ interface FunctionParseData {
 
 interface ObjectParseResult {
   _type: 'object';
-  key: string;
-  value: unknown;
+  value: Record<string, unknown>;
 }
 
 type ParseDataType = StringParseData | ObjectParseResult | AbstractScopeParseData | AbstractReferenceParseData | ExpressionParseData | FunctionParseData;
@@ -62,7 +61,7 @@ type ParseDataType = StringParseData | ObjectParseResult | AbstractScopeParseDat
 const STRING_REGEX = /^'([\s\S]*)'$/;
 const FUNCTION_PARAMS_REGEX = /^\{\{\{(.*)\}\}\}$/s;
 const FUNCTION_BODY_REGEX = /^\{\{([\s\S]*)\}\}$/;
-const OBJECT_REGEX = /^\{\{\{([^:]+):([\s\S]*)\}\}\}$/;
+const OBJECT_REGEX = /^\{\{\{([\s\S]*)\}\}\}$/;
 const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
 
 function createError(parserName: string, reason: string, example: string): Error {
@@ -125,23 +124,150 @@ function parseNestedReference(
   return content;
 }
 
-const ValueObjectParser = (value: ValueBody): ParseResult<ObjectParseResult> => {
+function parseObjectValue(
+  rawValue: string,
+  innerRefRegex: RegExp,
+  innerScopeRegex: RegExp
+): unknown {
+  if (!rawValue || rawValue.trim() === '') {
+    return rawValue;
+  }
+
+  if (rawValue.startsWith('ref_')) {
+    const refMatch = rawValue.match(innerRefRegex);
+    if (refMatch) {
+      const prefix = refMatch[1];
+      const variable = refMatch[2];
+      const dotIndex = variable.indexOf('.');
+      if (dotIndex > 0) {
+        return {
+          _type: 'reference',
+          prefix,
+          variable: variable.substring(0, dotIndex),
+          path: variable.substring(dotIndex + 1)
+        };
+      }
+      return { _type: 'reference', prefix, variable };
+    }
+  }
+
+  if (rawValue.startsWith('$_')) {
+    const scopeMatch = rawValue.match(innerScopeRegex);
+    if (scopeMatch) {
+      return { _type: 'scope', scope: scopeMatch[1], variable: scopeMatch[2] };
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue);
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      return processObjectProperties(parsed, innerRefRegex, innerScopeRegex);
+    }
+    if (Array.isArray(parsed)) {
+      return parsed.map(item => {
+        if (typeof item === 'string') {
+          return parseObjectValue(item, innerRefRegex, innerScopeRegex);
+        }
+        if (typeof item === 'object' && item !== null) {
+          return processObjectProperties(item, innerRefRegex, innerScopeRegex);
+        }
+        return item;
+      });
+    }
+    return parsed;
+  } catch {
+    return rawValue;
+  }
+}
+
+function processObjectProperties(
+  obj: Record<string, unknown>,
+  innerRefRegex: RegExp,
+  innerScopeRegex: RegExp
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(obj)) {
+    if (typeof val === 'string') {
+      result[key] = parseObjectValue(val, innerRefRegex, innerScopeRegex);
+    } else if (typeof val === 'object' && val !== null) {
+      if (Array.isArray(val)) {
+        result[key] = val.map(item => {
+          if (typeof item === 'string') {
+            return parseObjectValue(item, innerRefRegex, innerScopeRegex);
+          }
+          if (typeof item === 'object' && item !== null) {
+            return processObjectProperties(item, innerRefRegex, innerScopeRegex);
+          }
+          return item;
+        });
+      } else {
+        result[key] = processObjectProperties(val as Record<string, unknown>, innerRefRegex, innerScopeRegex);
+      }
+    } else {
+      result[key] = val;
+    }
+  }
+  return result;
+}
+
+const ValueObjectParser = (
+  value: ValueBody,
+  innerRefRegex: RegExp,
+  innerScopeRegex: RegExp
+): ParseResult<ObjectParseResult> => {
   if (value.type !== 'object') {
-    throw createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{键: 值}}}');
+    throw createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{ key: value, ... }}}');
   }
 
   const match = value.body.match(OBJECT_REGEX);
   if (!match) {
-    throw createError('ValueObjectParser', `body 格式不正确: "${value.body}"`, '{{{键: 值}}}');
+    throw createError('ValueObjectParser', `body 格式不正确: "${value.body}"`, '{{{ key: value, ... }}}');
   }
 
-  const key = match[1].trim();
-  const rawValue = match[2].trim();
-  const parsedValue = parseValue(rawValue);
+  const content = match[1].trim();
+
+  if (!content) {
+    return {
+      success: true,
+      data: { _type: 'object', value: {} }
+    };
+  }
+
+  let parsed: Record<string, unknown>;
+
+  try {
+    parsed = JSON.parse(`{${content}}`);
+  } catch {
+    try {
+      let processedContent = content;
+      
+      processedContent = processedContent.replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)(\s*:)/g, '$1"$2"$3');
+      
+      processedContent = processedContent.replace(/(\[\s*)([a-zA-Z_$][a-zA-Z0-9_$.]*)(\s*[,\]])/g, (match, prefix, value, suffix) => {
+        if (/^[\d.]+$/.test(value) || value === 'true' || value === 'false' || value === 'null') {
+          return match;
+        }
+        return `${prefix}"${value}"${suffix}`;
+      });
+      
+      processedContent = processedContent.replace(/(:\s*)([a-zA-Z_$][a-zA-Z0-9_$.]*)(\s*[,}]|\s*$)/g, (match, prefix, value, suffix) => {
+        if (/^[\d.]+$/.test(value) || value === 'true' || value === 'false' || value === 'null') {
+          return match;
+        }
+        return `${prefix}"${value}"${suffix}`;
+      });
+
+      parsed = JSON.parse(`{${processedContent}}`);
+    } catch (e) {
+      throw createError('ValueObjectParser', `无法解析对象内容: ${e instanceof Error ? e.message : String(e)}`, '{{{ key: value, ... }}}');
+    }
+  }
+
+  const result = processObjectProperties(parsed, innerRefRegex, innerScopeRegex);
 
   return {
     success: true,
-    data: { _type: 'object', key, value: parsedValue },
+    data: { _type: 'object', value: result },
   };
 };
 

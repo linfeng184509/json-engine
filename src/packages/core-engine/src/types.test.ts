@@ -21,43 +21,201 @@ const DEFAULT_INNER_REF_REGEX = createInnerReferenceRegex(['props', 'state', 'co
 const DEFAULT_INNER_SCOPE_REGEX = createInnerScopeRegex(['core', 'goal']);
 
 describe('ValueObjectParser', () => {
-  it('should parse object with string value', () => {
-    const input: ValueBody = { type: 'object', body: '{{{key: value}}}' };
-    const result = ValueObjectParser(input);
+  it('should parse empty object', () => {
+    const input: ValueBody = { type: 'object', body: '{{{}}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
-    expect(result.data?.key).toBe('key');
-    expect(result.data?.value).toBe('value');
+    expect(result.data?.value).toEqual({});
     expect(result.data?._type).toBe('object');
   });
 
-  it('should parse object with JSON number value', () => {
-    const input: ValueBody = { type: 'object', body: '{{{key: 123}}}' };
-    const result = ValueObjectParser(input);
+  it('should parse single key-value pair with string value', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "key": "value" }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
-    expect(result.data?.key).toBe('key');
-    expect(result.data?.value).toBe(123);
+    expect(result.data?.value).toEqual({ key: 'value' });
+  });
+
+  it('should parse multiple key-value pairs', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "padding": "24px", "margin": "16px" }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value).toEqual({ padding: '24px', margin: '16px' });
+  });
+
+  it('should parse object with JSON number value', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "count": 123, "price": 99.99 }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value).toEqual({ count: 123, price: 99.99 });
   });
 
   it('should parse object with JSON boolean value', () => {
-    const input: ValueBody = { type: 'object', body: '{{{key: true}}}' };
-    const result = ValueObjectParser(input);
+    const input: ValueBody = { type: 'object', body: '{{{ "active": true, "disabled": false }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
-    expect(result.data?.key).toBe('key');
-    expect(result.data?.value).toBe(true);
+    expect(result.data?.value).toEqual({ active: true, disabled: false });
   });
 
-  it('should throw error with correct message when type is not object', () => {
-const input: ValueBody = { type: 'string', body: '{{{key: value}}}' };
-      expect(() => ValueObjectParser(input)).toThrow(
-        '[ValueObjectParser] 验证失败: type 必须为 "object"，实际为 "string"。期望格式: {{{键: 值}}}'
+  it('should parse object with null value', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "data": null }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value).toEqual({ data: null });
+  });
+
+  it('should parse object with nested object', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "style": { "padding": "24px", "margin": "16px" } }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value).toEqual({ style: { padding: '24px', margin: '16px' } });
+  });
+
+  it('should parse object with array', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "items": [1, 2, 3], "names": ["a", "b", "c"] }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value).toEqual({ items: [1, 2, 3], names: ['a', 'b', 'c'] });
+  });
+
+  it('should parse object with state reference', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "name": "ref_state_userName", "age": "ref_state_userAge" }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value.name).toEqual({
+      _type: 'reference',
+      prefix: 'state',
+      variable: 'userName'
+    });
+    expect(result.data?.value.age).toEqual({
+      _type: 'reference',
+      prefix: 'state',
+      variable: 'userAge'
+    });
+  });
+
+  it('should parse object with props reference', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "value": "ref_props_modelValue" }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value.value).toEqual({
+      _type: 'reference',
+      prefix: 'props',
+      variable: 'modelValue'
+    });
+  });
+
+  it('should parse object with computed reference', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "total": "ref_computed_sum" }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value.total).toEqual({
+      _type: 'reference',
+      prefix: 'computed',
+      variable: 'sum'
+    });
+  });
+
+  it('should parse object with scope reference', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "api": "$_core_api", "auth": "$_core_auth" }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value.api).toEqual({
+      _type: 'scope',
+      scope: 'core',
+      variable: 'api'
+    });
+    expect(result.data?.value.auth).toEqual({
+      _type: 'scope',
+      scope: 'core',
+      variable: 'auth'
+    });
+  });
+
+  it('should parse object with mixed values', () => {
+    const input: ValueBody = { 
+      type: 'object', 
+      body: '{{{ "padding": "24px", "count": 10, "active": true, "name": "ref_state_name", "api": "$_core_api" }}}' 
+    };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value).toEqual({
+      padding: '24px',
+      count: 10,
+      active: true,
+      name: { _type: 'reference', prefix: 'state', variable: 'name' },
+      api: { _type: 'scope', scope: 'core', variable: 'api' }
+    });
+  });
+
+  it('should parse object with nested reference', () => {
+    const input: ValueBody = { 
+      type: 'object', 
+      body: '{{{ "style": { "padding": "ref_state_padding", "margin": "16px" } }}}' 
+    };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value).toEqual({
+      style: {
+        padding: { _type: 'reference', prefix: 'state', variable: 'padding' },
+        margin: '16px'
+      }
+    });
+  });
+
+  it('should parse object with reference in array', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "items": ["ref_state_item1", "ref_state_item2", "static"] }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value.items).toEqual([
+      { _type: 'reference', prefix: 'state', variable: 'item1' },
+      { _type: 'reference', prefix: 'state', variable: 'item2' },
+      'static'
+    ]);
+  });
+
+  it('should parse object with reference path', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "name": "ref_state_user.name", "age": "ref_state_user.age" }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value.name).toEqual({
+      _type: 'reference',
+      prefix: 'state',
+      variable: 'user',
+      path: 'name'
+    });
+    expect(result.data?.value.age).toEqual({
+      _type: 'reference',
+      prefix: 'state',
+      variable: 'user',
+      path: 'age'
+    });
+  });
+
+  it('should parse object with simplified format (auto-quoted keys)', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "padding": "24px", "margin": 16 }}}' };
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(true);
+    expect(result.data?.value).toEqual({ padding: '24px', margin: 16 });
+  });
+
+  it('should throw error when type is not object', () => {
+    const input: ValueBody = { type: 'string', body: '{{{ "key": "value" }}}' };
+    expect(() => ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow(
+      '[ValueObjectParser] 验证失败: type 必须为 "object"，实际为 "string"。期望格式: {{{ key: value, ... }}}'
     );
   });
 
-  it('should throw error with correct message when body format is invalid', () => {
+  it('should throw error when body format is invalid', () => {
     const input: ValueBody = { type: 'object', body: 'invalid format' };
-    expect(() => ValueObjectParser(input)).toThrow(
-      '[ValueObjectParser] 验证失败: body 格式不正确: "invalid format"。期望格式: {{{键: 值}}}'
+    expect(() => ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow(
+      '[ValueObjectParser] 验证失败: body 格式不正确: "invalid format"。期望格式: {{{ key: value, ... }}}'
     );
+  });
+
+  it('should throw error when JSON is malformed', () => {
+    const input: ValueBody = { type: 'object', body: '{{{ "key": "value", "broken": } }}' };
+    expect(() => ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow();
   });
 });
 

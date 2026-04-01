@@ -71,7 +71,8 @@ export interface FunctionInput {
 // ============ Composite Types ============
 
 export type LiteralValue = string | number | boolean | null | undefined;
-export type PropertyValue = LiteralValue | ExpressionValue | StateRef | PropsRef | ScopeRef;
+export type ObjectValue = { _type: 'object'; value: Record<string, unknown> };
+export type PropertyValue = LiteralValue | ExpressionValue | StateRef | PropsRef | ScopeRef | ObjectValue;
 export type InitialValue = LiteralValue | ExpressionValue | StateRef | PropsRef | ScopeRef;
 
 export type StructuredInput = ExpressionInput | StateInput | PropsInput | ScopeInput | FunctionInput;
