@@ -373,8 +373,8 @@ const referenceRegex = /^{{ref_(props|state|computed)_(.+)}}$/;
 ### Scope 正则
 
 ```typescript
-// 默认: $_[core|goal]_<variable>
-const scopeRegex = /^{{\$_\[(core|goal)\]_(.+)}}$/;
+// 默认: $_core|goal_<variable>
+const scopeRegex = /^{{\$_(core|goal)_(.+)}}$/;
 
 // 匹配示例
 '{{$_core_api}}'    → scope: 'core', variable: 'api'
