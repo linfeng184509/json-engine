@@ -1,0 +1,1290 @@
+{
+  "name": "RolePermissionConfigPage",
+  "state": {
+    "roleId": {
+      "type": "ref",
+      "initial": null
+    },
+    "roleInfo": {
+      "type": "ref",
+      "initial": null
+    },
+    "permissionTree": {
+      "type": "ref",
+      "initial": []
+    },
+    "expandedKeys": {
+      "type": "ref",
+      "initial": []
+    },
+    "selectedNode": {
+      "type": "ref",
+      "initial": null
+    },
+    "currentPermissions": {
+      "type": "ref",
+      "initial": {
+        "pages": [],
+        "forms": [],
+        "fields": []
+      }
+    },
+    "allRoles": {
+      "type": "ref",
+      "initial": []
+    },
+    "compareRoleId": {
+      "type": "ref",
+      "initial": null
+    },
+    "compareResult": {
+      "type": "ref",
+      "initial": null
+    },
+    "activeTab": {
+      "type": "ref",
+      "initial": "list"
+    },
+    "loading": {
+      "type": "ref",
+      "initial": true
+    },
+    "saving": {
+      "type": "ref",
+      "initial": false
+    },
+    "previewData": {
+      "type": "ref",
+      "initial": null
+    },
+    "stats": {
+      "type": "ref",
+      "initial": {
+        "pageLevel": 0,
+        "formLevel": 0,
+        "fieldLevel": 0,
+        "inheritedFieldLevel": 0,
+        "total": 0
+      }
+    },
+    "inheritanceTree": {
+      "type": "ref",
+      "initial": {}
+    },
+    "selectedNodePerm": {
+      "type": "reactive",
+      "initial": {
+        "read": true,
+        "write": true,
+        "hidden": false,
+        "privacy": false
+      }
+    }
+  },
+  "computed": {
+    "hasNodeSelected": {
+      "get": {
+        "type": "function",
+        "params": "{{{}}}",
+        "body": "{{ return !!ref_state_selectedNode }}"
+      }
+    },
+    "isFieldNode": {
+      "get": {
+        "type": "function",
+        "params": "{{{}}}",
+        "body": "{{ return !!(ref_state_selectedNode && ref_state_selectedNode.type === 'field') }}"
+      }
+    },
+    "canInherit": {
+      "get": {
+        "type": "function",
+        "params": "{{{}}}",
+        "body": "{{ return !!(ref_state_selectedNode && (ref_state_selectedNode.type === 'page' || ref_state_selectedNode.type === 'form')) }}"
+      }
+    }
+  },
+  "methods": {
+    "loadRoleId": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var hash = window.location.hash; var match = hash.match(/\\/system\\/role\\/([^\\/]+)\\/permissions/); if (match) { ref_state_roleId.value = match[1]; } else { window.location.hash = '#/system/role'; return; } methods.loadData(); }}"
+    },
+    "loadData": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ ref_state_loading.value = true; Promise.all([$_[core]_api.get('/api/role/' + ref_state_roleId.value), $_[core]_api.get('/api/permission-tree'), $_[core]_api.get('/api/role/all'), $_[core]_api.get('/api/role/' + ref_state_roleId.value + '/permissions/preview')]).then(function(results) { var roleRes = results[0]; var treeRes = results[1]; var rolesRes = results[2]; var previewRes = results[3]; if (roleRes.success) ref_state_roleInfo.value = roleRes.data; if (treeRes.success) { ref_state_permissionTree.value = treeRes.data; ref_state_expandedKeys.value = ['p1', 'm1', 'm2']; } if (rolesRes.success) ref_state_allRoles.value = rolesRes.data.filter(function(r) { return r.id !== ref_state_roleId.value; }); if (previewRes.success) { ref_state_previewData.value = previewRes.data.permissions; ref_state_stats.value = previewRes.data.stats; ref_state_inheritanceTree.value = previewRes.data.inheritanceTree; ref_state_currentPermissions.value = { pages: previewRes.data.permissions.pages || [], forms: previewRes.data.permissions.forms || [], fields: previewRes.data.permissions.fields || [] }; } ref_state_loading.value = false; }).catch(function(e) { console.error(e); ref_state_loading.value = false; }) }}"
+    },
+    "loadCompareResult": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ if (!ref_state_compareRoleId.value) return; $_[core]_api.get('/api/role/compare', { params: { roleId1: ref_state_roleId.value, roleId2: ref_state_compareRoleId.value } }).then(function(res) { if (res.success) ref_state_compareResult.value = res.data; else alert(res.error); }); }}"
+    },
+    "findNode": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var nodes = args[0]; var key = args[1]; for (var i = 0; i < nodes.length; i++) { var n = nodes[i]; if (n.key === key || n.id === key) return n; if (n.children) { var f = methods.findNode(n.children, key); if (f) return f; } } return null; }}"
+    },
+    "onSelect": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var key = args[0] && args[0][0]; if (!key) { ref_state_selectedNode.value = null; return; } ref_state_selectedNode.value = methods.findNode(ref_state_permissionTree.value, key); if (ref_state_selectedNode.value && ref_state_selectedNode.value.type === 'field') { var fieldPerm = ref_state_currentPermissions.value.fields.find(function(f) { return f.fieldId === ref_state_selectedNode.value.id; }); if (fieldPerm) { ref_state_selectedNodePerm.read = fieldPerm.read; ref_state_selectedNodePerm.write = fieldPerm.write; ref_state_selectedNodePerm.hidden = fieldPerm.hidden; ref_state_selectedNodePerm.privacy = fieldPerm.privacy; } else { ref_state_selectedNodePerm.read = true; ref_state_selectedNodePerm.write = false; ref_state_selectedNodePerm.hidden = false; ref_state_selectedNodePerm.privacy = false; } } }}"
+    },
+    "onExpand": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ ref_state_expandedKeys.value = args[0] }}"
+    },
+    "handlePageCheck": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var node = args[0]; var checked = args[1]; if (checked) { if (!ref_state_currentPermissions.value.pages.includes(node.code)) ref_state_currentPermissions.value.pages.push(node.code); } else { var idx = ref_state_currentPermissions.value.pages.indexOf(node.code); if (idx > -1) ref_state_currentPermissions.value.pages.splice(idx, 1); } methods.updatePreview(); }}"
+    },
+    "handleFormCheck": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var node = args[0]; var checked = args[1]; if (checked) { if (!ref_state_currentPermissions.value.forms.includes(node.code)) ref_state_currentPermissions.value.forms.push(node.code); } else { var idx = ref_state_currentPermissions.value.forms.indexOf(node.code); if (idx > -1) ref_state_currentPermissions.value.forms.splice(idx, 1); } methods.updatePreview(); }}"
+    },
+    "handleFieldPermChange": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var fieldId = ref_state_selectedNode.value.id; var fieldCode = ref_state_selectedNode.value.code; var fieldName = ref_state_selectedNode.value.name; var existingIdx = ref_state_currentPermissions.value.fields.findIndex(function(f) { return f.fieldId === fieldId; }); var newPerm = { fieldId: fieldId, fieldCode: fieldCode, fieldName: fieldName, read: ref_state_selectedNodePerm.read, write: ref_state_selectedNodePerm.write, hidden: ref_state_selectedNodePerm.hidden, privacy: ref_state_selectedNodePerm.privacy, inherited: false }; if (existingIdx > -1) ref_state_currentPermissions.value.fields[existingIdx] = newPerm; else ref_state_currentPermissions.value.fields.push(newPerm); methods.updatePreview(); }}"
+    },
+    "updatePreview": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ $_[core]_api.get('/api/role/' + ref_state_roleId.value + '/permissions/preview').then(function(res) { if (res.success) { ref_state_previewData.value = res.data.permissions; ref_state_stats.value = res.data.stats; ref_state_inheritanceTree.value = res.data.inheritanceTree; } }); }}"
+    },
+    "handleSave": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ ref_state_saving.value = true; $_[core]_api.put('/api/role/' + ref_state_roleId.value + '/permissions', { permissions: ref_state_currentPermissions.value }).then(function(res) { if (res.success) alert('保存成功'); else alert(res.error || '保存失败'); }).finally(function() { ref_state_saving.value = false; }); }}"
+    },
+    "handleBack": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ window.location.hash = '#/system/role' }}"
+    },
+    "handleBatchAllow": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var type = args[0]; if (type === 'page') ref_state_currentPermissions.value.pages = ['*']; else if (type === 'form') ref_state_currentPermissions.value.forms = ['*']; methods.updatePreview(); }}"
+    },
+    "handleBatchDeny": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var type = args[0]; if (type === 'page') ref_state_currentPermissions.value.pages = []; else if (type === 'form') ref_state_currentPermissions.value.forms = []; methods.updatePreview(); }}"
+    },
+    "getNodeTypeText": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var type = args[0]; var map = { 'platform': '平台', 'menu': '菜单', 'page': '页面', 'feature': '功能', 'form': '表单', 'field': '字段' }; return map[type] || type; }}"
+    },
+    "getNodeTypeColor": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ var type = args[0]; var map = { 'platform': 'blue', 'menu': 'green', 'page': 'orange', 'feature': 'purple', 'form': 'cyan', 'field': 'gold' }; return map[type] || 'default'; }}"
+    },
+    "getCompareStats": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ if (!ref_state_compareResult.value) return { added: 0, removed: 0, common: 0 }; return { added: ref_state_compareResult.value.added.length, removed: ref_state_compareResult.value.removed.length, common: ref_state_compareResult.value.common.length }; }}"
+    }
+  },
+  "lifecycle": {
+    "onMounted": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ methods.loadRoleId() }}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": {
+        "style": {
+          "type": "string",
+          "body": "{{'padding: 24px'}}"
+        }
+      },
+      "children": [
+        {
+          "type": "div",
+          "props": {
+            "style": {
+              "type": "string",
+              "body": "{{'margin-bottom: 16px; display: flex; align-items: center; gap: 16px'}}"
+            }
+          },
+          "children": [
+            {
+              "type": "AButton",
+              "props": {
+                "icon": {
+                  "type": "string",
+                  "body": "{{'left'}}"
+                },
+                "onClick": {
+                  "type": "function",
+                  "params": "{{{}}}",
+                  "body": "{{methods.handleBack()}}"
+                }
+              },
+              "children": [
+                "返回"
+              ]
+            },
+            {
+              "type": "ATitle",
+              "props": {
+                "level": 4
+              },
+              "children": [
+                {
+                  "type": "expression",
+                  "body": "{{'角色权限配置: '}}"
+                },
+                {
+                  "type": "expression",
+                  "body": "{{ref_state_roleInfo.value?.name || '加载中...'}}"
+                },
+                {
+                  "type": "expression",
+                  "body": "{{' ('}}"
+                },
+                {
+                  "type": "expression",
+                  "body": "{{ref_state_roleInfo.value?.code}}"
+                },
+                {
+                  "type": "expression",
+                  "body": "{{')'}}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "div",
+          "props": {
+            "style": {
+              "type": "string",
+              "body": "{{'display: flex; gap: 24px; height: calc(100vh - 200px)'}}"
+            }
+          },
+          "children": [
+            {
+              "type": "ACard",
+              "props": {
+                "title": {
+                  "type": "string",
+                  "body": "{{'权限树'}}"
+                },
+                "style": {
+                  "type": "string",
+                  "body": "{{'width: 400px; flex-shrink: 0'}}"
+                }
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": {
+                      "type": "expression",
+                      "body": "{{ref_state_loading}}"
+                    }
+                  },
+                  "props": {
+                    "style": {
+                      "type": "string",
+                      "body": "{{'text-align: center; padding: 40px 0'}}"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "ASpin"
+                    }
+                  ]
+                },
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": {
+                      "type": "expression",
+                      "body": "{{!ref_state_loading}}"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "ATree",
+                      "props": {
+                        "treeData": {
+                          "type": "expression",
+                          "body": "{{ref_state_permissionTree}}"
+                        },
+                        "selectedKeys": {
+                          "type": "expression",
+                          "body": "{{ref_state_selectedNode.value ? [ref_state_selectedNode.value.id] : []}}"
+                        },
+                        "expandedKeys": {
+                          "type": "expression",
+                          "body": "{{ref_state_expandedKeys}}"
+                        },
+                        "blockNode": true,
+                        "showLine": true,
+                        "checkable": true,
+                        "checkStrictly": true
+                      },
+                      "directives": {
+                        "vOn": {
+                          "select": {
+                            "type": "function",
+                            "params": "{{{}}}",
+                            "body": "{{methods.onSelect(args[0])}}"
+                          },
+                          "expand": {
+                            "type": "function",
+                            "params": "{{{}}}",
+                            "body": "{{methods.onExpand(args[0])}}"
+                          },
+                          "check": {
+                            "type": "function",
+                            "params": "{{{}}}",
+                            "body": "{{var node = args[0]; var checked = args[1]; if (node.type === 'page') methods.handlePageCheck(node, checked); else if (node.type === 'form') methods.handleFormCheck(node, checked);}}"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ACard",
+              "props": {
+                "title": {
+                  "type": "string",
+                  "body": "{{'配置详情'}}"
+                },
+                "style": {
+                  "type": "string",
+                  "body": "{{'flex: 1'}}"
+                }
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": {
+                      "type": "expression",
+                      "body": "{{!ref_computed_hasNodeSelected}}"
+                    }
+                  },
+                  "props": {
+                    "style": {
+                      "type": "string",
+                      "body": "{{'text-align: center; padding: 60px 0; color: #999'}}"
+                    }
+                  },
+                  "children": [
+                    "请从左侧选择一个节点进行配置"
+                  ]
+                },
+                {
+                  "type": "div",
+                  "directives": {
+                    "vIf": {
+                      "type": "expression",
+                      "body": "{{ref_computed_hasNodeSelected}}"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "props": {
+                        "style": {
+                          "type": "string",
+                          "body": "{{'margin-bottom: 16px'}}"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "ASpace",
+                          "children": [
+                            {
+                              "type": "ATag",
+                              "props": {
+                                "color": {
+                                  "type": "function",
+                                  "params": "{{{}}}",
+                                  "body": "{{methods.getNodeTypeColor(ref_state_selectedNode.value.type)}}"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "expression",
+                                  "body": "{{methods.getNodeTypeText(ref_state_selectedNode.value.type)}}"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "span",
+                              "props": {
+                                "style": {
+                                  "type": "string",
+                                  "body": "{{'font-weight: 500'}}"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "expression",
+                                  "body": "{{ref_state_selectedNode.value.name}}"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "span",
+                              "props": {
+                                "style": {
+                                  "type": "string",
+                                  "body": "{{'margin-left: 8px; color: #666'}}"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "expression",
+                                  "body": "{{'('}}"
+                                },
+                                {
+                                  "type": "expression",
+                                  "body": "{{ref_state_selectedNode.value.code}}"
+                                },
+                                {
+                                  "type": "expression",
+                                  "body": "{{')'}}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ATabs",
+                      "props": {
+                        "activeKey": {
+                          "type": "expression",
+                          "body": "{{ref_state_activeTab}}"
+                        },
+                        "onChange": {
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{ref_state_activeTab.value = args[0]}}"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "ATabsTab",
+                          "props": {
+                            "key": {
+                              "type": "string",
+                              "body": "{{'list'}}"
+                            },
+                            "tab": {
+                              "type": "string",
+                              "body": "{{'权限列表'}}"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "div",
+                              "directives": {
+                                "vIf": {
+                                  "type": "expression",
+                                  "body": "{{ref_computed_canInherit}}"
+                                }
+                              },
+                              "props": {
+                                "style": {
+                                  "type": "string",
+                                  "body": "{{'margin-bottom: 16px'}}"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "ASpace",
+                                  "children": [
+                                    {
+                                      "type": "AButton",
+                                      "props": {
+                                        "size": {
+                                          "type": "string",
+                                          "body": "{{'small'}}"
+                                        },
+                                        "onClick": {
+                                          "type": "function",
+                                          "params": "{{{}}}",
+                                          "body": "{{methods.handleBatchAllow(ref_state_selectedNode.value.type)}}"
+                                        }
+                                      },
+                                      "children": [
+                                        "全部允许"
+                                      ]
+                                    },
+                                    {
+                                      "type": "AButton",
+                                      "props": {
+                                        "size": {
+                                          "type": "string",
+                                          "body": "{{'small'}}"
+                                        },
+                                        "onClick": {
+                                          "type": "function",
+                                          "params": "{{{}}}",
+                                          "body": "{{methods.handleBatchDeny(ref_state_selectedNode.value.type)}}"
+                                        }
+                                      },
+                                      "children": [
+                                        "全部禁止"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ACheckbox",
+                              "props": {
+                                "checked": {
+                                  "type": "expression",
+                                  "body": "{{ref_state_selectedNodePerm.read}}"
+                                },
+                                "onChange": {
+                                  "type": "function",
+                                  "params": "{{{}}}",
+                                  "body": "{{methods.handleFieldPermChange()}}"
+                                },
+                                "style": {
+                                  "type": "string",
+                                  "body": "{{'margin-right: 24px'}}"
+                                },
+                                "disabled": {
+                                  "type": "expression",
+                                  "body": "{{!ref_computed_isFieldNode}}"
+                                }
+                              },
+                              "children": [
+                                "可读"
+                              ]
+                            },
+                            {
+                              "type": "ACheckbox",
+                              "props": {
+                                "checked": {
+                                  "type": "expression",
+                                  "body": "{{ref_state_selectedNodePerm.write}}"
+                                },
+                                "onChange": {
+                                  "type": "function",
+                                  "params": "{{{}}}",
+                                  "body": "{{methods.handleFieldPermChange()}}"
+                                },
+                                "style": {
+                                  "type": "string",
+                                  "body": "{{'margin-right: 24px'}}"
+                                },
+                                "disabled": {
+                                  "type": "expression",
+                                  "body": "{{!ref_computed_isFieldNode}}"
+                                }
+                              },
+                              "children": [
+                                "可写"
+                              ]
+                            },
+                            {
+                              "type": "ACheckbox",
+                              "props": {
+                                "checked": {
+                                  "type": "expression",
+                                  "body": "{{ref_state_selectedNodePerm.hidden}}"
+                                },
+                                "onChange": {
+                                  "type": "function",
+                                  "params": "{{{}}}",
+                                  "body": "{{methods.handleFieldPermChange()}}"
+                                },
+                                "style": {
+                                  "type": "string",
+                                  "body": "{{'margin-right: 24px'}}"
+                                },
+                                "disabled": {
+                                  "type": "expression",
+                                  "body": "{{!ref_computed_isFieldNode}}"
+                                }
+                              },
+                              "children": [
+                                "隐藏"
+                              ]
+                            },
+                            {
+                              "type": "ACheckbox",
+                              "props": {
+                                "checked": {
+                                  "type": "expression",
+                                  "body": "{{ref_state_selectedNodePerm.privacy}}"
+                                },
+                                "onChange": {
+                                  "type": "function",
+                                  "params": "{{{}}}",
+                                  "body": "{{methods.handleFieldPermChange()}}"
+                                },
+                                "disabled": {
+                                  "type": "expression",
+                                  "body": "{{!ref_computed_isFieldNode}}"
+                                }
+                              },
+                              "children": [
+                                "隐私"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ATabsTab",
+                          "props": {
+                            "key": {
+                              "type": "string",
+                              "body": "{{'stats'}}"
+                            },
+                            "tab": {
+                              "type": "string",
+                              "body": "{{'权限统计'}}"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "ARow",
+                              "props": {
+                                "gutter": 16
+                              },
+                              "children": [
+                                {
+                                  "type": "ACol",
+                                  "props": {
+                                    "span": 8
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "ACard",
+                                      "props": {
+                                        "bordered": false,
+                                        "style": {
+                                          "type": "string",
+                                          "body": "{{'background: #e6f4ff'}}"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "div",
+                                          "props": {
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'font-size: 24px; font-weight: 600; color: #1677ff'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "expression",
+                                              "body": "{{ref_state_stats.value.pageLevel}}"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "div",
+                                          "props": {
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'font-size: 14px; color: #666'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            "页面级权限"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "ACol",
+                                  "props": {
+                                    "span": 8
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "ACard",
+                                      "props": {
+                                        "bordered": false,
+                                        "style": {
+                                          "type": "string",
+                                          "body": "{{'background: #f6ffed'}}"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "div",
+                                          "props": {
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'font-size: 24px; font-weight: 600; color: #52c41a'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "expression",
+                                              "body": "{{ref_state_stats.value.formLevel}}"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "div",
+                                          "props": {
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'font-size: 14px; color: #666'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            "表单级权限"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "ACol",
+                                  "props": {
+                                    "span": 8
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "ACard",
+                                      "props": {
+                                        "bordered": false,
+                                        "style": {
+                                          "type": "string",
+                                          "body": "{{'background: #fff7e6'}}"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "div",
+                                          "props": {
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'font-size: 24px; font-weight: 600; color: #fa8c16'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "expression",
+                                              "body": "{{ref_state_stats.value.fieldLevel}}"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "div",
+                                          "props": {
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'font-size: 14px; color: #666'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            "字段级权限"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ADivider",
+                              "children": [
+                                "继承统计"
+                              ]
+                            },
+                            {
+                              "type": "ACard",
+                              "props": {
+                                "bordered": false,
+                                "style": {
+                                  "type": "string",
+                                  "body": "{{'background: #f5f5f5'}}"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "div",
+                                  "props": {
+                                    "style": {
+                                      "type": "string",
+                                      "body": "{{'font-size: 14px'}}"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "span",
+                                      "children": [
+                                        "直接配置字段权限: "
+                                      ]
+                                    },
+                                    {
+                                      "type": "span",
+                                      "props": {
+                                        "style": {
+                                          "type": "string",
+                                          "body": "{{'font-weight: 600'}}"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "expression",
+                                          "body": "{{ref_state_stats.value.fieldLevel}}"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "span",
+                                      "children": [
+                                        " 个"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "div",
+                                  "props": {
+                                    "style": {
+                                      "type": "string",
+                                      "body": "{{'font-size: 14px; margin-top: 8px'}}"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "span",
+                                      "children": [
+                                        "继承字段权限: "
+                                      ]
+                                    },
+                                    {
+                                      "type": "span",
+                                      "props": {
+                                        "style": {
+                                          "type": "string",
+                                          "body": "{{'font-weight: 600'}}"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "expression",
+                                          "body": "{{ref_state_stats.value.inheritedFieldLevel}}"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "span",
+                                      "children": [
+                                        " 个"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ATabsTab",
+                          "props": {
+                            "key": {
+                              "type": "string",
+                              "body": "{{'inheritance'}}"
+                            },
+                            "tab": {
+                              "type": "string",
+                              "body": "{{'继承关系'}}"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "ADescriptions",
+                              "props": {
+                                "column": 1,
+                                "bordered": true,
+                                "size": {
+                                  "type": "string",
+                                  "body": "{{'small'}}"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "ADescriptionsItem",
+                                  "props": {
+                                    "label": {
+                                      "type": "string",
+                                      "body": "{{'继承说明'}}"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "ul",
+                                      "props": {
+                                        "style": {
+                                          "type": "string",
+                                          "body": "{{'margin: 0; padding-left: 20px'}}"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "li",
+                                          "children": [
+                                            "页面级权限开启后，所有子表单和字段默认继承可读权限"
+                                          ]
+                                        },
+                                        {
+                                          "type": "li",
+                                          "children": [
+                                            "表单级权限开启后，所有子字段默认继承可读权限"
+                                          ]
+                                        },
+                                        {
+                                          "type": "li",
+                                          "children": [
+                                            "字段级权限可以单独配置，覆盖继承权限"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ATabsTab",
+                          "props": {
+                            "key": {
+                              "type": "string",
+                              "body": "{{'compare'}}"
+                            },
+                            "tab": {
+                              "type": "string",
+                              "body": "{{'角色对比'}}"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "ASpace",
+                              "props": {
+                                "style": {
+                                  "type": "string",
+                                  "body": "{{'margin-bottom: 16px'}}"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "span",
+                                  "children": [
+                                    "选择对比角色: "
+                                  ]
+                                },
+                                {
+                                  "type": "ASelect",
+                                  "props": {
+                                    "placeholder": {
+                                      "type": "string",
+                                      "body": "{{'请选择角色'}}"
+                                    },
+                                    "value": {
+                                      "type": "expression",
+                                      "body": "{{ref_state_compareRoleId}}"
+                                    },
+                                    "onChange": {
+                                      "type": "function",
+                                      "params": "{{{}}}",
+                                      "body": "{{ref_state_compareRoleId.value = args[0]; if (args[0]) methods.loadCompareResult();}}"
+                                    },
+                                    "style": {
+                                      "type": "string",
+                                      "body": "{{'width: 200px'}}"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "ASelectOption",
+                                      "props": {
+                                        "value": {
+                                          "type": "expression",
+                                          "body": "{{r.id}}"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "expression",
+                                          "body": "{{r.name}}"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "div",
+                              "directives": {
+                                "vIf": {
+                                  "type": "expression",
+                                  "body": "{{ref_state_compareResult}}"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "ARow",
+                                  "props": {
+                                    "gutter": 16
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "ACol",
+                                      "props": {
+                                        "span": 8
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "ACard",
+                                          "props": {
+                                            "bordered": false,
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'background: #f6ffed'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "div",
+                                              "props": {
+                                                "style": {
+                                                  "type": "string",
+                                                  "body": "{{'font-size: 24px; font-weight: 600; color: #52c41a'}}"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "expression",
+                                                  "body": "{{methods.getCompareStats().added}}"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "div",
+                                              "props": {
+                                                "style": {
+                                                  "type": "string",
+                                                  "body": "{{'font-size: 14px; color: #666'}}"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "expression",
+                                                  "body": "{{ref_state_roleInfo.value?.name}}"
+                                                },
+                                                {
+                                                  "type": "expression",
+                                                  "body": "{{' 独有的权限'}}"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "ACol",
+                                      "props": {
+                                        "span": 8
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "ACard",
+                                          "props": {
+                                            "bordered": false,
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'background: #fff7e6'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "div",
+                                              "props": {
+                                                "style": {
+                                                  "type": "string",
+                                                  "body": "{{'font-size: 24px; font-weight: 600; color: #fa8c16'}}"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "expression",
+                                                  "body": "{{methods.getCompareStats().removed}}"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "div",
+                                              "props": {
+                                                "style": {
+                                                  "type": "string",
+                                                  "body": "{{'font-size: 14px; color: #666'}}"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "expression",
+                                                  "body": "{{ref_state_compareResult.value?.role2?.name}}"
+                                                },
+                                                {
+                                                  "type": "expression",
+                                                  "body": "{{' 独有的权限'}}"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "ACol",
+                                      "props": {
+                                        "span": 8
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "ACard",
+                                          "props": {
+                                            "bordered": false,
+                                            "style": {
+                                              "type": "string",
+                                              "body": "{{'background: #e6f4ff'}}"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "div",
+                                              "props": {
+                                                "style": {
+                                                  "type": "string",
+                                                  "body": "{{'font-size: 24px; font-weight: 600; color: #1677ff'}}"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "expression",
+                                                  "body": "{{methods.getCompareStats().common}}"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "div",
+                                              "props": {
+                                                "style": {
+                                                  "type": "string",
+                                                  "body": "{{'font-size: 14px; color: #666'}}"
+                                                }
+                                              },
+                                              "children": [
+                                                "共有的权限"
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "div",
+          "props": {
+            "style": {
+              "type": "string",
+              "body": "{{'margin-top: 16px; text-align: right'}}"
+            }
+          },
+          "children": [
+            {
+              "type": "ASpace",
+              "children": [
+                {
+                  "type": "AButton",
+                  "props": {
+                    "onClick": {
+                      "type": "function",
+                      "params": "{{{}}}",
+                      "body": "{{methods.handleBack()}}"
+                    }
+                  },
+                  "children": [
+                    "取消"
+                  ]
+                },
+                {
+                  "type": "AButton",
+                  "props": {
+                    "type": {
+                      "type": "string",
+                      "body": "{{'primary'}}"
+                    },
+                    "loading": {
+                      "type": "expression",
+                      "body": "{{ref_state_saving}}"
+                    },
+                    "onClick": {
+                      "type": "function",
+                      "params": "{{{}}}",
+                      "body": "{{methods.handleSave()}}"
+                    }
+                  },
+                  "children": [
+                    "保存配置"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "styles": {
+    "scoped": false,
+    "css": ""
+  }
+}

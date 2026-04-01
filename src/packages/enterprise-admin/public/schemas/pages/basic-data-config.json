@@ -12,30 +12,30 @@
     "isFieldSelected": {
       "get": {
         "type": "function",
-        "params": "{{}}",
-        "body": "return ref_state_selectedNode && ref_state_selectedNode.type==='field'"
+        "params": "{{{}}}",
+        "body": "{{return ref_state_selectedNode && ref_state_selectedNode.type==='field'}}"
       }
     },
     "isNotRoot": {
       "get": {
         "type": "function",
-        "params": "{{}}",
-        "body": "return ref_state_selectedNode && ref_state_selectedNode.parentId"
+        "params": "{{{}}}",
+        "body": "{{return ref_state_selectedNode && ref_state_selectedNode.parentId}}"
       }
     },
     "hasSelected": {
       "get": {
         "type": "function",
-        "params": "{{}}",
-        "body": "return !!ref_state_selectedKey"
+        "params": "{{{}}}",
+        "body": "{{return !!ref_state_selectedKey}}"
       }
     }
   },
   "methods": {
     "loadTreeData": {
       "type": "function",
-      "params": "{{}}",
-      "body": "ref_state_loading=true; $_[core]_api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; ref_state_treeData=transform(raw); ref_state_expandedKeys=['p1','m1','m2']; ref_state_loading=false}).catch(function(e){console.error(e); ref_state_loading=false})",
+      "params": "{{{}}}",
+      "body": "{{ref_state_loading=true; $_[core]_api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; ref_state_treeData=transform(raw); ref_state_expandedKeys=['p1','m1','m2']; ref_state_loading=false}).catch(function(e){console.error(e); ref_state_loading=false})}}",
       "cached": false
     },
     "onSelect": {
@@ -66,8 +66,8 @@
   "lifecycle": {
     "onMounted": {
       "type": "function",
-      "params": "{{}}",
-      "body": "methods.loadTreeData()"
+      "params": "{{{}}}",
+      "body": "{{methods.loadTreeData()}}"
     }
   },
   "render": {
@@ -103,7 +103,7 @@
                 },
                 "disabled": {
                   "type": "expression",
-                  "body": "computed.hasSelected.value && ref_state_selectedNode.type!=='field'"
+                  "body": "{{ref_computed_hasSelected.value && ref_state_selectedNode.type!=='field'}}"
                 }
               },
               "children": ["新增节点"]
@@ -137,7 +137,7 @@
                   "directives": {
                     "vIf": {
                       "type": "expression",
-                      "body": "ref_state_loading"
+                      "body": "{{ref_state_loading}}"
                     }
                   },
                   "props": {
@@ -153,11 +153,11 @@
                   "props": {
                     "treeData": {
                       "type": "expression",
-                      "body": "ref_state_treeData"
+                      "body": "{{ref_state_treeData}}"
                     },
                     "selectedKeys": {
                       "type": "expression",
-                      "body": "[ref_state_selectedKey]"
+                      "body": "{{[ref_state_selectedKey]}}"
                     },
                     "blockNode": true,
                     "showLine": {
@@ -195,7 +195,7 @@
                   "directives": {
                     "vIf": {
                       "type": "expression",
-                      "body": "!computed.hasSelected.value"
+                      "body": "{{!ref_computed_hasSelected.value}}"
                     }
                   },
                   "props": {
@@ -209,10 +209,10 @@
                 {
                   "type": "div",
                   "directives": {
-                    "vIf": {
-                      "type": "expression",
-                      "body": "computed.hasSelected.value"
-                    }
+"vIf": {
+                        "type": "expression",
+                        "body": "{{ref_computed_hasSelected.value}}"
+                      }
                   },
                   "children": [
                     {
@@ -227,33 +227,33 @@
                         {
                           "type": "ATag",
                           "props": {
-                            "color": {
-                              "type": "expression",
-                              "body": "ref_state_selectedNode.type==='platform' ? 'blue' : ref_state_selectedNode.type==='menu' ? 'green' : ref_state_selectedNode.type==='page' ? 'orange' : ref_state_selectedNode.type==='feature' ? 'purple' : ref_state_selectedNode.type==='form' ? 'cyan' : 'gold'"
-                            }
-                          },
-                          "children": [
-                            {
-                              "type": "expression",
-                              "body": "methods.getNodeTypeText(ref_state_selectedNode.type)"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "span",
-                          "props": {
-                            "style": {
-                              "type": "string",
-                              "body": "'margin-left: 8px; font-weight: 500'"
-                            }
-                          },
-                          "children": [
-                            {
-                              "type": "expression",
-                              "body": "ref_state_selectedNode.name"
-                            }
-                          ]
-                        }
+"color": {
+                               "type": "expression",
+                               "body": "{{ref_state_selectedNode.type==='platform' ? 'blue' : ref_state_selectedNode.type==='menu' ? 'green' : ref_state_selectedNode.type==='page' ? 'orange' : ref_state_selectedNode.type==='feature' ? 'purple' : ref_state_selectedNode.type==='form' ? 'cyan' : 'gold'}}"
+                             }
+                           },
+                           "children": [
+                             {
+                               "type": "expression",
+                               "body": "{{methods.getNodeTypeText(ref_state_selectedNode.type)}}"
+                             }
+                           ]
+                         },
+                         {
+                           "type": "span",
+                           "props": {
+                             "style": {
+                               "type": "string",
+                               "body": "'margin-left: 8px; font-weight: 500'"
+                             }
+                           },
+                           "children": [
+                             {
+                               "type": "expression",
+                               "body": "{{ref_state_selectedNode.name}}"
+                             }
+                           ]
+                         }
                       ]
                     },
                     {
@@ -275,67 +275,67 @@
                               "body": "'编码'"
                             }
                           },
-                          "children": [
-                            {
-                              "type": "expression",
-                              "body": "ref_state_selectedNode.code"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "ADescriptionsItem",
-                          "props": {
-                            "label": {
-                              "type": "string",
-                              "body": "'名称'"
-                            }
-                          },
-                          "children": [
-                            {
-                              "type": "expression",
-                              "body": "ref_state_selectedNode.name"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "ADescriptionsItem",
-                          "props": {
-                            "label": {
-                              "type": "string",
-                              "body": "'类型'"
-                            }
-                          },
-                          "children": [
-                            {
-                              "type": "expression",
-                              "body": "methods.getNodeTypeText(ref_state_selectedNode.type)"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "ADescriptionsItem",
-                          "props": {
-                            "label": {
-                              "type": "string",
-                              "body": "'ID'"
-                            }
-                          },
-                          "children": [
-                            {
-                              "type": "expression",
-                              "body": "ref_state_selectedNode.id"
-                            }
-                          ]
-                        }
+"children": [
+                             {
+                               "type": "expression",
+                               "body": "{{ref_state_selectedNode.code}}"
+                             }
+                           ]
+                         },
+                         {
+                           "type": "ADescriptionsItem",
+                           "props": {
+                             "label": {
+                               "type": "string",
+                               "body": "'名称'"
+                             }
+                           },
+                           "children": [
+                             {
+                               "type": "expression",
+                               "body": "{{ref_state_selectedNode.name}}"
+                             }
+                           ]
+                         },
+                         {
+                           "type": "ADescriptionsItem",
+                           "props": {
+                             "label": {
+                               "type": "string",
+                               "body": "'类型'"
+                             }
+                           },
+                           "children": [
+                             {
+                               "type": "expression",
+                               "body": "{{methods.getNodeTypeText(ref_state_selectedNode.type)}}"
+                             }
+                           ]
+                         },
+                         {
+                           "type": "ADescriptionsItem",
+                           "props": {
+                             "label": {
+                               "type": "string",
+                               "body": "'ID'"
+                             }
+                           },
+                           "children": [
+                             {
+                               "type": "expression",
+                               "body": "{{ref_state_selectedNode.id}}"
+                             }
+                           ]
+                         }
                       ]
                     },
                     {
                       "type": "div",
                       "directives": {
-                        "vIf": {
-                          "type": "expression",
-                          "body": "computed.isFieldSelected.value"
-                        }
+"vIf": {
+                         "type": "expression",
+                         "body": "{{ref_computed_isFieldSelected.value}}"
+                       }
                       },
                       "props": {
                         "style": {
@@ -354,10 +354,10 @@
                         {
                           "type": "ACheckbox",
                           "props": {
-                            "checked": {
-                              "type": "expression",
-                              "body": "ref_state_editForm.read"
-                            },
+"checked": {
+                               "type": "expression",
+                               "body": "{{ref_state_editForm.read}}"
+                             },
                             "style": {
                               "type": "string",
                               "body": "'margin-right: 24px'"
@@ -368,10 +368,10 @@
                         {
                           "type": "ACheckbox",
                           "props": {
-                            "checked": {
-                              "type": "expression",
-                              "body": "ref_state_editForm.write"
-                            },
+"checked": {
+                               "type": "expression",
+                               "body": "{{ref_state_editForm.write}}"
+                             },
                             "style": {
                               "type": "string",
                               "body": "'margin-right: 24px'"
@@ -382,10 +382,10 @@
                         {
                           "type": "ACheckbox",
                           "props": {
-                            "checked": {
-                              "type": "expression",
-                              "body": "ref_state_editForm.hidden"
-                            },
+"checked": {
+                               "type": "expression",
+                               "body": "{{ref_state_editForm.hidden}}"
+                             },
                             "style": {
                               "type": "string",
                               "body": "'margin-right: 24px'"
@@ -396,10 +396,10 @@
                         {
                           "type": "ACheckbox",
                           "props": {
-                            "checked": {
-                              "type": "expression",
-                              "body": "ref_state_editForm.privacy"
-                            }
+"checked": {
+                               "type": "expression",
+                               "body": "{{ref_state_editForm.privacy}}"
+                             }
                           },
                           "children": ["隐私"]
                         }
