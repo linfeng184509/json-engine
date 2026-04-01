@@ -129,6 +129,9 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
         computedValue = (computedRef as { value: unknown }).value;
       }
       if (ref.path) {
+        if (ref.path === 'value') {
+          return computedValue;
+        }
         return getNestedValue(computedValue, ref.path);
       }
       return computedValue;
@@ -148,6 +151,10 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
   const valueRecord = value as unknown as Record<string, unknown>;
   if (valueRecord._type === 'echarts-option') {
     return resolveExpressionsDeep(valueRecord.option, context);
+  }
+
+  if (valueRecord._type === 'string' && typeof valueRecord.value === 'string') {
+    return valueRecord.value;
   }
 
   return value;
@@ -190,6 +197,9 @@ export function evaluateExpression(
         computedValue = (computedRef as { value: unknown }).value;
       }
       if (ref.path) {
+        if (ref.path === 'value') {
+          return computedValue;
+        }
         return getNestedValue(computedValue, ref.path);
       }
       return computedValue;
@@ -236,8 +246,23 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       return `props.${path}`;
     })
-    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*)\b/g, (_, varName) => {
-      return `computed.${varName}.value`;
+    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
+      const parts = path.split('.');
+      const varName = parts[0];
+      const rest = parts.slice(1);
+
+      if (rest.length === 0) {
+        return `computed.${varName}.value`;
+      }
+
+      if (rest[0] === 'value') {
+        if (rest.length === 1) {
+          return `computed.${varName}.value`;
+        }
+        return `computed.${varName}.value.${rest.slice(1).join('.')}`;
+      }
+
+      return `computed.${varName}.value.${rest.join('.')}`;
     })
     .replace(/\$\_\[core\]_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, prop) => {
       return `coreScope._${prop}`;
