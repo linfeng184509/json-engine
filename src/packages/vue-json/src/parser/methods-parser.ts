@@ -1,28 +1,32 @@
 import type { MethodsDefinition, ParserContext, FunctionValue } from '../types';
+import { isFunctionValue } from '../runtime/value-resolver';
 import { createValidationError } from '../utils/error';
-
-function isFunctionValue(value: unknown): value is FunctionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return typeof obj.body === 'string' && obj.params !== undefined && obj.params !== null;
-}
 
 function validateFunctionValue(fn: unknown, path: string): FunctionValue {
   if (!isFunctionValue(fn)) {
     throw createValidationError(
       path,
-      'Must be a FunctionValue with type, params, and body',
-      '{ type: "function", params: "", body: "..." }',
+      'Must be a FunctionValue with _type="function", params, and body',
+      '{ _type: "function", params: {}, body: "..." }',
       fn
     );
   }
 
-  if (fn.params === undefined || fn.params === null) {
+  if (typeof fn.body !== 'string') {
     throw createValidationError(
-      path,
-      'FunctionValue must have a params field (can be empty string)',
-      '{ type: "function", params: "", body: "..." }',
-      fn
+      `${path}.body`,
+      'FunctionValue.body must be a string',
+      'string',
+      fn.body
+    );
+  }
+
+  if (typeof fn.params !== 'object' || fn.params === null) {
+    throw createValidationError(
+      `${path}.params`,
+      'FunctionValue.params must be an object',
+      'object',
+      fn.params
     );
   }
 

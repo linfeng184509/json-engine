@@ -6,36 +6,10 @@ import type {
   VNodeDirectives,
   ParserContext,
   PropertyValue,
-  ExpressionValue,
   FunctionValue,
-  StateRef,
-  PropsRef,
 } from '../types';
+import { isExpressionValue, isFunctionValue, isStateRef, isPropsRef } from '../runtime/value-resolver';
 import { createValidationError } from '../utils/error';
-
-function isExpressionValue(value: unknown): value is ExpressionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return obj._type === 'expression' && (typeof obj.expression === 'string' || typeof obj.expression === 'object');
-}
-
-function isFunctionValue(value: unknown): value is FunctionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return obj._type === 'function' && typeof obj.body === 'string' && obj.params !== undefined && obj.params !== null;
-}
-
-function isStateRef(value: unknown): value is StateRef {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return obj._type === 'state' && typeof obj.variable === 'string';
-}
-
-function isPropsRef(value: unknown): value is PropsRef {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return obj._type === 'props' && typeof obj.variable === 'string';
-}
 
 function isPropertyValue(value: unknown): value is PropertyValue {
   if (value === null || value === undefined) return true;
@@ -56,46 +30,32 @@ function validatePropertyValue(value: unknown, path: string): void {
       value
     );
   }
-
-  if (typeof value === 'object' && value !== null) {
-    const obj = value as unknown as Record<string, unknown>;
-    if (obj.type === 'expression') {
-      if (typeof obj.body !== 'string') {
-        throw createValidationError(
-          `${path}.body`,
-          'ExpressionValue.body must be a string',
-          'string',
-          obj.body as unknown
-        );
-      }
-    } else if (obj.type === 'state' || obj.type === 'props') {
-      if (typeof obj.variable !== 'string') {
-        throw createValidationError(
-          `${path}.variable`,
-          'Reference must have a variable string',
-          'string',
-          obj.variable as unknown
-        );
-      }
-    }
-  }
 }
 
 function validateFunctionValue(fn: unknown, path: string): void {
   if (!isFunctionValue(fn)) {
     throw createValidationError(
       path,
-      'Must be a FunctionValue with type, params, and body',
-      '{ type: "function", params: "", body: "..." }',
+      'Must be a FunctionValue with _type="function", params, and body',
+      '{ _type: "function", params: {}, body: "..." }',
       fn
     );
   }
 
-  if (fn.params === undefined || fn.params === null) {
+  if (typeof fn.body !== 'string') {
+    throw createValidationError(
+      `${path}.body`,
+      'FunctionValue.body must be a string',
+      'string',
+      fn.body
+    );
+  }
+
+  if (typeof fn.params !== 'object' || fn.params === null) {
     throw createValidationError(
       `${path}.params`,
-      'FunctionValue must have a params field (can be empty string)',
-      'string',
+      'FunctionValue.params must be an object',
+      'object',
       fn.params
     );
   }

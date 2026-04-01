@@ -1,4 +1,4 @@
-import { createParserConfig } from '@json-engine/core-engine';
+import { createParserConfig, parseNestedReference } from '@json-engine/core-engine';
 import type { RenderContext } from '../types/runtime';
 import { createExpressionError } from './error';
 
@@ -9,12 +9,16 @@ const vueParserConfig = createParserConfig({
 
 const functionCache = new Map<string, Function>();
 
-/**
- * 解析引用表达式
- * 使用 core-engine 的 parseNestedReference 解析引用
- */
 export function resolveReference(expression: string, context: RenderContext): unknown {
-  const parsed = parseNestedReferenceWithConfig(expression);
+  const { referenceRegex, scopeRegex, innerReferenceRegex, innerScopeRegex } = vueParserConfig;
+
+  const parsed = parseNestedReference(
+    expression,
+    referenceRegex,
+    scopeRegex,
+    innerReferenceRegex,
+    innerScopeRegex
+  );
 
   if (typeof parsed === 'string') {
     return null;
@@ -48,47 +52,6 @@ export function resolveReference(expression: string, context: RenderContext): un
   }
 }
 
-function parseNestedReferenceWithConfig(content: string): string | { _type: 'reference'; prefix: string; variable: string; path?: string } | { _type: 'scope'; scope: string; variable: string } {
-  if (!content) return content;
-
-  const { referenceRegex, scopeRegex, innerReferenceRegex, innerScopeRegex } = vueParserConfig;
-
-  const scopeMatch = content.match(scopeRegex);
-  if (scopeMatch) {
-    return { _type: 'scope', scope: scopeMatch[1], variable: scopeMatch[2] };
-  }
-
-  const refMatch = content.match(referenceRegex);
-  if (refMatch) {
-    const fullPath = refMatch[2];
-    const dotIndex = fullPath.indexOf('.');
-    if (dotIndex > 0) {
-      return {
-        _type: 'reference',
-        prefix: refMatch[1],
-        variable: fullPath.substring(0, dotIndex),
-        path: fullPath.substring(dotIndex + 1),
-      };
-    }
-    return { _type: 'reference', prefix: refMatch[1], variable: fullPath };
-  }
-
-  const innerScopeMatch = content.match(innerScopeRegex);
-  if (innerScopeMatch) {
-    return { _type: 'scope', scope: innerScopeMatch[1], variable: innerScopeMatch[2] };
-  }
-
-  const innerRefMatch = content.match(innerReferenceRegex);
-  if (innerRefMatch) {
-    return { _type: 'reference', prefix: innerRefMatch[1], variable: innerRefMatch[2] };
-  }
-
-  return content;
-}
-
-/**
- * 评估函数（接受 FunctionParseData 格式）
- */
 export function evaluateFunction(
   functionBody: string,
   context: RenderContext,
@@ -139,9 +102,6 @@ export function evaluateFunction(
   }
 }
 
-/**
- * 清除函数缓存
- */
 export function clearExpressionCache(): void {
   functionCache.clear();
 }

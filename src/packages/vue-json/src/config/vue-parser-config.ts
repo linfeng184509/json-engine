@@ -1,6 +1,5 @@
 import {
   createParserConfig,
-  parseJson,
   ValueReferenceParser,
   createReferenceRegex,
   type ParserConfig,
@@ -77,26 +76,13 @@ function importValueParser(body: string): unknown {
   return { _type: 'import', path: body };
 }
 
-let vueParserConfig: ParserConfig;
-
-function echartsOptionValueParser(body: string): unknown {
-  try {
-    const parsed = JSON.parse(body);
-    const walked = parseJson(parsed, vueParserConfig);
-    return { _type: 'echarts-option', option: walked };
-  } catch {
-    return { _type: 'echarts-option', option: body };
-  }
-}
-
-vueParserConfig = createParserConfig({
+const vueParserConfig: ParserConfig = createParserConfig({
   referencePrefixes: VUE_REFERENCE_PREFIXES,
   scopeNames: VUE_SCOPE_NAMES,
   valueParsers: {
     state: stateValueParser,
     props: propsValueParser,
     import: importValueParser,
-    echartsOption: echartsOptionValueParser,
   },
 });
 

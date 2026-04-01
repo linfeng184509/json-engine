@@ -5,9 +5,10 @@ import type {
   ParseResult,
   ParserContext,
 } from '../types';
-import { parseJson, type ParserConfig } from '@json-engine/core-engine';
+import { parseJson, type ParserConfig, type ValueParserRegistry } from '@json-engine/core-engine';
 import { vueParserConfig } from '../config/vue-parser-config';
 import { getVueKeyParsers } from './key-parsers';
+import { getPluginRegistry } from '../plugin/plugin-registry';
 import { SchemaParseError, ValidationError } from '../utils/error';
 import { parseProps } from './props-parser';
 import { parseEmits } from './emits-parser';
@@ -51,6 +52,31 @@ function validateSchemaStructure(data: unknown): data is VueJsonSchema {
   return true;
 }
 
+function buildParserConfig(): ParserConfig {
+  const registry = getPluginRegistry();
+  const pluginValueParsers: ValueParserRegistry = {};
+
+  for (const plugin of registry.getInstalledPlugins()) {
+    if (plugin.definition.valueTypes) {
+      for (const vt of plugin.definition.valueTypes) {
+        pluginValueParsers[vt.typeName] = vt.parser;
+      }
+    }
+  }
+
+  return {
+    ...vueParserConfig,
+    valueParsers: {
+      ...vueParserConfig.valueParsers,
+      ...pluginValueParsers,
+    },
+    keyParsers: {
+      ...vueParserConfig.keyParsers,
+      ...getVueKeyParsers(),
+    },
+  };
+}
+
 export function parseSchema(input: VueJsonSchemaInput): ParseResult<ParsedSchema> {
   const context: ParserContext = createParserContext({} as VueJsonSchema);
 
@@ -67,15 +93,8 @@ export function parseSchema(input: VueJsonSchemaInput): ParseResult<ParsedSchema
       json = input;
     }
 
-    const configWithKeys: ParserConfig = {
-      ...vueParserConfig,
-      keyParsers: {
-        ...vueParserConfig.keyParsers,
-        ...getVueKeyParsers(),
-      },
-    };
-
-    const processed = parseJson(json, configWithKeys) as VueJsonSchema;
+    const config = buildParserConfig();
+    const processed = parseJson(json, config) as VueJsonSchema;
 
     validateSchemaStructure(processed);
     context.schema = processed;

@@ -1,24 +1,13 @@
 import type { WatchDefinition, WatchItemDefinition, ParserContext, ExpressionValue, FunctionValue } from '../types';
+import { isExpressionValue, isFunctionValue } from '../runtime/value-resolver';
 import { createValidationError } from '../utils/error';
-
-function isExpressionValue(value: unknown): value is ExpressionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return typeof obj.body === 'string' || typeof obj.expression === 'string' || typeof obj.expression === 'object';
-}
-
-function isFunctionValue(value: unknown): value is FunctionValue {
-  if (typeof value !== 'object' || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return typeof obj.body === 'string' && obj.params !== undefined && obj.params !== null;
-}
 
 function validateExpressionValue(expr: unknown, path: string): ExpressionValue {
   if (!isExpressionValue(expr)) {
     throw createValidationError(
       path,
-      'Must be an ExpressionValue with type and body',
-      '{ type: "expression", body: "..." }',
+      'Must be an ExpressionValue with _type="expression"',
+      '{ _type: "expression", expression: "..." }',
       expr
     );
   }
@@ -29,18 +18,27 @@ function validateFunctionValue(fn: unknown, path: string): FunctionValue {
   if (!isFunctionValue(fn)) {
     throw createValidationError(
       path,
-      'Must be a FunctionValue with type, params, and body',
-      '{ type: "function", params: "", body: "..." }',
+      'Must be a FunctionValue with _type="function", params, and body',
+      '{ _type: "function", params: {}, body: "..." }',
       fn
     );
   }
 
-  if (fn.params === undefined || fn.params === null) {
+  if (typeof fn.body !== 'string') {
     throw createValidationError(
-      path,
-      'FunctionValue must have a params field (can be empty string)',
-      '{ type: "function", params: "", body: "..." }',
-      fn
+      `${path}.body`,
+      'FunctionValue.body must be a string',
+      'string',
+      fn.body
+    );
+  }
+
+  if (typeof fn.params !== 'object' || fn.params === null) {
+    throw createValidationError(
+      `${path}.params`,
+      'FunctionValue.params must be an object',
+      'object',
+      fn.params
     );
   }
 
