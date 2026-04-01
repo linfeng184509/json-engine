@@ -30,7 +30,7 @@ function isPropertyValue(value: unknown): value is PropertyValue {
   
   const obj = value as Record<string, unknown>;
   if (typeof obj._type === 'string') {
-    return ['expression', 'reference', 'scope'].includes(obj._type);
+    return ['expression', 'reference', 'scope', 'string', 'function'].includes(obj._type);
   }
   return true;
 }
@@ -49,6 +49,12 @@ function parsePropertyValue(value: PropertyValue): unknown {
       }
     }
     return value;
+  }
+
+  const obj = value as Record<string, unknown>;
+
+  if (obj._type === 'string' && typeof obj.value === 'string') {
+    return obj.value;
   }
 
   if (isExpressionParseData(value)) {

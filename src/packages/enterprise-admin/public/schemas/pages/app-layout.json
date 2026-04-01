@@ -58,7 +58,7 @@
               },
               "directives": {
                 "vOn": {
-                  "collapse": { "type": "function", "params": "{{ {collapsed: false} }}", "body": "{{ref_state_collapsed = collapsed}}" }
+                  "collapse": { "type": "function", "params": "{{{}}}", "body": "{{var collapsed=args[0];ref_state_collapsed = collapsed}}" }
                 }
               },
               "children": [

@@ -16,7 +16,7 @@ function isPropertyValue(value: unknown): value is PropertyValue {
   if (typeof value !== 'object') return true;
   const obj = value as Record<string, unknown>;
   if (typeof obj._type === 'string') {
-    return ['expression', 'reference', 'scope', 'echarts-option'].includes(obj._type);
+    return ['expression', 'reference', 'scope', 'string', 'function', 'echarts-option'].includes(obj._type);
   }
   return true;
 }
