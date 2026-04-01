@@ -7,6 +7,7 @@ import type {
   FunctionValue,
   PropertyValue,
 } from '../types';
+import type { AbstractReferenceParseData, AbstractScopeParseData } from '@json-engine/core-engine';
 import { DirectiveError } from '../utils/error';
 import {
   applyVIf,
@@ -20,7 +21,6 @@ import {
   type VForResult,
 } from './directive-runtime';
 import { resolvePropertyValue, evaluateExpression, isExpressionValue } from './value-resolver';
-import { parseExpressionBody } from '../parser';
 
 export function renderVNode(
   definition: RenderDefinition,
@@ -181,12 +181,11 @@ function resolveNodeChildren(
         }
         if (typeof child === 'object' && child !== null) {
           if ('type' in child) {
-            const typeValue = (child as unknown as Record<string, unknown>).type;
-            if (typeValue === 'expression') {
-              const expressionBody = (child as unknown as Record<string, unknown>).body;
-              if (typeof expressionBody === 'string') {
-                const expression = parseExpressionBody(expressionBody);
-                return evaluateExpression(expression, context);
+            const childRecord = child as unknown as Record<string, unknown>;
+            if (childRecord._type === 'expression') {
+              const expr = childRecord.expression;
+              if (typeof expr === 'string' || typeof expr === 'object') {
+                return evaluateExpression(expr as string | AbstractReferenceParseData | AbstractScopeParseData, context);
               }
             }
             return renderVNodeDefinition(child as VNodeDefinition, context);

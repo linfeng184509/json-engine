@@ -17,12 +17,6 @@ import {
   ValueExpressionParser,
   ValueFunctionParser,
 } from './types';
-import {
-  createReferenceRegex,
-  createScopeRegex,
-  createInnerReferenceRegex,
-  createInnerScopeRegex,
-} from './regex-factory';
 import { createParserConfig, type ParserConfig, type ParserOptions } from './config-factory';
 
 type KeyParserFunction = (key: string, params?: Record<string, unknown>) => string;
@@ -70,7 +64,11 @@ function parseValueByType(
     return result.data;
   }
 
-  if (valueObj.type === 'function') {
+  if (
+    valueObj.type === 'function' &&
+    'params' in valueObj &&
+    'body' in valueObj
+  ) {
     const functionBody: FunctionBody = {
       type: 'function',
       params: String(valueObj.params || ''),
@@ -82,7 +80,8 @@ function parseValueByType(
 
   if (
     typeof valueObj.type === 'string' &&
-    ['string', 'scope', 'reference', 'expression', 'object', 'function'].includes(valueObj.type)
+    'body' in valueObj &&
+    ['string', 'scope', 'reference', 'expression', 'object'].includes(valueObj.type)
   ) {
     const valueBody: ValueBody = {
       type: valueObj.type as ValueBody['type'],
@@ -115,15 +114,6 @@ function parseValueByType(
           config.innerScopeRegex
         );
         return result.data;
-      }
-      case 'function': {
-        const functionBody: FunctionBody = {
-          type: 'function',
-          params: valueBody.body.match(/^\{\{\{(.*)\}\}\}$/s)?.[1] ?? '',
-          body: valueBody.body.match(/^\{\{(.*)\}\}$/)?.[1] ?? valueBody.body,
-        };
-        const funcResult: ParseResult<FunctionParseData> = ValueFunctionParser(functionBody);
-        return funcResult.data;
       }
       default:
         return value;
@@ -199,7 +189,8 @@ export function parseJson(input: unknown, config?: ParserConfig | ParserOptions)
   const parserConfig = config instanceof Object && 'referencePrefixes' in config
     ? config as ParserConfig
     : createParserConfig(config as ParserOptions);
-  return walkJson(input, parserConfig, '');
+  const parsed = parseValueByType(input, parserConfig);
+  return walkJson(parsed, parserConfig, '');
 }
 
 export { createParserConfig };

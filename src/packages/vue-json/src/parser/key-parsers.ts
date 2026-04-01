@@ -1,7 +1,4 @@
-import { createVueParserConfig, type ParserConfig } from '../config/vue-parser-config';
-
-const COMPONENT_NAME_KEY = 'vue-json:component-name';
-const STATE_KEY_KEY = 'vue-json:state-key';
+import type { KeyParserRegistry } from '@json-engine/core-engine';
 
 function toPascalCase(str: string): string {
   return str
@@ -24,40 +21,11 @@ function stateKeyParser(key: string): string {
   return key;
 }
 
-export function getVueParserConfig(): ParserConfig {
-  return createVueParserConfig({
-    keyParsers: {
-      [COMPONENT_NAME_KEY]: componentNameParser,
-      [STATE_KEY_KEY]: stateKeyParser,
-    },
-  });
-}
-
-export function getVueKeyParsers(): Record<string, (key: string) => string> {
+export function getVueKeyParsers(): KeyParserRegistry {
   return {
-    [COMPONENT_NAME_KEY]: componentNameParser,
-    [STATE_KEY_KEY]: stateKeyParser,
+    componentName: componentNameParser,
+    stateKey: stateKeyParser,
   };
-}
-
-export function registerDefaultKeyParsers(): void {
-  // Deprecated: Use getVueParserConfig() instead
-}
-
-export function unregisterDefaultKeyParsers(): void {
-  // Deprecated: Use getVueParserConfig() instead
-}
-
-export function registerVueJsonKeyParser(name: string, parser: (key: string) => string): void {
-  // Deprecated: Use getVueParserConfig() with custom keyParsers
-}
-
-export function unregisterVueJsonKeyParser(name: string): void {
-  // Deprecated
-}
-
-export function clearVueJsonKeyParsers(): void {
-  // Deprecated
 }
 
 export { toPascalCase, isValidVariableName };

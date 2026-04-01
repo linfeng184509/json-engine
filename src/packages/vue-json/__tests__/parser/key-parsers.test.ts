@@ -1,23 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
-  registerDefaultKeyParsers,
-  unregisterDefaultKeyParsers,
-  registerVueJsonKeyParser,
-  unregisterVueJsonKeyParser,
-  clearVueJsonKeyParsers,
+  getVueKeyParsers,
   toPascalCase,
   isValidVariableName,
 } from '../../src/parser/key-parsers';
 
 describe('key-parsers', () => {
-  beforeEach(() => {
-    clearVueJsonKeyParsers();
-  });
-
-  afterEach(() => {
-    clearVueJsonKeyParsers();
-  });
-
   describe('toPascalCase', () => {
     it('should convert kebab-case to PascalCase', () => {
       expect(toPascalCase('my-component')).toBe('MyComponent');
@@ -57,41 +45,23 @@ describe('key-parsers', () => {
     });
   });
 
-  describe('registerDefaultKeyParsers', () => {
-    it('should register default parsers without error', () => {
-      expect(() => registerDefaultKeyParsers()).not.toThrow();
+  describe('getVueKeyParsers', () => {
+    it('should return key parsers registry', () => {
+      const parsers = getVueKeyParsers();
+      expect(parsers).toBeDefined();
+      expect(typeof parsers.componentName).toBe('function');
+      expect(typeof parsers.stateKey).toBe('function');
     });
 
-    it('should allow unregistering default parsers', () => {
-      registerDefaultKeyParsers();
-      expect(() => unregisterDefaultKeyParsers()).not.toThrow();
-    });
-  });
-
-  describe('registerVueJsonKeyParser', () => {
-    it('should register custom parser', () => {
-      const customParser = (key: string) => key.toUpperCase();
-      expect(() => registerVueJsonKeyParser('uppercase', customParser)).not.toThrow();
+    it('should transform component names', () => {
+      const parsers = getVueKeyParsers();
+      expect(parsers.componentName('my-button')).toBe('MyButton');
     });
 
-    it('should allow unregistering custom parser', () => {
-      const customParser = (key: string) => key.toUpperCase();
-      registerVueJsonKeyParser('uppercase', customParser);
-      expect(() => unregisterVueJsonKeyParser('uppercase')).not.toThrow();
-    });
-
-    it('should allow re-registering with same name', () => {
-      const parser1 = (key: string) => key.toUpperCase();
-      const parser2 = (key: string) => key.toLowerCase();
-      registerVueJsonKeyParser('transform', parser1);
-      expect(() => registerVueJsonKeyParser('transform', parser2)).not.toThrow();
-    });
-  });
-
-  describe('clearVueJsonKeyParsers', () => {
-    it('should clear all parsers without error', () => {
-      registerVueJsonKeyParser('test', (key) => key);
-      expect(() => clearVueJsonKeyParsers()).not.toThrow();
+    it('should validate state keys', () => {
+      const parsers = getVueKeyParsers();
+      expect(parsers.stateKey('count')).toBe('count');
+      expect(() => parsers.stateKey('123invalid')).toThrow();
     });
   });
 });

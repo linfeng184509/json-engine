@@ -27,16 +27,9 @@ export type {
 export { getPluginRegistry, PluginRegistry, loadAndInstallPlugins } from './plugin';
 
 // Parser
-export { parseSchema } from './parser';
-export {
-  registerDefaultKeyParsers,
-  unregisterDefaultKeyParsers,
-  registerVueJsonKeyParser,
-  unregisterVueJsonKeyParser,
-  clearVueJsonKeyParsers,
-  toPascalCase,
-  isValidVariableName,
-} from './parser/key-parsers';
+export { parseSchema, getVueKeyParsers, toPascalCase, isValidVariableName } from './parser';
+export { vueParserConfig, createParserConfig } from './config/vue-parser-config';
+export type { ParserConfig, ParserOptions } from './config/vue-parser-config';
 
 // Runtime
 export {
