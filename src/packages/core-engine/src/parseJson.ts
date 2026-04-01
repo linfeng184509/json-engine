@@ -29,7 +29,8 @@ type ParseCallback = (path: string, key: string, value: unknown) => void;
 
 function parseValueByType(
   value: unknown,
-  config: ParserConfig
+  config: ParserConfig,
+  path?: string
 ): unknown {
   if (value === null || value === undefined) {
     return value;
@@ -51,6 +52,12 @@ function parseValueByType(
     typeof valueObj.variable === 'string'
   ) {
     const result = ValueScopeParser({ type: 'scope', body: `{{$_[${valueObj.scope}]_${valueObj.variable}}}` }, config.scopeRegex);
+    if (!result.success) {
+      if (config.onError) {
+        return config.onError(path ?? '', result.error);
+      }
+      throw new Error(result.error.message);
+    }
     return result.data;
   }
 
@@ -61,6 +68,12 @@ function parseValueByType(
   ) {
     const body = `{{ref_${valueObj.prefix}_${valueObj.variable}${valueObj.path ? '.' + valueObj.path : ''}}}`;
     const result = ValueReferenceParser({ type: 'reference', body }, config.referenceRegex);
+    if (!result.success) {
+      if (config.onError) {
+        return config.onError(path ?? '', result.error);
+      }
+      throw new Error(result.error.message);
+    }
     return result.data;
   }
 
@@ -75,6 +88,12 @@ function parseValueByType(
       body: String(valueObj.body || ''),
     };
     const result: ParseResult<FunctionParseData> = ValueFunctionParser(functionBody);
+    if (!result.success) {
+      if (config.onError) {
+        return config.onError(path ?? '', result.error);
+      }
+      throw new Error(result.error.message);
+    }
     return result.data;
   }
 
@@ -95,18 +114,42 @@ function parseValueByType(
           config.innerReferenceRegex,
           config.innerScopeRegex
         );
+        if (!result.success) {
+          if (config.onError) {
+            return config.onError(path ?? '', result.error);
+          }
+          throw new Error(result.error.message);
+        }
         return result.data;
       }
       case 'string': {
         const result: ParseResult<StringParseData> = ValueConstraintParser(valueBody);
+        if (!result.success) {
+          if (config.onError) {
+            return config.onError(path ?? '', result.error);
+          }
+          throw new Error(result.error.message);
+        }
         return result.data;
       }
       case 'scope': {
         const result: ParseResult<AbstractScopeParseData> = ValueScopeParser(valueBody, config.scopeRegex);
+        if (!result.success) {
+          if (config.onError) {
+            return config.onError(path ?? '', result.error);
+          }
+          throw new Error(result.error.message);
+        }
         return result.data;
       }
       case 'reference': {
         const result: ParseResult<AbstractReferenceParseData> = ValueReferenceParser(valueBody, config.referenceRegex);
+        if (!result.success) {
+          if (config.onError) {
+            return config.onError(path ?? '', result.error);
+          }
+          throw new Error(result.error.message);
+        }
         return result.data;
       }
       case 'expression': {
@@ -117,6 +160,12 @@ function parseValueByType(
           config.innerReferenceRegex,
           config.innerScopeRegex
         );
+        if (!result.success) {
+          if (config.onError) {
+            return config.onError(path ?? '', result.error);
+          }
+          throw new Error(result.error.message);
+        }
         return result.data;
       }
       default:
@@ -161,8 +210,26 @@ function walkJson(data: unknown, config: ParserConfig, path: string): unknown {
     const parsedArray: unknown[] = [];
     for (let i = 0; i < data.length; i++) {
       const itemPath = `${path}[${i}]`;
-      const parsedValue = parseValueByType(data[i], config);
-      const parsedItem = walkJson(parsedValue, config, itemPath);
+      let item = data[i];
+
+      if (config.hooks?.beforeParse) {
+        const hookResult = config.hooks.beforeParse(itemPath, item);
+        if (hookResult !== undefined) {
+          item = hookResult;
+        }
+      }
+
+      const parsedValue = parseValueByType(item, config);
+      let parsedItem = walkJson(parsedValue, config, itemPath);
+
+      if (config.hooks?.transformResult) {
+        parsedItem = config.hooks.transformResult(itemPath, parsedItem);
+      }
+
+      if (config.hooks?.afterParse) {
+        config.hooks.afterParse(itemPath, data[i], parsedItem);
+      }
+
       parsedArray.push(parsedItem);
     }
     return parsedArray;
@@ -176,8 +243,25 @@ function walkJson(data: unknown, config: ParserConfig, path: string): unknown {
   for (const [key, value] of Object.entries(obj)) {
     const parsedKey = parseKey(key, mergedRegistry);
     const keyPath = path ? `${path}.${key}` : key;
-    const parsedValue = parseValueByType(value, config);
-    const finalValue = walkJson(parsedValue, config, keyPath);
+    let currentValue = value;
+
+    if (config.hooks?.beforeParse) {
+      const hookResult = config.hooks.beforeParse(keyPath, currentValue);
+      if (hookResult !== undefined) {
+        currentValue = hookResult;
+      }
+    }
+
+    const parsedValue = parseValueByType(currentValue, config);
+    let finalValue = walkJson(parsedValue, config, keyPath);
+
+    if (config.hooks?.transformResult) {
+      finalValue = config.hooks.transformResult(keyPath, finalValue);
+    }
+
+    if (config.hooks?.afterParse) {
+      config.hooks.afterParse(keyPath, currentValue, finalValue);
+    }
 
     parsedObj[parsedKey] = finalValue;
 

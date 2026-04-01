@@ -5,6 +5,7 @@ export type {
   ValueBody,
   ValueBodyType,
   ParseResult,
+  ParseError,
   ObjectParseData,
   ObjectParseResult,
   AbstractScopeParseData,
@@ -17,6 +18,7 @@ export type {
 
 export {
   createError,
+  createTypeGuard,
   parseNestedReference,
   ValueObjectParser,
   ValueConstraintParser,
@@ -50,6 +52,45 @@ export type {
   ValueParserFn,
   ValueParserRegistry,
   ParseCallback,
+  ParseError as ConfigParseError,
+  ErrorCallback,
+  ParserHooks,
+  CacheOptions,
   ParserOptions,
   ParserConfig,
 } from './config-factory';
+
+export {
+  ParserCache,
+  createParserCache,
+} from './cache';
+
+export type {
+  CacheOptions as CacheConfigOptions,
+  CacheEntry,
+} from './cache';
+
+export {
+  DebugTracer,
+  createDebugTracer,
+} from './debug';
+
+export type {
+  ParseTrace,
+  TraceContext,
+  LogLevel,
+  DebugOptions,
+} from './debug';
+
+export {
+  validateSchema,
+  createSchemaValidator,
+  createJsonSchema,
+} from './schema-validator';
+
+export type {
+  SchemaType,
+  JsonSchema,
+  ValidationError,
+  ValidationResult,
+} from './schema-validator';

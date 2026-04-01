@@ -11,11 +11,17 @@ interface ValueBody {
   body: string;
 }
 
-interface ParseResult<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
+interface ParseError {
+  code: string;
+  parser: string;
+  message: string;
+  expected: string;
+  received: string;
 }
+
+type ParseResult<T> =
+  | { success: true; data: T; error?: never }
+  | { success: false; data?: never; error: ParseError };
 
 interface ObjectParseData {
   key: string;
@@ -64,8 +70,14 @@ const FUNCTION_BODY_REGEX = /^\{\{([\s\S]*)\}\}$/;
 const OBJECT_REGEX = /^\{\{\{([\s\S]*)\}\}\}$/;
 const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
 
-function createError(parserName: string, reason: string, example: string): Error {
-  return new Error(`[${parserName}] 验证失败: ${reason}。期望格式: ${example}`);
+function createError(parserName: string, reason: string, example: string): ParseError {
+  return {
+    code: 'PARSE_ERROR',
+    parser: parserName,
+    message: `[${parserName}] 验证失败: ${reason}。期望格式: ${example}`,
+    expected: example,
+    received: reason,
+  };
 }
 
 function parseNestedReference(
@@ -202,12 +214,18 @@ const ValueObjectParser = (
   innerScopeRegex: RegExp
 ): ParseResult<ObjectParseResult> => {
   if (value.type !== 'object') {
-    throw createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{ key: value, ... }}}');
+    return {
+      success: false,
+      error: createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{ key: value, ... }}}'),
+    };
   }
 
   const match = value.body.match(OBJECT_REGEX);
   if (!match) {
-    throw createError('ValueObjectParser', `body 格式不正确: "${value.body}"`, '{{{ key: value, ... }}}');
+    return {
+      success: false,
+      error: createError('ValueObjectParser', `body 格式不正确: "${value.body}"`, '{{{ key: value, ... }}}'),
+    };
   }
 
   const content = match[1].trim();
@@ -245,7 +263,10 @@ const ValueObjectParser = (
 
       parsed = JSON.parse(`{${processedContent}}`);
     } catch (e) {
-      throw createError('ValueObjectParser', `无法解析对象内容: ${e instanceof Error ? e.message : String(e)}`, '{{{ key: value, ... }}}');
+      return {
+        success: false,
+        error: createError('ValueObjectParser', `无法解析对象内容: ${e instanceof Error ? e.message : String(e)}`, '{{{ key: value, ... }}}'),
+      };
     }
   }
 
@@ -259,12 +280,18 @@ const ValueObjectParser = (
 
 const ValueConstraintParser = (value: ValueBody): ParseResult<StringParseData> => {
   if (value.type !== 'string') {
-    throw createError('ValueConstraintParser', `type 必须为 "string"，实际为 "${value.type}"`, "'字符串内容'");
+    return {
+      success: false,
+      error: createError('ValueConstraintParser', `type 必须为 "string"，实际为 "${value.type}"`, "'字符串内容'"),
+    };
   }
 
   const match = value.body.match(STRING_REGEX);
   if (!match) {
-    throw createError('ValueConstraintParser', `body 必须被单引号包裹: "${value.body}"`, "'字符串内容'");
+    return {
+      success: false,
+      error: createError('ValueConstraintParser', `body 必须被单引号包裹: "${value.body}"`, "'字符串内容'"),
+    };
   }
 
   return {
@@ -278,12 +305,18 @@ const ValueScopeParser = (
   scopeRegex: RegExp
 ): ParseResult<AbstractScopeParseData> => {
   if (value.type !== 'scope') {
-    throw createError('ValueScopeParser', `type 必须为 "scope"，实际为 "${value.type}"`, '{{$_[*]_变量名}}');
+    return {
+      success: false,
+      error: createError('ValueScopeParser', `type 必须为 "scope"，实际为 "${value.type}"`, '{{$_[*]_变量名}}'),
+    };
   }
 
   const match = value.body.match(scopeRegex);
   if (!match) {
-    throw createError('ValueScopeParser', `body 格式不正确: "${value.body}"`, '{{$_[*]_变量名}}');
+    return {
+      success: false,
+      error: createError('ValueScopeParser', `body 格式不正确: "${value.body}"`, '{{$_[*]_变量名}}'),
+    };
   }
 
   return {
@@ -297,12 +330,18 @@ const ValueReferenceParser = (
   referenceRegex: RegExp
 ): ParseResult<AbstractReferenceParseData> => {
   if (value.type !== 'reference') {
-    throw createError('ValueReferenceParser', `type 必须为 "reference"，实际为 "${value.type}"`, '{{ref_*_变量名}}');
+    return {
+      success: false,
+      error: createError('ValueReferenceParser', `type 必须为 "reference"，实际为 "${value.type}"`, '{{ref_*_变量名}}'),
+    };
   }
 
   const match = value.body.match(referenceRegex);
   if (!match) {
-    throw createError('ValueReferenceParser', `body 格式不正确: "${value.body}"`, '{{ref_*_变量名}}');
+    return {
+      success: false,
+      error: createError('ValueReferenceParser', `body 格式不正确: "${value.body}"`, '{{ref_*_变量名}}'),
+    };
   }
 
   const fullPath = match[2];
@@ -332,12 +371,18 @@ const ValueExpressionParser = (
   innerScopeRegex: RegExp
 ): ParseResult<ExpressionParseData> => {
   if (value.type !== 'expression') {
-    throw createError('ValueExpressionParser', `type 必须为 "expression"，实际为 "${value.type}"`, '{{ 表达式 }}');
+    return {
+      success: false,
+      error: createError('ValueExpressionParser', `type 必须为 "expression"，实际为 "${value.type}"`, '{{ 表达式 }}'),
+    };
   }
 
   const match = value.body.match(EXPRESSION_REGEX);
   if (!match) {
-    throw createError('ValueExpressionParser', `body 格式不正确: "${value.body}"`, '{{ 表达式 }}');
+    return {
+      success: false,
+      error: createError('ValueExpressionParser', `body 格式不正确: "${value.body}"`, '{{ 表达式 }}'),
+    };
   }
 
   const trimmedExpression = match[1].trim();
@@ -357,17 +402,26 @@ const ValueExpressionParser = (
 
 const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData> => {
   if (value.type !== 'function') {
-    throw createError('ValueFunctionParser', `type 必须为 "function"，实际为 "${value.type}"`, '{{{参数对象}}}, {{函数体}}');
+    return {
+      success: false,
+      error: createError('ValueFunctionParser', `type 必须为 "function"，实际为 "${value.type}"`, '{{{参数对象}}}, {{函数体}}'),
+    };
   }
 
   const paramsMatch = value.params.match(FUNCTION_PARAMS_REGEX);
   if (!paramsMatch) {
-    throw createError('ValueFunctionParser', `params 格式不正确，期望三花括号: "${value.params}"`, '{{{参数对象}}}');
+    return {
+      success: false,
+      error: createError('ValueFunctionParser', `params 格式不正确，期望三花括号: "${value.params}"`, '{{{参数对象}}}'),
+    };
   }
 
   const bodyMatch = value.body.match(FUNCTION_BODY_REGEX);
   if (!bodyMatch) {
-    throw createError('ValueFunctionParser', `body 格式不正确，期望双花括号: "${value.body}"`, '{{函数体}}');
+    return {
+      success: false,
+      error: createError('ValueFunctionParser', `body 格式不正确，期望双花括号: "${value.body}"`, '{{函数体}}'),
+    };
   }
 
   let parsedParams: Record<string, unknown>;
@@ -379,7 +433,10 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
     try {
       parsedParams = JSON.parse(paramsContent);
     } catch {
-      throw createError('ValueFunctionParser', `params JSON 解析失败: "${paramsContent}"`, '{{{ "key": "value" }}}');
+      return {
+        success: false,
+        error: createError('ValueFunctionParser', `params JSON 解析失败: "${paramsContent}"`, '{{{ "key": "value" }}}'),
+      };
     }
   }
 
@@ -389,38 +446,25 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
   };
 };
 
-function isScopeParseData(value: unknown): value is AbstractScopeParseData {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)._type === 'scope';
+function createTypeGuard<T extends { _type: string }>(
+  type: T['_type']
+): (value: unknown) => value is T {
+  return (value: unknown): value is T => {
+    if (typeof value !== 'object' || value === null) return false;
+    return (value as Record<string, unknown>)._type === type;
+  };
 }
 
-function isReferenceParseData(value: unknown): value is AbstractReferenceParseData {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)._type === 'reference';
-}
-
-function isExpressionParseData(value: unknown): value is ExpressionParseData {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)._type === 'expression';
-}
-
-function isFunctionParseData(value: unknown): value is FunctionParseData {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)._type === 'function';
-}
-
-function isStringParseData(value: unknown): value is StringParseData {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)._type === 'string';
-}
-
-function isObjectParseResult(value: unknown): value is ObjectParseResult {
-  if (typeof value !== 'object' || value === null) return false;
-  return (value as Record<string, unknown>)._type === 'object';
-}
+const isScopeParseData = createTypeGuard<AbstractScopeParseData>('scope');
+const isReferenceParseData = createTypeGuard<AbstractReferenceParseData>('reference');
+const isExpressionParseData = createTypeGuard<ExpressionParseData>('expression');
+const isFunctionParseData = createTypeGuard<FunctionParseData>('function');
+const isStringParseData = createTypeGuard<StringParseData>('string');
+const isObjectParseResult = createTypeGuard<ObjectParseResult>('object');
 
 export {
   createError,
+  createTypeGuard,
   parseNestedReference,
   ValueObjectParser,
   ValueConstraintParser,
@@ -441,6 +485,7 @@ export type {
   ValueBody,
   ValueBodyType,
   ParseResult,
+  ParseError,
   ObjectParseData,
   ObjectParseResult,
   AbstractScopeParseData,

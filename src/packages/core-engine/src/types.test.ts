@@ -199,23 +199,32 @@ describe('ValueObjectParser', () => {
     expect(result.data?.value).toEqual({ padding: '24px', margin: 16 });
   });
 
-  it('should throw error when type is not object', () => {
+  it('should return error when type is not object', () => {
     const input: ValueBody = { type: 'string', body: '{{{ "key": "value" }}}' };
-    expect(() => ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow(
-      '[ValueObjectParser] 验证失败: type 必须为 "object"，实际为 "string"。期望格式: {{{ key: value, ... }}}'
-    );
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueObjectParser] 验证失败: type 必须为 "object"，实际为 "string"。期望格式: {{{ key: value, ... }}}'
+      );
+    }
   });
 
-  it('should throw error when body format is invalid', () => {
+  it('should return error when body format is invalid', () => {
     const input: ValueBody = { type: 'object', body: 'invalid format' };
-    expect(() => ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow(
-      '[ValueObjectParser] 验证失败: body 格式不正确: "invalid format"。期望格式: {{{ key: value, ... }}}'
-    );
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueObjectParser] 验证失败: body 格式不正确: "invalid format"。期望格式: {{{ key: value, ... }}}'
+      );
+    }
   });
 
-  it('should throw error when JSON is malformed', () => {
+  it('should return error when JSON is malformed', () => {
     const input: ValueBody = { type: 'object', body: '{{{ "key": "value", "broken": } }}' };
-    expect(() => ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow();
+    const result = ValueObjectParser(input, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(false);
   });
 });
 
@@ -235,18 +244,26 @@ describe('ValueConstraintParser', () => {
     expect(result.data?.value).toBe('');
   });
 
-  it('should throw error with correct message when type is not string', () => {
+  it('should return error when type is not string', () => {
     const input: ValueBody = { type: 'object', body: "'hello'" };
-    expect(() => ValueConstraintParser(input)).toThrow(
-      '[ValueConstraintParser] 验证失败: type 必须为 "string"，实际为 "object"。期望格式: \'字符串内容\''
-    );
+    const result = ValueConstraintParser(input);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        "[ValueConstraintParser] 验证失败: type 必须为 \"string\"，实际为 \"object\"。期望格式: '字符串内容'"
+      );
+    }
   });
 
-  it('should throw error with correct message when body is not quoted', () => {
+  it('should return error when body is not quoted', () => {
     const input: ValueBody = { type: 'string', body: 'hello' };
-    expect(() => ValueConstraintParser(input)).toThrow(
-      '[ValueConstraintParser] 验证失败: body 必须被单引号包裹: "hello"。期望格式: \'字符串内容\''
-    );
+    const result = ValueConstraintParser(input);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        "[ValueConstraintParser] 验证失败: body 必须被单引号包裹: \"hello\"。期望格式: '字符串内容'"
+      );
+    }
   });
 });
 
@@ -268,19 +285,27 @@ describe('ValueScopeParser', () => {
     expect(result.data?.variable).toBe('varName');
   });
 
-  it('should throw error with correct message when scope is not in configured list', () => {
+  it('should return error when scope is not in configured list', () => {
     const customScopeRegex = createScopeRegex(['custom']);
     const input: ValueBody = { type: 'scope', body: '{{$_other_varName}}' };
-    expect(() => ValueScopeParser(input, customScopeRegex)).toThrow(
-      '[ValueScopeParser] 验证失败: body 格式不正确: "{{$_other_varName}}"。期望格式: {{$_[*]_变量名}}'
-    );
+    const result = ValueScopeParser(input, customScopeRegex);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueScopeParser] 验证失败: body 格式不正确: "{{$_other_varName}}"。期望格式: {{$_[*]_变量名}}'
+      );
+    }
   });
 
-  it('should throw error with correct message when body format is invalid', () => {
+  it('should return error when body format is invalid', () => {
     const input: ValueBody = { type: 'scope', body: 'invalid' };
-    expect(() => ValueScopeParser(input, DEFAULT_SCOPE_REGEX)).toThrow(
-      '[ValueScopeParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{$_[*]_变量名}}'
-    );
+    const result = ValueScopeParser(input, DEFAULT_SCOPE_REGEX);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueScopeParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{$_[*]_变量名}}'
+      );
+    }
   });
 });
 
@@ -311,18 +336,26 @@ describe('ValueReferenceParser', () => {
     expect(result.data?.path).toBe('name');
   });
 
-  it('should throw error with correct message when body format is invalid', () => {
+  it('should return error when body format is invalid', () => {
     const input: ValueBody = { type: 'reference', body: 'invalid' };
-    expect(() => ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX)).toThrow(
-      '[ValueReferenceParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{ref_*_变量名}}'
-    );
+    const result = ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueReferenceParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{ref_*_变量名}}'
+      );
+    }
   });
 
-  it('should throw error with correct message when type is not reference', () => {
+  it('should return error when type is not reference', () => {
     const input: ValueBody = { type: 'string', body: '{{ref_state_count}}' };
-    expect(() => ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX)).toThrow(
-      '[ValueReferenceParser] 验证失败: type 必须为 "reference"，实际为 "string"。期望格式: {{ref_*_变量名}}'
-    );
+    const result = ValueReferenceParser(input, DEFAULT_REFERENCE_REGEX);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueReferenceParser] 验证失败: type 必须为 "reference"，实际为 "string"。期望格式: {{ref_*_变量名}}'
+      );
+    }
   });
 });
 
@@ -370,18 +403,26 @@ describe('ValueExpressionParser', () => {
     expect(result.data?.expression).toBe('a + {{ref_props_x}}');
   });
 
-  it('should throw error with correct message when body format is invalid', () => {
+  it('should return error when body format is invalid', () => {
     const input: ValueBody = { type: 'expression', body: 'invalid' };
-    expect(() => ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow(
-      '[ValueExpressionParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{ 表达式 }}'
-    );
+    const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueExpressionParser] 验证失败: body 格式不正确: "invalid"。期望格式: {{ 表达式 }}'
+      );
+    }
   });
 
-  it('should throw error with correct message when type is not expression', () => {
+  it('should return error when type is not expression', () => {
     const input: ValueBody = { type: 'string', body: '{{a + b}}' };
-    expect(() => ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX)).toThrow(
-      '[ValueExpressionParser] 验证失败: type 必须为 "expression"，实际为 "string"。期望格式: {{ 表达式 }}'
-    );
+    const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueExpressionParser] 验证失败: type 必须为 "expression"，实际为 "string"。期望格式: {{ 表达式 }}'
+      );
+    }
   });
 });
 
@@ -418,32 +459,48 @@ describe('ValueFunctionParser', () => {
     expect(result.data?.params).toEqual({ user: { id: 1, name: 'test' } });
   });
 
-  it('should throw error with correct message when params is not triple braces', () => {
+  it('should return error when params is not triple braces', () => {
     const input: FunctionBody = { type: 'function', params: '{{"x": 123}}', body: '{{return x}}' };
-    expect(() => ValueFunctionParser(input)).toThrow(
-      '[ValueFunctionParser] 验证失败: params 格式不正确，期望三花括号: "{{\"x\": 123}}"。期望格式: {{{参数对象}}}'
-    );
+    const result = ValueFunctionParser(input);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueFunctionParser] 验证失败: params 格式不正确，期望三花括号: "{{"x": 123}}"。期望格式: {{{参数对象}}}'
+      );
+    }
   });
 
-  it('should throw error with correct message when body is not double braces', () => {
+  it('should return error when body is not double braces', () => {
     const input: FunctionBody = { type: 'function', params: '{{{ "x": 123 }}}', body: 'return x' };
-    expect(() => ValueFunctionParser(input)).toThrow(
-      '[ValueFunctionParser] 验证失败: body 格式不正确，期望双花括号: "return x"。期望格式: {{函数体}}'
-    );
+    const result = ValueFunctionParser(input);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueFunctionParser] 验证失败: body 格式不正确，期望双花括号: "return x"。期望格式: {{函数体}}'
+      );
+    }
   });
 
-  it('should throw error with correct message when params JSON is invalid', () => {
+  it('should return error when params JSON is invalid', () => {
     const input: FunctionBody = { type: 'function', params: '{{{invalid json}}}', body: '{{return x}}' };
-    expect(() => ValueFunctionParser(input)).toThrow(
-      '[ValueFunctionParser] 验证失败: params JSON 解析失败: "invalid json"。期望格式: {{{ "key": "value" }}}'
-    );
+    const result = ValueFunctionParser(input);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueFunctionParser] 验证失败: params JSON 解析失败: "invalid json"。期望格式: {{{ "key": "value" }}}'
+      );
+    }
   });
 
-  it('should throw error with correct message when type is not function', () => {
+  it('should return error when type is not function', () => {
     const input = { type: 'string', params: '{{{ "x": 1 }}}', body: '{{return x}}' } as unknown as FunctionBody;
-    expect(() => ValueFunctionParser(input)).toThrow(
-      '[ValueFunctionParser] 验证失败: type 必须为 "function"，实际为 "string"。期望格式: {{{参数对象}}}, {{函数体}}'
-    );
+    const result = ValueFunctionParser(input);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        '[ValueFunctionParser] 验证失败: type 必须为 "function"，实际为 "string"。期望格式: {{{参数对象}}}, {{函数体}}'
+      );
+    }
   });
 });
 

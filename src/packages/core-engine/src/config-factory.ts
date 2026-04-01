@@ -19,12 +19,38 @@ interface ValueParserRegistry {
 
 type ParseCallback = (path: string, key: string, value: unknown) => void;
 
+interface ParseError {
+  code: string;
+  parser: string;
+  message: string;
+  expected: string;
+  received: string;
+}
+
+type ErrorCallback = (path: string, error: ParseError) => unknown;
+
+interface ParserHooks {
+  beforeParse?: (path: string, value: unknown) => unknown | void;
+  afterParse?: (path: string, original: unknown, parsed: unknown) => void;
+  onError?: (path: string, error: ParseError) => unknown | void;
+  transformResult?: (path: string, result: unknown) => unknown;
+}
+
+interface CacheOptions {
+  enabled: boolean;
+  maxSize?: number;
+  ttl?: number;
+}
+
 interface ParserOptions {
   referencePrefixes?: string[];
   scopeNames?: string[];
   valueParsers?: ValueParserRegistry;
   keyParsers?: KeyParserRegistry;
   onParsed?: ParseCallback;
+  onError?: ErrorCallback;
+  hooks?: ParserHooks;
+  cache?: CacheOptions;
 }
 
 interface ParserConfig {
@@ -37,6 +63,9 @@ interface ParserConfig {
   valueParsers: ValueParserRegistry;
   keyParsers: KeyParserRegistry;
   onParsed?: ParseCallback;
+  onError?: ErrorCallback;
+  hooks?: ParserHooks;
+  cache?: CacheOptions;
 }
 
 const DEFAULT_REFERENCE_PREFIXES = ['props', 'state', 'computed'];
@@ -56,6 +85,9 @@ function createParserConfig(options: ParserOptions = {}): ParserConfig {
     valueParsers: options.valueParsers ?? {},
     keyParsers: options.keyParsers ?? {},
     onParsed: options.onParsed,
+    onError: options.onError,
+    hooks: options.hooks,
+    cache: options.cache,
   };
 }
 
@@ -69,6 +101,10 @@ export type {
   ValueParserFn,
   ValueParserRegistry,
   ParseCallback,
+  ParseError,
+  ErrorCallback,
+  ParserHooks,
+  CacheOptions,
   ParserOptions,
   ParserConfig,
 };
