@@ -563,7 +563,7 @@
                "type": "expression",
                "body": "{{ref_state_modalTitle}}"
              },
-            "visible": {
+            "open": {
               "type": "expression",
               "body": "{{ref_state_modalVisible}}"
             },
@@ -742,7 +742,7 @@
               "type": "string",
               "body": "'确认删除'"
             },
-            "visible": {
+            "open": {
               "type": "expression",
               "body": "{{ref_state_deleteModalVisible}}"
             },

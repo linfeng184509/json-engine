@@ -157,6 +157,11 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
     return valueRecord.value;
   }
 
+  if (isFunctionParseData(value)) {
+    const fnValue = value as FunctionValue;
+    return (...args: unknown[]) => executeFunction(fnValue, context, args);
+  }
+
   return value;
 }
 
