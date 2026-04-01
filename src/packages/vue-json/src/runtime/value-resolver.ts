@@ -311,6 +311,7 @@ export function transformFunctionBody(body: string, stateTypes: Record<string, s
   }
   
   return result
+    .replace(/\$event/g, 'args[0]')
     .replace(/\bref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
       const parts = path.split('.');
       const varName = parts[0];
@@ -349,6 +350,19 @@ function parseFunctionParams(params: Record<string, unknown> | string): string[]
     let cleaned = params.trim();
     if (cleaned.startsWith('{{{') && cleaned.endsWith('}}}')) {
       cleaned = cleaned.slice(3, -3).trim();
+    }
+    // Handle {{ }} wrapped object format
+    if (cleaned.startsWith('{{') && cleaned.endsWith('}}')) {
+      cleaned = cleaned.slice(2, -2).trim();
+      // Try to parse as JSON object
+      try {
+        const parsed = JSON.parse(cleaned);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return Object.keys(parsed);
+        }
+      } catch {
+        // Not JSON, continue with comma split
+      }
     }
     if (!cleaned) return [];
     return cleaned.split(',').map(p => p.trim()).filter(p => p);

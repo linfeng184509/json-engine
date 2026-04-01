@@ -40,26 +40,26 @@
     },
     "onSelect": {
       "type": "function",
-      "params": "{{ {keys: []} }}",
-      "body": "var key=keys[0]; if(!key){ref_state_selectedKey=null; ref_state_selectedNode=null; return} ref_state_selectedKey=key; var node=methods.findNode(ref_state_treeData,key); ref_state_selectedNode=node; if(node&&node.type==='field'){ref_state_editForm.code=node.code; ref_state_editForm.name=node.name; ref_state_editForm.read=node.permissions?.read??true; ref_state_editForm.write=node.permissions?.write??true; ref_state_editForm.hidden=node.permissions?.hidden??false; ref_state_editForm.privacy=node.permissions?.privacy??false} else if(node){ref_state_editForm.code=node.code; ref_state_editForm.name=node.name}",
+      "params": "{{{}}}",
+      "body": "{{var key=$event&&$event[0]; if(!key){ref_state_selectedKey=null; ref_state_selectedNode=null; return} ref_state_selectedKey=key; var node=methods.findNode(ref_state_treeData,key); ref_state_selectedNode=node; if(node&&node.type==='field'){ref_state_editForm.code=node.code; ref_state_editForm.name=node.name; ref_state_editForm.read=node.permissions?.read??true; ref_state_editForm.write=node.permissions?.write??true; ref_state_editForm.hidden=node.permissions?.hidden??false; ref_state_editForm.privacy=node.permissions?.privacy??false} else if(node){ref_state_editForm.code=node.code; ref_state_editForm.name=node.name}}}",
       "cached": false
     },
     "findNode": {
       "type": "function",
-      "params": "{{ {nodes: [], key: ''} }}",
-      "body": "for(var i=0;i<nodes.length;i++){var n=nodes[i]; if(n.key===key)return n; if(n.children){var f=methods.findNode(n.children,key); if(f)return f}} return null",
+      "params": "{{{}}}",
+      "body": "{{var nodes=args[0];var key=args[1];for(var i=0;i<nodes.length;i++){var n=nodes[i]; if(n.key===key)return n; if(n.children){var f=methods.findNode(n.children,key); if(f)return f}} return null}}",
       "cached": false
     },
     "onExpand": {
       "type": "function",
-      "params": "{{ {keys: []} }}",
-      "body": "ref_state_expandedKeys=keys",
+      "params": "{{{}}}",
+      "body": "{{ref_state_expandedKeys=$event}}",
       "cached": false
     },
     "getNodeTypeText": {
       "type": "function",
-      "params": "{{ {type: ''} }}",
-      "body": "var map={'platform':'平台','menu':'菜单','page':'页面','feature':'功能','form':'表单','field':'字段'}; return map[type]||type",
+      "params": "{{{}}}",
+      "body": "{{var type=args[0];var map={'platform':'平台','menu':'菜单','page':'页面','feature':'功能','form':'表单','field':'字段'};return map[type]||type}}",
       "cached": false
     }
   },
@@ -149,38 +149,31 @@
                   "children": [{"type": "ASpin"}]
                 },
                 {
-                  "type": "ACollapse",
+                  "type": "ATree",
                   "props": {
-                    "accordion": true,
-                    "style": {
+                    "treeData": {
+                      "type": "expression",
+                      "body": "ref_state_treeData"
+                    },
+                    "selectedKeys": {
+                      "type": "expression",
+                      "body": "[ref_state_selectedKey]"
+                    },
+                    "blockNode": true,
+                    "showLine": {
                       "type": "string",
-                      "body": "'width: 100%'"
+                      "body": "true"
                     }
                   },
-                  "children": [
-                    {
-                      "type": "ACollapsePanel",
-                      "props": {
-                        "key": "p1",
-                        "header": {
-                          "type": "string",
-                          "body": "'企业管理平台 (平台)'"
-                        }
-                      },
-                      "children": ["Dashboard > 用户管理 展开查看..."]
-                    },
-                    {
-                      "type": "ACollapsePanel",
-                      "props": {
-                        "key": "m2",
-                        "header": {
-                          "type": "string",
-                          "body": "'系统管理 (菜单)'"
-                        }
-                      },
-                      "children": ["用户管理 (页面) > 用户表单 (功能) > 基本信息 (表单)"]
+                  "directives": {
+                    "vOn": {
+                      "select": {
+                        "type": "function",
+                        "params": "{{{}}}",
+                        "body": "{{methods.onSelect($event)}}"
+                      }
                     }
-                  ]
+                  }
                 }
               ]
             },
