@@ -477,7 +477,7 @@
           "type": "a-input-search",
           "props": {
             "placeholder": "Search users",
-            "style": { "width": "200px", "marginBottom": "16px" }
+            "style": { "type": "object", "body": "{{{ \"width\": \"200px\", \"marginBottom\": \"16px\" }}}" }
           },
           "directives": {
             "vOn": { "search": { "_type": "function", "params": { "value": "" }, "body": "methods.handleSearch(value)" } }

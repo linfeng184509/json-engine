@@ -203,7 +203,7 @@
     "content": {
       "type": "div",
       "props": {
-        "style": { "padding": "24px" }
+        "style": { "type": "object", "body": "{{{ \"padding\": \"24px\" }}}" }
       },
       "children": [
         {
@@ -349,7 +349,7 @@
                 "title": {
                   "type": "string", "body": "'配置详情'"
                 },
-                "style": { "flex": "1" }
+                "style": { "type": "object", "body": "{{{ \"flex\": \"1\" }}}" }
               },
               "children": [
                 {
@@ -379,7 +379,7 @@
                     {
                       "type": "div",
                       "props": {
-                        "style": { "marginBottom": "16px" }
+                        "style": { "type": "object", "body": "{{{ \"marginBottom\": \"16px\" }}}" }
                       },
                       "children": [
                         {
@@ -404,7 +404,7 @@
                             {
                               "type": "span",
                               "props": {
-                                "style": { "fontWeight": "500" }
+                                "style": { "type": "object", "body": "{{{ \"fontWeight\": \"500\" }}}" }
                               },
                               "children": [
                                 {
@@ -471,7 +471,7 @@
                                 }
                               },
                               "props": {
-                                "style": { "marginBottom": "16px" }
+                                "style": { "type": "object", "body": "{{{ \"marginBottom\": \"16px\" }}}" }
                               },
                               "children": [
                                 {
@@ -517,7 +517,7 @@
                               "type": "ACheckbox",
                               "props": {
                                 "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.read}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.read=args[0].target.checked; methods.handleFieldPermChange()}}" },
-                                "style": { "marginRight": "24px" },
+                                "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
                                 "disabled": {
                                   "type": "expression",
                                   "body": "{{!ref_computed_isFieldNode}}"
@@ -531,7 +531,7 @@
                               "type": "ACheckbox",
                               "props": {
                                 "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.write}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.write=args[0].target.checked; methods.handleFieldPermChange()}}" },
-                                "style": { "marginRight": "24px" },
+                                "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
                                 "disabled": {
                                   "type": "expression",
                                   "body": "{{!ref_computed_isFieldNode}}"
@@ -545,7 +545,7 @@
                               "type": "ACheckbox",
                               "props": {
                                 "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.hidden}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.hidden=args[0].target.checked; methods.handleFieldPermChange()}}" },
-                                "style": { "marginRight": "24px" },
+                                "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
                                 "disabled": {
                                   "type": "expression",
                                   "body": "{{!ref_computed_isFieldNode}}"
@@ -597,7 +597,7 @@
                                       "type": "ACard",
                                       "props": {
                                         "bordered": false,
-                                        "style": { "background": "#e6f4ff" }
+                                        "style": { "type": "object", "body": "{{{ \"background\": \"#e6f4ff\" }}}" }
                                       },
                                       "children": [
                                         {
@@ -635,7 +635,7 @@
                                       "type": "ACard",
                                       "props": {
                                         "bordered": false,
-                                        "style": { "background": "#f6ffed" }
+                                        "style": { "type": "object", "body": "{{{ \"background\": \"#f6ffed\" }}}" }
                                       },
                                       "children": [
                                         {
@@ -673,7 +673,7 @@
                                       "type": "ACard",
                                       "props": {
                                         "bordered": false,
-                                        "style": { "background": "#fff7e6" }
+                                        "style": { "type": "object", "body": "{{{ \"background\": \"#fff7e6\" }}}" }
                                       },
                                       "children": [
                                         {
@@ -713,13 +713,13 @@
                               "type": "ACard",
                               "props": {
                                 "bordered": false,
-                                "style": { "background": "#f5f5f5" }
+                                "style": { "type": "object", "body": "{{{ \"background\": \"#f5f5f5\" }}}" }
                               },
                               "children": [
                                 {
                                   "type": "div",
                                   "props": {
-                                    "style": { "fontSize": "14px" }
+                                    "style": { "type": "object", "body": "{{{ \"fontSize\": \"14px\" }}}" }
                                   },
                                   "children": [
                                     {
@@ -731,7 +731,7 @@
                                     {
                                       "type": "span",
                                       "props": {
-                                        "style": { "fontWeight": "600" }
+                                        "style": { "type": "object", "body": "{{{ \"fontWeight\": \"600\" }}}" }
                                       },
                                       "children": [
                                         {
@@ -763,7 +763,7 @@
                                     {
                                       "type": "span",
                                       "props": {
-                                        "style": { "fontWeight": "600" }
+                                        "style": { "type": "object", "body": "{{{ \"fontWeight\": \"600\" }}}" }
                                       },
                                       "children": [
                                         {
@@ -859,7 +859,7 @@
                             {
                               "type": "ASpace",
                               "props": {
-                                "style": { "marginBottom": "16px" }
+                                "style": { "type": "object", "body": "{{{ \"marginBottom\": \"16px\" }}}" }
                               },
                               "children": [
                                 {
@@ -883,7 +883,7 @@
                                       "params": "{{{}}}",
                                       "body": "{{ref_state_compareRoleId.value = args[0]; if (args[0]) methods.loadCompareResult();}}"
                                     },
-                                    "style": { "width": "200px" }
+                                    "style": { "type": "object", "body": "{{{ \"width\": \"200px\" }}}" }
                                   },
                                   "children": [
                                     {
@@ -930,7 +930,7 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": { "background": "#f6ffed" }
+                                            "style": { "type": "object", "body": "{{{ \"background\": \"#f6ffed\" }}}" }
                                           },
                                           "children": [
                                             {
@@ -975,7 +975,7 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": { "background": "#fff7e6" }
+                                            "style": { "type": "object", "body": "{{{ \"background\": \"#fff7e6\" }}}" }
                                           },
                                           "children": [
                                             {
@@ -1020,7 +1020,7 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": { "background": "#e6f4ff" }
+                                            "style": { "type": "object", "body": "{{{ \"background\": \"#e6f4ff\" }}}" }
                                           },
                                           "children": [
                                             {

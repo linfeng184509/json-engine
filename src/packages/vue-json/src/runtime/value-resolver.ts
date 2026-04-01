@@ -366,7 +366,7 @@ export function transformFunctionBody(body: string, stateTypes: Record<string, s
     .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*)\b/g, (_, varName) => {
       return `computed.${varName}.value`;
     })
-    .replace(/\$\_(core|goal)_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, scope, prop) => {
+    .replace(/\$\_(core|goal)_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, _scope, prop) => {
       return `coreScope._${prop}`;
     })
     .replace(/\$\_([a-zA-Z_$][a-zA-Z0-9_$]*)\.([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)/g, (_, plugin, path) => {

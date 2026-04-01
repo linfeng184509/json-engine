@@ -68,20 +68,6 @@ function createError(parserName: string, reason: string, example: string): Error
   return new Error(`[${parserName}] 验证失败: ${reason}。期望格式: ${example}`);
 }
 
-function parseValue(rawValue: string): unknown {
-  if (!rawValue) return rawValue;
-
-  if (rawValue.startsWith('{{') && rawValue.endsWith('}}')) {
-    return rawValue;
-  }
-
-  try {
-    return JSON.parse(rawValue);
-  } catch {
-    return rawValue;
-  }
-}
-
 function parseNestedReference(
   content: string,
   referenceRegex: RegExp,

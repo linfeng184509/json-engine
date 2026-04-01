@@ -46,7 +46,7 @@ interface ValueBody {
 | `{ type: 'reference', body: '{{ref_state_count}}' }` | `reference` | `{ _type: 'reference', prefix: 'state', variable: 'count' }` |
 | `{ type: 'expression', body: '{{a + b}}' }` | `expression` | `{ _type: 'expression', expression: 'a + b' }` |
 | `{ type: 'function', params: '{}', body: '...' }` | `function` | `{ _type: 'function', params: {}, body: '...' }` |
-| `{ type: 'object', body: '{{{key:value}}}' }` | `object` | `{ _type: 'object', key: 'key', value: 'value' }` |
+| `{ type: 'object', body: '{{{ \"key\": \"value\" }}}" }` | `object` | `{ _type: 'object', value: { "key": "value" } }` |
 
 ---
 
