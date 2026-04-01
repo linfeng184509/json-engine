@@ -31,7 +31,7 @@
         { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{ref_state_loading}}" } }, "props": { "style": { "type": "string", "body": "'display: flex; justify-content: center; align-items: center; min-height: 400px'" } }, "children": [{ "type": "ASpin", "props": { "size": { "type": "string", "body": "'large'" } } }] },
         { "type": "div", "directives": { "vIf": { "type": "expression", "body": "{{!ref_state_loading}}" } }, "children": [
           { "type": "div", "props": { "style": { "type": "string", "body": "'margin-bottom: 24px'" } }, "children": [
-            { "type": "h1", "props": { "style": { "type": "string", "body": "'font-size: 24px; font-weight: 600; color: rgba(0,0,0,0.88); margin: 0 0 8px'" } }, "children": [{ "type": "expression", "body": "{{ref_computed_greeting.value}}" }, "，", { "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
+            { "type": "h1", "props": { "style": { "type": "string", "body": "'font-size: 24px; font-weight: 600; color: rgba(0,0,0,0.88); margin: 0 0 8px'" } }, "children": [{ "type": "expression", "body": "{{ref_computed_greeting}}" }, "，", { "type": "expression", "body": "{{ref_state_user?.nickname||ref_state_user?.username}}" }] },
             { "type": "p", "props": { "style": { "type": "string", "body": "'font-size: 14px; color: rgba(0,0,0,0.45); margin: 0'" } }, "children": ["欢迎使用企业管理系统，祝您工作愉快"] }
           ] },
           { "type": "div", "props": { "style": { "type": "string", "body": "'display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px'" } }, "children": [
