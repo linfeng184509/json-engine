@@ -55,5 +55,5 @@
 系统必须在 Core Scope 中暴露 i18n 方法。
 
 #### Scenario: Access via Core Scope
-- **WHEN** 在表达式中调用 `$_[core]_i18n.t('common.save')`
+- **WHEN** 在表达式中调用 `$_core_i18n.t('common.save')`
 - **THEN** 返回当前语言的翻译文本

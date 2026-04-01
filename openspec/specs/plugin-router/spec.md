@@ -17,15 +17,15 @@ Vue Router 插件，提供 `_router` Scope。
 插件必须提供 `_router` Scope 扩展。
 
 #### Scenario: Navigate push
-- **WHEN** 调用 `$_[core]_router.push("/users")`
+- **WHEN** 调用 `$_core_router.push("/users")`
 - **THEN** 导航到 /users 路由
 
 #### Scenario: Navigate back
-- **WHEN** 调用 `$_[core]_router.back()`
+- **WHEN** 调用 `$_core_router.back()`
 - **THEN** 返回上一页
 
 #### Scenario: Get current route
-- **WHEN** 访问 `$_[core]_router.currentRoute`
+- **WHEN** 访问 `$_core_router.currentRoute`
 - **THEN** 返回当前路由路径
 
 ### Requirement: Support router config

@@ -21,13 +21,13 @@
     "loadUser": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{var u=$_[core]_storage.get('userInfo');if(u)ref_state_user=u}}",
+      "body": "{{var u=$_core_storage.get('userInfo');if(u)ref_state_user=u}}",
       "cached": false
     },
     "logout": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{$_[core]_storage.remove('token');$_[core]_storage.remove('userInfo');$_[core]_storage.remove('permissions');window.location.hash='#/login'}}",
+      "body": "{{$_core_storage.remove('token');$_core_storage.remove('userInfo');$_core_storage.remove('permissions');window.location.hash='#/login'}}",
       "cached": false
     }
   },

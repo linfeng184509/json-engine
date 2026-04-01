@@ -9,14 +9,14 @@
   },
   "computed": {
     "hasToken": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_[core]_storage.get('token') != null;}}" }
+      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_core_storage.get('token') != null;}}" }
     }
   },
   "methods": {
     "loadPage": {
       "type": "function",
       "params": "{{{ {\"route\": null} }}}",
-      "body": "{{var path = (route || ref_state_currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; for (var i = 0; i < routes.length; i++) { if (routes[i].path === path) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { ref_state_error = 'Page not found'; return; } if (matched.redirect) { $_[core]_router.replace(matched.redirect); return; } var token = $_[core]_storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_[core]_router.push('/login'); return; } if (path === '/login' && token) { $_[core]_router.replace('/dashboard'); return; } ref_state_isLoading = true; ref_state_error = null; ref_state_pageSchemaPath = matched.component; ref_state_layoutSchemaPath = matched.meta?.layout || null; ref_state_isLoading = false;}}"
+      "body": "{{var path = (route || ref_state_currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { ref_state_error = 'Page not found'; return; } if (matched.redirect) { $_core_router.replace(matched.redirect); return; } var token = $_core_storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_core_router.push('/login'); return; } if (path === '/login' && token) { $_core_router.replace('/dashboard'); return; } ref_state_isLoading = true; ref_state_error = null; ref_state_pageSchemaPath = matched.component; ref_state_layoutSchemaPath = matched.meta?.layout || null; ref_state_isLoading = false;}}"
     },
     "handleHashChange": {
       "type": "function",

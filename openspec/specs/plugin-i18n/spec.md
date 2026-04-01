@@ -17,19 +17,19 @@
 插件必须提供 `_i18n` Scope 扩展。
 
 #### Scenario: Translate key
-- **WHEN** 调用 `$_[core]_i18n.t("common.save")`
+- **WHEN** 调用 `$_core_i18n.t("common.save")`
 - **THEN** 返回翻译后的文本
 
 #### Scenario: Translate with params
-- **WHEN** 调用 `$_[core]_i18n.t("user.greeting", { name: "John" })`
+- **WHEN** 调用 `$_core_i18n.t("user.greeting", { name: "John" })`
 - **THEN** 返回填充参数后的文本
 
 #### Scenario: Get current locale
-- **WHEN** 访问 `$_[core]_i18n.locale`
+- **WHEN** 访问 `$_core_i18n.locale`
 - **THEN** 返回当前语言
 
 #### Scenario: Set locale
-- **WHEN** 调用 `$_[core]_i18n.setLocale("en-US")`
+- **WHEN** 调用 `$_core_i18n.setLocale("en-US")`
 - **THEN** 切换语言
 
 ### Requirement: Support i18n config

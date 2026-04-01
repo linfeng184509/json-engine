@@ -9,7 +9,7 @@
 **core-engine 表达式语法规范：**
 ```
 {{'hello'}}              → { _type: 'string', value: 'hello' }
-{{$_[core]_api}}         → { _type: 'scope', scope: 'core', variable: 'api' }
+{{$_core_api}}         → { _type: 'scope', scope: 'core', variable: 'api' }
 {{ref_state_count}}      → { _type: 'reference', prefix: 'state', variable: 'count' }
 {{{params}}}{{body}}      → { _type: 'function', params: {...}, body: '...' }
 {{a + b}}                → { _type: 'expression', expression: 'a + b' }
@@ -95,7 +95,7 @@ interface VNodeDefinition {
     handleSubmit: {
       type: 'function',
       params: '{{{}}}',
-      body: '{{$_[core]_api.post("/api/submit", ref_state_formData)}}'
+      body: '{{$_core_api.post("/api/submit", ref_state_formData)}}'
     }
   },
   render: {

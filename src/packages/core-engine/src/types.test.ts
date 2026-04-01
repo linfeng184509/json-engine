@@ -22,7 +22,7 @@ const DEFAULT_INNER_SCOPE_REGEX = createInnerScopeRegex(['core', 'goal']);
 
 describe('ValueObjectParser', () => {
   it('should parse object with string value', () => {
-    const input: ValueBody = { type: 'object', body: '{{{[key]:[value]}}}' };
+    const input: ValueBody = { type: 'object', body: '{{{key: value}}}' };
     const result = ValueObjectParser(input);
     expect(result.success).toBe(true);
     expect(result.data?.key).toBe('key');
@@ -31,7 +31,7 @@ describe('ValueObjectParser', () => {
   });
 
   it('should parse object with JSON number value', () => {
-    const input: ValueBody = { type: 'object', body: '{{{[key]:[123]}}}' };
+    const input: ValueBody = { type: 'object', body: '{{{key: 123}}}' };
     const result = ValueObjectParser(input);
     expect(result.success).toBe(true);
     expect(result.data?.key).toBe('key');
@@ -39,7 +39,7 @@ describe('ValueObjectParser', () => {
   });
 
   it('should parse object with JSON boolean value', () => {
-    const input: ValueBody = { type: 'object', body: '{{{[key]:[true]}}}' };
+    const input: ValueBody = { type: 'object', body: '{{{key: true}}}' };
     const result = ValueObjectParser(input);
     expect(result.success).toBe(true);
     expect(result.data?.key).toBe('key');
@@ -47,16 +47,16 @@ describe('ValueObjectParser', () => {
   });
 
   it('should throw error with correct message when type is not object', () => {
-    const input: ValueBody = { type: 'string', body: '{{{[key]:[value]}}}' };
-    expect(() => ValueObjectParser(input)).toThrow(
-      '[ValueObjectParser] 验证失败: type 必须为 "object"，实际为 "string"。期望格式: {{{[键]:[值]}}}'
+const input: ValueBody = { type: 'string', body: '{{{key: value}}}' };
+      expect(() => ValueObjectParser(input)).toThrow(
+        '[ValueObjectParser] 验证失败: type 必须为 "object"，实际为 "string"。期望格式: {{{键: 值}}}'
     );
   });
 
   it('should throw error with correct message when body format is invalid', () => {
     const input: ValueBody = { type: 'object', body: 'invalid format' };
     expect(() => ValueObjectParser(input)).toThrow(
-      '[ValueObjectParser] 验证失败: body 格式不正确: "invalid format"。期望格式: {{{[键]:[值]}}}'
+      '[ValueObjectParser] 验证失败: body 格式不正确: "invalid format"。期望格式: {{{键: 值}}}'
     );
   });
 });
@@ -94,7 +94,7 @@ describe('ValueConstraintParser', () => {
 
 describe('ValueScopeParser', () => {
   it('should parse core scope', () => {
-    const input: ValueBody = { type: 'scope', body: '{{$_[core]_varName}}' };
+    const input: ValueBody = { type: 'scope', body: '{{$_core_varName}}' };
     const result = ValueScopeParser(input, DEFAULT_SCOPE_REGEX);
     expect(result.success).toBe(true);
     expect(result.data?.scope).toBe('core');
@@ -103,7 +103,7 @@ describe('ValueScopeParser', () => {
   });
 
   it('should parse goal scope', () => {
-    const input: ValueBody = { type: 'scope', body: '{{$_[goal]_varName}}' };
+    const input: ValueBody = { type: 'scope', body: '{{$_goal_varName}}' };
     const result = ValueScopeParser(input, DEFAULT_SCOPE_REGEX);
     expect(result.success).toBe(true);
     expect(result.data?.scope).toBe('goal');
@@ -112,9 +112,9 @@ describe('ValueScopeParser', () => {
 
   it('should throw error with correct message when scope is not in configured list', () => {
     const customScopeRegex = createScopeRegex(['custom']);
-    const input: ValueBody = { type: 'scope', body: '{{$_[other]_varName}}' };
+    const input: ValueBody = { type: 'scope', body: '{{$_other_varName}}' };
     expect(() => ValueScopeParser(input, customScopeRegex)).toThrow(
-      '[ValueScopeParser] 验证失败: body 格式不正确: "{{$_[other]_varName}}"。期望格式: {{$_[*]_变量名}}'
+      '[ValueScopeParser] 验证失败: body 格式不正确: "{{$_other_varName}}"。期望格式: {{$_[*]_变量名}}'
     );
   });
 
@@ -199,7 +199,7 @@ describe('ValueExpressionParser', () => {
   });
 
   it('should parse expression as abstract scope for pure scope', () => {
-    const input: ValueBody = { type: 'expression', body: '{{$_[goal]_target}}' };
+    const input: ValueBody = { type: 'expression', body: '{{$_goal_target}}' };
     const result = ValueExpressionParser(input, DEFAULT_REFERENCE_REGEX, DEFAULT_SCOPE_REGEX, DEFAULT_INNER_REF_REGEX, DEFAULT_INNER_SCOPE_REGEX);
     expect(result.success).toBe(true);
     expect(result.data?.expression).toEqual({ _type: 'scope', scope: 'goal', variable: 'target' });
@@ -307,14 +307,14 @@ describe('createReferenceRegex', () => {
 describe('createScopeRegex', () => {
   it('should create regex for single scope', () => {
     const regex = createScopeRegex(['core']);
-    expect(regex.test('{{$_[core]_var}}')).toBe(true);
-    expect(regex.test('{{$_[goal]_var}}')).toBe(false);
+    expect(regex.test('{{$_core_var}}')).toBe(true);
+    expect(regex.test('{{$_goal_var}}')).toBe(false);
   });
 
   it('should create regex for multiple scopes', () => {
     const regex = createScopeRegex(['core', 'goal']);
-    expect(regex.test('{{$_[core]_var}}')).toBe(true);
-    expect(regex.test('{{$_[goal]_var}}')).toBe(true);
+    expect(regex.test('{{$_core_var}}')).toBe(true);
+    expect(regex.test('{{$_goal_var}}')).toBe(true);
   });
 });
 
@@ -329,7 +329,7 @@ describe('createInnerReferenceRegex', () => {
 describe('createInnerScopeRegex', () => {
   it('should create regex for single scope', () => {
     const regex = createInnerScopeRegex(['core']);
-    expect(regex.test('$_[core]_var')).toBe(true);
-    expect(regex.test('$_[goal]_var')).toBe(false);
+    expect(regex.test('$_core_var')).toBe(true);
+    expect(regex.test('$_goal_var')).toBe(false);
   });
 });

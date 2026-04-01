@@ -33,7 +33,7 @@
 系统必须在 Core Scope 中暴露 auth 方法。
 
 #### Scenario: Access auth via Core Scope
-- **WHEN** 在表达式中调用 `$_[core]_auth.has('xxx')`
+- **WHEN** 在表达式中调用 `$_core_auth.has('xxx')`
 - **THEN** 返回权限检查结果
 
 ### Requirement: Api in Core Scope
@@ -41,7 +41,7 @@
 系统必须在 Core Scope 中暴露 api 方法。
 
 #### Scenario: Access api via Core Scope
-- **WHEN** 在表达式中调用 `$_[core]_api.get('/users')`
+- **WHEN** 在表达式中调用 `$_core_api.get('/users')`
 - **THEN** 返回 HTTP 请求结果
 
 ### Requirement: I18n in Core Scope
@@ -49,5 +49,5 @@
 系统必须在 Core Scope 中暴露 i18n 方法。
 
 #### Scenario: Access i18n via Core Scope
-- **WHEN** 在表达式中调用 `$_[core]_i18n.t('common.save')`
+- **WHEN** 在表达式中调用 `$_core_i18n.t('common.save')`
 - **THEN** 返回翻译文本

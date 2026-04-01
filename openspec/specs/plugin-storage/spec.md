@@ -17,19 +17,19 @@
 插件必须提供 `_storage` Scope 扩展。
 
 #### Scenario: Get value
-- **WHEN** 调用 `$_[core]_storage.get("key")`
+- **WHEN** 调用 `$_core_storage.get("key")`
 - **THEN** 返回存储的值
 
 #### Scenario: Set value
-- **WHEN** 调用 `$_[core]_storage.set("key", value)`
+- **WHEN** 调用 `$_core_storage.set("key", value)`
 - **THEN** 存储值
 
 #### Scenario: Remove value
-- **WHEN** 调用 `$_[core]_storage.remove("key")`
+- **WHEN** 调用 `$_core_storage.remove("key")`
 - **THEN** 删除存储的值
 
 #### Scenario: Sync value
-- **WHEN** 调用 `$_[core]_storage.sync("key", value)`
+- **WHEN** 调用 `$_core_storage.sync("key", value)`
 - **THEN** 存储值并触发跨标签页同步
 
 ### Requirement: Support storage config

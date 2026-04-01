@@ -62,7 +62,7 @@ type ParseDataType = StringParseData | ObjectParseResult | AbstractScopeParseDat
 const STRING_REGEX = /^'([\s\S]*)'$/;
 const FUNCTION_PARAMS_REGEX = /^\{\{\{(.*)\}\}\}$/s;
 const FUNCTION_BODY_REGEX = /^\{\{([\s\S]*)\}\}$/;
-const OBJECT_REGEX = /^\{\{\{\[([^\]]+)\]:\[([\s\S]*)\]\}\}\}$/;
+const OBJECT_REGEX = /^\{\{\{([^:]+):([\s\S]*)\}\}\}$/;
 const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
 
 function createError(parserName: string, reason: string, example: string): Error {
@@ -127,16 +127,16 @@ function parseNestedReference(
 
 const ValueObjectParser = (value: ValueBody): ParseResult<ObjectParseResult> => {
   if (value.type !== 'object') {
-    throw createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{[键]:[值]}}}');
+    throw createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{键: 值}}}');
   }
 
   const match = value.body.match(OBJECT_REGEX);
   if (!match) {
-    throw createError('ValueObjectParser', `body 格式不正确: "${value.body}"`, '{{{[键]:[值]}}}');
+    throw createError('ValueObjectParser', `body 格式不正确: "${value.body}"`, '{{{键: 值}}}');
   }
 
-  const key = match[1];
-  const rawValue = match[2];
+  const key = match[1].trim();
+  const rawValue = match[2].trim();
   const parsedValue = parseValue(rawValue);
 
   return {

@@ -6,7 +6,11 @@
     "selectedKey": { "type": "ref", "initial": null },
     "selectedNode": { "type": "ref", "initial": null },
     "loading": { "type": "ref", "initial": true },
-    "editForm": { "type": "reactive", "initial": { "code": "", "name": "", "read": true, "write": true, "hidden": false, "privacy": false } }
+    "editForm": { "type": "reactive", "initial": { "code": "", "name": "", "read": true, "write": true, "hidden": false, "privacy": false } },
+    "saving": { "type": "ref", "initial": false },
+    "addModalVisible": { "type": "ref", "initial": false },
+    "addFormData": { "type": "reactive", "initial": { "code": "", "name": "", "nodeType": "field" } },
+    "deleteModalVisible": { "type": "ref", "initial": false }
   },
   "computed": {
     "isFieldSelected": {
@@ -29,13 +33,27 @@
         "params": "{{{}}}",
         "body": "{{return !!ref_state_selectedKey}}"
       }
+    },
+    "canAddChild": {
+      "get": {
+        "type": "function",
+        "params": "{{{}}}",
+        "body": "{{return ref_state_selectedNode && (ref_state_selectedNode.type==='platform' || ref_state_selectedNode.type==='menu' || ref_state_selectedNode.type==='page' || ref_state_selectedNode.type==='feature' || ref_state_selectedNode.type==='form')}}"
+      }
+    },
+    "addFormIsValid": {
+      "get": {
+        "type": "function",
+        "params": "{{{}}}",
+        "body": "{{return !!ref_state_addFormData.code && !!ref_state_addFormData.name}}"
+      }
     }
   },
   "methods": {
     "loadTreeData": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ref_state_loading=true; $_[core]_api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; ref_state_treeData=transform(raw); ref_state_expandedKeys=['p1','m1','m2']; ref_state_loading=false}).catch(function(e){console.error(e); ref_state_loading=false})}}",
+      "body": "{{ref_state_loading=true; $_core_api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,parentId:n.parentId,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; ref_state_treeData=transform(raw); ref_state_expandedKeys=['p1','m1','m2']; ref_state_loading=false}).catch(function(e){console.error(e); ref_state_loading=false})}}",
       "cached": false
     },
     "onSelect": {
@@ -60,6 +78,48 @@
       "type": "function",
       "params": "{{{}}}",
       "body": "{{var type=args[0];var map={'platform':'平台','menu':'菜单','page':'页面','feature':'功能','form':'表单','field':'字段'};return map[type]||type}}",
+      "cached": false
+    },
+    "handleSavePermissions": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{if(!ref_state_selectedNode||ref_state_selectedNode.type!=='field')return; ref_state_saving=true; var data={permissions:{read:ref_state_editForm.read,write:ref_state_editForm.write,hidden:ref_state_editForm.hidden,privacy:ref_state_editForm.privacy}}; $_core_api.put('/api/basic-data/node/'+ref_state_selectedNode.id,data).then(function(res){if(res.success){$_antd.message.success('保存成功'); methods.loadTreeData()}else{$_antd.message.error(res.error||'保存失败')}}).catch(function(e){$_antd.message.error('保存失败');console.error(e)}).finally(function(){ref_state_saving=false})}}",
+      "cached": false
+    },
+    "handleAddNode": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{if(!ref_state_selectedNode)return; ref_state_addFormData.code=''; ref_state_addFormData.name=''; var typeMap={'platform':'menu','menu':'page','page':'feature','feature':'form','form':'field'}; ref_state_addFormData.nodeType=typeMap[ref_state_selectedNode.type]||'field'; ref_state_addModalVisible=true}}",
+      "cached": false
+    },
+    "confirmAddNode": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{if(!ref_state_addFormData.code||!ref_state_addFormData.name){$_antd.message.warning('请填写必填项');return} ref_state_saving=true; var data={code:ref_state_addFormData.code,name:ref_state_addFormData.name,type:ref_state_addFormData.nodeType,parentId:ref_state_selectedNode.id,permissions:{read:true,write:true,hidden:false,privacy:false}}; $_core_api.post('/api/basic-data/node',data).then(function(res){if(res.success){$_antd.message.success('新增成功'); ref_state_addModalVisible=false; methods.loadTreeData()}else{$_antd.message.error(res.error||'新增失败')}}).catch(function(e){$_antd.message.error('新增失败');console.error(e)}).finally(function(){ref_state_saving=false})}}",
+      "cached": false
+    },
+    "cancelAddNode": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ref_state_addModalVisible=false}}",
+      "cached": false
+    },
+    "handleDeleteNode": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{if(!ref_state_selectedNode||!ref_state_selectedNode.parentId)return; ref_state_deleteModalVisible=true}}",
+      "cached": false
+    },
+    "confirmDeleteNode": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{if(!ref_state_selectedNode)return; ref_state_saving=true; $_core_api.delete('/api/basic-data/node/'+ref_state_selectedNode.id).then(function(res){if(res.success){$_antd.message.success('删除成功'); ref_state_deleteModalVisible=false; ref_state_selectedKey=null; ref_state_selectedNode=null; methods.loadTreeData()}else{$_antd.message.error(res.error||'删除失败')}}).catch(function(e){$_antd.message.error('删除失败');console.error(e)}).finally(function(){ref_state_saving=false})}}",
+      "cached": false
+    },
+    "cancelDeleteNode": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ref_state_deleteModalVisible=false}}",
       "cached": false
     }
   },
@@ -91,22 +151,52 @@
           },
           "children": [
             {
-              "type": "AButton",
-              "props": {
-                "type": {
-                  "type": "string",
-                  "body": "'primary'"
+              "type": "ASpace",
+              "children": [
+                {
+                  "type": "AButton",
+                  "props": {
+                    "type": {
+                      "type": "string",
+                      "body": "'primary'"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "body": "'plus'"
+                    },
+                    "disabled": {
+                      "type": "expression",
+                      "body": "{{!ref_computed_canAddChild.value}}"
+                    },
+                    "onClick": {
+                      "type": "function",
+                      "params": "{{{}}}",
+                      "body": "{{methods.handleAddNode()}}"
+                    }
+                  },
+                  "children": ["新增节点"]
                 },
-                "icon": {
-                  "type": "string",
-                  "body": "'plus'"
-                },
-                "disabled": {
-                  "type": "expression",
-                  "body": "{{ref_computed_hasSelected.value && ref_state_selectedNode.type!=='field'}}"
+                {
+                  "type": "AButton",
+                  "props": {
+                    "icon": {
+                      "type": "string",
+                      "body": "'delete'"
+                    },
+                    "danger": true,
+                    "disabled": {
+                      "type": "expression",
+                      "body": "{{!ref_computed_isNotRoot.value}}"
+                    },
+                    "onClick": {
+                      "type": "function",
+                      "params": "{{{}}}",
+                      "body": "{{methods.handleDeleteNode()}}"
+                    }
+                  },
+                  "children": ["删除节点"]
                 }
-              },
-              "children": ["新增节点"]
+              ]
             }
           ]
         },
@@ -159,6 +249,10 @@
                       "type": "expression",
                       "body": "{{[ref_state_selectedKey]}}"
                     },
+                    "expandedKeys": {
+                      "type": "expression",
+                      "body": "{{ref_state_expandedKeys}}"
+                    },
                     "blockNode": true,
                     "showLine": true
                   },
@@ -168,6 +262,11 @@
                         "type": "function",
                         "params": "{{{}}}",
                         "body": "{{methods.onSelect($event)}}"
+                      },
+                      "expand": {
+                        "type": "function",
+                        "params": "{{{}}}",
+                        "body": "{{methods.onExpand($event)}}"
                       }
                     }
                   }
@@ -206,10 +305,10 @@
                 {
                   "type": "div",
                   "directives": {
-"vIf": {
-                        "type": "expression",
-                        "body": "{{ref_computed_hasSelected.value}}"
-                      }
+                    "vIf": {
+                      "type": "expression",
+                      "body": "{{ref_computed_hasSelected.value}}"
+                    }
                   },
                   "children": [
                     {
@@ -224,33 +323,33 @@
                         {
                           "type": "ATag",
                           "props": {
-"color": {
-                               "type": "expression",
-                               "body": "{{ref_state_selectedNode.type==='platform' ? 'blue' : ref_state_selectedNode.type==='menu' ? 'green' : ref_state_selectedNode.type==='page' ? 'orange' : ref_state_selectedNode.type==='feature' ? 'purple' : ref_state_selectedNode.type==='form' ? 'cyan' : 'gold'}}"
-                             }
-                           },
-                           "children": [
-                             {
-                               "type": "expression",
-                               "body": "{{methods.getNodeTypeText(ref_state_selectedNode.type)}}"
-                             }
-                           ]
-                         },
-                         {
-                           "type": "span",
-                           "props": {
-                             "style": {
-                               "type": "string",
-                               "body": "'margin-left: 8px; font-weight: 500'"
-                             }
-                           },
-                           "children": [
-                             {
-                               "type": "expression",
-                               "body": "{{ref_state_selectedNode.name}}"
-                             }
-                           ]
-                         }
+                            "color": {
+                              "type": "expression",
+                              "body": "{{ref_state_selectedNode.type==='platform' ? 'blue' : ref_state_selectedNode.type==='menu' ? 'green' : ref_state_selectedNode.type==='page' ? 'orange' : ref_state_selectedNode.type==='feature' ? 'purple' : ref_state_selectedNode.type==='form' ? 'cyan' : 'gold'}}"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "{{methods.getNodeTypeText(ref_state_selectedNode.type)}}"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "span",
+                          "props": {
+                            "style": {
+                              "type": "string",
+                              "body": "'margin-left: 8px; font-weight: 500'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "{{ref_state_selectedNode.name}}"
+                            }
+                          ]
+                        }
                       ]
                     },
                     {
@@ -272,67 +371,67 @@
                               "body": "'编码'"
                             }
                           },
-"children": [
-                             {
-                               "type": "expression",
-                               "body": "{{ref_state_selectedNode.code}}"
-                             }
-                           ]
-                         },
-                         {
-                           "type": "ADescriptionsItem",
-                           "props": {
-                             "label": {
-                               "type": "string",
-                               "body": "'名称'"
-                             }
-                           },
-                           "children": [
-                             {
-                               "type": "expression",
-                               "body": "{{ref_state_selectedNode.name}}"
-                             }
-                           ]
-                         },
-                         {
-                           "type": "ADescriptionsItem",
-                           "props": {
-                             "label": {
-                               "type": "string",
-                               "body": "'类型'"
-                             }
-                           },
-                           "children": [
-                             {
-                               "type": "expression",
-                               "body": "{{methods.getNodeTypeText(ref_state_selectedNode.type)}}"
-                             }
-                           ]
-                         },
-                         {
-                           "type": "ADescriptionsItem",
-                           "props": {
-                             "label": {
-                               "type": "string",
-                               "body": "'ID'"
-                             }
-                           },
-                           "children": [
-                             {
-                               "type": "expression",
-                               "body": "{{ref_state_selectedNode.id}}"
-                             }
-                           ]
-                         }
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "{{ref_state_selectedNode.code}}"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ADescriptionsItem",
+                          "props": {
+                            "label": {
+                              "type": "string",
+                              "body": "'名称'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "{{ref_state_selectedNode.name}}"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ADescriptionsItem",
+                          "props": {
+                            "label": {
+                              "type": "string",
+                              "body": "'类型'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "{{methods.getNodeTypeText(ref_state_selectedNode.type)}}"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ADescriptionsItem",
+                          "props": {
+                            "label": {
+                              "type": "string",
+                              "body": "'ID'"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "expression",
+                              "body": "{{ref_state_selectedNode.id}}"
+                            }
+                          ]
+                        }
                       ]
                     },
                     {
                       "type": "div",
                       "directives": {
-"vIf": {
-                         "type": "expression",
-                         "body": "{{ref_computed_isFieldSelected.value}}"
-                       }
+                        "vIf": {
+                          "type": "expression",
+                          "body": "{{ref_computed_isFieldSelected.value}}"
+                        }
                       },
                       "props": {
                         "style": {
@@ -351,10 +450,15 @@
                         {
                           "type": "ACheckbox",
                           "props": {
-"checked": {
-                               "type": "expression",
-                               "body": "{{ref_state_editForm.read}}"
-                             },
+                            "checked": {
+                              "type": "expression",
+                              "body": "{{ref_state_editForm.read}}"
+                            },
+                            "onChange": {
+                              "type": "function",
+                              "params": "{{{}}}",
+                              "body": "{{ref_state_editForm.read=args[0].target.checked}}"
+                            },
                             "style": {
                               "type": "string",
                               "body": "'margin-right: 24px'"
@@ -365,10 +469,15 @@
                         {
                           "type": "ACheckbox",
                           "props": {
-"checked": {
-                               "type": "expression",
-                               "body": "{{ref_state_editForm.write}}"
-                             },
+                            "checked": {
+                              "type": "expression",
+                              "body": "{{ref_state_editForm.write}}"
+                            },
+                            "onChange": {
+                              "type": "function",
+                              "params": "{{{}}}",
+                              "body": "{{ref_state_editForm.write=args[0].target.checked}}"
+                            },
                             "style": {
                               "type": "string",
                               "body": "'margin-right: 24px'"
@@ -379,10 +488,15 @@
                         {
                           "type": "ACheckbox",
                           "props": {
-"checked": {
-                               "type": "expression",
-                               "body": "{{ref_state_editForm.hidden}}"
-                             },
+                            "checked": {
+                              "type": "expression",
+                              "body": "{{ref_state_editForm.hidden}}"
+                            },
+                            "onChange": {
+                              "type": "function",
+                              "params": "{{{}}}",
+                              "body": "{{ref_state_editForm.hidden=args[0].target.checked}}"
+                            },
                             "style": {
                               "type": "string",
                               "body": "'margin-right: 24px'"
@@ -393,16 +507,257 @@
                         {
                           "type": "ACheckbox",
                           "props": {
-"checked": {
-                               "type": "expression",
-                               "body": "{{ref_state_editForm.privacy}}"
-                             }
+                            "checked": {
+                              "type": "expression",
+                              "body": "{{ref_state_editForm.privacy}}"
+                            },
+                            "onChange": {
+                              "type": "function",
+                              "params": "{{{}}}",
+                              "body": "{{ref_state_editForm.privacy=args[0].target.checked}}"
+                            }
                           },
                           "children": ["隐私"]
+                        },
+                        {
+                          "type": "AButton",
+                          "props": {
+                            "type": {
+                              "type": "string",
+                              "body": "'primary'"
+                            },
+                            "loading": {
+                              "type": "expression",
+                              "body": "{{ref_state_saving}}"
+                            },
+                            "onClick": {
+                              "type": "function",
+                              "params": "{{{}}}",
+                              "body": "{{methods.handleSavePermissions()}}"
+                            },
+                            "style": {
+                              "type": "string",
+                              "body": "'margin-top: 16px'"
+                            }
+                          },
+                          "children": ["保存权限"]
                         }
                       ]
                     }
                   ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "AModal",
+          "props": {
+            "title": {
+              "type": "string",
+              "body": "'新增节点'"
+            },
+            "open": {
+              "type": "expression",
+              "body": "{{ref_state_addModalVisible}}"
+            },
+            "onOk": {
+              "type": "function",
+              "params": "{{{}}}",
+              "body": "{{methods.confirmAddNode()}}"
+            },
+            "onCancel": {
+              "type": "function",
+              "params": "{{{}}}",
+              "body": "{{methods.cancelAddNode()}}"
+            },
+            "confirmLoading": {
+              "type": "expression",
+              "body": "{{ref_state_saving}}"
+            }
+          },
+          "children": [
+            {
+              "type": "AForm",
+              "props": {
+                "layout": "vertical"
+              },
+              "children": [
+                {
+                  "type": "AFormItem",
+                  "props": {
+                    "label": {
+                      "type": "string",
+                      "body": "'节点编码'"
+                    },
+                    "required": true
+                  },
+                  "children": [
+                    {
+                      "type": "AInput",
+                      "props": {
+                        "placeholder": {
+                          "type": "string",
+                          "body": "'请输入节点编码'"
+                        },
+                        "value": {
+                          "type": "expression",
+                          "body": "{{ref_state_addFormData.code}}"
+                        },
+                        "onChange": {
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{ref_state_addFormData.code=args[0].target.value}}"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "AFormItem",
+                  "props": {
+                    "label": {
+                      "type": "string",
+                      "body": "'节点名称'"
+                    },
+                    "required": true
+                  },
+                  "children": [
+                    {
+                      "type": "AInput",
+                      "props": {
+                        "placeholder": {
+                          "type": "string",
+                          "body": "'请输入节点名称'"
+                        },
+                        "value": {
+                          "type": "expression",
+                          "body": "{{ref_state_addFormData.name}}"
+                        },
+                        "onChange": {
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{ref_state_addFormData.name=args[0].target.value}}"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "AFormItem",
+                  "props": {
+                    "label": {
+                      "type": "string",
+                      "body": "'节点类型'"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "ASelect",
+                      "props": {
+                        "value": {
+                          "type": "expression",
+                          "body": "{{ref_state_addFormData.nodeType}}"
+                        },
+                        "onChange": {
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{ref_state_addFormData.nodeType=args[0]}}"
+                        },
+                        "disabled": true
+                      },
+                      "children": [
+                        {
+                          "type": "ASelectOption",
+                          "props": {
+                            "value": {
+                              "type": "string",
+                              "body": "'menu'"
+                            }
+                          },
+                          "children": ["菜单"]
+                        },
+                        {
+                          "type": "ASelectOption",
+                          "props": {
+                            "value": {
+                              "type": "string",
+                              "body": "'page'"
+                            }
+                          },
+                          "children": ["页面"]
+                        },
+                        {
+                          "type": "ASelectOption",
+                          "props": {
+                            "value": {
+                              "type": "string",
+                              "body": "'feature'"
+                            }
+                          },
+                          "children": ["功能"]
+                        },
+                        {
+                          "type": "ASelectOption",
+                          "props": {
+                            "value": {
+                              "type": "string",
+                              "body": "'form'"
+                            }
+                          },
+                          "children": ["表单"]
+                        },
+                        {
+                          "type": "ASelectOption",
+                          "props": {
+                            "value": {
+                              "type": "string",
+                              "body": "'field'"
+                            }
+                          },
+                          "children": ["字段"]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "AModal",
+          "props": {
+            "title": {
+              "type": "string",
+              "body": "'确认删除'"
+            },
+            "open": {
+              "type": "expression",
+              "body": "{{ref_state_deleteModalVisible}}"
+            },
+            "onOk": {
+              "type": "function",
+              "params": "{{{}}}",
+              "body": "{{methods.confirmDeleteNode()}}"
+            },
+            "onCancel": {
+              "type": "function",
+              "params": "{{{}}}",
+              "body": "{{methods.cancelDeleteNode()}}"
+            },
+            "confirmLoading": {
+              "type": "expression",
+              "body": "{{ref_state_saving}}"
+            }
+          },
+          "children": [
+            {
+              "type": "p",
+              "children": [
+                {
+                  "type": "expression",
+                  "body": "{{'确定要删除节点 \"' + (ref_state_selectedNode?.name || '') + '\" 吗？该操作将同时删除其所有子节点。'}}"
                 }
               ]
             }

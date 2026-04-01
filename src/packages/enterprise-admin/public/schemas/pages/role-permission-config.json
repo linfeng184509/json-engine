@@ -113,12 +113,12 @@
     "loadData": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ ref_state_loading.value = true; Promise.all([$_[core]_api.get('/api/role/' + ref_state_roleId.value), $_[core]_api.get('/api/permission-tree'), $_[core]_api.get('/api/role/all'), $_[core]_api.get('/api/role/' + ref_state_roleId.value + '/permissions/preview')]).then(function(results) { var roleRes = results[0]; var treeRes = results[1]; var rolesRes = results[2]; var previewRes = results[3]; if (roleRes.success) ref_state_roleInfo.value = roleRes.data; if (treeRes.success) { ref_state_permissionTree.value = treeRes.data; ref_state_expandedKeys.value = ['p1', 'm1', 'm2']; } if (rolesRes.success) ref_state_allRoles.value = rolesRes.data.filter(function(r) { return r.id !== ref_state_roleId.value; }); if (previewRes.success) { ref_state_previewData.value = previewRes.data.permissions; ref_state_stats.value = previewRes.data.stats; ref_state_inheritanceTree.value = previewRes.data.inheritanceTree; ref_state_currentPermissions.value = { pages: previewRes.data.permissions.pages || [], forms: previewRes.data.permissions.forms || [], fields: previewRes.data.permissions.fields || [] }; } ref_state_loading.value = false; }).catch(function(e) { console.error(e); ref_state_loading.value = false; }) }}"
+      "body": "{{ ref_state_loading.value = true; Promise.all([$_core_api.get('/api/role/' + ref_state_roleId.value), $_core_api.get('/api/permission-tree'), $_core_api.get('/api/role/all'), $_core_api.get('/api/role/' + ref_state_roleId.value + '/permissions/preview')]).then(function(results) { var roleRes = results[0]; var treeRes = results[1]; var rolesRes = results[2]; var previewRes = results[3]; if (roleRes.success) ref_state_roleInfo.value = roleRes.data; if (treeRes.success) { ref_state_permissionTree.value = treeRes.data; ref_state_expandedKeys.value = ['p1', 'm1', 'm2']; } if (rolesRes.success) ref_state_allRoles.value = rolesRes.data.filter(function(r) { return r.id !== ref_state_roleId.value; }); if (previewRes.success) { ref_state_previewData.value = previewRes.data.permissions; ref_state_stats.value = previewRes.data.stats; ref_state_inheritanceTree.value = previewRes.data.inheritanceTree; ref_state_currentPermissions.value = { pages: previewRes.data.permissions.pages || [], forms: previewRes.data.permissions.forms || [], fields: previewRes.data.permissions.fields || [] }; } ref_state_loading.value = false; }).catch(function(e) { console.error(e); ref_state_loading.value = false; }) }}"
     },
     "loadCompareResult": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ if (!ref_state_compareRoleId.value) return; $_[core]_api.get('/api/role/compare', { params: { roleId1: ref_state_roleId.value, roleId2: ref_state_compareRoleId.value } }).then(function(res) { if (res.success) ref_state_compareResult.value = res.data; else alert(res.error); }); }}"
+      "body": "{{ if (!ref_state_compareRoleId.value) return; $_core_api.get('/api/role/compare', { params: { roleId1: ref_state_roleId.value, roleId2: ref_state_compareRoleId.value } }).then(function(res) { if (res.success) ref_state_compareResult.value = res.data; else $_antd.message.error(res.error); }); }}"
     },
     "findNode": {
       "type": "function",
@@ -153,12 +153,12 @@
     "updatePreview": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ $_[core]_api.get('/api/role/' + ref_state_roleId.value + '/permissions/preview').then(function(res) { if (res.success) { ref_state_previewData.value = res.data.permissions; ref_state_stats.value = res.data.stats; ref_state_inheritanceTree.value = res.data.inheritanceTree; } }); }}"
+      "body": "{{ $_core_api.get('/api/role/' + ref_state_roleId.value + '/permissions/preview').then(function(res) { if (res.success) { ref_state_previewData.value = res.data.permissions; ref_state_stats.value = res.data.stats; ref_state_inheritanceTree.value = res.data.inheritanceTree; } }); }}"
     },
     "handleSave": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ ref_state_saving.value = true; $_[core]_api.put('/api/role/' + ref_state_roleId.value + '/permissions', { permissions: ref_state_currentPermissions.value }).then(function(res) { if (res.success) alert('保存成功'); else alert(res.error || '保存失败'); }).finally(function() { ref_state_saving.value = false; }); }}"
+      "body": "{{ ref_state_saving.value = true; $_core_api.put('/api/role/' + ref_state_roleId.value + '/permissions', { permissions: ref_state_currentPermissions.value }).then(function(res) { if (res.success) $_antd.message.success('保存成功'); else $_antd.message.error(res.error || '保存失败'); }).finally(function() { ref_state_saving.value = false; }); }}"
     },
     "handleBack": {
       "type": "function",
@@ -203,27 +203,20 @@
     "content": {
       "type": "div",
       "props": {
-        "style": {
-          "type": "string",
-          "body": "{{'padding: 24px'}}"
-        }
+        "style": { "padding": "24px" }
       },
       "children": [
         {
           "type": "div",
           "props": {
-            "style": {
-              "type": "string",
-              "body": "{{'margin-bottom: 16px; display: flex; align-items: center; gap: 16px'}}"
-            }
+            "style": "margin-bottom: 16px; display: flex; align-items: center; gap: 16px"
           },
           "children": [
             {
               "type": "AButton",
               "props": {
                 "icon": {
-                  "type": "string",
-                  "body": "{{'left'}}"
+                  "type": "string", "body": "'left'"
                 },
                 "onClick": {
                   "type": "function",
@@ -268,23 +261,16 @@
         {
           "type": "div",
           "props": {
-            "style": {
-              "type": "string",
-              "body": "{{'display: flex; gap: 24px; height: calc(100vh - 200px)'}}"
-            }
+            "style": "display: flex; gap: 24px; height: calc(100vh - 200px)"
           },
           "children": [
             {
               "type": "ACard",
               "props": {
                 "title": {
-                  "type": "string",
-                  "body": "{{'权限树'}}"
+                  "type": "string", "body": "'权限树'"
                 },
-                "style": {
-                  "type": "string",
-                  "body": "{{'width: 400px; flex-shrink: 0'}}"
-                }
+                "style": "width: 400px; flex-shrink: 0"
               },
               "children": [
                 {
@@ -296,10 +282,7 @@
                     }
                   },
                   "props": {
-                    "style": {
-                      "type": "string",
-                      "body": "{{'text-align: center; padding: 40px 0'}}"
-                    }
+                    "style": "text-align: center; padding: 40px 0"
                   },
                   "children": [
                     {
@@ -364,13 +347,9 @@
               "type": "ACard",
               "props": {
                 "title": {
-                  "type": "string",
-                  "body": "{{'配置详情'}}"
+                  "type": "string", "body": "'配置详情'"
                 },
-                "style": {
-                  "type": "string",
-                  "body": "{{'flex: 1'}}"
-                }
+                "style": { "flex": "1" }
               },
               "children": [
                 {
@@ -382,10 +361,7 @@
                     }
                   },
                   "props": {
-                    "style": {
-                      "type": "string",
-                      "body": "{{'text-align: center; padding: 60px 0; color: #999'}}"
-                    }
+                    "style": "text-align: center; padding: 60px 0; color: #999"
                   },
                   "children": [
                     "请从左侧选择一个节点进行配置"
@@ -403,10 +379,7 @@
                     {
                       "type": "div",
                       "props": {
-                        "style": {
-                          "type": "string",
-                          "body": "{{'margin-bottom: 16px'}}"
-                        }
+                        "style": { "marginBottom": "16px" }
                       },
                       "children": [
                         {
@@ -431,10 +404,7 @@
                             {
                               "type": "span",
                               "props": {
-                                "style": {
-                                  "type": "string",
-                                  "body": "{{'font-weight: 500'}}"
-                                }
+                                "style": { "fontWeight": "500" }
                               },
                               "children": [
                                 {
@@ -446,10 +416,7 @@
                             {
                               "type": "span",
                               "props": {
-                                "style": {
-                                  "type": "string",
-                                  "body": "{{'margin-left: 8px; color: #666'}}"
-                                }
+                                "style": "margin-left: 8px; color: #666"
                               },
                               "children": [
                                 {
@@ -488,12 +455,10 @@
                           "type": "ATabsTab",
                           "props": {
                             "key": {
-                              "type": "string",
-                              "body": "{{'list'}}"
+                              "type": "string", "body": "'list'"
                             },
                             "tab": {
-                              "type": "string",
-                              "body": "{{'权限列表'}}"
+                              "type": "string", "body": "'权限列表'"
                             }
                           },
                           "children": [
@@ -506,10 +471,7 @@
                                 }
                               },
                               "props": {
-                                "style": {
-                                  "type": "string",
-                                  "body": "{{'margin-bottom: 16px'}}"
-                                }
+                                "style": { "marginBottom": "16px" }
                               },
                               "children": [
                                 {
@@ -519,8 +481,7 @@
                                       "type": "AButton",
                                       "props": {
                                         "size": {
-                                          "type": "string",
-                                          "body": "{{'small'}}"
+                                          "type": "string", "body": "'small'"
                                         },
                                         "onClick": {
                                           "type": "function",
@@ -536,8 +497,7 @@
                                       "type": "AButton",
                                       "props": {
                                         "size": {
-                                          "type": "string",
-                                          "body": "{{'small'}}"
+                                          "type": "string", "body": "'small'"
                                         },
                                         "onClick": {
                                           "type": "function",
@@ -556,19 +516,8 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": {
-                                  "type": "expression",
-                                  "body": "{{ref_state_selectedNodePerm.read}}"
-                                },
-                                "onChange": {
-                                  "type": "function",
-                                  "params": "{{{}}}",
-                                  "body": "{{methods.handleFieldPermChange()}}"
-                                },
-                                "style": {
-                                  "type": "string",
-                                  "body": "{{'margin-right: 24px'}}"
-                                },
+                                "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.read}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.read=args[0].target.checked; methods.handleFieldPermChange()}}" },
+                                "style": { "marginRight": "24px" },
                                 "disabled": {
                                   "type": "expression",
                                   "body": "{{!ref_computed_isFieldNode}}"
@@ -581,19 +530,8 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": {
-                                  "type": "expression",
-                                  "body": "{{ref_state_selectedNodePerm.write}}"
-                                },
-                                "onChange": {
-                                  "type": "function",
-                                  "params": "{{{}}}",
-                                  "body": "{{methods.handleFieldPermChange()}}"
-                                },
-                                "style": {
-                                  "type": "string",
-                                  "body": "{{'margin-right: 24px'}}"
-                                },
+                                "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.write}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.write=args[0].target.checked; methods.handleFieldPermChange()}}" },
+                                "style": { "marginRight": "24px" },
                                 "disabled": {
                                   "type": "expression",
                                   "body": "{{!ref_computed_isFieldNode}}"
@@ -606,19 +544,8 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": {
-                                  "type": "expression",
-                                  "body": "{{ref_state_selectedNodePerm.hidden}}"
-                                },
-                                "onChange": {
-                                  "type": "function",
-                                  "params": "{{{}}}",
-                                  "body": "{{methods.handleFieldPermChange()}}"
-                                },
-                                "style": {
-                                  "type": "string",
-                                  "body": "{{'margin-right: 24px'}}"
-                                },
+                                "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.hidden}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.hidden=args[0].target.checked; methods.handleFieldPermChange()}}" },
+                                "style": { "marginRight": "24px" },
                                 "disabled": {
                                   "type": "expression",
                                   "body": "{{!ref_computed_isFieldNode}}"
@@ -631,15 +558,7 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": {
-                                  "type": "expression",
-                                  "body": "{{ref_state_selectedNodePerm.privacy}}"
-                                },
-                                "onChange": {
-                                  "type": "function",
-                                  "params": "{{{}}}",
-                                  "body": "{{methods.handleFieldPermChange()}}"
-                                },
+                                "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.privacy}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.privacy=args[0].target.checked; methods.handleFieldPermChange()}}" },
                                 "disabled": {
                                   "type": "expression",
                                   "body": "{{!ref_computed_isFieldNode}}"
@@ -655,12 +574,10 @@
                           "type": "ATabsTab",
                           "props": {
                             "key": {
-                              "type": "string",
-                              "body": "{{'stats'}}"
+                              "type": "string", "body": "'stats'"
                             },
                             "tab": {
-                              "type": "string",
-                              "body": "{{'权限统计'}}"
+                              "type": "string", "body": "'权限统计'"
                             }
                           },
                           "children": [
@@ -680,19 +597,13 @@
                                       "type": "ACard",
                                       "props": {
                                         "bordered": false,
-                                        "style": {
-                                          "type": "string",
-                                          "body": "{{'background: #e6f4ff'}}"
-                                        }
+                                        "style": { "background": "#e6f4ff" }
                                       },
                                       "children": [
                                         {
                                           "type": "div",
                                           "props": {
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'font-size: 24px; font-weight: 600; color: #1677ff'}}"
-                                            }
+                                            "style": "font-size: 24px; font-weight: 600; color: #1677ff"
                                           },
                                           "children": [
                                             {
@@ -704,10 +615,7 @@
                                         {
                                           "type": "div",
                                           "props": {
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'font-size: 14px; color: #666'}}"
-                                            }
+                                            "style": "font-size: 14px; color: #666"
                                           },
                                           "children": [
                                             "页面级权限"
@@ -727,19 +635,13 @@
                                       "type": "ACard",
                                       "props": {
                                         "bordered": false,
-                                        "style": {
-                                          "type": "string",
-                                          "body": "{{'background: #f6ffed'}}"
-                                        }
+                                        "style": { "background": "#f6ffed" }
                                       },
                                       "children": [
                                         {
                                           "type": "div",
                                           "props": {
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'font-size: 24px; font-weight: 600; color: #52c41a'}}"
-                                            }
+                                            "style": "font-size: 24px; font-weight: 600; color: #52c41a"
                                           },
                                           "children": [
                                             {
@@ -751,10 +653,7 @@
                                         {
                                           "type": "div",
                                           "props": {
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'font-size: 14px; color: #666'}}"
-                                            }
+                                            "style": "font-size: 14px; color: #666"
                                           },
                                           "children": [
                                             "表单级权限"
@@ -774,19 +673,13 @@
                                       "type": "ACard",
                                       "props": {
                                         "bordered": false,
-                                        "style": {
-                                          "type": "string",
-                                          "body": "{{'background: #fff7e6'}}"
-                                        }
+                                        "style": { "background": "#fff7e6" }
                                       },
                                       "children": [
                                         {
                                           "type": "div",
                                           "props": {
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'font-size: 24px; font-weight: 600; color: #fa8c16'}}"
-                                            }
+                                            "style": "font-size: 24px; font-weight: 600; color: #fa8c16"
                                           },
                                           "children": [
                                             {
@@ -798,10 +691,7 @@
                                         {
                                           "type": "div",
                                           "props": {
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'font-size: 14px; color: #666'}}"
-                                            }
+                                            "style": "font-size: 14px; color: #666"
                                           },
                                           "children": [
                                             "字段级权限"
@@ -823,19 +713,13 @@
                               "type": "ACard",
                               "props": {
                                 "bordered": false,
-                                "style": {
-                                  "type": "string",
-                                  "body": "{{'background: #f5f5f5'}}"
-                                }
+                                "style": { "background": "#f5f5f5" }
                               },
                               "children": [
                                 {
                                   "type": "div",
                                   "props": {
-                                    "style": {
-                                      "type": "string",
-                                      "body": "{{'font-size: 14px'}}"
-                                    }
+                                    "style": { "fontSize": "14px" }
                                   },
                                   "children": [
                                     {
@@ -847,10 +731,7 @@
                                     {
                                       "type": "span",
                                       "props": {
-                                        "style": {
-                                          "type": "string",
-                                          "body": "{{'font-weight: 600'}}"
-                                        }
+                                        "style": { "fontWeight": "600" }
                                       },
                                       "children": [
                                         {
@@ -870,10 +751,7 @@
                                 {
                                   "type": "div",
                                   "props": {
-                                    "style": {
-                                      "type": "string",
-                                      "body": "{{'font-size: 14px; margin-top: 8px'}}"
-                                    }
+                                    "style": "font-size: 14px; margin-top: 8px"
                                   },
                                   "children": [
                                     {
@@ -885,10 +763,7 @@
                                     {
                                       "type": "span",
                                       "props": {
-                                        "style": {
-                                          "type": "string",
-                                          "body": "{{'font-weight: 600'}}"
-                                        }
+                                        "style": { "fontWeight": "600" }
                                       },
                                       "children": [
                                         {
@@ -913,12 +788,10 @@
                           "type": "ATabsTab",
                           "props": {
                             "key": {
-                              "type": "string",
-                              "body": "{{'inheritance'}}"
+                              "type": "string", "body": "'inheritance'"
                             },
                             "tab": {
-                              "type": "string",
-                              "body": "{{'继承关系'}}"
+                              "type": "string", "body": "'继承关系'"
                             }
                           },
                           "children": [
@@ -928,8 +801,7 @@
                                 "column": 1,
                                 "bordered": true,
                                 "size": {
-                                  "type": "string",
-                                  "body": "{{'small'}}"
+                                  "type": "string", "body": "'small'"
                                 }
                               },
                               "children": [
@@ -937,18 +809,14 @@
                                   "type": "ADescriptionsItem",
                                   "props": {
                                     "label": {
-                                      "type": "string",
-                                      "body": "{{'继承说明'}}"
+                                      "type": "string", "body": "'继承说明'"
                                     }
                                   },
                                   "children": [
                                     {
                                       "type": "ul",
                                       "props": {
-                                        "style": {
-                                          "type": "string",
-                                          "body": "{{'margin: 0; padding-left: 20px'}}"
-                                        }
+                                        "style": "margin: 0; padding-left: 20px"
                                       },
                                       "children": [
                                         {
@@ -981,22 +849,17 @@
                           "type": "ATabsTab",
                           "props": {
                             "key": {
-                              "type": "string",
-                              "body": "{{'compare'}}"
+                              "type": "string", "body": "'compare'"
                             },
                             "tab": {
-                              "type": "string",
-                              "body": "{{'角色对比'}}"
+                              "type": "string", "body": "'角色对比'"
                             }
                           },
                           "children": [
                             {
                               "type": "ASpace",
                               "props": {
-                                "style": {
-                                  "type": "string",
-                                  "body": "{{'margin-bottom: 16px'}}"
-                                }
+                                "style": { "marginBottom": "16px" }
                               },
                               "children": [
                                 {
@@ -1009,8 +872,7 @@
                                   "type": "ASelect",
                                   "props": {
                                     "placeholder": {
-                                      "type": "string",
-                                      "body": "{{'请选择角色'}}"
+                                      "type": "string", "body": "'请选择角色'"
                                     },
                                     "value": {
                                       "type": "expression",
@@ -1021,10 +883,7 @@
                                       "params": "{{{}}}",
                                       "body": "{{ref_state_compareRoleId.value = args[0]; if (args[0]) methods.loadCompareResult();}}"
                                     },
-                                    "style": {
-                                      "type": "string",
-                                      "body": "{{'width: 200px'}}"
-                                    }
+                                    "style": { "width": "200px" }
                                   },
                                   "children": [
                                     {
@@ -1071,19 +930,13 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'background: #f6ffed'}}"
-                                            }
+                                            "style": { "background": "#f6ffed" }
                                           },
                                           "children": [
                                             {
                                               "type": "div",
                                               "props": {
-                                                "style": {
-                                                  "type": "string",
-                                                  "body": "{{'font-size: 24px; font-weight: 600; color: #52c41a'}}"
-                                                }
+                                                "style": "font-size: 24px; font-weight: 600; color: #52c41a"
                                               },
                                               "children": [
                                                 {
@@ -1095,10 +948,7 @@
                                             {
                                               "type": "div",
                                               "props": {
-                                                "style": {
-                                                  "type": "string",
-                                                  "body": "{{'font-size: 14px; color: #666'}}"
-                                                }
+                                                "style": "font-size: 14px; color: #666"
                                               },
                                               "children": [
                                                 {
@@ -1125,19 +975,13 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'background: #fff7e6'}}"
-                                            }
+                                            "style": { "background": "#fff7e6" }
                                           },
                                           "children": [
                                             {
                                               "type": "div",
                                               "props": {
-                                                "style": {
-                                                  "type": "string",
-                                                  "body": "{{'font-size: 24px; font-weight: 600; color: #fa8c16'}}"
-                                                }
+                                                "style": "font-size: 24px; font-weight: 600; color: #fa8c16"
                                               },
                                               "children": [
                                                 {
@@ -1149,10 +993,7 @@
                                             {
                                               "type": "div",
                                               "props": {
-                                                "style": {
-                                                  "type": "string",
-                                                  "body": "{{'font-size: 14px; color: #666'}}"
-                                                }
+                                                "style": "font-size: 14px; color: #666"
                                               },
                                               "children": [
                                                 {
@@ -1179,19 +1020,13 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": {
-                                              "type": "string",
-                                              "body": "{{'background: #e6f4ff'}}"
-                                            }
+                                            "style": { "background": "#e6f4ff" }
                                           },
                                           "children": [
                                             {
                                               "type": "div",
                                               "props": {
-                                                "style": {
-                                                  "type": "string",
-                                                  "body": "{{'font-size: 24px; font-weight: 600; color: #1677ff'}}"
-                                                }
+                                                "style": "font-size: 24px; font-weight: 600; color: #1677ff"
                                               },
                                               "children": [
                                                 {
@@ -1203,10 +1038,7 @@
                                             {
                                               "type": "div",
                                               "props": {
-                                                "style": {
-                                                  "type": "string",
-                                                  "body": "{{'font-size: 14px; color: #666'}}"
-                                                }
+                                                "style": "font-size: 14px; color: #666"
                                               },
                                               "children": [
                                                 "共有的权限"
@@ -1233,10 +1065,7 @@
         {
           "type": "div",
           "props": {
-            "style": {
-              "type": "string",
-              "body": "{{'margin-top: 16px; text-align: right'}}"
-            }
+            "style": "margin-top: 16px; text-align: right"
           },
           "children": [
             {
@@ -1259,8 +1088,7 @@
                   "type": "AButton",
                   "props": {
                     "type": {
-                      "type": "string",
-                      "body": "{{'primary'}}"
+                      "type": "string", "body": "'primary'"
                     },
                     "loading": {
                       "type": "expression",

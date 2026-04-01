@@ -50,7 +50,7 @@ describe('parseJson - value parsing', () => {
 
   it('should use ValueScopeParser for type=scope', () => {
     const input = {
-      key: { type: 'scope', body: '{{$_[core]_myVar}}' },
+      key: { type: 'scope', body: '{{$_core_myVar}}' },
     };
     const result = parseJson(input);
     expect((result as Record<string, unknown>).key).toEqual({
@@ -140,7 +140,7 @@ describe('parseJson - recursive traversal', () => {
   it('should parse mixed structure with object and array', () => {
     const input = {
       obj: {
-        arr: [{ nested: { type: 'scope', body: '{{$_[goal]_var}}' } }],
+        arr: [{ nested: { type: 'scope', body: '{{$_goal_var}}' } }],
       },
     };
     const result = parseJson(input);
@@ -286,7 +286,7 @@ describe('parseJson - custom scope names', () => {
       scopeNames: ['global', 'core'],
     });
     const input = {
-      key: { type: 'scope', body: '{{$_[global]_config}}' },
+      key: { type: 'scope', body: '{{$_global_config}}' },
     };
     const result = parseJson(input, config);
     expect((result as Record<string, unknown>).key).toEqual({
@@ -301,7 +301,7 @@ describe('parseJson - custom scope names', () => {
       scopeNames: ['core'],
     });
     const input = {
-      key: { type: 'scope', body: '{{$_[unknown]_var}}' },
+      key: { type: 'scope', body: '{{$_unknown_var}}' },
     };
     expect(() => parseJson(input, config)).toThrow('body 格式不正确');
   });
@@ -323,7 +323,7 @@ describe('parseJson - expression parsing with references', () => {
 
   it('should parse expression with pure scope as abstract scope', () => {
     const input = {
-      value: { type: 'expression', body: '{{$_[goal]_target}}' },
+      value: { type: 'expression', body: '{{$_goal_target}}' },
     };
     const result = parseJson(input);
     const value = (result as Record<string, unknown>).value as Record<string, unknown>;

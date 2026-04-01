@@ -18,7 +18,7 @@
     "greeting": { "get": { "type": "function", "params": "{{{}}}", "body": "{{var h=new Date().getHours();return h<12?'早上好':h<18?'下午好':'晚上好'}}" } }
   },
   "methods": {
-    "loadData": { "type": "function", "params": "{{{}}}", "body": "{{var t=$_[core]_storage.get('token');if(!t){window.location.hash='#/login';return}ref_state_loading=true;var u=$_[core]_storage.get('userInfo');var p=$_[core]_storage.get('permissions');if(u)ref_state_user=u;ref_state_loading=false}}" },
+    "loadData": { "type": "function", "params": "{{{}}}", "body": "{{var t=$_core_storage.get('token');if(!t){window.location.hash='#/login';return}ref_state_loading=true;var u=$_core_storage.get('userInfo');var p=$_core_storage.get('permissions');if(u)ref_state_user=u;ref_state_loading=false}}" },
     "updateVisitData": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_visitData = ref_state_visitData.map(v => v + Math.floor(Math.random() * 100 - 50))}}" }
   },
   "lifecycle": { "onMounted": { "type": "function", "params": "{{{}}}", "body": "{{methods.loadData()}}" } },

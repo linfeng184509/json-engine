@@ -29,10 +29,10 @@
 
 ### Decision 2: 权限检查下沉到 Core Scope
 
-**选择:** 通过 `$_[core]_auth.xxx` 访问权限方法，而非全局函数
+**选择:** 通过 `$_core_auth.xxx` 访问权限方法，而非全局函数
 
 **理由:**
-- 与现有的 `$_[core]_api`, `$_[core]_storage` 保持一致
+- 与现有的 `$_core_api`, `$_core_storage` 保持一致
 - 可在表达式中直接使用
 
 ### Decision 3: 声明式权限指令

@@ -12,7 +12,9 @@
     "formData": { "type": "reactive", "initial": { "code": "", "name": "", "description": "", "status": "active" } },
     "confirmLoading": { "type": "ref", "initial": false },
     "deleteModalVisible": { "type": "ref", "initial": false },
-    "deletingRole": { "type": "ref", "initial": null }
+    "deletingRole": { "type": "ref", "initial": null },
+    "statusToggleModalVisible": { "type": "ref", "initial": false },
+    "togglingRole": { "type": "ref", "initial": null }
   },
   "computed": {
     "hasSelected": {
@@ -41,7 +43,7 @@
     "loadRoleList": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ref_state_loading.value = true; var params = { page: ref_state_pagination.current, pageSize: ref_state_pagination.pageSize, keyword: ref_state_searchForm.keyword, status: ref_state_searchForm.status }; $_[core]_api.get('/api/role/list', { params: params }).then(function(res) { ref_state_roleList.value = res.data.list; ref_state_pagination.total = res.data.total; ref_state_loading.value = false; }).catch(function(e) { console.error(e); ref_state_loading.value = false; }) }}"
+      "body": "{{ref_state_loading.value = true; var params = { page: ref_state_pagination.current, pageSize: ref_state_pagination.pageSize, keyword: ref_state_searchForm.keyword, status: ref_state_searchForm.status }; $_core_api.get('/api/role/list', { params: params }).then(function(res) { ref_state_roleList.value = res.data.list; ref_state_pagination.total = res.data.total; ref_state_loading.value = false; }).catch(function(e) { console.error(e); $_antd.message.error('加载失败'); ref_state_loading.value = false; }) }}"
     },
     "handleSearch": {
       "type": "function",
@@ -76,7 +78,7 @@
     "confirmDelete": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ if (!ref_state_deletingRole.value) return; ref_state_confirmLoading.value = true; $_[core]_api.delete('/api/role/' + ref_state_deletingRole.value.id).then(function(res) { if (res.success) { ref_state_deleteModalVisible.value = false; methods.loadRoleList(); } else { alert(res.error || '删除失败'); } }).finally(function() { ref_state_confirmLoading.value = false; ref_state_deletingRole.value = null; }) }}"
+      "body": "{{ if (!ref_state_deletingRole.value) return; ref_state_confirmLoading.value = true; $_core_api.delete('/api/role/' + ref_state_deletingRole.value.id).then(function(res) { if (res.success) { $_antd.message.success('删除成功'); ref_state_deleteModalVisible.value = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '删除失败'); } }).catch(function(e) { $_antd.message.error('删除失败'); console.error(e); }).finally(function() { ref_state_confirmLoading.value = false; ref_state_deletingRole.value = null; }) }}"
     },
     "cancelDelete": {
       "type": "function",
@@ -86,7 +88,7 @@
     "handleModalOk": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ if (!ref_computed_formIsValid.value) return; ref_state_confirmLoading.value = true; var data = { code: ref_state_formData.code, name: ref_state_formData.name, description: ref_state_formData.description, status: ref_state_formData.status }; var promise = ref_state_editingRole.value ? $_[core]_api.put('/api/role/' + ref_state_editingRole.value.id, data) : $_[core]_api.post('/api/role', data); promise.then(function(res) { if (res.success) { ref_state_modalVisible.value = false; methods.loadRoleList(); } else { alert(res.error || '操作失败'); } }).finally(function() { ref_state_confirmLoading.value = false; }) }}"
+      "body": "{{ if (!ref_computed_formIsValid.value) { $_antd.message.warning('请填写必填项'); return; } ref_state_confirmLoading.value = true; var data = { code: ref_state_formData.code, name: ref_state_formData.name, description: ref_state_formData.description, status: ref_state_formData.status }; var promise = ref_state_editingRole.value ? $_core_api.put('/api/role/' + ref_state_editingRole.value.id, data) : $_core_api.post('/api/role', data); promise.then(function(res) { if (res.success) { $_antd.message.success(ref_state_editingRole.value ? '编辑成功' : '新增成功'); ref_state_modalVisible.value = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '操作失败'); } }).catch(function(e) { $_antd.message.error('操作失败'); console.error(e); }).finally(function() { ref_state_confirmLoading.value = false; }) }}"
     },
     "handleModalCancel": {
       "type": "function",
@@ -101,7 +103,17 @@
     "handleToggleStatus": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ var role = args[0]; var newStatus = role.status === 'active' ? 'inactive' : 'active'; $_[core]_api.put('/api/role/' + role.id, { status: newStatus }).then(function(res) { if (res.success) { methods.loadRoleList(); } else { alert(res.error || '操作失败'); } }) }}"
+      "body": "{{ ref_state_togglingRole.value = args[0]; ref_state_statusToggleModalVisible.value = true }}"
+    },
+    "confirmToggleStatus": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ if (!ref_state_togglingRole.value) return; var role = ref_state_togglingRole.value; var newStatus = role.status === 'active' ? 'inactive' : 'active'; ref_state_confirmLoading.value = true; $_core_api.put('/api/role/' + role.id, { status: newStatus }).then(function(res) { if (res.success) { $_antd.message.success(newStatus === 'active' ? '已启用' : '已停用'); ref_state_statusToggleModalVisible.value = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '操作失败'); } }).catch(function(e) { $_antd.message.error('操作失败'); console.error(e); }).finally(function() { ref_state_confirmLoading.value = false; ref_state_togglingRole.value = null; }) }}"
+    },
+    "cancelToggleStatus": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{ ref_state_statusToggleModalVisible.value = false; ref_state_togglingRole.value = null }}"
     },
     "getStatusTag": {
       "type": "function",
@@ -173,15 +185,15 @@
                               "type": "string",
                               "body": "'请输入角色名称'"
                             },
-"value": {
-                             "type": "expression",
-                             "body": "{{ref_state_searchForm.keyword}}"
-                           },
-                           "onChange": {
-                             "type": "function",
-                             "params": "{{{}}}",
-                             "body": "{{ref_state_searchForm.keyword = args[0].target.value}}"
-                           },
+                            "value": {
+                              "type": "expression",
+                              "body": "{{ref_state_searchForm.keyword}}"
+                            },
+                            "onChange": {
+                              "type": "function",
+                              "params": "{{{}}}",
+                              "body": "{{ref_state_searchForm.keyword = args[0].target.value}}"
+                            },
                             "style": {
                               "type": "string",
                               "body": "'width: 200px'"
@@ -206,15 +218,15 @@
                               "type": "string",
                               "body": "'请选择状态'"
                             },
-"value": {
-                             "type": "expression",
-                             "body": "{{ref_state_searchForm.status}}"
-                           },
-                           "onChange": {
-                             "type": "function",
-                             "params": "{{{}}}",
-                             "body": "{{ref_state_searchForm.status = args[0]}}"
-                           },
+                            "value": {
+                              "type": "expression",
+                              "body": "{{ref_state_searchForm.status}}"
+                            },
+                            "onChange": {
+                              "type": "function",
+                              "params": "{{{}}}",
+                              "body": "{{ref_state_searchForm.status = args[0]}}"
+                            },
                             "style": {
                               "type": "string",
                               "body": "'width: 120px'"
@@ -559,10 +571,10 @@
         {
           "type": "AModal",
           "props": {
-"title": {
-               "type": "expression",
-               "body": "{{ref_state_modalTitle}}"
-             },
+            "title": {
+              "type": "expression",
+              "body": "{{ref_state_modalTitle}}"
+            },
             "open": {
               "type": "expression",
               "body": "{{ref_state_modalVisible}}"
@@ -607,19 +619,19 @@
                           "type": "string",
                           "body": "'请输入角色编码'"
                         },
-"value": {
-                         "type": "expression",
-                         "body": "{{ref_state_formData.code}}"
-                       },
-                       "onChange": {
-                         "type": "function",
-                         "params": "{{{}}}",
-                         "body": "{{ref_state_formData.code = args[0].target.value}}"
-                       },
-                       "disabled": {
-                         "type": "expression",
-                         "body": "{{ref_state_editingRole}}"
-                       }
+                        "value": {
+                          "type": "expression",
+                          "body": "{{ref_state_formData.code}}"
+                        },
+                        "onChange": {
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{ref_state_formData.code = args[0].target.value}}"
+                        },
+                        "disabled": {
+                          "type": "expression",
+                          "body": "{{ref_state_editingRole}}"
+                        }
                       }
                     }
                   ]
@@ -641,15 +653,15 @@
                           "type": "string",
                           "body": "'请输入角色名称'"
                         },
-"value": {
-                         "type": "expression",
-                         "body": "{{ref_state_formData.name}}"
-                       },
-                       "onChange": {
-                         "type": "function",
-                         "params": "{{{}}}",
-                         "body": "{{ref_state_formData.name = args[0].target.value}}"
-                       }
+                        "value": {
+                          "type": "expression",
+                          "body": "{{ref_state_formData.name}}"
+                        },
+                        "onChange": {
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{ref_state_formData.name = args[0].target.value}}"
+                        }
                       }
                     }
                   ]
@@ -670,15 +682,15 @@
                           "type": "string",
                           "body": "'请输入角色描述'"
                         },
-"value": {
-                         "type": "expression",
-                         "body": "{{ref_state_formData.description}}"
-                       },
-                       "onChange": {
-                         "type": "function",
-                         "params": "{{{}}}",
-                         "body": "{{ref_state_formData.description = args[0].target.value}}"
-                       },
+                        "value": {
+                          "type": "expression",
+                          "body": "{{ref_state_formData.description}}"
+                        },
+                        "onChange": {
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{ref_state_formData.description = args[0].target.value}}"
+                        },
                         "rows": 3
                       }
                     }
@@ -696,15 +708,15 @@
                     {
                       "type": "ARadioGroup",
                       "props": {
-"value": {
-                         "type": "expression",
-                         "body": "{{ref_state_formData.status}}"
-                       },
-                       "onChange": {
-                         "type": "function",
-                         "params": "{{{}}}",
-                         "body": "{{ref_state_formData.status = args[0].target.value}}"
-                       }
+                        "value": {
+                          "type": "expression",
+                          "body": "{{ref_state_formData.status}}"
+                        },
+                        "onChange": {
+                          "type": "function",
+                          "params": "{{{}}}",
+                          "body": "{{ref_state_formData.status = args[0].target.value}}"
+                        }
                       },
                       "children": [
                         {
@@ -772,6 +784,52 @@
                 {
                   "type": "expression",
                   "body": "{{ref_state_deletingRole?.value?.name || ''}}"
+                },
+                {
+                  "type": "expression",
+                  "body": "{{' 吗？此操作不可恢复。'}}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "AModal",
+          "props": {
+            "title": {
+              "type": "string",
+              "body": "'确认切换状态'"
+            },
+            "open": {
+              "type": "expression",
+              "body": "{{ref_state_statusToggleModalVisible}}"
+            },
+            "onOk": {
+              "type": "function",
+              "params": "{{{}}}",
+              "body": "{{methods.confirmToggleStatus()}}"
+            },
+            "onCancel": {
+              "type": "function",
+              "params": "{{{}}}",
+              "body": "{{methods.cancelToggleStatus()}}"
+            },
+            "confirmLoading": {
+              "type": "expression",
+              "body": "{{ref_state_confirmLoading}}"
+            }
+          },
+          "children": [
+            {
+              "type": "p",
+              "children": [
+                {
+                  "type": "expression",
+                  "body": "{{ref_state_togglingRole.value?.status === 'active' ? '确定要停用角色 ' : '确定要启用角色 '}}"
+                },
+                {
+                  "type": "expression",
+                  "body": "{{ref_state_togglingRole?.value?.name || ''}}"
                 },
                 {
                   "type": "expression",

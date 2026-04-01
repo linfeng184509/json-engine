@@ -17,15 +17,15 @@ WebSocket 插件，提供 `_ws` Scope。
 插件必须提供 `_ws` Scope 扩展。
 
 #### Scenario: Send message
-- **WHEN** 调用 `$_[core]_ws.send("channel", data)`
+- **WHEN** 调用 `$_core_ws.send("channel", data)`
 - **THEN** 通过 WebSocket 发送数据
 
 #### Scenario: Subscribe channel
-- **WHEN** 调用 `$_[core]_ws.subscribe("channel", handler)`
+- **WHEN** 调用 `$_core_ws.subscribe("channel", handler)`
 - **THEN** 订阅指定频道
 
 #### Scenario: Unsubscribe channel
-- **WHEN** 调用 `$_[core]_ws.unsubscribe("channel", handler)`
+- **WHEN** 调用 `$_core_ws.unsubscribe("channel", handler)`
 - **THEN** 取消订阅
 
 ### Requirement: Support websocket config

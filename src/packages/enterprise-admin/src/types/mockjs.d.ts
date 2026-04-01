@@ -7,6 +7,9 @@ declare module 'mockjs' {
     string(pool: string, length: number): string;
     integer(min: number, max: number): number;
     pick<T>(array: T[]): T;
+    datetime(format?: string): string;
+    date(format?: string): string;
+    time(format?: string): string;
     [key: string]: unknown;
   };
   

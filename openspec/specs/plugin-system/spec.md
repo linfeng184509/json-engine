@@ -49,7 +49,7 @@
 - **THEN** CoreScope 包含 `_api` 属性
 
 #### Scenario: Access scope in expression
-- **WHEN** 表达式中使用 `$_[core]_api.get(...)`
+- **WHEN** 表达式中使用 `$_core_api.get(...)`
 - **THEN** 调用插件提供的 `_api` 方法
 
 ### Requirement: Peer dependency check

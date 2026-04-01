@@ -4,6 +4,14 @@ import { antdConfigSchema } from './config-schema'
 import { createAntdFactory } from './runtime/antd-factory'
 import { getAntdComponents } from './antdComponents'
 import type { AntdPluginConfig } from './types'
+import { message, notification } from 'ant-design-vue'
+
+function createAntdScope(_config: AntdPluginConfig) {
+  return {
+    message,
+    notification,
+  }
+}
 
 export const antdPlugin: VueJsonPlugin = {
   name: '@json-engine/plugin-antd',
@@ -11,6 +19,13 @@ export const antdPlugin: VueJsonPlugin = {
   description: 'Ant Design Vue integration for vue-json',
 
   configSchema: antdConfigSchema,
+
+  scopeExtensions: [
+    {
+      key: '_antd',
+      factory: (config: unknown) => createAntdScope(config as AntdPluginConfig),
+    },
+  ],
 
   runtimeExports: [
     {

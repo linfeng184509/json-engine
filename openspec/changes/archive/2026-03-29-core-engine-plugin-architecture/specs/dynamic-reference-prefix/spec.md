@@ -29,12 +29,12 @@ core-engine 动态引用前缀配置，支持任意格式的引用前缀。
 
 #### Scenario: Configure single scope name
 - **WHEN** scopeNames 设置为 `['global']`
-- **AND** scope 格式为 `{{$_[global]_config}}`
+- **AND** scope 格式为 `{{$_global_config}}`
 - **THEN** 正确解析为 scope 引用
 
 #### Scenario: Configure multiple scope names
 - **WHEN** scopeNames 设置为 `['core', 'goal', 'global']`
-- **AND** scope 格式为 `{{$_[goal]_target}}`
+- **AND** scope 格式为 `{{$_goal_target}}`
 - **THEN** 正确解析为 goal scope
 
 ### Requirement: createReferenceRegex factory

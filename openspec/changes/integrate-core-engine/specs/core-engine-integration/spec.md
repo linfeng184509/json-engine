@@ -33,7 +33,7 @@ core-engine 解析能力集成到 vue-json parser 系统。
 - **THEN** parseNestedReference 返回 `{ type: 'props', variable: 'title' }`
 
 #### Scenario: Parse scope reference
-- **WHEN** 表达式为 `{{$_[core]_config}}`
+- **WHEN** 表达式为 `{{$_core_config}}`
 - **THEN** parseNestedReference 返回 `{ type: 'scope', scope: 'core', variable: 'config' }`
 
 #### Scenario: Fallback for non-reference expressions

@@ -61,5 +61,5 @@
 系统必须在 Core Scope 中暴露字段权限方法。
 
 #### Scenario: Access via Core Scope
-- **WHEN** 在表达式中调用 `$_[core]_auth.canReadField('user-list', 'phone')`
+- **WHEN** 在表达式中调用 `$_core_auth.canReadField('user-list', 'phone')`
 - **THEN** 返回字段是否可读

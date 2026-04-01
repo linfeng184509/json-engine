@@ -17,11 +17,11 @@ Axios HTTP 客户端插件，提供 `_api` Scope。
 插件必须提供 `_api` Scope 扩展。
 
 #### Scenario: API get request
-- **WHEN** 调用 `$_[core]_api.get("/users")`
+- **WHEN** 调用 `$_core_api.get("/users")`
 - **THEN** 发送 GET 请求并返回响应
 
 #### Scenario: API post request
-- **WHEN** 调用 `$_[core]_api.post("/users", { name: "test" })`
+- **WHEN** 调用 `$_core_api.post("/users", { name: "test" })`
 - **THEN** 发送 POST 请求并返回响应
 
 #### Scenario: Auto attach auth token

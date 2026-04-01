@@ -5,7 +5,7 @@ function createReferenceRegex(prefixes: string[]): RegExp {
 
 function createScopeRegex(scopeNames: string[]): RegExp {
   const pattern = scopeNames.join('|');
-  return new RegExp(`^\\{\\{\\$_\\[(${pattern})\\]_(.+)\\}\\}$`);
+  return new RegExp(`^\\{\\{\\$_(${pattern})_(.+)\\}\\}$`);
 }
 
 function createInnerReferenceRegex(prefixes: string[]): RegExp {
@@ -15,7 +15,7 @@ function createInnerReferenceRegex(prefixes: string[]): RegExp {
 
 function createInnerScopeRegex(scopeNames: string[]): RegExp {
   const pattern = scopeNames.join('|');
-  return new RegExp(`^\\$_\\[(${pattern})\\]_([a-zA-Z_$][a-zA-Z0-9_$]*)$`);
+  return new RegExp(`^\\$_(${pattern})_([a-zA-Z_$][a-zA-Z0-9_$]*)$`);
 }
 
 export {
