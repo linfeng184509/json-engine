@@ -233,12 +233,12 @@
                           "type": "ATag",
                           "props": {
                             "color": {
-                              "$expr": "$state.selectedNode.type==='platform' ? 'blue' : $state.selectedNode.type==='menu' ? 'green' : $state.selectedNode.type==='page' ? 'orange' : $state.selectedNode.type==='feature' ? 'purple' : $state.selectedNode.type==='form' ? 'cyan' : 'gold'"
+                              "$expr": "$state.selectedNode?.type==='platform' ? 'blue' : $state.selectedNode?.type==='menu' ? 'green' : $state.selectedNode?.type==='page' ? 'orange' : $state.selectedNode?.type==='feature' ? 'purple' : $state.selectedNode?.type==='form' ? 'cyan' : 'gold'"
                             }
                           },
                           "children": [
                             {
-                              "$expr": "methods.getNodeTypeText($state.selectedNode.type)"
+                              "$expr": "methods.getNodeTypeText($state.selectedNode?.type || '')"
                             }
                           ]
                         },
@@ -249,7 +249,7 @@
                           },
                           "children": [
                             {
-                              "$expr": "$state.selectedNode.name"
+                              "$expr": "$state.selectedNode?.name || ''"
                             }
                           ]
                         }
@@ -270,7 +270,7 @@
                           },
 "children": [
                             {
-                              "$expr": "methods.getNodeTypeText($state.selectedNode.type)"
+                              "$expr": "methods.getNodeTypeText($state.selectedNode?.type || '')"
                             }
                           ]
                         },
@@ -281,7 +281,7 @@
                           },
                           "children": [
                             {
-                              "$expr": "$state.selectedNode.name"
+                              "$expr": "$state.selectedNode?.name || ''"
                             }
                           ]
                         },
@@ -292,7 +292,7 @@
                           },
                           "children": [
                             {
-                              "$expr": "methods.getNodeTypeText($state.selectedNode.type)"
+                              "$expr": "methods.getNodeTypeText($state.selectedNode?.type || '')"
                             }
                           ]
                         },
@@ -303,7 +303,7 @@
                           },
 "children": [
                             {
-                              "$expr": "$state.selectedNode.name"
+                              "$expr": "$state.selectedNode?.name || ''"
                             }
                           ]
                         }
