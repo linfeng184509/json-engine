@@ -13,12 +13,12 @@
     "onOpenChange": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ref_state_openKeys.value = args[0]}}"
+      "body": "{{ref_state_openKeys = args[0]}}"
     },
     "onMenuClick": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{var item = args[0]; if(item.key) { ref_state_selectedKeys.value = [item.key]; window.location.hash = '/demos/' + item.key; }}}"
+      "body": "{{var item = args[0]; if(item && item.key) { ref_state_selectedKeys = [item.key]; window.location.hash = '/demos/' + item.key; }}}"
     },
     "loadPage": {
       "type": "function",
@@ -51,125 +51,254 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "ALayout",
-      "props": { "style": "min-height:100vh" },
+      "type": "div",
+      "props": { "style": { "type": "string", "body": "'min-height: 100vh'" } },
       "children": [
         {
-          "type": "ALayoutSider",
-          "props": {
-            "collapsible": true,
-            "collapsed": { "type": "expression", "body": "{{ref_state_collapsed}}" },
-            "onCollapse": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_collapsed.value = args[0]}}" },
-            "width": 240,
-            "style": "background:#fff;overflow:auto;height:100vh;position:sticky;left:0;top:0;bottom:0"
-          },
+          "type": "ALayout",
+          "props": { "style": { "type": "string", "body": "'min-height: 100vh'" } },
           "children": [
             {
-              "type": "div",
-              "props": { "style": "height:64px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #f0f0f0" },
-              "children": [
-                { "type": "span", "props": { "style": "font-size:16px;font-weight:600;color:#1677ff" }, "children": ["Antd Demos"] }
-              ]
-            },
-            {
-              "type": "AMenu",
+              "type": "ALayoutSider",
               "props": {
-                "mode": "inline",
-                "selectedKeys": { "type": "expression", "body": "{{ref_state_selectedKeys}}" },
-                "openKeys": { "type": "expression", "body": "{{ref_state_openKeys}}" },
-                "style": "border-right:0"
+                "theme": { "type": "string", "body": "'light'" },
+                "collapsible": true,
+                "collapsed": { "type": "expression", "body": "{{ref_state_collapsed}}" },
+                "width": 240,
+                "style": { "type": "string", "body": "'background:#fff;overflow:auto;height:100vh;position:sticky;left:0;top:0;bottom:0'" }
               },
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.onMenuClick(args[0])}}" },
-                  "openChange": { "type": "function", "params": "{{{}}}", "body": "{{methods.onOpenChange(args[0])}}" }
+                  "collapse": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_collapsed = args[0]}}" }
                 }
               },
               "children": [
                 {
-                  "type": "ASubMenu",
-                  "props": { "key": "general" },
+                  "type": "div",
+                  "props": { "style": { "type": "string", "body": "'height:64px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #f0f0f0'" } },
                   "children": [
-                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["通用 General"] } ] },
-                    { "type": "AMenuItem", "props": { "key": "button/basic" }, "children": ["Button Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "icon/basic" }, "children": ["Icon Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "typography/basic" }, "children": ["Typography Basic"] }
+                    { "type": "span", "props": { "style": { "type": "string", "body": "'font-size:16px;font-weight:600;color:#1677ff'" } }, "children": ["Antd Demos"] }
                   ]
                 },
                 {
-                  "type": "ASubMenu",
-                  "props": { "key": "layout" },
+                  "type": "AMenu",
+                  "props": {
+                    "theme": { "type": "string", "body": "'light'" },
+                    "mode": { "type": "string", "body": "'inline'" },
+                    "selectedKeys": { "type": "expression", "body": "{{ref_state_selectedKeys}}" },
+                    "openKeys": { "type": "expression", "body": "{{ref_state_openKeys}}" },
+                    "style": { "type": "string", "body": "'border-right:0;height:calc(100vh - 64px);overflow-y:auto'" }
+                  },
+                  "directives": {
+                    "vOn": {
+                      "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.onMenuClick(args[0])}}" },
+                      "openChange": { "type": "function", "params": "{{{}}}", "body": "{{methods.onOpenChange(args[0])}}" }
+                    }
+                  },
                   "children": [
-                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["布局 Layout"] } ] },
-                    { "type": "AMenuItem", "props": { "key": "grid/basic" }, "children": ["Grid Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "space/basic" }, "children": ["Space Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "layout/basic" }, "children": ["Layout Basic"] }
-                  ]
-                },
-                {
-                  "type": "ASubMenu",
-                  "props": { "key": "data-entry" },
-                  "children": [
-                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["数据录入 Data Entry"] } ] },
-                    { "type": "AMenuItem", "props": { "key": "input/basic" }, "children": ["Input Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "select/basic" }, "children": ["Select Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "form/basic" }, "children": ["Form Basic"] }
-                  ]
-                },
-                {
-                  "type": "ASubMenu",
-                  "props": { "key": "data-display" },
-                  "children": [
-                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["数据展示 Data Display"] } ] },
-                    { "type": "AMenuItem", "props": { "key": "table/basic" }, "children": ["Table Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "modal/basic" }, "children": ["Modal Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "card/basic" }, "children": ["Card Basic"] }
-                  ]
-                },
-                {
-                  "type": "ASubMenu",
-                  "props": { "key": "feedback" },
-                  "children": [
-                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["反馈 Feedback"] } ] },
-                    { "type": "AMenuItem", "props": { "key": "alert/basic" }, "children": ["Alert Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "message/basic" }, "children": ["Message Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "progress/basic" }, "children": ["Progress Basic"] }
+                    {
+                      "type": "ASubMenu", "props": { "key": { "type": "string", "body": "'general'" }, "title": { "type": "string", "body": "'通用 General'" } }, "children": [
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'button/basic'" } }, "children": ["Button Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'button/icon'" } }, "children": ["Button Icon"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'button/size'" } }, "children": ["Button Size"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'button/loading'" } }, "children": ["Button Loading"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'button/disabled'" } }, "children": ["Button Disabled"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'button/danger'" } }, "children": ["Button Danger"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'button/block'" } }, "children": ["Button Block"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'button/ghost'" } }, "children": ["Button Ghost"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'icon/basic'" } }, "children": ["Icon Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'icon/two-tone'" } }, "children": ["Icon TwoTone"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'typography/basic'" } }, "children": ["Typography Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'typography/title'" } }, "children": ["Typography Title"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'typography/text'" } }, "children": ["Typography Text"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'typography/paragraph'" } }, "children": ["Typography Paragraph"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": { "type": "string", "body": "'layout'" }, "title": { "type": "string", "body": "'布局 Layout'" } }, "children": [
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'grid/basic'" } }, "children": ["Grid Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'grid/gutter'" } }, "children": ["Grid Gutter"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'grid/offset'" } }, "children": ["Grid Offset"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'grid/sort'" } }, "children": ["Grid Sort"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'space/basic'" } }, "children": ["Space Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'space/size'" } }, "children": ["Space Size"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'space/direction'" } }, "children": ["Space Direction"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'divider/basic'" } }, "children": ["Divider Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'divider/with-text'" } }, "children": ["Divider WithText"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'layout/basic'" } }, "children": ["Layout Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'layout/top-side'" } }, "children": ["Layout TopSide"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'layout/custom-trigger'" } }, "children": ["Layout CustomTrigger"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": { "type": "string", "body": "'navigation'" }, "title": { "type": "string", "body": "'导航 Navigation'" } }, "children": [
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'menu/basic'" } }, "children": ["Menu Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'menu/inline'" } }, "children": ["Menu Inline"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'menu/vertical'" } }, "children": ["Menu Vertical"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'dropdown/basic'" } }, "children": ["Dropdown Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'dropdown/placement'" } }, "children": ["Dropdown Placement"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'breadcrumb/basic'" } }, "children": ["Breadcrumb Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'breadcrumb/separator'" } }, "children": ["Breadcrumb Separator"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'steps/basic'" } }, "children": ["Steps Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'steps/small'" } }, "children": ["Steps Small"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'steps/icons'" } }, "children": ["Steps Icons"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'pagination/basic'" } }, "children": ["Pagination Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'pagination/more'" } }, "children": ["Pagination More"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'pagination/changer'" } }, "children": ["Pagination Changer"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": { "type": "string", "body": "'data-entry'" }, "title": { "type": "string", "body": "'数据录入 Data Entry'" } }, "children": [
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'form/basic'" } }, "children": ["Form Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'form/layout'" } }, "children": ["Form Layout"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'form/validation'" } }, "children": ["Form Validation"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'form/dynamic'" } }, "children": ["Form Dynamic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'input/basic'" } }, "children": ["Input Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'input/size'" } }, "children": ["Input Size"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'input/addon'" } }, "children": ["Input Addon"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'input/password'" } }, "children": ["Input Password"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'input/textarea'" } }, "children": ["Input Textarea"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'select/basic'" } }, "children": ["Select Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'select/multiple'" } }, "children": ["Select Multiple"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'select/search'" } }, "children": ["Select Search"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'select/size'" } }, "children": ["Select Size"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'checkbox/basic'" } }, "children": ["Checkbox Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'checkbox/group'" } }, "children": ["Checkbox Group"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'checkbox/controller'" } }, "children": ["Checkbox Controller"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'radio/basic'" } }, "children": ["Radio Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'radio/group'" } }, "children": ["Radio Group"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'radio/button'" } }, "children": ["Radio Button"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'switch/basic'" } }, "children": ["Switch Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'switch/size'" } }, "children": ["Switch Size"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'switch/loading'" } }, "children": ["Switch Loading"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'date-picker/basic'" } }, "children": ["DatePicker Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'date-picker/format'" } }, "children": ["DatePicker Format"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'date-picker/disabled-date'" } }, "children": ["DatePicker DisabledDate"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'time-picker/basic'" } }, "children": ["TimePicker Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'time-picker/format'" } }, "children": ["TimePicker Format"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'upload/basic'" } }, "children": ["Upload Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'upload/drag'" } }, "children": ["Upload Drag"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'rate/basic'" } }, "children": ["Rate Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'rate/half'" } }, "children": ["Rate Half"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'slider/basic'" } }, "children": ["Slider Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'slider/marks'" } }, "children": ["Slider Marks"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": { "type": "string", "body": "'data-display'" }, "title": { "type": "string", "body": "'数据展示 Data Display'" } }, "children": [
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'modal/basic'" } }, "children": ["Modal Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'modal/confirm'" } }, "children": ["Modal Confirm"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'modal/position'" } }, "children": ["Modal Position"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'modal/async'" } }, "children": ["Modal Async"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'table/basic'" } }, "children": ["Table Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'table/pagination'" } }, "children": ["Table Pagination"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'table/selection'" } }, "children": ["Table Selection"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'table/sort-filter'" } }, "children": ["Table SortFilter"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tabs/basic'" } }, "children": ["Tabs Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tabs/card'" } }, "children": ["Tabs Card"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tabs/position'" } }, "children": ["Tabs Position"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'card/basic'" } }, "children": ["Card Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'card/meta'" } }, "children": ["Card Meta"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'card/grid'" } }, "children": ["Card Grid"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'list/basic'" } }, "children": ["List Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'list/vertical'" } }, "children": ["List Vertical"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'list/grid'" } }, "children": ["List Grid"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tree/basic'" } }, "children": ["Tree Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tree/directory'" } }, "children": ["Tree Directory"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tree/search'" } }, "children": ["Tree Search"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'descriptions/basic'" } }, "children": ["Descriptions Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'descriptions/border'" } }, "children": ["Descriptions Border"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'avatar/basic'" } }, "children": ["Avatar Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'avatar/type'" } }, "children": ["Avatar Type"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'avatar/group'" } }, "children": ["Avatar Group"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'badge/basic'" } }, "children": ["Badge Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'badge/status'" } }, "children": ["Badge Status"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'badge/no-wrapper'" } }, "children": ["Badge NoWrapper"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tag/basic'" } }, "children": ["Tag Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tag/colorful'" } }, "children": ["Tag Colorful"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tag/checkable'" } }, "children": ["Tag Checkable"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": { "type": "string", "body": "'feedback'" }, "title": { "type": "string", "body": "'反馈 Feedback'" } }, "children": [
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'alert/basic'" } }, "children": ["Alert Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'alert/closable'" } }, "children": ["Alert Closable"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'alert/description'" } }, "children": ["Alert Description"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'message/basic'" } }, "children": ["Message Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'message/type'" } }, "children": ["Message Type"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'message/loading'" } }, "children": ["Message Loading"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'notification/basic'" } }, "children": ["Notification Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'notification/placement'" } }, "children": ["Notification Placement"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'notification/type'" } }, "children": ["Notification Type"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'progress/basic'" } }, "children": ["Progress Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'progress/circle'" } }, "children": ["Progress Circle"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'progress/dynamic'" } }, "children": ["Progress Dynamic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'spin/basic'" } }, "children": ["Spin Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'spin/size'" } }, "children": ["Spin Size"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'spin/tip'" } }, "children": ["Spin Tip"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'skeleton/basic'" } }, "children": ["Skeleton Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'skeleton/complex'" } }, "children": ["Skeleton Complex"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": { "type": "string", "body": "'other'" }, "title": { "type": "string", "body": "'其他 Other'" } }, "children": [
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'collapse/basic'" } }, "children": ["Collapse Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'collapse/accordion'" } }, "children": ["Collapse Accordion"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'collapse/mix'" } }, "children": ["Collapse Mix"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'drawer/basic'" } }, "children": ["Drawer Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'drawer/placement'" } }, "children": ["Drawer Placement"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'popconfirm/basic'" } }, "children": ["Popconfirm Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'popconfirm/placement'" } }, "children": ["Popconfirm Placement"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'tooltip/basic'" } }, "children": ["Tooltip Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'popover/basic'" } }, "children": ["Popover Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'popover/trigger'" } }, "children": ["Popover Trigger"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'empty/basic'" } }, "children": ["Empty Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'empty/custom'" } }, "children": ["Empty Custom"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'back-top/basic'" } }, "children": ["BackTop Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'back-top/custom'" } }, "children": ["BackTop Custom"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'anchor/basic'" } }, "children": ["Anchor Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'anchor/horizontal'" } }, "children": ["Anchor Horizontal"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'affix/basic'" } }, "children": ["Affix Basic"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'affix/bottom'" } }, "children": ["Affix Bottom"] },
+                        { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'calendar/basic'" } }, "children": ["Calendar Basic"] }
+                      ]
+                    }
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "type": "ALayout",
-          "children": [
+            },
             {
-              "type": "ALayoutContent",
-              "props": { "style": "margin:24px;padding:24px;background:#fff;border-radius:8px;min-height:280px" },
+              "type": "ALayout",
               "children": [
                 {
-                  "type": "div",
-                  "directives": { "vIf": { "type": "expression", "body": "{{ref_state_isLoading}}" } },
-                  "props": { "style": "display:flex;justify-content:center;align-items:center;min-height:200px" },
-                  "children": ["Loading..."]
-                },
-                {
-                  "type": "div",
-                  "directives": { "vIf": { "type": "expression", "body": "{{ref_state_error}}" } },
-                  "props": { "style": "text-align:center;padding:48px" },
+                  "type": "ALayoutContent",
+                  "props": { "style": { "type": "string", "body": "'margin:24px;padding:24px;background:#fff;border-radius:8px;min-height:280px'" } },
                   "children": [
-                    { "type": "h3", "children": ["Error"] },
-                    { "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_error}}" }] },
-                    { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.retry()}}" } } }, "children": ["Retry"] }
+                    {
+                      "type": "div",
+                      "directives": { "vIf": { "type": "expression", "body": "{{ref_state_isLoading}}" } },
+                      "props": { "style": { "type": "string", "body": "'display:flex;justify-content:center;align-items:center;min-height:200px'" } },
+                      "children": ["Loading..."]
+                    },
+                    {
+                      "type": "div",
+                      "directives": { "vIf": { "type": "expression", "body": "{{ref_state_error}}" } },
+                      "props": { "style": { "type": "string", "body": "'text-align:center;padding:48px'" } },
+                      "children": [
+                        { "type": "h3", "children": ["Error"] },
+                        { "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_error}}" }] },
+                        { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.retry()}}" } } }, "children": ["Retry"] }
+                      ]
+                    },
+                    {
+                      "type": "PageLoader",
+                      "directives": { "vIf": { "type": "expression", "body": "{{ref_state_pageSchemaPath && !ref_state_error}}" } },
+                      "props": {
+                        "schemaPath": { "type": "expression", "body": "{{ref_state_pageSchemaPath}}" },
+                        "cache": true
+                      }
+                    }
                   ]
-                },
-                {
-                  "type": "PageLoader",
-                  "directives": { "vIf": { "type": "expression", "body": "{{ref_state_pageSchemaPath && !ref_state_error}}" } },
-                  "props": {
-                    "schemaPath": { "type": "expression", "body": "{{ref_state_pageSchemaPath}}" },
-                    "cache": true
-                  }
                 }
               ]
             }
