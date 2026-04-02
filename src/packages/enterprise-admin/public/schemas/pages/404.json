@@ -1,22 +1,22 @@
 {
   "name": "NotFoundPage",
   "methods": {
-    "goHome": { "$fn": "window.location.hash = '#/';}" }
+    "goHome": { "$fn": "window.location.hash = '#/';" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
       "props": {
-        "class": "'not-found-container'"
+        "class": "not-found-container"
       },
       "children": [
         {
           "type": "AResult",
           "props": {
-            "status": "'404'",
-            "title": "'页面未找到'",
-            "subTitle": "'抱歉，您访问的页面不存在'"
+            "status": "404",
+            "title": "页面未找到",
+            "subTitle": "抱歉，您访问的页面不存在"
           },
           "children": [
             {
@@ -25,8 +25,8 @@
                 {
                   "type": "AButton",
                   "props": {
-                    "type": "'primary'",
-                    "size": "'large'"
+                    "type": "primary",
+                    "size": "large"
                   },
                   "directives": {
                     "vOn": {

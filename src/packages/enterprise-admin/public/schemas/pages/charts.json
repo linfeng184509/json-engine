@@ -28,30 +28,30 @@
     "type": "template",
     "content": {
       "type": "div",
-      "props": { "class": "'charts-container'" },
+      "props": { "class": "charts-container" },
       "children": [
         {
           "type": "h2",
-          "props": { "class": "'charts-title'" },
+          "props": { "class": "charts-title" },
           "children": ["ECharts 图表示例"]
         },
         {
           "type": "div",
-          "props": { "class": "'chart-row'" },
+          "props": { "class": "chart-row" },
           "children": [
             {
               "type": "ACard",
               "props": {
-                "title": "'柱状图'",
-                "class": "'chart-card'"
+                "title": "柱状图",
+                "class": "chart-card"
               },
               "children": [
                 {
                   "type": "ECharts",
                   "props": {
                     "option": {
-                      "type": "echarts-option",
-                      "body": {
+                      "_type": "echarts-option",
+                      "option": {
                         "xAxis": {
                           "type": "category",
                           "data": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
@@ -79,12 +79,12 @@
                 },
                 {
                   "type": "div",
-                  "props": { "class": "'chart-actions'" },
+                  "props": { "class": "chart-actions" },
                   "children": [
                     {
                       "type": "AButton",
                       "props": {
-                        "type": "'primary'"
+                        "type": "primary"
                       },
                       "directives": {
                         "vOn": {
@@ -102,16 +102,16 @@
             {
               "type": "ACard",
               "props": {
-                "title": "'饼图'",
-                "class": "'chart-card'"
+                "title": "饼图",
+                "class": "chart-card"
               },
               "children": [
                 {
                   "type": "ECharts",
                   "props": {
                     "option": {
-                      "type": "echarts-option",
-                      "body": {
+                      "_type": "echarts-option",
+                      "option": {
                         "tooltip": {
                           "trigger": "item"
                         },

@@ -30,19 +30,19 @@
     "type": "template",
     "content": {
       "type": "div",
-      "props": { "style": 'min-height: 100vh' },
+      "props": { "style": "min-height: 100vh" },
       "children": [
         {
           "type": "ALayout",
-          "props": { "style": 'min-height: 100vh' },
+          "props": { "style": "min-height: 100vh" },
           "children": [
             {
               "type": "ALayoutSider",
               "props": {
-                "theme": 'light',
+                "theme": "light",
                 "collapsible": true,
                 "collapsed": { "$expr": "$state.collapsed" },
-                "style": 'min-height: 100vh; overflow: auto'
+                "style": "min-height: 100vh; overflow: auto"
               },
               "directives": {
                 "vOn": {
@@ -52,45 +52,45 @@
               "children": [
                 {
                   "type": "div",
-                  "props": { "style": 'height: 64px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f0f0f0; font-size: 16px; font-weight: 600; color: #1677ff' },
+                  "props": { "style": "height: 64px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f0f0f0; font-size: 16px; font-weight: 600; color: #1677ff" },
                   "children": [{ "$expr": "$state.collapsed ? 'E' : '企业管理系统'" }]
                 },
                 {
                   "type": "AMenu",
                   "props": {
-                    "theme": 'light',
-                    "mode": 'inline',
+                    "theme": "light",
+                    "mode": "inline",
                     "selectedKeys": { "$expr": "computed.selectedKeys" },
-                    "style": 'border: none; height: calc(100vh - 64px); overflow-y: auto'
+                    "style": "border: none; height: calc(100vh - 64px); overflow-y: auto"
                   },
                   "children": [
-                    { "type": "AMenuItem", "props": { "key": 'dashboard' }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/dashboard'" } } }, "children": ["首页"] },
-                    { "type": "AMenuItem", "props": { "key": 'basic-data' }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/basic-data-config'" } } }, "children": ["基础数据配置"] },
-                    { "type": "AMenuItem", "props": { "key": 'role-management' }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/system/role'" } } }, "children": ["角色管理"] }
+                    { "type": "AMenuItem", "props": { "key": "dashboard" }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/dashboard'" } } }, "children": ["首页"] },
+                    { "type": "AMenuItem", "props": { "key": "basic-data" }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/basic-data-config'" } } }, "children": ["基础数据配置"] },
+                    { "type": "AMenuItem", "props": { "key": "role-management" }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/system/role'" } } }, "children": ["角色管理"] }
                   ]
                 }
               ]
             },
             {
               "type": "ALayout",
-              "props": { "style": 'min-height: 100vh; display: flex; flex-direction: column; flex: 1' },
+              "props": { "style": "min-height: 100vh; display: flex; flex-direction: column; flex: 1" },
               "children": [
                 {
                   "type": "ALayoutHeader",
-                  "props": { "style": 'background: #fff; padding: 0 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center' },
+                  "props": { "style": "background: #fff; padding: 0 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center" },
                   "children": [
                     {
                       "type": "div",
-                      "props": { "style": 'font-size: 16px; font-weight: 600' },
+                      "props": { "style": "font-size: 16px; font-weight: 600" },
                       "children": [{ "$expr": "$state.user?.nickname || $state.user?.username || '用户'" }]
                     },
                     {
                       "type": "div",
-                      "props": { "style": 'display: flex; align-items: center; gap: 16px' },
+                      "props": { "style": "display: flex; align-items: center; gap: 16px" },
                       "children": [
                         {
                           "type": "AButton",
-                          "props": { "type": 'link' },
+                          "props": { "type": "link" },
                           "directives": { "vOn": { "click": { "$fn": "methods.logout()" } } },
                           "children": ["退出"]
                         }
@@ -100,7 +100,7 @@
                 },
                 {
                   "type": "ALayoutContent",
-                  "props": { "style": 'padding: 24px; background: #f5f5f5; overflow-y: auto' },
+                  "props": { "style": "padding: 24px; background: #f5f5f5; overflow-y: auto" },
                   "children": [
                     { "$expr": "props.pageContent" }
                   ]

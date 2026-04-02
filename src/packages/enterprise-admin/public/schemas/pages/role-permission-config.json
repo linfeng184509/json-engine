@@ -161,7 +161,7 @@
     "content": {
       "type": "div",
       "props": {
-        "style": { "type": "object", "body": "{{{ \"padding\": \"24px\" }}}" }
+        "style": { "padding": "24px" }
       },
       "children": [
         {
@@ -189,24 +189,19 @@
               },
               "children": [
                 {
-                  "type": "expression",
-                  "body": "{{'角色权限配置: '}}"
+                  "$expr": "'角色权限配置: '"
                 },
                 {
-                  "type": "expression",
-                  "body": "$state.roleInfo?.name || '加载中...'"
+                  "$expr": "$state.roleInfo?.name || '加载中...'"
                 },
                 {
-                  "type": "expression",
-                  "body": "' ('"
+                  "$expr": "' ('"
                 },
                 {
-                  "type": "expression",
-                  "body": "$state.roleInfo?.code"
+                  "$expr": "$state.roleInfo?.code"
                 },
                 {
-                  "type": "expression",
-                  "body": "{{')'}}"
+                  "$expr": "')'"
                 }
               ]
             }
@@ -288,7 +283,7 @@
               "type": "ACard",
               "props": {
                 "title": "'配置详情'",
-                "style": { "type": "object", "body": "{{{ \"flex\": \"1\" }}}" }
+                "style": { "flex": "1" }
               },
               "children": [
                 {
@@ -316,7 +311,7 @@
                     {
                       "type": "div",
                       "props": {
-                        "style": { "type": "object", "body": "{{{ \"marginBottom\": \"16px\" }}}" }
+                        "style": { "marginBottom": "16px" }
                       },
                       "children": [
                         {
@@ -338,7 +333,7 @@
                             {
                               "type": "span",
                               "props": {
-                                "style": { "type": "object", "body": "{{{ \"fontWeight\": \"500\" }}}" }
+                                "style": { "fontWeight": "500" }
                               },
                               "children": [
                                 {
@@ -353,16 +348,13 @@
                               },
                               "children": [
                                 {
-                                  "type": "expression",
-                                  "body": "'('"
+                                  "$expr": "'('"
                                 },
                                 {
-                                  "type": "expression",
-                                  "body": "$state.selectedNode.code"
+                                  "$expr": "$state.selectedNode.code"
                                 },
                                 {
-                                  "type": "expression",
-                                  "body": "{{')'}}"
+                                  "$expr": "')'"
                                 }
                               ]
                             }
@@ -396,7 +388,7 @@
                                 }
                               },
                               "props": {
-                                "style": { "type": "object", "body": "{{{ \"marginBottom\": \"16px\" }}}" }
+                                "style": { "marginBottom": "16px" }
                               },
                               "children": [
                                 {
@@ -433,8 +425,8 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": { "$expr": "$state.selectedNodePerm.read" }, "onChange": { "$fn": "state.selectedNodePerm.read=args[0].target.checked; methods.handleFieldPermChange()" }",
-                                "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
+                                "checked": { "$expr": "$state.selectedNodePerm.read" }, "onChange": { "$fn": "state.selectedNodePerm.read=args[0].target.checked; methods.handleFieldPermChange()" },
+                                "style": { "marginRight": "24px" },
                                 "disabled": {
                                   "$expr": "!computed.isFieldNode"
                                 }
@@ -446,8 +438,8 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": { "$expr": "$state.selectedNodePerm.write" }, "onChange": { "$fn": "state.selectedNodePerm.write=args[0].target.checked; methods.handleFieldPermChange()" }",
-                                "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
+                                "checked": { "$expr": "$state.selectedNodePerm.write" }, "onChange": { "$fn": "state.selectedNodePerm.write=args[0].target.checked; methods.handleFieldPermChange()" },
+                                "style": { "marginRight": "24px" },
                                 "disabled": {
                                   "$expr": "!computed.isFieldNode"
                                 }
@@ -459,8 +451,8 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": { "$expr": "$state.selectedNodePerm.hidden" }, "onChange": { "$fn": "state.selectedNodePerm.hidden=args[0].target.checked; methods.handleFieldPermChange()" }",
-                                "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
+                                "checked": { "$expr": "$state.selectedNodePerm.hidden" }, "onChange": { "$fn": "state.selectedNodePerm.hidden=args[0].target.checked; methods.handleFieldPermChange()" },
+                                "style": { "marginRight": "24px" },
                                 "disabled": {
                                   "$expr": "!computed.isFieldNode"
                                 }
@@ -472,7 +464,7 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": { "$expr": "$state.selectedNodePerm.privacy" }, "onChange": { "$fn": "state.selectedNodePerm.privacy=args[0].target.checked; methods.handleFieldPermChange()" }",
+                                "checked": { "$expr": "$state.selectedNodePerm.privacy" }, "onChange": { "$fn": "state.selectedNodePerm.privacy=args[0].target.checked; methods.handleFieldPermChange()" },
                                 "disabled": {
                                   "$expr": "!computed.isFieldNode"
                                 }
@@ -619,7 +611,7 @@
                               "type": "ACard",
                               "props": {
                                 "bordered": false,
-                                "style": { "type": "object", "body": "{{{ \"background\": \"#f5f5f5\" }}}" }
+                                "style": { "background": "#f5f5f5" }
                               },
                               "children": [
                                 {
@@ -751,7 +743,7 @@
                             {
                               "type": "ASpace",
                               "props": {
-                                "style": { "type": "object", "body": "{{{ \"marginBottom\": \"16px\" }}}" }
+                                "style": { "marginBottom": "16px" }
                               },
                               "children": [
                                 {
@@ -816,7 +808,7 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": { "type": "object", "body": "{{{ \"background\": \"#f6ffed\" }}}" }
+"style": { "background": "#f6ffed" }
                                           },
                                           "children": [
                                             {
@@ -860,7 +852,7 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": { "type": "object", "body": "{{{ \"background\": \"#fff7e6\" }}}" }
+"style": { "background": "#fff7e6" }
                                           },
                                           "children": [
                                             {
@@ -904,7 +896,7 @@
                                           "type": "ACard",
                                           "props": {
                                             "bordered": false,
-                                            "style": { "type": "object", "body": "{{{ \"background\": \"#e6f4ff\" }}}" }
+"style": { "background": "#e6f4ff" }
                                           },
                                           "children": [
                                             {

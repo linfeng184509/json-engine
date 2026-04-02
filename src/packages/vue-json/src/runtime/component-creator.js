@@ -1,7 +1,7 @@
 import { defineComponent, } from 'vue';
 import { createParserCache } from '@json-engine/core-engine';
 import { parseSchema } from '../parser';
-import { createState } from './state-factory';
+import { createState, createStateProxy } from './state-factory';
 import { createComputed } from './computed-factory';
 import { setupWatchers } from './watch-factory';
 import { setupProvide, setupInject } from './provide-inject';
@@ -140,7 +140,7 @@ function createMethods(definition, setupContext, state, computed, provideRef, st
         methods[methodName] = (...args) => {
             const renderContext = {
                 props: setupContext.props,
-                state: state,
+                state: createStateProxy(state),
                 computed: computed,
                 methods,
                 emit: setupContext.emit,

@@ -138,6 +138,7 @@ function resolveNodeChildren(children, directives, context) {
     const proxiedContext = {
         ...context,
         state: createStateProxy(context.state),
+        computed: createStateProxy(context.computed),
     };
     if (directives?.vHtml !== undefined) {
         return applyVHtml(directives.vHtml, proxiedContext);

@@ -1,12 +1,13 @@
 import { onMounted, onUnmounted, onUpdated, onBeforeMount, onBeforeUnmount, onBeforeUpdate, onErrorCaptured, onActivated, onDeactivated, } from 'vue';
 import { ComponentCreationError } from '../utils/error';
 import { executeFunction } from './value-resolver';
+import { createStateProxy } from './state-factory';
 export function setupLifecycle(definition, context, state, computed, methods, coreScope) {
     if (!definition)
         return;
     const renderContext = {
         props: context.props,
-        state: state,
+        state: createStateProxy(state),
         computed: computed,
         methods,
         components: {},

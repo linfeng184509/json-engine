@@ -99,13 +99,13 @@
     "content": {
       "type": "div",
       "props": {
-        "style": "'padding: 24px'"
+        "style": "padding: 24px"
       },
       "children": [
         {
           "type": "div",
           "props": {
-            "style": "'margin-bottom: 16px'"
+            "style": "margin-bottom: 16px"
           },
           "children": [
             {
@@ -114,8 +114,8 @@
                 {
                   "type": "AButton",
                   "props": {
-                    "type": "'primary'",
-                    "icon": "'plus'",
+                    "type": "primary",
+                    "icon": "plus",
                     "disabled": {
                       "$expr": "!computed.canAddChild"
                     },
@@ -146,19 +146,13 @@
         {
           "type": "div",
           "props": {
-            "style": {
-              "type": "string",
-              "body": "'display: flex; gap: 24px; height: calc(100vh - 200px)'"
-            }
+            "style": "display: flex; gap: 24px; height: calc(100vh - 200px)"
           },
           "children": [
             {
               "type": "ACard",
               "props": {
-                "title": {
-                  "type": "string",
-                  "body": "'层级结构'"
-                },
+                "title": "层级结构",
                 "style": "'width: 360px; flex-shrink: 0'"
               },
               "children": [
@@ -205,11 +199,8 @@
             {
               "type": "ACard",
               "props": {
-                "title": {
-                  "type": "string",
-                  "body": "'配置详情'"
-                },
-                "style": "'flex: 1'"
+                "title": "配置详情",
+                "style": "flex: 1"
               },
               "children": [
                 {
@@ -220,7 +211,7 @@
                     }
                   },
                   "props": {
-                    "style": "'text-align: center; padding: 60px 0; color: #999'"
+                    "style": "text-align: center; padding: 60px 0; color: #999"
                   },
                   "children": ["请从左侧选择一个节点"]
                 },
@@ -558,12 +549,9 @@
               "type": "p",
               "children": [
                 {
-                  "type": "expression",
-                  "body": "'确定要删除节点 \"' + ($state.selectedNode?.name || '') + '\" 吗？该操作将同时删除其所有子节点。'"
+                  "$expr": "'确定要删除节点 \"' + ($state.selectedNode?.name || '') + '\" 吗？该操作将同时删除其所有子节点。'"
                 }
               ]
-            }
-          ]
             }
           ]
         }

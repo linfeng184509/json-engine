@@ -109,10 +109,7 @@
             {
               "type": "div",
               "props": {
-                "style": {
-                  "type": "string",
-                  "body": "'margin-bottom: 16px'"
-                }
+                "style": "margin-bottom: 16px"
               },
               "children": [
                 {
@@ -177,12 +174,12 @@
                       "type": "AFormItem",
                       "children": [
                         {
-                          "type": "ASpace",
+"type": "ASpace",
                           "children": [
                             {
                               "type": "AButton",
                               "props": {
-                                "type": "'primary'",
+                                "type": "primary",
                                 "onClick": {
                                   "$fn": "methods.handleSearch()"
                                 }
@@ -192,193 +189,13 @@
                             {
                               "type": "AButton",
                               "props": {
+                                "size": "small",
                                 "onClick": {
-                                  "$fn": "methods.handleReset()"
+                                  "$fn": "methods.handleDelete(args[0])"
                                 }
                               },
-                              "children": ["重置"]
+                              "children": ["删除"]
                             }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "div",
-              "props": {
-                "style": {
-                  "type": "string",
-                  "body": "'margin-bottom: 16px'"
-                }
-              },
-              "children": [
-                {
-                  "type": "AButton",
-                  "props": {
-                    "type": "'primary'",
-                    "icon": "'plus'",
-                    "onClick": {
-                      "$fn": "methods.handleAdd()"
-                    }
-                  },
-                  "children": ["新增角色"]
-                }
-              ]
-            },
-            {
-              "type": "ATable",
-              "props": {
-                "dataSource": {
-                  "$expr": "$state.roleList"
-                },
-                "rowKey": "'id'",
-                "loading": {
-                  "$expr": "$state.loading"
-                },
-                "pagination": {
-                  "$expr": "$state.pagination"
-                },
-                "onChange": {
-                  "$fn": "methods.handleTableChange(args[0])"
-                }
-              },
-              "children": [
-                {
-                  "type": "ATableColumn",
-                  "props": {
-                    "title": "'角色编码'",
-                    "dataIndex": "'code'",
-                    "width": 150
-                  }
-                },
-                {
-                  "type": "ATableColumn",
-                  "props": {
-                    "title": "'角色名称'",
-                    "dataIndex": "'name'",
-                    "width": 150
-                  }
-                },
-                {
-                  "type": "ATableColumn",
-                  "props": {
-                    "title": "'描述'",
-                    "dataIndex": "'description'",
-                    "ellipsis": true
-                  }
-                },
-                {
-                  "type": "ATableColumn",
-                  "props": {
-                    "title": "'状态'",
-                    "dataIndex": "'status'",
-                    "width": 100
-                  },
-                  "children": [
-                    {
-                      "type": "ATag",
-                      "props": {
-                        "color": {
-                          "$fn": "methods.getStatusTag(args[0]).color"
-                        }
-                      },
-                      "children": [
-                        {
-                          "$fn": "return methods.getStatusTag(args[0]).text"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "ATableColumn",
-                  "props": {
-                    "title": "'权限数量'",
-                    "width": 100
-                  },
-                  "children": [
-                    {
-                      "$fn": "return methods.getPermissionCount(args[0].permissions)"
-                    }
-                  ]
-                },
-                {
-                  "type": "ATableColumn",
-                  "props": {
-                    "title": "'创建时间'",
-                    "dataIndex": "'createdAt'",
-                    "width": 180
-                  }
-                },
-                {
-                  "type": "ATableColumn",
-                  "props": {
-                    "title": "'操作'",
-                    "width": 280,
-                    "fixed": "'right'"
-                  },
-                  "children": [
-                    {
-                      "type": "ASpace",
-                      "children": [
-                        {
-                          "type": "AButton",
-                          "props": {
-                            "type": {
-                              "type": "string",
-                              "body": "'link'"
-                            },
-                            "size": {
-                              "type": "string",
-                              "body": "'small'"
-                            },
-                            "onClick": {
-                              "$fn": "methods.handleEdit(args[0])"
-                            }
-                          },
-                          "children": ["编辑"]
-                        },
-                        {
-                          "type": "AButton",
-                          "props": {
-                            "type": "'link'",
-                            "size": "'small'",
-                            "onClick": {
-                              "$fn": "methods.handleConfigPermissions(args[0])"
-                            }
-                          },
-                          "children": ["配置权限"]
-                        },
-                        {
-                          "type": "AButton",
-                          "props": {
-                            "type": "'link'",
-                            "size": "'small'",
-                            "onClick": {
-                              "$fn": "methods.handleToggleStatus(args[0])"
-                            }
-                          },
-                          "children": [
-                            {
-                              "$fn": "return args[0].status === 'active' ? '停用' : '启用'"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "AButton",
-                          "props": {
-                            "type": "'link'",
-                            "danger": true,
-                            "size": "'small'",
-                            "onClick": {
-                              "$fn": "methods.handleDelete(args[0])"
-                            }
-                          },
-                          "children": ["删除"]
-                        }
                       ]
                     }
                   ]
@@ -417,20 +234,14 @@
                 {
                   "type": "AFormItem",
                   "props": {
-                    "label": {
-                      "type": "string",
-                      "body": "'角色编码'"
-                    },
+                    "label": "角色编码",
                     "required": true
                   },
                   "children": [
                     {
                       "type": "AInput",
                       "props": {
-                        "placeholder": {
-                          "type": "string",
-                          "body": "'请输入角色编码'"
-                        },
+                        "placeholder": "请输入角色编码",
                         "value": {
                           "$expr": "$state.formData.code"
                         },
@@ -528,10 +339,7 @@
         {
           "type": "AModal",
           "props": {
-            "title": {
-              "type": "string",
-              "body": "'确认删除'"
-            },
+            "title": "确认删除",
             "open": {
               "$expr": "$state.deleteModalVisible"
             },
@@ -550,16 +358,13 @@
               "type": "p",
               "children": [
                 {
-                  "type": "expression",
-                  "body": "'确定要删除角色 '"
+                  "$expr": "'确定要删除角色 '"
                 },
                 {
-                  "type": "expression",
-                  "body": "$state.deletingRole?.name || ''"
+                  "$expr": "$state.deletingRole?.name || ''"
                 },
                 {
-                  "type": "expression",
-                  "body": "{{' 吗？此操作不可恢复。'}}"
+                  "$expr": "' 吗？此操作不可恢复。'"
                 }
               ]
             }
@@ -568,7 +373,7 @@
         {
           "type": "AModal",
           "props": {
-            "title": "'确认切换状态'",
+            "title": "确认切换状态",
             "open": {
               "$expr": "$state.statusToggleModalVisible"
             },
@@ -587,16 +392,13 @@
               "type": "p",
               "children": [
                 {
-                  "type": "expression",
-                  "body": "$state.togglingRole?.status === 'active' ? '确定要停用角色 ' : '确定要启用角色 '"
+                  "$expr": "$state.togglingRole?.status === 'active' ? '确定要停用角色 ' : '确定要启用角色 '"
                 },
                 {
-                  "type": "expression",
-                  "body": "$state.togglingRole?.name || ''"
+                  "$expr": "$state.togglingRole?.name || ''"
                 },
                 {
-                  "type": "expression",
-                  "body": "{{' 吗？'}}"
+                  "$expr": "' 吗？'"
                 }
               ]
             }
