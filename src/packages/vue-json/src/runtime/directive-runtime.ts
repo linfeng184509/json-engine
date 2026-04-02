@@ -1,4 +1,4 @@
-import { h, type VNode } from 'vue';
+import { h, type VNode, isRef } from 'vue';
 import type {
   VNodeDefinition,
   RenderContext,
@@ -155,13 +155,10 @@ export function applyVModel(
 
     if (isStateReference(propRef)) {
       const stateValue = context.state[propRef.variable];
-      const stateType = context.stateTypes?.[propRef.variable];
-      const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
-      
-      if (needsValue) {
-        value = stateValue && typeof stateValue === 'object' && 'value' in stateValue
-          ? (stateValue as { value: unknown }).value
-          : stateValue;
+      if (isRef(stateValue)) {
+        value = stateValue.value;
+      } else if (typeof stateValue === 'object' && stateValue !== null && 'value' in stateValue) {
+        value = (stateValue as { value: unknown }).value;
       } else {
         value = stateValue;
       }
@@ -194,15 +191,11 @@ export function applyVModel(
 function setReferenceValue(ref: StateRef | PropsRef, value: unknown, context: RenderContext): void {
   if (isStateReference(ref)) {
     const stateValue = context.state[ref.variable];
-    const stateType = context.stateTypes?.[ref.variable];
-    const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
     
     if (ref.path) {
       const parentPath = ref.path.split('.');
       const lastKey = parentPath.pop();
-      let target: Record<string, unknown> = needsValue 
-        ? (stateValue as { value: unknown }).value as Record<string, unknown>
-        : stateValue as Record<string, unknown>;
+      let target: Record<string, unknown> = stateValue as Record<string, unknown>;
       
       for (const key of parentPath) {
         target = target[key] as Record<string, unknown>;
@@ -210,7 +203,9 @@ function setReferenceValue(ref: StateRef | PropsRef, value: unknown, context: Re
       if (lastKey) {
         target[lastKey] = value;
       }
-    } else if (needsValue && stateValue && typeof stateValue === 'object' && 'value' in stateValue) {
+    } else if (isRef(stateValue)) {
+      (stateValue as { value: unknown }).value = value;
+    } else if (typeof stateValue === 'object' && stateValue !== null && 'value' in stateValue) {
       (stateValue as { value: unknown }).value = value;
     } else {
       Object.assign(stateValue as object, value);
