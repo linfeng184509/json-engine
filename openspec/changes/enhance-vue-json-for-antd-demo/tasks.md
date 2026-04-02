@@ -41,6 +41,6 @@
 - [x] 5.1 运行 npm run lint 确保代码风格符合规范
 - [x] 5.2 运行 npm run typecheck 确保类型定义正确
 - [x] 5.3 运行 npm test 确保所有测试通过
-- [ ] 5.4 创建简单验证 demo（Modal basic + Icon basic + Table basic）
-- [ ] 5.5 更新 plugin-antd README 文档说明新功能
-- [ ] 5.6 更新 vue-json types 导出说明
+- [x] 5.4 创建简单验证 demo（Modal basic + Icon basic + Table basic）
+- [x] 5.5 更新 plugin-antd README 文档说明新功能
+- [x] 5.6 更新 vue-json types 导出说明
