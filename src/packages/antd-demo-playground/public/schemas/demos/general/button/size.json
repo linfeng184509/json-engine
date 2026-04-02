@@ -1,0 +1,14 @@
+{
+  "name": "ButtonSizeDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "AButton", "props": { "type": "primary", "size": "large" }, "children": ["Large"] },
+        { "type": "AButton", "props": { "type": "primary" }, "children": ["Default"] },
+        { "type": "AButton", "props": { "type": "primary", "size": "small" }, "children": ["Small"] }
+      ]
+    }
+  }
+}

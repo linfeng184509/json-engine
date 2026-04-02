@@ -1,0 +1,17 @@
+{
+  "name": "IconBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "HomeOutlined" },
+        { "type": "SettingFilled" },
+        { "type": "SmileOutlined" },
+        { "type": "SyncOutlined", "props": { "spin": true } },
+        { "type": "SmileOutlined", "props": { "rotate": 180 } },
+        { "type": "LoadingOutlined" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "name": "AppRoot",
+  "state": {
+    "collapsed": { "type": "ref", "initial": false },
+    "selectedKeys": { "type": "ref", "initial": ["button/basic"] },
+    "openKeys": { "type": "ref", "initial": ["general"] }
+  },
+  "methods": {
+    "onOpenChange": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_openKeys.value = args[0]}}"
+    },
+    "onMenuClick": {
+      "type": "function",
+      "params": {},
+      "body": "{{var item = args[0]; if(item.key) { ref_state_selectedKeys.value = [item.key]; window.location.hash = '/demos/' + item.key; }}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ALayout",
+      "props": { "style": "min-height:100vh" },
+      "children": [
+        {
+          "type": "ALayoutSider",
+          "props": {
+            "collapsible": true,
+            "collapsed": { "type": "expression", "body": "{{ref_state_collapsed}}" },
+            "onCollapse": { "type": "function", "params": {}, "body": "{{ref_state_collapsed.value = args[0]}}" },
+            "width": 240,
+            "style": "background:#fff;overflow:auto;height:100vh;position:sticky;left:0;top:0;bottom:0"
+          },
+          "children": [
+            {
+              "type": "div",
+              "props": { "style": "height:64px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #f0f0f0" },
+              "children": [
+                { "type": "span", "props": { "style": "font-size:16px;font-weight:600;color:#1677ff" }, "children": ["Antd Demos"] }
+              ]
+            },
+            {
+              "type": "AMenu",
+              "props": {
+                "mode": "inline",
+                "selectedKeys": { "type": "expression", "body": "{{ref_state_selectedKeys}}" },
+                "openKeys": { "type": "expression", "body": "{{ref_state_openKeys}}" },
+                "style": "border-right:0"
+              },
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{methods.onMenuClick(args[0])}}" },
+                  "openChange": { "type": "function", "params": {}, "body": "{{methods.onOpenChange(args[0])}}" }
+                }
+              },
+              "children": [
+                {
+                  "type": "ASubMenu",
+                  "props": { "key": "general" },
+                  "children": [
+                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["通用 General"] } ] },
+                    { "type": "AMenuItem", "props": { "key": "button/basic" }, "children": ["Button Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "button/icon" }, "children": ["Button Icon"] },
+                    { "type": "AMenuItem", "props": { "key": "button/size" }, "children": ["Button Size"] },
+                    { "type": "AMenuItem", "props": { "key": "button/loading" }, "children": ["Button Loading"] },
+                    { "type": "AMenuItem", "props": { "key": "icon/basic" }, "children": ["Icon Basic"] }
+                  ]
+                },
+                {
+                  "type": "ASubMenu",
+                  "props": { "key": "layout" },
+                  "children": [
+                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["布局 Layout"] } ] },
+                    { "type": "AMenuItem", "props": { "key": "grid/basic" }, "children": ["Grid Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "space/basic" }, "children": ["Space Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "divider/basic" }, "children": ["Divider Basic"] }
+                  ]
+                },
+                {
+                  "type": "ASubMenu",
+                  "props": { "key": "navigation" },
+                  "children": [
+                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["导航 Navigation"] } ] },
+                    { "type": "AMenuItem", "props": { "key": "menu/basic" }, "children": ["Menu Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "breadcrumb/basic" }, "children": ["Breadcrumb Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "steps/basic" }, "children": ["Steps Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "pagination/basic" }, "children": ["Pagination Basic"] }
+                  ]
+                },
+                {
+                  "type": "ASubMenu",
+                  "props": { "key": "data-entry" },
+                  "children": [
+                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["数据录入 Data Entry"] } ] },
+                    { "type": "AMenuItem", "props": { "key": "input/basic" }, "children": ["Input Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "select/basic" }, "children": ["Select Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "checkbox/basic" }, "children": ["Checkbox Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "switch/basic" }, "children": ["Switch Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "form/basic" }, "children": ["Form Basic"] }
+                  ]
+                },
+                {
+                  "type": "ASubMenu",
+                  "props": { "key": "data-display" },
+                  "children": [
+                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["数据展示 Data Display"] } ] },
+                    { "type": "AMenuItem", "props": { "key": "modal/basic" }, "children": ["Modal Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "table/basic" }, "children": ["Table Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "tabs/basic" }, "children": ["Tabs Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "card/basic" }, "children": ["Card Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "badge/basic" }, "children": ["Badge Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "tag/basic" }, "children": ["Tag Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "avatar/basic" }, "children": ["Avatar Basic"] }
+                  ]
+                },
+                {
+                  "type": "ASubMenu",
+                  "props": { "key": "feedback" },
+                  "children": [
+                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["反馈 Feedback"] } ] },
+                    { "type": "AMenuItem", "props": { "key": "alert/basic" }, "children": ["Alert Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "message/basic" }, "children": ["Message Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "progress/basic" }, "children": ["Progress Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "spin/basic" }, "children": ["Spin Basic"] }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ALayout",
+          "children": [
+            {
+              "type": "ALayoutContent",
+              "props": { "style": "margin:24px;padding:24px;background:#fff;border-radius:8px;min-height:280px" },
+              "children": [
+                { "type": "router-view" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "SelectBasicDemo",
+  "state": {
+    "value": { "type": "ref", "initial": "lucy" }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASelect",
+      "props": {
+        "value": { "type": "expression", "body": "ref_state_value" },
+        "style": "width:200px"
+      },
+      "directives": {
+        "vOn": {
+          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" }
+        }
+      },
+      "children": [
+        { "type": "ASelectOption", "props": { "value": "jack" }, "children": ["Jack"] },
+        { "type": "ASelectOption", "props": { "value": "lucy" }, "children": ["Lucy"] },
+        { "type": "ASelectOption", "props": { "value": "disabled", "disabled": true }, "children": ["Disabled"] },
+        { "type": "ASelectOption", "props": { "value": "Yiminghe" }, "children": ["yiminghe"] }
+      ]
+    }
+  }
+}

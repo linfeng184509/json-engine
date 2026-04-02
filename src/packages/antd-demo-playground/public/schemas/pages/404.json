@@ -1,0 +1,15 @@
+{
+  "name": "NotFoundPage",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": { "style": { "type": "string", "body": "'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%'" } },
+      "children": [
+        { "type": "h1", "props": { "style": { "type": "string", "body": "'font-size:72px;color:#1677ff'" } }, "children": ["404"] },
+        { "type": "p", "props": { "style": { "type": "string", "body": "'font-size:18px;color:#666'" } }, "children": ["Page Not Found"] },
+        { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{window.location.hash = '/'}}" } } }, "children": ["Back Home"] }
+      ]
+    }
+  }
+}

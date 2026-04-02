@@ -1,0 +1,21 @@
+{
+  "name": "MessageBasicDemo",
+  "methods": {
+    "showSuccess": { "type": "function", "params": {}, "body": "{{$_antd.message.success('This is a success message')}}" },
+    "showError": { "type": "function", "params": {}, "body": "{{$_antd.message.error('This is an error message')}}" },
+    "showWarning": { "type": "function", "params": {}, "body": "{{$_antd.message.warning('This is a warning message')}}" },
+    "showInfo": { "type": "function", "params": {}, "body": "{{$_antd.message.info('This is an info message')}}" }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.showSuccess()}}" } } }, "children": ["Success"] },
+        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.showError()}}" } } }, "children": ["Error"] },
+        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.showWarning()}}" } } }, "children": ["Warning"] },
+        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.showInfo()}}" } } }, "children": ["Info"] }
+      ]
+    }
+  }
+}

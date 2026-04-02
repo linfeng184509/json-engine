@@ -1,0 +1,57 @@
+{
+  "name": "AntdDemoPlayground",
+  "version": "1.0.0",
+  "plugins": [
+    { "name": "@json-engine/plugin-antd", "config": { "includeIcons": true } },
+    { "name": "@json-engine/plugin-router" }
+  ],
+  "config": {
+    "antd": {
+      "theme": { "primaryColor": "#1677ff", "borderRadius": 6 },
+      "includeIcons": true
+    },
+    "router": { "mode": "hash", "base": "/" }
+  },
+  "router": {
+    "history": "hash",
+    "routes": [
+      { "path": "/", "redirect": "/demos/button/basic" },
+      
+      { "path": "/demos/button/basic", "name": "ButtonBasic", "component": "/schemas/demos/general/button/basic.json", "meta": { "title": "Button Basic", "category": "general" } },
+      { "path": "/demos/button/icon", "name": "ButtonIcon", "component": "/schemas/demos/general/button/icon.json", "meta": { "title": "Button Icon", "category": "general" } },
+      { "path": "/demos/button/size", "name": "ButtonSize", "component": "/schemas/demos/general/button/size.json", "meta": { "title": "Button Size", "category": "general" } },
+      { "path": "/demos/button/loading", "name": "ButtonLoading", "component": "/schemas/demos/general/button/loading.json", "meta": { "title": "Button Loading", "category": "general" } },
+      { "path": "/demos/icon/basic", "name": "IconBasic", "component": "/schemas/demos/general/icon/basic.json", "meta": { "title": "Icon Basic", "category": "general" } },
+      
+      { "path": "/demos/grid/basic", "name": "GridBasic", "component": "/schemas/demos/layout/grid/basic.json", "meta": { "title": "Grid Basic", "category": "layout" } },
+      { "path": "/demos/space/basic", "name": "SpaceBasic", "component": "/schemas/demos/layout/space/basic.json", "meta": { "title": "Space Basic", "category": "layout" } },
+      { "path": "/demos/divider/basic", "name": "DividerBasic", "component": "/schemas/demos/layout/divider/basic.json", "meta": { "title": "Divider Basic", "category": "layout" } },
+      
+      { "path": "/demos/menu/basic", "name": "MenuBasic", "component": "/schemas/demos/navigation/menu/basic.json", "meta": { "title": "Menu Basic", "category": "navigation" } },
+      { "path": "/demos/breadcrumb/basic", "name": "BreadcrumbBasic", "component": "/schemas/demos/navigation/breadcrumb/basic.json", "meta": { "title": "Breadcrumb Basic", "category": "navigation" } },
+      { "path": "/demos/steps/basic", "name": "StepsBasic", "component": "/schemas/demos/navigation/steps/basic.json", "meta": { "title": "Steps Basic", "category": "navigation" } },
+      { "path": "/demos/pagination/basic", "name": "PaginationBasic", "component": "/schemas/demos/navigation/pagination/basic.json", "meta": { "title": "Pagination Basic", "category": "navigation" } },
+      
+      { "path": "/demos/input/basic", "name": "InputBasic", "component": "/schemas/demos/data-entry/input/basic.json", "meta": { "title": "Input Basic", "category": "data-entry" } },
+      { "path": "/demos/select/basic", "name": "SelectBasic", "component": "/schemas/demos/data-entry/select/basic.json", "meta": { "title": "Select Basic", "category": "data-entry" } },
+      { "path": "/demos/checkbox/basic", "name": "CheckboxBasic", "component": "/schemas/demos/data-entry/checkbox/basic.json", "meta": { "title": "Checkbox Basic", "category": "data-entry" } },
+      { "path": "/demos/switch/basic", "name": "SwitchBasic", "component": "/schemas/demos/data-entry/switch/basic.json", "meta": { "title": "Switch Basic", "category": "data-entry" } },
+      { "path": "/demos/form/basic", "name": "FormBasic", "component": "/schemas/demos/data-entry/form/basic.json", "meta": { "title": "Form Basic", "category": "data-entry" } },
+      
+      { "path": "/demos/modal/basic", "name": "ModalBasic", "component": "/schemas/demos/data-display/modal/basic.json", "meta": { "title": "Modal Basic", "category": "data-display" } },
+      { "path": "/demos/table/basic", "name": "TableBasic", "component": "/schemas/demos/data-display/table/basic.json", "meta": { "title": "Table Basic", "category": "data-display" } },
+      { "path": "/demos/tabs/basic", "name": "TabsBasic", "component": "/schemas/demos/data-display/tabs/basic.json", "meta": { "title": "Tabs Basic", "category": "data-display" } },
+      { "path": "/demos/card/basic", "name": "CardBasic", "component": "/schemas/demos/data-display/card/basic.json", "meta": { "title": "Card Basic", "category": "data-display" } },
+      { "path": "/demos/badge/basic", "name": "BadgeBasic", "component": "/schemas/demos/data-display/badge/basic.json", "meta": { "title": "Badge Basic", "category": "data-display" } },
+      { "path": "/demos/tag/basic", "name": "TagBasic", "component": "/schemas/demos/data-display/tag/basic.json", "meta": { "title": "Tag Basic", "category": "data-display" } },
+      { "path": "/demos/avatar/basic", "name": "AvatarBasic", "component": "/schemas/demos/data-display/avatar/basic.json", "meta": { "title": "Avatar Basic", "category": "data-display" } },
+      
+      { "path": "/demos/alert/basic", "name": "AlertBasic", "component": "/schemas/demos/feedback/alert/basic.json", "meta": { "title": "Alert Basic", "category": "feedback" } },
+      { "path": "/demos/message/basic", "name": "MessageBasic", "component": "/schemas/demos/feedback/message/basic.json", "meta": { "title": "Message Basic", "category": "feedback" } },
+      { "path": "/demos/progress/basic", "name": "ProgressBasic", "component": "/schemas/demos/feedback/progress/basic.json", "meta": { "title": "Progress Basic", "category": "feedback" } },
+      { "path": "/demos/spin/basic", "name": "SpinBasic", "component": "/schemas/demos/feedback/spin/basic.json", "meta": { "title": "Spin Basic", "category": "feedback" } },
+      
+      { "path": "/:pathMatch(.*)*", "name": "NotFound", "component": "/schemas/pages/404.json" }
+    ]
+  }
+}

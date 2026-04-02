@@ -1,0 +1,55 @@
+{
+  "name": "ModalBasicDemo",
+  "state": {
+    "open": { "type": "ref", "initial": false }
+  },
+  "methods": {
+    "showModal": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_open.value = true}}"
+    },
+    "handleOk": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_open.value = false}}"
+    },
+    "handleCancel": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_open.value = false}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        { 
+          "type": "AButton", 
+          "props": { "type": "primary" }, 
+          "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.showModal()}}" } } },
+          "children": ["Open Modal"]
+        },
+        {
+          "type": "AModal",
+          "props": {
+            "title": "Basic Modal",
+            "open": { "type": "expression", "body": "{{ref_state_open}}" }
+          },
+          "directives": {
+            "vOn": {
+              "ok": { "type": "function", "params": {}, "body": "{{methods.handleOk()}}" },
+              "cancel": { "type": "function", "params": {}, "body": "{{methods.handleCancel()}}" }
+            }
+          },
+          "children": [
+            { "type": "p", "children": ["Some contents..."] },
+            { "type": "p", "children": ["Some contents..."] },
+            { "type": "p", "children": ["Some contents..."] }
+          ]
+        }
+      ]
+    }
+  }
+}

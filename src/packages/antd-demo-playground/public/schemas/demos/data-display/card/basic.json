@@ -1,0 +1,15 @@
+{
+  "name": "CardBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ACard",
+      "props": { "title": "Card title", "style": "width:300px" },
+      "children": [
+        { "type": "p", "children": ["Card content"] },
+        { "type": "p", "children": ["Card content"] },
+        { "type": "p", "children": ["Card content"] }
+      ]
+    }
+  }
+}

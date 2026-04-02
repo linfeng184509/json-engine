@@ -1,0 +1,76 @@
+{
+  "name": "FormBasicDemo",
+  "state": {
+    "formState": {
+      "type": "reactive",
+      "initial": { "username": "", "password": "", "remember": true }
+    }
+  },
+  "methods": {
+    "onFinish": {
+      "type": "function",
+      "params": {},
+      "body": "{{console.log('Success:', args[0])}}"
+    },
+    "onFinishFailed": {
+      "type": "function",
+      "params": {},
+      "body": "{{console.log('Failed:', args[0])}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AForm",
+      "props": {
+        "model": { "type": "expression", "body": "ref_state_formState" },
+        "name": "basic",
+        "labelCol": { "span": 8 },
+        "wrapperCol": { "span": 16 },
+        "style": "max-width:600px",
+        "onFinish": { "type": "function", "params": {}, "body": "{{methods.onFinish(args[0])}}" },
+        "onFinishFailed": { "type": "function", "params": {}, "body": "{{methods.onFinishFailed(args[0])}}" }
+      },
+      "children": [
+        {
+          "type": "AFormItem",
+          "props": { "label": "Username", "name": "username", "rules": [{ "required": true, "message": "Please input your username!" }] },
+          "children": [
+            {
+              "type": "AInput",
+              "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formState.username}}" } } }
+            }
+          ]
+        },
+        {
+          "type": "AFormItem",
+          "props": { "label": "Password", "name": "password", "rules": [{ "required": true, "message": "Please input your password!" }] },
+          "children": [
+            {
+              "type": "AInputPassword",
+              "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formState.password}}" } } }
+            }
+          ]
+        },
+        {
+          "type": "AFormItem",
+          "props": { "name": "remember", "wrapperCol": { "offset": 8, "span": 16 } },
+          "children": [
+            {
+              "type": "ACheckbox",
+              "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formState.remember}}" }, "arg": "checked" } },
+              "children": ["Remember me"]
+            }
+          ]
+        },
+        {
+          "type": "AFormItem",
+          "props": { "wrapperCol": { "offset": 8, "span": 16 } },
+          "children": [
+            { "type": "AButton", "props": { "type": "primary", "htmlType": "submit" }, "children": ["Submit"] }
+          ]
+        }
+      ]
+    }
+  }
+}

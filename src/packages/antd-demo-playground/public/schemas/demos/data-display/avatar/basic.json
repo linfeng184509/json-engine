@@ -1,0 +1,16 @@
+{
+  "name": "AvatarBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "props": { "size": "large" },
+      "children": [
+        { "type": "AAvatar", "props": { "size": 64, "icon": true } },
+        { "type": "AAvatar", "props": { "size": "large" }, "children": ["U"] },
+        { "type": "AAvatar", "children": ["USER"] },
+        { "type": "AAvatar", "props": { "size": "small" }, "children": ["U"] }
+      ]
+    }
+  }
+}

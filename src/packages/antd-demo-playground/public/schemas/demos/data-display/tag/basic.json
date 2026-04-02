@@ -1,0 +1,19 @@
+{
+  "name": "TagBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        { "type": "ATag", "children": ["Tag 1"] },
+        { "type": "ATag", "children": ["Tag 2"] },
+        { "type": "ATag", "props": { "closable": true }, "children": ["Tag 3"] },
+        { "type": "ATag", "props": { "color": "magenta" }, "children": ["magenta"] },
+        { "type": "ATag", "props": { "color": "red" }, "children": ["red"] },
+        { "type": "ATag", "props": { "color": "volcano" }, "children": ["volcano"] },
+        { "type": "ATag", "props": { "color": "orange" }, "children": ["orange"] },
+        { "type": "ATag", "props": { "color": "gold" }, "children": ["gold"] }
+      ]
+    }
+  }
+}

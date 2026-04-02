@@ -1,0 +1,31 @@
+{
+  "name": "ButtonLoadingDemo",
+  "state": {
+    "loading": { "type": "ref", "initial": false }
+  },
+  "methods": {
+    "enterLoading": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_loading.value = true; setTimeout(function() { ref_state_loading.value = false; }, 3000);}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "AButton", "props": { "type": "primary", "loading": true }, "children": ["Loading"] },
+        { 
+          "type": "AButton", 
+          "props": { 
+            "type": "primary", 
+            "loading": { "type": "expression", "body": "{{ref_state_loading}}" } 
+          }, 
+          "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.enterLoading()}}" } } },
+          "children": ["Click me!"]
+        }
+      ]
+    }
+  }
+}

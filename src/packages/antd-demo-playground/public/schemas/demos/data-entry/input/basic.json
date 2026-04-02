@@ -1,0 +1,21 @@
+{
+  "name": "InputBasicDemo",
+  "state": {
+    "value": { "type": "ref", "initial": "" }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AInput",
+      "props": {
+        "placeholder": "Basic usage",
+        "value": { "type": "expression", "body": "ref_state_value" }
+      },
+      "directives": {
+        "vOn": {
+          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "SwitchBasicDemo",
+  "state": {
+    "checked": { "type": "ref", "initial": true }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASwitch",
+      "props": {
+        "checked": { "type": "expression", "body": "ref_state_checked" }
+      },
+      "directives": {
+        "vOn": {
+          "update:checked": { "type": "function", "params": {}, "body": "{{ref_state_checked.value = args[0]}}" }
+        }
+      }
+    }
+  }
+}
