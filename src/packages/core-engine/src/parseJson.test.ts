@@ -10,25 +10,25 @@ describe('normalizeValue - $ref format', () => {
   it('should transform $ref state to reference format', () => {
     const input = { $ref: 'state.count' };
     const result = normalizeValue(input);
-    expect(result).toEqual({ type: 'reference', body: '{{ref_state_count}}' });
+    expect(result).toEqual({ type: 'reference', prefix: 'state', variable: 'count' });
   });
 
   it('should transform $ref props to reference format', () => {
     const input = { $ref: 'props.title' };
     const result = normalizeValue(input);
-    expect(result).toEqual({ type: 'reference', body: '{{ref_props_title}}' });
+    expect(result).toEqual({ type: 'reference', prefix: 'props', variable: 'title' });
   });
 
   it('should transform $ref computed to reference format', () => {
     const input = { $ref: 'computed.fullName' };
     const result = normalizeValue(input);
-    expect(result).toEqual({ type: 'reference', body: '{{ref_computed_fullName}}' });
+    expect(result).toEqual({ type: 'reference', prefix: 'computed', variable: 'fullName' });
   });
 
   it('should transform $ref with nested path', () => {
     const input = { $ref: 'state.user.profile.email' };
     const result = normalizeValue(input);
-    expect(result).toEqual({ type: 'reference', body: '{{ref_state_user.profile.email}}' });
+    expect(result).toEqual({ type: 'reference', prefix: 'state', variable: 'user', path: 'profile.email' });
   });
 });
 

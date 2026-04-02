@@ -37,11 +37,12 @@ function normalizeValue(value: unknown): unknown {
   const obj = value as Record<string, unknown>;
 
   // $ref — reference to state/props/computed
+  // Output structured format (prefix + variable) that passes legacy format check
   if ('$ref' in obj && typeof obj.$ref === 'string') {
     const refPath = obj.$ref as string;
     const dotIndex = refPath.indexOf('.');
     if (dotIndex < 0) {
-      return value; // malformed, let downstream handle error
+      return value;
     }
     const prefix = refPath.substring(0, dotIndex);
     const rest = refPath.substring(dotIndex + 1);
@@ -49,9 +50,9 @@ function normalizeValue(value: unknown): unknown {
     if (varDotIndex > 0) {
       const variable = rest.substring(0, varDotIndex);
       const path = rest.substring(varDotIndex + 1);
-      return { type: 'reference', body: `{{ref_${prefix}_${variable}.${path}}}` };
+      return { type: 'reference', prefix, variable, path };
     }
-    return { type: 'reference', body: `{{ref_${prefix}_${rest}}}` };
+    return { type: 'reference', prefix, variable: rest };
   }
 
   // $expr — expression
