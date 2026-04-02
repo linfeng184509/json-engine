@@ -241,7 +241,7 @@
 - [x] 8.4.3 创建 demos/other/collapse/mix.json
 
 ### 8.5 Calendar
-- [ ] 8.5.1 创建 demos/other/calendar/basic.json
+- [x] 8.5.1 创建 demos/other/calendar/basic.json
 
 ### 8.6 Drawer
 - [x] 8.6.1 创建 demos/other/drawer/basic.json
@@ -269,7 +269,7 @@
 
 ## Summary
 
-**已完成: 138 个 demo**
-**待完成: 1 个 (Calendar)**
+**已完成: 139 个 demo**
+**待完成: 0 个**
 
-所有主要组件已完成！
+所有组件 demo 已完成！
