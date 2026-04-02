@@ -1,0 +1,25 @@
+{
+  "name": "CheckboxGroupDemo",
+  "state": {
+    "checkedList": { "type": "ref", "initial": ["Apple", "Orange"] }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ACheckboxGroup",
+      "props": {
+        "value": { "type": "expression", "body": "{{ref_state_checkedList}}" }
+      },
+      "directives": {
+        "vOn": {
+          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_checkedList.value = args[0]}}" }
+        }
+      },
+      "children": [
+        { "type": "ACheckbox", "props": { "value": "Apple" }, "children": ["Apple"] },
+        { "type": "ACheckbox", "props": { "value": "Pear" }, "children": ["Pear"] },
+        { "type": "ACheckbox", "props": { "value": "Orange" }, "children": ["Orange"] }
+      ]
+    }
+  }
+}

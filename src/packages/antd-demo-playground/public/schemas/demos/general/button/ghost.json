@@ -1,0 +1,16 @@
+{
+  "name": "ButtonGhostDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": { "style": "background:rgb(190,200,200);padding:26px 16px 16px" },
+      "children": [
+        { "type": "AButton", "props": { "type": "primary", "ghost": true }, "children": ["Primary"] },
+        { "type": "AButton", "props": { "ghost": true, "style": "margin-left:8px" }, "children": ["Default"] },
+        { "type": "AButton", "props": { "type": "dashed", "ghost": true, "style": "margin-left:8px" }, "children": ["Dashed"] },
+        { "type": "AButton", "props": { "type": "link", "ghost": true, "style": "margin-left:8px" }, "children": ["Link"] }
+      ]
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "CollapseBasicDemo",
+  "state": {
+    "activeKey": { "type": "ref", "initial": ["1"] }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ACollapse",
+      "props": {
+        "activeKey": { "type": "expression", "body": "{{ref_state_activeKey}}" }
+      },
+      "children": [
+        { "type": "ACollapsePanel", "props": { "key": "1", "header": "This is panel header 1" }, "children": ["This is panel content 1"] },
+        { "type": "ACollapsePanel", "props": { "key": "2", "header": "This is panel header 2" }, "children": ["This is panel content 2"] },
+        { "type": "ACollapsePanel", "props": { "key": "3", "header": "This is panel header 3" }, "children": ["This is panel content 3"] }
+      ]
+    }
+  }
+}

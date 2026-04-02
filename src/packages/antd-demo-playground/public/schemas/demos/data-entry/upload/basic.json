@@ -1,0 +1,12 @@
+{
+  "name": "UploadBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AUpload",
+      "children": [
+        { "type": "AButton", "children": [ { "type": "UploadOutlined" }, " Click to Upload" ] }
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "DatePickerBasicDemo",
+  "state": {
+    "value": { "type": "ref", "initial": null }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
+      "children": [
+        { "type": "ADatePicker", "props": { "value": { "type": "expression", "body": "{{ref_state_value}}" }, "style": "width:100%" }, "directives": { "vOn": { "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" } } } },
+        { "type": "ARangePicker", "props": { "style": "width:100%" } }
+      ]
+    }
+  }
+}

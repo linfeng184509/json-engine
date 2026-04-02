@@ -1,0 +1,29 @@
+{
+  "name": "SelectMultipleDemo",
+  "state": {
+    "value": { "type": "ref", "initial": ["a10", "c12"] }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASelect",
+      "props": {
+        "mode": "multiple",
+        "value": { "type": "expression", "body": "{{ref_state_value}}" },
+        "style": "width:100%",
+        "placeholder": "Please select"
+      },
+      "directives": {
+        "vOn": {
+          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" }
+        }
+      },
+      "children": [
+        { "type": "ASelectOption", "props": { "value": "a10" }, "children": ["a10"] },
+        { "type": "ASelectOption", "props": { "value": "c12" }, "children": ["c12"] },
+        { "type": "ASelectOption", "props": { "value": "b11" }, "children": ["b11"] },
+        { "type": "ASelectOption", "props": { "value": "d13" }, "children": ["d13"] }
+      ]
+    }
+  }
+}

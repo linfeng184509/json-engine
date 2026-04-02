@@ -67,6 +67,7 @@
                     { "type": "AMenuItem", "props": { "key": "button/disabled" }, "children": ["Button Disabled"] },
                     { "type": "AMenuItem", "props": { "key": "button/danger" }, "children": ["Button Danger"] },
                     { "type": "AMenuItem", "props": { "key": "button/block" }, "children": ["Button Block"] },
+                    { "type": "AMenuItem", "props": { "key": "button/ghost" }, "children": ["Button Ghost"] },
                     { "type": "AMenuItem", "props": { "key": "icon/basic" }, "children": ["Icon Basic"] },
                     { "type": "AMenuItem", "props": { "key": "typography/basic" }, "children": ["Typography Basic"] }
                   ]
@@ -77,8 +78,11 @@
                   "children": [
                     { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["布局 Layout"] } ] },
                     { "type": "AMenuItem", "props": { "key": "grid/basic" }, "children": ["Grid Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "grid/gutter" }, "children": ["Grid Gutter"] },
                     { "type": "AMenuItem", "props": { "key": "space/basic" }, "children": ["Space Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "divider/basic" }, "children": ["Divider Basic"] }
+                    { "type": "AMenuItem", "props": { "key": "space/size" }, "children": ["Space Size"] },
+                    { "type": "AMenuItem", "props": { "key": "divider/basic" }, "children": ["Divider Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "layout/basic" }, "children": ["Layout Basic"] }
                   ]
                 },
                 {
@@ -100,10 +104,15 @@
                     { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["数据录入 Data Entry"] } ] },
                     { "type": "AMenuItem", "props": { "key": "input/basic" }, "children": ["Input Basic"] },
                     { "type": "AMenuItem", "props": { "key": "select/basic" }, "children": ["Select Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "select/multiple" }, "children": ["Select Multiple"] },
                     { "type": "AMenuItem", "props": { "key": "checkbox/basic" }, "children": ["Checkbox Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "checkbox/group" }, "children": ["Checkbox Group"] },
                     { "type": "AMenuItem", "props": { "key": "radio/basic" }, "children": ["Radio Basic"] },
                     { "type": "AMenuItem", "props": { "key": "switch/basic" }, "children": ["Switch Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "form/basic" }, "children": ["Form Basic"] }
+                    { "type": "AMenuItem", "props": { "key": "form/basic" }, "children": ["Form Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "date-picker/basic" }, "children": ["DatePicker Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "time-picker/basic" }, "children": ["TimePicker Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "upload/basic" }, "children": ["Upload Basic"] }
                   ]
                 },
                 {
@@ -113,13 +122,16 @@
                     { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["数据展示 Data Display"] } ] },
                     { "type": "AMenuItem", "props": { "key": "modal/basic" }, "children": ["Modal Basic"] },
                     { "type": "AMenuItem", "props": { "key": "table/basic" }, "children": ["Table Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "table/pagination" }, "children": ["Table Pagination"] },
                     { "type": "AMenuItem", "props": { "key": "tabs/basic" }, "children": ["Tabs Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "tabs/card" }, "children": ["Tabs Card"] },
                     { "type": "AMenuItem", "props": { "key": "card/basic" }, "children": ["Card Basic"] },
                     { "type": "AMenuItem", "props": { "key": "badge/basic" }, "children": ["Badge Basic"] },
                     { "type": "AMenuItem", "props": { "key": "tag/basic" }, "children": ["Tag Basic"] },
                     { "type": "AMenuItem", "props": { "key": "avatar/basic" }, "children": ["Avatar Basic"] },
                     { "type": "AMenuItem", "props": { "key": "tree/basic" }, "children": ["Tree Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "list/basic" }, "children": ["List Basic"] }
+                    { "type": "AMenuItem", "props": { "key": "list/basic" }, "children": ["List Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "descriptions/basic" }, "children": ["Descriptions Basic"] }
                   ]
                 },
                 {
@@ -133,6 +145,15 @@
                     { "type": "AMenuItem", "props": { "key": "progress/basic" }, "children": ["Progress Basic"] },
                     { "type": "AMenuItem", "props": { "key": "spin/basic" }, "children": ["Spin Basic"] },
                     { "type": "AMenuItem", "props": { "key": "skeleton/basic" }, "children": ["Skeleton Basic"] }
+                  ]
+                },
+                {
+                  "type": "ASubMenu",
+                  "props": { "key": "other" },
+                  "children": [
+                    { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [ { "type": "span", "children": ["其他 Other"] } ] },
+                    { "type": "AMenuItem", "props": { "key": "collapse/basic" }, "children": ["Collapse Basic"] },
+                    { "type": "AMenuItem", "props": { "key": "drawer/basic" }, "children": ["Drawer Basic"] }
                   ]
                 }
               ]

@@ -1,0 +1,21 @@
+{
+  "name": "TimePickerBasicDemo",
+  "state": {
+    "value": { "type": "ref", "initial": null }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ATimePicker",
+      "props": {
+        "value": { "type": "expression", "body": "{{ref_state_value}}" },
+        "style": "width:200px"
+      },
+      "directives": {
+        "vOn": {
+          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" }
+        }
+      }
+    }
+  }
+}

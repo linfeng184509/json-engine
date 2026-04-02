@@ -1,0 +1,17 @@
+{
+  "name": "DescriptionsBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ADescriptions",
+      "props": { "title": "User Info", "bordered": true },
+      "children": [
+        { "type": "ADescriptionsItem", "props": { "label": "UserName" }, "children": ["Zhou Maomao"] },
+        { "type": "ADescriptionsItem", "props": { "label": "Telephone" }, "children": ["1810000000"] },
+        { "type": "ADescriptionsItem", "props": { "label": "Live" }, "children": ["Hangzhou, Zhejiang"] },
+        { "type": "ADescriptionsItem", "props": { "label": "Address" }, "children": ["No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang"] },
+        { "type": "ADescriptionsItem", "props": { "label": "Remark" }, "children": ["empty"] }
+      ]
+    }
+  }
+}
