@@ -22,11 +22,14 @@
         },
         {
           "type": "AModal",
-          "props": { "title": "20px to Top", "style": "top:20px" },
+          "props": {
+            "title": "20px to Top",
+            "style": "top:20px",
+            "open": { "$expr": "$state.modal1Visible" }
+          },
           "directives": {
-            "vModel": {
-              "prop": { "$ref": "state.modal1Visible" },
-              "arg": "open"
+            "vOn": {
+              "cancel": { "$fn": "state.modal1Visible = false;" }
             }
           },
           "children": [
@@ -45,11 +48,14 @@
         },
         {
           "type": "AModal",
-          "props": { "title": "Vertically centered modal dialog", "centered": true },
+          "props": {
+            "title": "Vertically centered modal dialog",
+            "centered": true,
+            "open": { "$expr": "$state.modal2Visible" }
+          },
           "directives": {
-            "vModel": {
-              "prop": { "$ref": "state.modal2Visible" },
-              "arg": "open"
+            "vOn": {
+              "cancel": { "$fn": "state.modal2Visible = false;" }
             }
           },
           "children": [
