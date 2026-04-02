@@ -1,0 +1,1 @@
+{"version":3,"file":"vue-parser-config.d.ts","sourceRoot":"","sources":["vue-parser-config.ts"],"names":[],"mappings":"AAAA,OAAO,EACL,kBAAkB,EAGlB,KAAK,YAAY,EACjB,KAAK,aAAa,EAEnB,MAAM,0BAA0B,CAAC;AAiElC,QAAA,MAAM,eAAe,EAAE,YAQrB,CAAC;AAEH,OAAO,EAAE,eAAe,EAAE,kBAAkB,EAAE,CAAC;AAC/C,YAAY,EAAE,YAAY,EAAE,aAAa,EAAE,CAAC"}

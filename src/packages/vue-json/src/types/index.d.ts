@@ -1,0 +1,9 @@
+export type { Platform, PlatformFeatures, PlatformInfo } from './platform';
+export type { VueJsonSchema, VueJsonSchemaInput, ParsedSchema } from './schema';
+export type { PluginConfig, PluginDeclaration, UIComponentConfig, UIThemeConfig, UIConfig, AxiosRequestConfig, WSConfig, NetworkConfig, StorageConfig, I18nConfig, AuthConfig, VueJsonAppSchema, VueJsonSchema as VueJsonSchemaType, } from './app';
+export { SchemaValidationError } from './app';
+export type { VueJsonPlugin, ValueTypeDefinition, ValueResolverFn, PluginComponentDefinition, ScopeExtension, RuntimeExport, PluginInstallContext, RegisteredPlugin, AxiosPluginConfig, AntdPluginConfig, RouterPluginConfig, EChartsPluginConfig, WebSocketPluginConfig, StoragePluginConfig, PiniaPluginConfig, AuthPluginConfig, I18nPluginConfig, } from './plugin.definitions';
+export type { ExpressionValue, FunctionValue, StateRef, PropsRef, ScopeRef, LiteralValue, PropertyValue, InitialValue, ValueType, PropDefinition, PropsDefinition, EmitDefinition, EmitsDefinition, StateItemDefinition, StateDefinition, ComputedItemDefinition, ComputedDefinition, MethodsDefinition, WatchItemDefinition, WatchDefinition, ProvideItemDefinition, ProvideDefinition, InjectItemDefinition, InjectDefinition, LifecycleHookName, LifecycleDefinition, LocalComponentDefinition, AsyncComponentDefinition, ComponentDefinition, ComponentsDefinition, VNodeDirectives, VNodeChild, VNodeChildren, VNodeDefinition, TemplateRenderDefinition, FunctionRenderDefinition, RenderDefinition, StylesDefinition, ExpressionInput, StateInput, PropsInput, ScopeInput, FunctionInput, StructuredInput, } from './schema';
+export type { ExpressionParseData, ReferenceParseData, AbstractScopeParseData, FunctionParseData, } from './schema';
+export type { ParserContext, ParseError, ParseWarning, RenderContext, SetupContext, ComponentFactoryOptions, ParseResult, CreateComponentOptions, UseVueJsonOptions, } from './runtime';
+//# sourceMappingURL=index.d.ts.map

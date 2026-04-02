@@ -237,7 +237,7 @@ export interface VNodeDirectives {
   vOn?: Record<string, FunctionValue>;
   vBind?: Record<string, ExpressionValue>;
   vSlot?: {
-    name?: ExpressionValue;
+    name?: ExpressionValue | string;
     props?: string[];
   };
   vHtml?: ExpressionValue;

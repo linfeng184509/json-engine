@@ -13,6 +13,7 @@ import {
   isStateReference,
   isPropsReference,
 } from './value-resolver';
+import { isExpressionParseData } from '@json-engine/core-engine';
 
 function getNestedValue(obj: unknown, path: string): unknown {
   if (!obj || !path) return obj;
@@ -312,14 +313,36 @@ export function applyVSlot(
 
   const result: VSlotProps = {};
 
-  if (vSlot.name) {
-    try {
-      const slotName = evaluateExpression(vSlot.name.expression, context);
-      result.name = String(slotName ?? 'default');
-    } catch {
-      result.name = 'default';
+  if (vSlot.name !== undefined && vSlot.name !== null) {
+    // 格式 1: 字符串简写 { "name": "title" }
+    if (typeof vSlot.name === 'string') {
+      result.name = vSlot.name;
     }
-  } else {
+    // 格式 2: ExpressionParseData 对象 { _type: 'expression', expression: '...' }
+    else if (typeof vSlot.name === 'object') {
+      if (isExpressionParseData(vSlot.name)) {
+        try {
+          const slotName = evaluateExpression(vSlot.name.expression, context);
+          result.name = String(slotName ?? 'default');
+        } catch {
+          result.name = 'default';
+        }
+      } else {
+        // 格式 3: ExpressionValue 输入格式 { type: 'expression', body: '...' }
+        const exprValue = vSlot.name as ExpressionValue;
+        if ('expression' in exprValue) {
+          try {
+            const slotName = evaluateExpression(exprValue.expression, context);
+            result.name = String(slotName ?? 'default');
+          } catch {
+            result.name = 'default';
+          }
+        }
+      }
+    }
+  }
+  
+  if (!result.name) {
     result.name = 'default';
   }
 

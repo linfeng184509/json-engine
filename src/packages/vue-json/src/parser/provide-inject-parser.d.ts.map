@@ -1,0 +1,1 @@
+{"version":3,"file":"provide-inject-parser.d.ts","sourceRoot":"","sources":["provide-inject-parser.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,iBAAiB,EAAE,gBAAgB,EAAE,aAAa,EAAE,MAAM,UAAU,CAAC;AAGnF,wBAAgB,YAAY,CAC1B,UAAU,EAAE,iBAAiB,EAC7B,OAAO,EAAE,aAAa,GACrB,iBAAiB,CAsCnB;AAED,wBAAgB,WAAW,CACzB,UAAU,EAAE,gBAAgB,EAC5B,OAAO,EAAE,aAAa,GACrB,gBAAgB,CAuClB"}
