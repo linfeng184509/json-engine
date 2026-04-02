@@ -1,0 +1,22 @@
+{
+  "name": "TreeBasicDemo",
+  "state": {
+    "treeData": {
+      "type": "ref",
+      "initial": [
+        { "title": "Node1", "key": "0-0", "children": [{ "title": "Child Node1", "key": "0-0-0" }] },
+        { "title": "Node2", "key": "0-1" }
+      ]
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ATree",
+      "props": {
+        "treeData": { "type": "expression", "body": "{{ref_state_treeData}}" },
+        "defaultExpandAll": true
+      }
+    }
+  }
+}

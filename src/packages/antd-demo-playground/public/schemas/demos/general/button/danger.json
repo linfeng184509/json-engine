@@ -1,0 +1,16 @@
+{
+  "name": "ButtonDangerDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "AButton", "props": { "type": "primary", "danger": true }, "children": ["Primary"] },
+        { "type": "AButton", "props": { "danger": true }, "children": ["Default"] },
+        { "type": "AButton", "props": { "type": "dashed", "danger": true }, "children": ["Dashed"] },
+        { "type": "AButton", "props": { "type": "text", "danger": true }, "children": ["Text"] },
+        { "type": "AButton", "props": { "type": "link", "danger": true }, "children": ["Link"] }
+      ]
+    }
+  }
+}

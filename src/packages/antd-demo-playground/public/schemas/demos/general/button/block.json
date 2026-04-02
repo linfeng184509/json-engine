@@ -1,0 +1,13 @@
+{
+  "name": "ButtonBlockDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        { "type": "AButton", "props": { "type": "primary", "block": true }, "children": ["Primary Block Button"] },
+        { "type": "AButton", "props": { "block": true, "style": "margin-top:8px" }, "children": ["Default Block Button"] }
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "TypographyBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ATypography",
+      "children": [
+        { "type": "ATypographyTitle", "children": ["Heading 1"] },
+        { "type": "ATypographyTitle", "props": { "level": 2 }, "children": ["Heading 2"] },
+        { "type": "ATypographyTitle", "props": { "level": 3 }, "children": ["Heading 3"] },
+        { "type": "ATypographyTitle", "props": { "level": 4 }, "children": ["Heading 4"] },
+        { "type": "ATypographyParagraph", "children": ["This is a paragraph with basic text styling."] }
+      ]
+    }
+  }
+}

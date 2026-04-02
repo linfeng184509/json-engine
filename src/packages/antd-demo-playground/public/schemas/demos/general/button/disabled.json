@@ -1,0 +1,16 @@
+{
+  "name": "ButtonDisabledDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "AButton", "props": { "type": "primary", "disabled": true }, "children": ["Primary(disabled)"] },
+        { "type": "AButton", "props": { "disabled": true }, "children": ["Default(disabled)"] },
+        { "type": "AButton", "props": { "type": "dashed", "disabled": true }, "children": ["Dashed(disabled)"] },
+        { "type": "AButton", "props": { "type": "text", "disabled": true }, "children": ["Text(disabled)"] },
+        { "type": "AButton", "props": { "type": "link", "disabled": true }, "children": ["Link(disabled)"] }
+      ]
+    }
+  }
+}
