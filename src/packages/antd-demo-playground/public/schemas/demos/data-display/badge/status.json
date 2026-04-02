@@ -1,0 +1,16 @@
+{
+  "name": "BadgeStatusDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "ABadge", "props": { "status": "success" } },
+        { "type": "ABadge", "props": { "status": "error" } },
+        { "type": "ABadge", "props": { "status": "default" } },
+        { "type": "ABadge", "props": { "status": "processing" } },
+        { "type": "ABadge", "props": { "status": "warning" } }
+      ]
+    }
+  }
+}

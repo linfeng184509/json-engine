@@ -1,0 +1,13 @@
+{
+  "name": "PopconfirmBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "APopconfirm",
+      "props": { "title": "Are you sure?", "okText": "Yes", "cancelText": "No" },
+      "children": [
+        { "type": "AButton", "children": ["Delete"] }
+      ]
+    }
+  }
+}

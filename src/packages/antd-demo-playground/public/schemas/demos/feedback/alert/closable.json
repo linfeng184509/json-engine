@@ -1,0 +1,14 @@
+{
+  "name": "AlertClosableDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "props": { "direction": "vertical", "style": "width:100%" },
+      "children": [
+        { "type": "AAlert", "props": { "message": "Warning Text Warning Text Warning TextW arning Text Warning Text Warning TextWarning Text", "type": "warning", "closable": true, "afterClose": "alert('After Close callback')" } },
+        { "type": "AAlert", "props": { "message": "Error Text", "description": "Error Description Error Description Error Description Error Description", "type": "error", "closable": true } }
+      ]
+    }
+  }
+}

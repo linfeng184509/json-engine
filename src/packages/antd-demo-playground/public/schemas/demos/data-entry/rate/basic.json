@@ -1,0 +1,20 @@
+{
+  "name": "RateBasicDemo",
+  "state": {
+    "value": { "type": "ref", "initial": 3 }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ARate",
+      "props": {
+        "value": { "type": "expression", "body": "{{ref_state_value}}" }
+      },
+      "directives": {
+        "vOn": {
+          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" }
+        }
+      }
+    }
+  }
+}

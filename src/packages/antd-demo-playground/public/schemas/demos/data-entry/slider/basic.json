@@ -1,0 +1,20 @@
+{
+  "name": "SliderBasicDemo",
+  "state": {
+    "value": { "type": "ref", "initial": 30 }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASlider",
+      "props": {
+        "value": { "type": "expression", "body": "{{ref_state_value}}" }
+      },
+      "directives": {
+        "vOn": {
+          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" }
+        }
+      }
+    }
+  }
+}

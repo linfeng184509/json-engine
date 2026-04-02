@@ -1,0 +1,14 @@
+{
+  "name": "PopoverBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "APopover",
+      "props": { "title": "Title", "trigger": "click" },
+      "children": [
+        { "type": "template", "directives": { "vSlot": { "name": "content" } }, "children": [ { "type": "div", "children": ["Content"] } ] },
+        { "type": "AButton", "children": ["Click me"] }
+      ]
+    }
+  }
+}
