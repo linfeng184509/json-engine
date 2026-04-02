@@ -13,7 +13,7 @@
       },
       "directives": {
         "vOn": {
-          "update:activeKey": { "type": "function", "params": {}, "body": "{{ref_state_activeKey.value = args[0]}}" }
+          "update:activeKey": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_activeKey.value = args[0]}}" }
         }
       },
       "children": [

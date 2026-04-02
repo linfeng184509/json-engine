@@ -6,17 +6,17 @@
   "methods": {
     "showModal": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_open.value = true}}"
     },
     "handleOk": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_open.value = false}}"
     },
     "handleCancel": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_open.value = false}}"
     }
   },
@@ -28,7 +28,7 @@
         { 
           "type": "AButton", 
           "props": { "type": "primary" }, 
-          "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.showModal()}}" } } },
+          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showModal()}}" } } },
           "children": ["Open Modal"]
         },
         {
@@ -39,8 +39,8 @@
           },
           "directives": {
             "vOn": {
-              "ok": { "type": "function", "params": {}, "body": "{{methods.handleOk()}}" },
-              "cancel": { "type": "function", "params": {}, "body": "{{methods.handleCancel()}}" }
+              "ok": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleOk()}}" },
+              "cancel": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleCancel()}}" }
             }
           },
           "children": [

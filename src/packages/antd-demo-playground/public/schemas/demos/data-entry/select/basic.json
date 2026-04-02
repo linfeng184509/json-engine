@@ -8,12 +8,12 @@
     "content": {
       "type": "ASelect",
       "props": {
-        "value": { "type": "expression", "body": "ref_state_value" },
+        "value": { "type": "expression", "body": "{{}}" },
         "style": "width:200px"
       },
       "directives": {
         "vOn": {
-          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" }
+          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_value.value = args[0]}}" }
         }
       },
       "children": [

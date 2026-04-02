@@ -6,7 +6,7 @@
   "methods": {
     "onSelect": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_selectedDate = args[0]}}"
     }
   },
@@ -23,7 +23,7 @@
         {
           "type": "ACalendar",
           "props": {
-            "onSelect": { "type": "function", "params": {}, "body": "{{methods.onSelect(args[0])}}" },
+            "onSelect": { "type": "function", "params": "{{{}}}", "body": "{{methods.onSelect(args[0])}}" },
             "fullscreen": false
           }
         },

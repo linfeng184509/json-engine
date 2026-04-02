@@ -4,8 +4,8 @@
     "percent": { "type": "ref", "initial": 0 }
   },
   "methods": {
-    "increase": { "type": "function", "params": {}, "body": "{{var p = ref_state_percent.value + 10; if(p > 100) p = 100; ref_state_percent.value = p;}}" },
-    "decline": { "type": "function", "params": {}, "body": "{{var p = ref_state_percent.value - 10; if(p < 0) p = 0; ref_state_percent.value = p;}}" }
+    "increase": { "type": "function", "params": "{{{}}}", "body": "{{var p = ref_state_percent.value + 10; if(p > 100) p = 100; ref_state_percent.value = p;}}" },
+    "decline": { "type": "function", "params": "{{{}}}", "body": "{{var p = ref_state_percent.value - 10; if(p < 0) p = 0; ref_state_percent.value = p;}}" }
   },
   "render": {
     "type": "template",
@@ -14,8 +14,8 @@
       "children": [
         { "type": "AProgress", "props": { "percent": { "type": "expression", "body": "{{ref_state_percent}}" } } },
         { "type": "AButtonGroup", "props": { "style": "margin-top:16px" }, "children": [
-          { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.decline()}}" } } }, "children": ["-"] },
-          { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.increase()}}" } } }, "children": ["+"] }
+          { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.decline()}}" } } }, "children": ["-"] },
+          { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.increase()}}" } } }, "children": ["+"] }
         ]}
       ]
     }

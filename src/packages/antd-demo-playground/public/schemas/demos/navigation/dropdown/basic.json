@@ -4,7 +4,7 @@
     "visible": { "type": "ref", "initial": false }
   },
   "methods": {
-    "handleMenuClick": { "type": "function", "params": {}, "body": "{{console.log('click', args[0])}}" }
+    "handleMenuClick": { "type": "function", "params": "{{{}}}", "body": "{{console.log('click', args[0])}}" }
   },
   "render": {
     "type": "template",
@@ -15,7 +15,7 @@
           { "type": "AButton", "children": ["Hover me "] }
         ]},
         { "type": "template", "directives": { "vSlot": { "name": "overlay" } }, "children": [
-          { "type": "AMenu", "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.handleMenuClick(args[0])}}" } } }, "children": [
+          { "type": "AMenu", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleMenuClick(args[0])}}" } } }, "children": [
             { "type": "AMenuItem", "children": ["1st menu item"] },
             { "type": "AMenuItem", "children": ["2nd menu item"] },
             { "type": "AMenuItem", "children": ["3rd menu item"] }

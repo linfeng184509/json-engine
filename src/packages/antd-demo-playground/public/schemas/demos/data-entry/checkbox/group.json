@@ -12,7 +12,7 @@
       },
       "directives": {
         "vOn": {
-          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_checkedList.value = args[0]}}" }
+          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_checkedList.value = args[0]}}" }
         }
       },
       "children": [

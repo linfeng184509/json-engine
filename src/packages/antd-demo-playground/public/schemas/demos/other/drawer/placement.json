@@ -7,12 +7,12 @@
   "methods": {
     "showDrawer": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_placement = args[0]; ref_state_visible = true}}"
     },
     "closeDrawer": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_visible = false}}"
     }
   },
@@ -32,7 +32,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": {}, "body": "{{methods.showDrawer('left')}}" }
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer('left')}}" }
                 }
               },
               "children": ["Left"]
@@ -41,7 +41,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": {}, "body": "{{methods.showDrawer('right')}}" }
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer('right')}}" }
                 }
               },
               "children": ["Right"]
@@ -50,7 +50,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": {}, "body": "{{methods.showDrawer('top')}}" }
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer('top')}}" }
                 }
               },
               "children": ["Top"]
@@ -59,7 +59,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": {}, "body": "{{methods.showDrawer('bottom')}}" }
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer('bottom')}}" }
                 }
               },
               "children": ["Bottom"]
@@ -72,7 +72,7 @@
             "open": { "type": "expression", "body": "{{ref_state_visible}}" },
             "placement": { "type": "expression", "body": "{{ref_state_placement}}" },
             "title": "Drawer",
-            "onClose": { "type": "function", "params": {}, "body": "{{methods.closeDrawer()}}" }
+            "onClose": { "type": "function", "params": "{{{}}}", "body": "{{methods.closeDrawer()}}" }
           },
           "children": [
             { "type": "p", "children": ["Drawer content..."] }

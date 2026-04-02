@@ -3,7 +3,7 @@
   "methods": {
     "openNotification": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{$_antd.notification.open({ message: 'Notification Title', description: 'This is the content of the notification.' })}}"
     }
   },
@@ -12,7 +12,7 @@
     "content": {
       "type": "AButton",
       "props": { "type": "primary" },
-      "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.openNotification()}}" } } },
+      "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openNotification()}}" } } },
       "children": ["Open Notification"]
     }
   }

@@ -7,12 +7,12 @@
   "methods": {
     "showModal": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_visible = true}}"
     },
     "hideModal": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_visible = false}}"
     }
   },
@@ -33,7 +33,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": {}, "body": "{{ref_state_modalPosition = 'center'; methods.showModal()}}" }
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_modalPosition = 'center'; methods.showModal()}}" }
                 }
               },
               "children": ["Center Modal"]
@@ -42,7 +42,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": {}, "body": "{{ref_state_modalPosition = 'top'; methods.showModal()}}" }
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_modalPosition = 'top'; methods.showModal()}}" }
                 }
               },
               "children": ["Top Modal"]
@@ -55,8 +55,8 @@
             "open": { "type": "expression", "body": "{{ref_state_visible}}" },
             "title": "Modal at Position",
             "centered": { "type": "expression", "body": "{{ref_state_modalPosition === 'center'}}" },
-            "onOk": { "type": "function", "params": {}, "body": "{{methods.hideModal()}}" },
-            "onCancel": { "type": "function", "params": {}, "body": "{{methods.hideModal()}}" }
+            "onOk": { "type": "function", "params": "{{{}}}", "body": "{{methods.hideModal()}}" },
+            "onCancel": { "type": "function", "params": "{{{}}}", "body": "{{methods.hideModal()}}" }
           },
           "children": [
             { "type": "p", "children": ["Modal content here..."] }

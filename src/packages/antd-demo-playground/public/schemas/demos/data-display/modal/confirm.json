@@ -1,14 +1,14 @@
 {
   "name": "ModalConfirmDemo",
   "methods": {
-    "showConfirm": { "type": "function", "params": {}, "body": "{{$_antd.modal.confirm({ title: 'Do you want to delete these items?', content: 'When clicked the OK button, this dialog will be closed after 1 second', onOk: function() { return new Promise(function(resolve) { setTimeout(resolve, 1000); }); }, onCancel: function() {} })}}" }
+    "showConfirm": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.modal.confirm({ title: 'Do you want to delete these items?', content: 'When clicked the OK button, this dialog will be closed after 1 second', onOk: function() { return new Promise(function(resolve) { setTimeout(resolve, 1000); }); }, onCancel: function() {} })}}" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "AButton",
       "props": { "type": "primary" },
-      "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.showConfirm()}}" } } },
+      "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showConfirm()}}" } } },
       "children": ["Confirm"]
     }
   }

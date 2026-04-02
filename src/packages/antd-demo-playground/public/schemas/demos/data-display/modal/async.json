@@ -7,17 +7,17 @@
   "methods": {
     "showModal": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_visible = true}}"
     },
     "handleOk": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_confirmLoading = true; setTimeout(function(){ ref_state_confirmLoading = false; ref_state_visible = false; }, 2000)}}"
     },
     "handleCancel": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_visible = false}}"
     }
   },
@@ -36,7 +36,7 @@
           "props": { "type": "primary" },
           "directives": {
             "vOn": {
-              "click": { "type": "function", "params": {}, "body": "{{methods.showModal()}}" }
+              "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showModal()}}" }
             }
           },
           "children": ["Open Modal"]
@@ -47,8 +47,8 @@
             "open": { "type": "expression", "body": "{{ref_state_visible}}" },
             "title": "Async Modal",
             "confirmLoading": { "type": "expression", "body": "{{ref_state_confirmLoading}}" },
-            "onOk": { "type": "function", "params": {}, "body": "{{methods.handleOk()}}" },
-            "onCancel": { "type": "function", "params": {}, "body": "{{methods.handleCancel()}}" }
+            "onOk": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleOk()}}" },
+            "onCancel": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleCancel()}}" }
           },
           "children": [
             { "type": "p", "children": ["Click OK will take 2 seconds to close..."] }

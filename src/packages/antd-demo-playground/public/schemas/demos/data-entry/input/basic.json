@@ -9,11 +9,11 @@
       "type": "AInput",
       "props": {
         "placeholder": "Basic usage",
-        "value": { "type": "expression", "body": "ref_state_value" }
+        "value": { "type": "expression", "body": "{{}}" }
       },
       "directives": {
         "vOn": {
-          "update:value": { "type": "function", "params": {}, "body": "{{ref_state_value.value = args[0]}}" }
+          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_value.value = args[0]}}" }
         }
       }
     }

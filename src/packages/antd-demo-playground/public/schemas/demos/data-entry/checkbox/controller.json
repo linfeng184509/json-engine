@@ -6,7 +6,7 @@
   "methods": {
     "toggle": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_checked = !ref_state_checked}}"
     }
   },
@@ -34,7 +34,7 @@
               "props": { "type": "primary", "size": "small" },
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": {}, "body": "{{methods.toggle()}}" }
+                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.toggle()}}" }
                 }
               },
               "children": ["Toggle"]

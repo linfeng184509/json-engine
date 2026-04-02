@@ -14,14 +14,14 @@
     "selectedRowKeys": { "type": "ref", "initial": ["1"] }
   },
   "methods": {
-    "onSelectChange": { "type": "function", "params": {}, "body": "{{ref_state_selectedRowKeys.value = args[0]}}" }
+    "onSelectChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedRowKeys.value = args[0]}}" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "ATable",
       "props": {
-        "rowSelection": { "selectedRowKeys": { "type": "expression", "body": "{{ref_state_selectedRowKeys}}" }, "onChange": { "type": "function", "params": {}, "body": "{{methods.onSelectChange(args[0])}}" } },
+        "rowSelection": { "selectedRowKeys": { "type": "expression", "body": "{{ref_state_selectedRowKeys}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{methods.onSelectChange(args[0])}}" } },
         "columns": { "type": "expression", "body": "{{ref_state_columns}}" },
         "dataSource": { "type": "expression", "body": "{{ref_state_data}}" }
       }

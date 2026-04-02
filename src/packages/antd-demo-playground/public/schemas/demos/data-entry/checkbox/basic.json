@@ -8,11 +8,11 @@
     "content": {
       "type": "ACheckbox",
       "props": {
-        "checked": { "type": "expression", "body": "ref_state_checked" }
+        "checked": { "type": "expression", "body": "{{}}" }
       },
       "directives": {
         "vOn": {
-          "update:checked": { "type": "function", "params": {}, "body": "{{ref_state_checked.value = args[0]}}" }
+          "update:checked": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_checked.value = args[0]}}" }
         }
       },
       "children": ["Checkbox"]

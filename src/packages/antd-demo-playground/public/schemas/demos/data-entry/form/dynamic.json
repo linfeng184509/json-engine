@@ -6,12 +6,12 @@
   "methods": {
     "addItem": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{ref_state_items.push({id: Date.now(), name: ''})}}"
     },
     "removeItem": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{var id = args[0]; ref_state_items = ref_state_items.filter(item => item.id !== id)}}"
     }
   },
@@ -54,7 +54,7 @@
                       "props": { "type": "dashed", "danger": true },
                       "directives": {
                         "vOn": {
-                          "click": { "type": "function", "params": {}, "body": "{{methods.removeItem(scope.item.id)}}" }
+                          "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.removeItem(scope.item.id)}}" }
                         }
                       },
                       "children": ["Remove"]
@@ -71,7 +71,7 @@
                   "props": { "type": "dashed" },
                   "directives": {
                     "vOn": {
-                      "click": { "type": "function", "params": {}, "body": "{{methods.addItem()}}" }
+                      "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.addItem()}}" }
                     }
                   },
                   "children": [

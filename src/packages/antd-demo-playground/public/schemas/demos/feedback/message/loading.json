@@ -14,7 +14,7 @@
           "props": { "type": "primary" },
           "directives": {
             "vOn": {
-              "click": { "type": "function", "params": {}, "body": "{{AMessage.loading('Loading...', 0)}}var hide = AMessage.loading('Loading...', 2.5); setTimeout(function(){ hide(); }, 2500);" }
+              "click": { "type": "function", "params": "{{{}}}", "body": "{{AMessage.loading('Loading...', 0)}}var hide = AMessage.loading('Loading...', 2.5); setTimeout(function(){ hide(); }, 2500);" }
             }
           },
           "children": ["Show Loading Message"]

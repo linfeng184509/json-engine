@@ -4,26 +4,26 @@
     "current": { "type": "ref", "initial": 0 }
   },
   "methods": {
-    "next": { "type": "function", "params": {}, "body": "{{ref_state_current.value = ref_state_current.value + 1}}" },
-    "prev": { "type": "function", "params": {}, "body": "{{ref_state_current.value = ref_state_current.value - 1}}" }
+    "next": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_current.value = ref_state_current.value + 1}}" },
+    "prev": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_current.value = ref_state_current.value - 1}}" }
   },
   "computed": {
-    "isNextDisabled": { "get": { "type": "function", "params": {}, "body": "{{return ref_state_current.value >= 2}}" } },
-    "isPrevDisabled": { "get": { "type": "function", "params": {}, "body": "{{return ref_state_current.value <= 0}}" } }
+    "isNextDisabled": { "get": { "type": "function", "params": "{{{}}}", "body": "{{return ref_state_current.value >= 2}}" } },
+    "isPrevDisabled": { "get": { "type": "function", "params": "{{{}}}", "body": "{{return ref_state_current.value <= 0}}" } }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
       "children": [
-        { "type": "ASteps", "props": { "current": { "type": "expression", "body": "ref_state_current" } }, "children": [
+        { "type": "ASteps", "props": { "current": { "type": "expression", "body": "{{}}" } }, "children": [
           { "type": "AStep", "props": { "title": "Finished", "description": "This is a description." } },
           { "type": "AStep", "props": { "title": "In Progress", "description": "This is a description." } },
           { "type": "AStep", "props": { "title": "Waiting", "description": "This is a description." } }
         ]},
         { "type": "div", "props": { "style": "margin-top:24px" }, "children": [
-          { "type": "AButton", "props": { "disabled": { "type": "expression", "body": "computed.isPrevDisabled.value" } }, "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.prev()}}" } } }, "children": ["Previous"] },
-          { "type": "AButton", "props": { "type": "primary", "disabled": { "type": "expression", "body": "computed.isNextDisabled.value" }, "style": "margin-left:8px" }, "directives": { "vOn": { "click": { "type": "function", "params": {}, "body": "{{methods.next()}}" } } }, "children": ["Next"] }
+          { "type": "AButton", "props": { "disabled": { "type": "expression", "body": "computed.isPrevDisabled.value" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.prev()}}" } } }, "children": ["Previous"] },
+          { "type": "AButton", "props": { "type": "primary", "disabled": { "type": "expression", "body": "computed.isNextDisabled.value" }, "style": "margin-left:8px" }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.next()}}" } } }, "children": ["Next"] }
         ]}
       ]
     }

@@ -9,12 +9,12 @@
   "methods": {
     "onFinish": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{console.log('Success:', args[0])}}"
     },
     "onFinishFailed": {
       "type": "function",
-      "params": {},
+      "params": "{{{}}}",
       "body": "{{console.log('Failed:', args[0])}}"
     }
   },
@@ -23,13 +23,13 @@
     "content": {
       "type": "AForm",
       "props": {
-        "model": { "type": "expression", "body": "ref_state_formState" },
+        "model": { "type": "expression", "body": "{{ref_state_formState}}" },
         "name": "basic",
         "labelCol": { "span": 8 },
         "wrapperCol": { "span": 16 },
         "style": "max-width:600px",
-        "onFinish": { "type": "function", "params": {}, "body": "{{methods.onFinish(args[0])}}" },
-        "onFinishFailed": { "type": "function", "params": {}, "body": "{{methods.onFinishFailed(args[0])}}" }
+        "onFinish": { "type": "function", "params": "{{{}}}", "body": "{{methods.onFinish(args[0])}}" },
+        "onFinishFailed": { "type": "function", "params": "{{{}}}", "body": "{{methods.onFinishFailed(args[0])}}" }
       },
       "children": [
         {
