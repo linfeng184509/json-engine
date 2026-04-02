@@ -7,6 +7,7 @@ import type {
   ExpressionParseData,
   FunctionParseData,
 } from './types';
+import type { TraceContext } from './debug';
 import {
   ValueScopeParser,
   ValueReferenceParser,
@@ -14,6 +15,7 @@ import {
   ValueFunctionParser,
 } from './types';
 import { createParserConfig, type ParserConfig, type ParserOptions } from './config-factory';
+import { createDebugTracer, type DebugTracer } from './debug';
 
 type KeyParserFunction = (key: string, params?: Record<string, unknown>) => string;
 
@@ -63,7 +65,8 @@ function normalizeValue(value: unknown): unknown {
   // $fn — function
   if ('$fn' in obj) {
     if (typeof obj.$fn === 'string') {
-      return { type: 'function', params: '{{{}}}', body: `{{${obj.$fn}}}` };
+      const params = obj.params !== undefined ? obj.params : '{{{}}}';
+      return { type: 'function', params, body: `{{${obj.$fn}}}` };
     }
     const fnObj = obj.$fn as Record<string, unknown>;
     if (Array.isArray(fnObj.params)) {
@@ -253,91 +256,165 @@ function parseKey(key: string, registry: KeyParserRegistry): string {
   return key;
 }
 
-function walkJson(data: unknown, config: ParserConfig, path: string): unknown {
-  if (data === null || data === undefined) {
-    return data;
-  }
+function isDSLNode(obj: Record<string, unknown>): boolean {
+  return typeof obj.type === 'string' && 
+         ['reference', 'scope', 'expression', 'function', 'object', 'string'].includes(obj.type);
+}
 
-  if (typeof data !== 'object') {
-    return data;
-  }
+function isParsedDSLNode(obj: Record<string, unknown>): boolean {
+  return typeof obj._type === 'string' && 
+         ['reference', 'scope', 'expression', 'function', 'object', 'string'].includes(obj._type);
+}
 
-  if (Array.isArray(data)) {
-    const parsedArray: unknown[] = [];
-    for (let i = 0; i < data.length; i++) {
-      const itemPath = `${path}[${i}]`;
-      let item = data[i];
+interface ExtendedParserConfig extends ParserConfig {
+  tracer?: DebugTracer;
+}
+
+function walkJson(data: unknown, config: ExtendedParserConfig, path: string): unknown {
+  const objData = data && typeof data === 'object' && !Array.isArray(data) 
+    ? data as Record<string, unknown> 
+    : null;
+  
+  const isParsedDSL = objData && isParsedDSLNode(objData);
+  
+  let traceCtx: TraceContext | undefined;
+  if (isParsedDSL && config.tracer) {
+    traceCtx = config.tracer.startTrace(path, data, `walkJson:${objData!._type}`);
+  }
+  
+  try {
+    if (data === null || data === undefined) {
+      if (traceCtx && config.tracer) {
+        config.tracer.endTrace(traceCtx, data);
+      }
+      return data;
+    }
+
+    if (typeof data !== 'object') {
+      if (traceCtx && config.tracer) {
+        config.tracer.endTrace(traceCtx, data);
+      }
+      return data;
+    }
+
+    if (Array.isArray(data)) {
+      const parsedArray: unknown[] = [];
+      for (let i = 0; i < data.length; i++) {
+        const itemPath = `${path}[${i}]`;
+        let item = data[i];
+
+        if (config.hooks?.beforeParse) {
+          const hookResult = config.hooks.beforeParse(itemPath, item);
+          if (hookResult !== undefined) {
+            item = hookResult;
+          }
+        }
+
+        const normalized = normalizeValue(item);
+        const parsedValue = parseValueByType(normalized, config, itemPath);
+        let parsedItem = walkJson(parsedValue, config, itemPath);
+
+        if (config.hooks?.transformResult) {
+          parsedItem = config.hooks.transformResult(itemPath, parsedItem);
+        }
+
+        if (config.hooks?.afterParse) {
+          config.hooks.afterParse(itemPath, data[i], parsedItem);
+        }
+
+        parsedArray.push(parsedItem);
+      }
+      
+      if (traceCtx && config.tracer) {
+        config.tracer.endTrace(traceCtx, parsedArray);
+      }
+      return parsedArray;
+    }
+
+    const obj = data as Record<string, unknown>;
+    const parsedObj: Record<string, unknown> = {};
+
+    const mergedRegistry = { ...config.keyParsers };
+
+    for (const [key, value] of Object.entries(obj)) {
+      const parsedKey = parseKey(key, mergedRegistry);
+      const keyPath = path ? `${path}.${key}` : key;
+      let currentValue = value;
 
       if (config.hooks?.beforeParse) {
-        const hookResult = config.hooks.beforeParse(itemPath, item);
+        const hookResult = config.hooks.beforeParse(keyPath, currentValue);
         if (hookResult !== undefined) {
-          item = hookResult;
+          currentValue = hookResult;
         }
       }
 
-      const normalized = normalizeValue(item);
-      const parsedValue = parseValueByType(normalized, config);
-      let parsedItem = walkJson(parsedValue, config, itemPath);
+      const normalized = normalizeValue(currentValue);
+      const parsedValue = parseValueByType(normalized, config, keyPath);
+      let finalValue = walkJson(parsedValue, config, keyPath);
 
       if (config.hooks?.transformResult) {
-        parsedItem = config.hooks.transformResult(itemPath, parsedItem);
+        finalValue = config.hooks.transformResult(keyPath, finalValue);
       }
 
       if (config.hooks?.afterParse) {
-        config.hooks.afterParse(itemPath, data[i], parsedItem);
+        config.hooks.afterParse(keyPath, currentValue, finalValue);
       }
 
-      parsedArray.push(parsedItem);
-    }
-    return parsedArray;
-  }
+      parsedObj[parsedKey] = finalValue;
 
-  const obj = data as Record<string, unknown>;
-  const parsedObj: Record<string, unknown> = {};
-
-  const mergedRegistry = { ...config.keyParsers };
-
-  for (const [key, value] of Object.entries(obj)) {
-    const parsedKey = parseKey(key, mergedRegistry);
-    const keyPath = path ? `${path}.${key}` : key;
-    let currentValue = value;
-
-    if (config.hooks?.beforeParse) {
-      const hookResult = config.hooks.beforeParse(keyPath, currentValue);
-      if (hookResult !== undefined) {
-        currentValue = hookResult;
+      if (config.onParsed) {
+        config.onParsed(keyPath, parsedKey, finalValue);
       }
     }
 
-    const normalized = normalizeValue(currentValue);
-    const parsedValue = parseValueByType(normalized, config);
-    let finalValue = walkJson(parsedValue, config, keyPath);
-
-    if (config.hooks?.transformResult) {
-      finalValue = config.hooks.transformResult(keyPath, finalValue);
+    if (traceCtx && config.tracer) {
+      config.tracer.endTrace(traceCtx, parsedObj);
     }
-
-    if (config.hooks?.afterParse) {
-      config.hooks.afterParse(keyPath, currentValue, finalValue);
+    return parsedObj;
+    
+  } catch (error) {
+    if (config.tracer) {
+      config.tracer.errorTrace(path, data, error, 'walkJson');
     }
-
-    parsedObj[parsedKey] = finalValue;
-
-    if (config.onParsed) {
-      config.onParsed(keyPath, parsedKey, finalValue);
-    }
+    throw error;
   }
-
-  return parsedObj;
 }
 
 export function parseJson(input: unknown, config?: ParserConfig | ParserOptions): unknown {
   const parserConfig = config instanceof Object && 'referencePrefixes' in config
-    ? config as ParserConfig
-    : createParserConfig(config as ParserOptions);
-  const normalized = normalizeValue(input);
-  const parsed = parseValueByType(normalized, parserConfig);
-  return walkJson(parsed, parserConfig, '');
+    ? config as ExtendedParserConfig
+    : createParserConfig(config as ParserOptions) as ExtendedParserConfig;
+  
+  const tracer = parserConfig.debug?.enabled 
+    ? createDebugTracer(parserConfig.debug) 
+    : undefined;
+  
+  if (tracer) {
+    parserConfig.tracer = tracer;
+  }
+  
+  let rootCtx: TraceContext | undefined;
+  if (tracer) {
+    rootCtx = tracer.startTrace('root', input, 'parseJson');
+  }
+  
+  try {
+    const normalized = normalizeValue(input);
+    const parsed = parseValueByType(normalized, parserConfig);
+    const result = walkJson(parsed, parserConfig, '');
+    
+    if (rootCtx && tracer) {
+      tracer.endTrace(rootCtx, result);
+    }
+    
+    return result;
+    
+  } catch (error) {
+    if (tracer) {
+      tracer.errorTrace('root', input, error, 'parseJson');
+    }
+    throw error;
+  }
 }
 
 export { createParserConfig, normalizeValue };

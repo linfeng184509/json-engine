@@ -1,3 +1,5 @@
+import type { DebugOptions } from './debug';
+
 type KeyParserFunction = (key: string, params?: Record<string, unknown>) => string;
 
 interface KeyParserRegistry {
@@ -44,6 +46,7 @@ interface ParserOptions {
   onError?: ErrorCallback;
   hooks?: ParserHooks;
   cache?: CacheOptions;
+  debug?: DebugOptions;
 }
 
 interface ParserConfig {
@@ -59,6 +62,7 @@ interface ParserConfig {
   onError?: ErrorCallback;
   hooks?: ParserHooks;
   cache?: CacheOptions;
+  debug?: DebugOptions;
 }
 
 const DEFAULT_REFERENCE_PREFIXES = ['props', 'state', 'computed'];
@@ -88,6 +92,7 @@ function createParserConfig(options: ParserOptions = {}): ParserConfig {
     onError: options.onError,
     hooks: options.hooks,
     cache: options.cache,
+    debug: options.debug,
   };
 }
 
