@@ -116,7 +116,17 @@ function parseNestedReference(
 
   const innerRefMatch = content.match(innerRefRegex);
   if (innerRefMatch) {
-    return { _type: 'reference', prefix: innerRefMatch[1], variable: innerRefMatch[2] };
+    const fullPath = innerRefMatch[2];
+    const dotIndex = fullPath.indexOf('.');
+    if (dotIndex > 0) {
+      return {
+        _type: 'reference',
+        prefix: innerRefMatch[1],
+        variable: fullPath.substring(0, dotIndex),
+        path: fullPath.substring(dotIndex + 1),
+      };
+    }
+    return { _type: 'reference', prefix: innerRefMatch[1], variable: fullPath };
   }
 
   return content;
