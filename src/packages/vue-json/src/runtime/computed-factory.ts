@@ -31,11 +31,11 @@ export function createComputed(
   for (const [computedName, computedDef] of Object.entries(definition)) {
     try {
       const getterFn = computedDef.get;
-      const getter = createFunctionFromValue(getterFn, stateTypes);
+      const getter = createFunctionFromValue(getterFn);
 
       if (computedDef.set) {
         const setterFn = computedDef.set;
-        const setter = createFunctionFromValue(setterFn, stateTypes);
+        const setter = createFunctionFromValue(setterFn);
 
         computeds[computedName] = computed({
           get: () =>
@@ -95,10 +95,9 @@ export function createComputed(
 }
 
 function createFunctionFromValue(
-  fnValue: FunctionValue,
-  stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>
+  fnValue: FunctionValue
 ): (...args: unknown[]) => unknown {
-  const transformedBody = transformFunctionBody(fnValue.body, stateTypes);
+  const transformedBody = transformFunctionBody(fnValue.body);
   const rawFn = new Function(
     'props',
     'state',

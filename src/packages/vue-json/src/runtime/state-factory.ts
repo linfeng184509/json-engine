@@ -6,6 +6,7 @@ import {
   toRef,
   toRefs,
   readonly,
+  isRef,
   type Ref,
   type Reactive,
 } from 'vue';
@@ -83,9 +84,36 @@ export function createState(
 }
 
 /**
- * 评估初始值
- * 使用 _type 字段判断结构化类型
+ * Creates a Proxy wrapper around the state object that automatically
+ * unwraps `.value` from Vue ref objects when accessed via get,
+ * and wraps values in `.value` when setting.
+ * 
+ * This allows $state.count to work without explicit .value references.
  */
+export function createStateProxy(
+  state: Record<string, Ref | Reactive<unknown>>
+): Record<string, unknown> {
+  return new Proxy(state, {
+    get(target: Record<string, unknown>, prop: string): unknown {
+      const value = target[prop];
+      if (isRef(value)) {
+        return value.value;
+      }
+      return value;
+    },
+    
+    set(target: Record<string, unknown>, prop: string, value: unknown): boolean {
+      const existing = target[prop];
+      if (isRef(existing)) {
+        (existing as Ref<unknown>).value = value;
+        return true;
+      }
+      target[prop] = value as Ref | Reactive<unknown>;
+      return true;
+    },
+  });
+}
+
 function evaluateInitialValue(initial: unknown, context: SetupContext): unknown {
   if (initial === null || initial === undefined) {
     return initial;
@@ -97,7 +125,6 @@ function evaluateInitialValue(initial: unknown, context: SetupContext): unknown 
 
   const typed = initial as Record<string, unknown> & { _type?: string };
 
-  // 处理 ExpressionValue（带 _type 标记）
   if (typed._type === 'expression') {
     return evaluateExpression((initial as ExpressionValue).expression, {
       props: context.props,
@@ -112,19 +139,15 @@ function evaluateInitialValue(initial: unknown, context: SetupContext): unknown 
     });
   }
 
-  // 处理 StateRef（带 _type 标记）
   if (typed._type === 'state') {
-    // State 初始值不能引用自身（state 为空）
     return undefined;
   }
 
-  // 处理 PropsRef（带 _type 标记）
   if (typed._type === 'props') {
     const ref = initial as PropsRef;
     return context.props[ref.variable];
   }
 
-  // 处理 FunctionValue（带 _type 标记）- 不支持作为初始值
   if (typed._type === 'function') {
     return initial;
   }

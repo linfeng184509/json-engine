@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { h } from 'vue';
+import { h, ref } from 'vue';
 import {
   applyVIf,
   applyVShow,
@@ -14,8 +14,8 @@ import type { VNodeDefinition, RenderContext, ExpressionValue, FunctionValue, St
 describe('directive-runtime', () => {
   const mockContext: RenderContext = {
     props: { modelValue: 'test', title: 'Test Title' },
-    state: { count: { value: 0 }, inputValue: { value: 'test value' }, visible: { value: true } },
-    computed: { doubled: { value: 0 } },
+    state: { count: ref(0), inputValue: ref('test value'), visible: ref(true) },
+    computed: { doubled: ref(0) },
     methods: { handleClick: () => {} },
     components: {},
     slots: {},
@@ -50,8 +50,8 @@ describe('directive-runtime', () => {
     });
 
     it('should evaluate core-engine state reference', () => {
-      const ctx = { ...mockContext, state: { show: { value: true } } };
-      const condition: ExpressionValue = { _type: 'expression', expression: 'ref_state_show' };
+      const ctx = { ...mockContext, state: { show: ref(true) } };
+      const condition: ExpressionValue = { _type: 'expression', expression: '$state.show' };
       const result = applyVIf(condition, ctx);
       expect(result).toBe(true);
     });
@@ -87,8 +87,8 @@ describe('directive-runtime', () => {
 
     it('should evaluate core-engine state reference', () => {
       const vnode = h('div', { style: {} });
-      const ctx = { ...mockContext, state: { visible: { value: false } } };
-      const condition: ExpressionValue = { _type: 'expression', expression: 'ref_state_visible' };
+      const ctx = { ...mockContext, state: { visible: ref(false) } };
+      const condition: ExpressionValue = { _type: 'expression', expression: '$state.visible' };
       const result = applyVShow(vnode, condition, ctx);
       expect(result.props?.style).toHaveProperty('display', 'none');
     });
@@ -224,7 +224,7 @@ describe('directive-runtime', () => {
     });
 
     it('should bind using core-engine state reference', () => {
-      const expr: ExpressionValue = { _type: 'expression', expression: 'ref_state_count' };
+      const expr: ExpressionValue = { _type: 'expression', expression: '$state.count' };
       const vBind = { 'data-count': expr };
       const result = applyVBind(vBind, mockContext);
       expect(result).toHaveProperty('data-count');
@@ -232,7 +232,7 @@ describe('directive-runtime', () => {
     });
 
     it('should bind using core-engine props reference', () => {
-      const expr: ExpressionValue = { _type: 'expression', expression: 'ref_props_title' };
+      const expr: ExpressionValue = { _type: 'expression', expression: '$props.title' };
       const vBind = { title: expr };
       const result = applyVBind(vBind, mockContext);
       expect(result).toHaveProperty('title');
@@ -250,9 +250,9 @@ describe('directive-runtime', () => {
     it('should convert expression result to string', () => {
       const ctx = {
         ...mockContext,
-        state: { count: { value: 42 } },
+        state: { count: ref(42) },
       };
-      const expr: ExpressionValue = { _type: 'expression', expression: 'ref_state_count' };
+      const expr: ExpressionValue = { _type: 'expression', expression: '$state.count' };
       const result = applyVHtml(expr, ctx);
       expect(typeof result).toBe('string');
       expect(result).toBe('42');
@@ -261,7 +261,7 @@ describe('directive-runtime', () => {
     it('should return empty string for null/undefined', () => {
       const ctx = {
         ...mockContext,
-        state: { value: { value: null } },
+        state: { value: ref(null) },
       };
       const expr: ExpressionValue = { _type: 'expression', expression: '"test"' };
       const result = applyVHtml(expr, ctx);
@@ -285,7 +285,7 @@ describe('directive-runtime', () => {
     it('should return empty string for null/undefined', () => {
       const ctx = {
         ...mockContext,
-        state: { value: { value: undefined } },
+        state: { value: ref(undefined) },
       };
       const expr: ExpressionValue = { _type: 'expression', expression: '"test"' };
       const result = applyVText(expr, ctx);
@@ -293,8 +293,8 @@ describe('directive-runtime', () => {
     });
 
     it('should evaluate core-engine state reference', () => {
-      const ctx = { ...mockContext, state: { message: { value: 'Hello World' } } };
-      const expr: ExpressionValue = { _type: 'expression', expression: 'ref_state_message' };
+      const ctx = { ...mockContext, state: { message: ref('Hello World') } };
+      const expr: ExpressionValue = { _type: 'expression', expression: '$state.message' };
       const result = applyVText(expr, ctx);
       expect(result).toBe('Hello World');
     });

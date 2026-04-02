@@ -10,6 +10,25 @@ import {
   isScopeParseData,
 } from '@json-engine/core-engine';
 import type { FunctionValue } from '../types';
+import { isRef, type Ref } from 'vue';
+
+function createStateProxyForEvaluation(
+  state: Record<string, Ref | Record<string, unknown>>
+): Record<string, unknown> {
+  return new Proxy(state, {
+    get(target: Record<string, unknown>, prop: string): unknown {
+      const value = target[prop];
+      if (isRef(value)) {
+        return value.value;
+      }
+      return value;
+    },
+    set(target: Record<string, unknown>, prop: string, value: unknown): boolean {
+      target[prop] = value as Ref | Record<string, unknown>;
+      return true;
+    },
+  });
+}
 
 type ExpressionResult = string | AbstractReferenceParseData | AbstractScopeParseData;
 
@@ -241,57 +260,20 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     return '';
   }
 
-  const stateTypes = context.stateTypes || {};
-
   const transformed = trimmed
-    .replace(/\bref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
-      const parts = path.split('.');
-      const varName = parts[0];
-      const rest = parts.slice(1);
-      const stateType = stateTypes[varName];
-      const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
+    .replace(/\$state(?=\.|$|\s)/g, 'state')
+    .replace(/\$props(?=\.|$|\s)/g, 'props')
+    .replace(/\$computed(?=\.|$|\s)/g, 'computed')
+    .replace(/\$core\.api(?=\.|$|\s)/g, 'coreScope._api')
+    .replace(/\$core\.router(?=\.|$|\s)/g, 'coreScope._router')
+    .replace(/\$core\.storage(?=\.|$|\s)/g, 'coreScope._storage')
+    .replace(/\$core\.auth(?=\.|$|\s)/g, 'coreScope._auth')
+    .replace(/\$core\.i18n(?=\.|$|\s)/g, 'coreScope._i18n')
+    .replace(/\$core\.ws(?=\.|$|\s)/g, 'coreScope._ws')
+    .replace(/\$ui\.antd(?=\.|$|\s)/g, 'coreScope._antd');
 
-      if (rest.length === 0) {
-        return needsValue ? `state.${varName}.value` : `state.${varName}`;
-      }
-
-      if (needsValue && rest[0] === 'value') {
-        if (rest.length === 1) {
-          return `state.${varName}.value`;
-        }
-        return `state.${varName}.value.${rest.slice(1).join('.')}`;
-      }
-
-      const middle = needsValue ? '.value.' : '.';
-      return `state.${varName}${middle}${rest.join('.')}`;
-    })
-    .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
-      return `props.${path}`;
-    })
-    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
-      const parts = path.split('.');
-      const varName = parts[0];
-      const rest = parts.slice(1);
-
-      if (rest.length === 0) {
-        return `computed.${varName}.value`;
-      }
-
-      if (rest[0] === 'value') {
-        if (rest.length === 1) {
-          return `computed.${varName}.value`;
-        }
-        return `computed.${varName}.value.${rest.slice(1).join('.')}`;
-      }
-
-      return `computed.${varName}.value.${rest.join('.')}`;
-    })
-    .replace(/\$\_\[core\]_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, prop) => {
-      return `coreScope._${prop}`;
-    })
-    .replace(/\$\_\[([a-zA-Z_$][a-zA-Z0-9_$]*)\]\.([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)/g, (_, plugin, path) => {
-      return `coreScope._${plugin}.${path}`;
-    });
+  const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
+  const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
 
   try {
     const fn = new Function(
@@ -309,8 +291,8 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
 
     const result = fn(
       context.props,
-      context.state,
-      context.computed,
+      proxiedState,
+      proxiedComputed,
       context.methods,
       context.emit,
       context.slots,
@@ -319,9 +301,6 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       context.coreScope || {}
     );
 
-    if (result && typeof result === 'object' && 'value' in result) {
-      return (result as { value: unknown }).value;
-    }
     return result;
   } catch (error) {
     throw new Error(
@@ -330,7 +309,9 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
   }
 }
 
-export function transformFunctionBody(body: string, stateTypes: Record<string, string>): string {
+export function transformFunctionBody(body: string): string {
+  if (!body) return body;
+  
   let result = body;
   
   if (result.startsWith('{{') && result.endsWith('}}')) {
@@ -338,40 +319,17 @@ export function transformFunctionBody(body: string, stateTypes: Record<string, s
   }
   
   return result
-    .replace(/\$event/g, 'args[0]')
-    .replace(/\bref_state_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
-      const parts = path.split('.');
-      const varName = parts[0];
-      const rest = parts.slice(1);
-      const stateType = stateTypes[varName];
-      const needsValue = stateType === 'ref' || stateType === 'shallowRef' || stateType === undefined;
-
-      if (rest.length === 0) {
-        return needsValue ? `state.${varName}.value` : `state.${varName}`;
-      }
-
-      if (needsValue && rest[0] === 'value') {
-        if (rest.length === 1) {
-          return `state.${varName}.value`;
-        }
-        return `state.${varName}.value.${rest.slice(1).join('.')}`;
-      }
-
-      const middle = needsValue ? '.value.' : '.';
-      return `state.${varName}${middle}${rest.join('.')}`;
-    })
-    .replace(/\bref_props_([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)\b/g, (_, path) => {
-      return `props.${path}`;
-    })
-    .replace(/\bref_computed_([a-zA-Z_$][a-zA-Z0-9_$]*)\b/g, (_, varName) => {
-      return `computed.${varName}.value`;
-    })
-    .replace(/\$\_(core|goal)_([a-zA-Z_$][a-zA-Z0-9_$]*)/g, (_, _scope, prop) => {
-      return `coreScope._${prop}`;
-    })
-    .replace(/\$\_([a-zA-Z_$][a-zA-Z0-9_$]*)\.([a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*)/g, (_, plugin, path) => {
-      return `coreScope._${plugin}.${path}`;
-    });
+    .replace(/\$event(?=\b|\s|$)/g, 'args[0]')
+    .replace(/\$state(?=\.|$|\s)/g, 'state')
+    .replace(/\$props(?=\.|$|\s)/g, 'props')
+    .replace(/\$computed(?=\.|$|\s)/g, 'computed')
+    .replace(/\$core\.api(?=\.|$|\s)/g, 'coreScope._api')
+    .replace(/\$core\.router(?=\.|$|\s)/g, 'coreScope._router')
+    .replace(/\$core\.storage(?=\.|$|\s)/g, 'coreScope._storage')
+    .replace(/\$core\.auth(?=\.|$|\s)/g, 'coreScope._auth')
+    .replace(/\$core\.i18n(?=\.|$|\s)/g, 'coreScope._i18n')
+    .replace(/\$core\.ws(?=\.|$|\s)/g, 'coreScope._ws')
+    .replace(/\$ui\.antd(?=\.|$|\s)/g, 'coreScope._antd');
 }
 
 function parseFunctionParams(params: Record<string, unknown> | string): string[] {
@@ -409,8 +367,7 @@ export function executeFunction(
   context: RenderContext,
   args: unknown[] = []
 ): unknown {
-  const stateTypes = context.stateTypes || {};
-  const transformedBody = transformFunctionBody(fnValue.body, stateTypes);
+  const transformedBody = transformFunctionBody(fnValue.body);
   
   const paramNames = parseFunctionParams(fnValue.params);
   const paramBindings = paramNames.length > 0 

@@ -101,7 +101,7 @@ describe('component-factory', () => {
           type: 'template',
           content: {
             type: 'div',
-            children: { type: 'expression', body: '{{ref_props_title}}' },
+            children: { _type: 'expression', expression: '$props.title' },
           },
         },
       };
@@ -121,7 +121,7 @@ describe('component-factory', () => {
           type: 'template',
           content: {
             type: 'div',
-            children: { type: 'expression', body: '{{ref_state_count}}' },
+            children: { _type: 'expression', expression: '$state.count' },
           },
         },
       };
@@ -137,8 +137,10 @@ describe('component-factory', () => {
         methods: {
           increment: {
             type: 'function',
-            params: '{{{}}}',
-            body: '{{state.count.value++;}}',
+            $fn: {
+              params: {},
+              body: '$state.count++;',
+            },
           },
         },
         render: {
@@ -158,8 +160,10 @@ describe('component-factory', () => {
         lifecycle: {
           onMounted: {
             type: 'function',
-            params: '{{{}}}',
-            body: '{{console.log("mounted");}}',
+            $fn: {
+              params: {},
+              body: 'console.log("mounted");',
+            },
           },
         },
         render: {

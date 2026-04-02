@@ -165,7 +165,7 @@ describe('slot rendering', () => {
                 } 
               },
               children: [
-                { type: 'expression', _type: 'expression', expression: 'ref_state_count' },
+                { type: 'expression', _type: 'expression', expression: '$state.count' },
               ],
             },
           ],
@@ -195,7 +195,7 @@ describe('slot rendering', () => {
               },
               children: [
                 'Total: ',
-                { type: 'expression', _type: 'expression', expression: 'ref_state_count' },
+                { type: 'expression', _type: 'expression', expression: '$state.count' },
                 ' items',
               ],
             },
@@ -227,7 +227,7 @@ describe('slot rendering', () => {
               },
               children: [
                 'Title: ',
-                { type: 'expression', _type: 'expression', expression: 'ref_state_title' },
+                { type: 'expression', _type: 'expression', expression: '$state.title' },
               ],
             },
           ],
@@ -270,9 +270,9 @@ describe('slot rendering', () => {
                 } 
               },
               children: [
-                { type: 'span', children: [{ type: 'expression', _type: 'expression', expression: 'ref_state_name' }] },
+                { type: 'span', children: [{ type: 'expression', _type: 'expression', expression: '$state.name' }] },
                 ' is ',
-                { type: 'span', children: [{ type: 'expression', _type: 'expression', expression: 'ref_state_age' }] },
+                { type: 'span', children: [{ type: 'expression', _type: 'expression', expression: '$state.age' }] },
                 ' years old',
               ],
             },
@@ -360,7 +360,7 @@ describe('slot rendering', () => {
               },
               children: [
                 'Count: ',
-                { type: 'expression', _type: 'expression', expression: 'ref_state_count' },
+                { type: 'expression', _type: 'expression', expression: '$state.count' },
               ],
             },
           ],

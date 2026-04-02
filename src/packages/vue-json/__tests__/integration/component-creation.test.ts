@@ -46,19 +46,18 @@ describe('component-creation integration', () => {
     expect(component).toBeDefined();
   });
 
-  it('should create component with props', () => {
+  it('should create component with props using new format', () => {
     const schema = {
       name: 'WithProps',
       props: {
-        title: { type: 'String', required: true },
+        title: { type: String, required: true },
       },
       render: {
         type: 'template',
         content: {
           type: 'div',
           children: {
-            type: 'expression',
-            body: '{{ref_props_title}}',
+            $expr: '$props.title',
           },
         },
       },
@@ -80,8 +79,7 @@ describe('component-creation integration', () => {
         content: {
           type: 'div',
           children: {
-            type: 'expression',
-            body: '{{ref_state_count}}',
+            $expr: '$state.count',
           },
         },
       },
@@ -100,9 +98,7 @@ describe('component-creation integration', () => {
       },
       methods: {
         increment: {
-          type: 'function',
-          params: '{{{}}}',
-          body: '{{state.count.value++;}}',
+          $fn: 'state.count.value++;',
         },
       },
       render: {
@@ -125,9 +121,7 @@ describe('component-creation integration', () => {
       computed: {
         doubled: {
           get: {
-            type: 'function',
-            params: '{{{}}}',
-            body: '{{return state.count.value * 2;}}',
+            $fn: 'return state.count.value * 2;',
           },
         },
       },
@@ -136,8 +130,7 @@ describe('component-creation integration', () => {
         content: {
           type: 'div',
           children: {
-            type: 'expression',
-            body: '{{ref_state_count}}',
+            $expr: '$computed.doubled',
           },
         },
       },
@@ -163,8 +156,7 @@ describe('component-creation integration', () => {
               type: 'p',
               directives: {
                 vIf: {
-                  type: 'expression',
-                  body: '{{ref_state_show}}',
+                  $expr: '$state.show',
                 },
               },
               children: 'Shown',
@@ -191,8 +183,7 @@ describe('component-creation integration', () => {
           type: 'div',
           directives: {
             vShow: {
-              type: 'expression',
-              body: '{{ref_state_visible}}',
+              $expr: '$state.visible',
             },
           },
           children: 'Content',
@@ -221,8 +212,7 @@ describe('component-creation integration', () => {
               directives: {
                 vModel: {
                   prop: {
-                    type: 'state',
-                    body: '{{ref_state_inputValue}}',
+                    $ref: 'state.inputValue',
                   },
                 },
               },
@@ -232,7 +222,6 @@ describe('component-creation integration', () => {
       },
     };
 
-    // vModel prop 会被 processSchemaWithMarkers 处理为 { _type: 'state', variable: 'inputValue' }
     const result = parseSchema(schema);
     if (!result.success) {
       console.log('vModel Errors:', JSON.stringify(result.errors, null, 2));
@@ -249,16 +238,11 @@ describe('component-creation integration', () => {
       render: {
         type: 'function',
         content: {
-          type: 'function',
-          params: '{{{}}}',
-          body: '{{return h("div", state.message.value);}}',
+          $fn: 'return h("div", state.message.value);',
         },
       },
     };
 
-    // Note: params: '{{{}}}' 是正确的 core-engine 格式
-    // 但 parseJson 的 ValueFunctionParser 要求 params 非空
-    // 这里测试 parseSchema 是否正确处理
     const result = parseSchema(schema);
     if (!result.success) {
       console.log('Errors:', JSON.stringify(result.errors, null, 2));

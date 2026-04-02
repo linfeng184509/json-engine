@@ -14,6 +14,7 @@ import {
   isPropsReference,
 } from './value-resolver';
 import { isExpressionParseData } from '@json-engine/core-engine';
+import { createStateProxy } from './state-factory';
 
 function getNestedValue(obj: unknown, path: string): unknown {
   if (!obj || !path) return obj;
@@ -34,7 +35,11 @@ function getNestedValue(obj: unknown, path: string): unknown {
 
 export function applyVIf(condition: ExpressionValue, context: RenderContext): boolean {
   try {
-    const result = evaluateExpression(condition.expression, context);
+    const proxiedContext = {
+      ...context,
+      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+    } as RenderContext;
+    const result = evaluateExpression(condition.expression, proxiedContext);
     return Boolean(result);
   } catch (error) {
     throw createDirectiveError(
@@ -46,7 +51,11 @@ export function applyVIf(condition: ExpressionValue, context: RenderContext): bo
 
 export function applyVShow(vnode: VNode, condition: ExpressionValue, context: RenderContext): VNode {
   try {
-    const result = evaluateExpression(condition.expression, context);
+    const proxiedContext = {
+      ...context,
+      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+    } as RenderContext;
+    const result = evaluateExpression(condition.expression, proxiedContext);
     if (!result) {
       const existingStyle = vnode.props?.style;
       const newStyle =
@@ -252,11 +261,16 @@ export function applyVBind(
 ): Record<string, unknown> {
   if (!vBind) return {};
 
+  const proxiedContext = {
+    ...context,
+    state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+  } as RenderContext;
+
   const result: Record<string, unknown> = {};
 
   for (const [key, expression] of Object.entries(vBind)) {
     try {
-      result[key] = evaluateExpression(expression.expression, context);
+      result[key] = evaluateExpression(expression.expression, proxiedContext);
     } catch (error) {
       throw createDirectiveError(
         'v-bind',
@@ -270,7 +284,11 @@ export function applyVBind(
 
 export function applyVHtml(expression: ExpressionValue, context: RenderContext): string {
   try {
-    const result = evaluateExpression(expression.expression, context);
+    const proxiedContext = {
+      ...context,
+      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+    } as RenderContext;
+    const result = evaluateExpression(expression.expression, proxiedContext);
     return String(result ?? '');
   } catch (error) {
     throw createDirectiveError(
@@ -282,7 +300,11 @@ export function applyVHtml(expression: ExpressionValue, context: RenderContext):
 
 export function applyVText(expression: ExpressionValue, context: RenderContext): string {
   try {
-    const result = evaluateExpression(expression.expression, context);
+    const proxiedContext = {
+      ...context,
+      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+    } as RenderContext;
+    const result = evaluateExpression(expression.expression, proxiedContext);
     return String(result ?? '');
   } catch (error) {
     throw createDirectiveError(

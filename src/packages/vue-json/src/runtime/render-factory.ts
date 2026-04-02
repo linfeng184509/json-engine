@@ -1,4 +1,4 @@
-import { h, Fragment, type VNode, type Component } from 'vue';
+import { h, Fragment, ref, type VNode, type Component } from 'vue';
 import type {
   VNodeDefinition,
   VNodeChildren,
@@ -22,6 +22,7 @@ import {
   type VForResult,
 } from './directive-runtime';
 import { resolvePropertyValue, evaluateExpression, isExpressionParseData } from './value-resolver';
+import { createStateProxy } from './state-factory';
 
 export function renderVNode(
   definition: RenderDefinition,
@@ -155,24 +156,20 @@ function resolveSlots(
 
     slots[slotName] = (slotProps: Record<string, unknown>) => {
       const props = slotProps || {};
-      const slotState: Record<string, { value: unknown }> = {};
-      const slotStateTypes: Record<string, 'ref'> = {};
+      const slotState: Record<string, ReturnType<typeof ref>> = {};
       
       for (const [key, value] of Object.entries(props)) {
-        slotState[key] = { value };
-        slotStateTypes[key] = 'ref';
+        slotState[key] = ref(value);
       }
+      
+      const mergedState: Record<string, ReturnType<typeof ref>> = {
+        ...context.state as Record<string, ReturnType<typeof ref>>,
+        ...slotState,
+      };
       
       const slotContext: RenderContext = {
         ...context,
-        state: {
-          ...context.state,
-          ...slotState,
-        },
-        stateTypes: {
-          ...context.stateTypes,
-          ...slotStateTypes,
-        },
+        state: createStateProxy(mergedState as Record<string, ReturnType<typeof ref>>) as unknown as RenderContext['state'],
       };
       const rendered = renderVNodeDefinition(childDef, slotContext);
       return rendered || [];
@@ -222,12 +219,17 @@ function resolveNodeChildren(
   directives: VNodeDefinition['directives'],
   context: RenderContext
 ): string | number | VNode | (string | number | VNode)[] | undefined {
+  const proxiedContext = {
+    ...context,
+    state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+  } as RenderContext;
+
   if (directives?.vHtml !== undefined) {
-    return applyVHtml(directives.vHtml, context);
+    return applyVHtml(directives.vHtml, proxiedContext);
   }
 
   if (directives?.vText !== undefined) {
-    return applyVText(directives.vText, context);
+    return applyVText(directives.vText, proxiedContext);
   }
 
   if (!children) return undefined;
@@ -241,7 +243,7 @@ function resolveNodeChildren(
   }
 
   if (isExpressionParseData(children)) {
-    return String(evaluateExpression(children.expression as string | AbstractReferenceParseData | AbstractScopeParseData, context));
+    return String(evaluateExpression(children.expression as string | AbstractReferenceParseData | AbstractScopeParseData, proxiedContext));
   }
 
   if (Array.isArray(children)) {
@@ -251,7 +253,7 @@ function resolveNodeChildren(
           return child;
         }
         if (isExpressionParseData(child)) {
-          return evaluateExpression(child.expression as string | AbstractReferenceParseData | AbstractScopeParseData, context);
+          return evaluateExpression(child.expression as string | AbstractReferenceParseData | AbstractScopeParseData, proxiedContext);
         }
         if (typeof child === 'object' && child !== null) {
           if ('_type' in child) {
@@ -259,12 +261,12 @@ function resolveNodeChildren(
             if (childRecord._type === 'expression') {
               const expr = childRecord.expression;
               if (typeof expr === 'string' || typeof expr === 'object') {
-                return evaluateExpression(expr as string | AbstractReferenceParseData | AbstractScopeParseData, context);
+                return evaluateExpression(expr as string | AbstractReferenceParseData | AbstractScopeParseData, proxiedContext);
               }
             }
           }
           if ('type' in child) {
-            return renderVNodeDefinition(child as VNodeDefinition, context);
+            return renderVNodeDefinition(child as VNodeDefinition, proxiedContext);
           }
         }
         return child;

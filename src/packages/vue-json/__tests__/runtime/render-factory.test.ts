@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderVNode } from '../../src/runtime/render-factory';
+import { ref } from 'vue';
 import type { RenderDefinition, RenderContext, ExpressionValue, FunctionValue } from '../../src/types';
 
 describe('renderVNode', () => {
@@ -8,8 +9,8 @@ describe('renderVNode', () => {
   beforeEach(() => {
     mockContext = {
       props: { title: 'Test Title' },
-      state: { count: { value: 42 }, message: { value: 'Hello' } },
-      computed: { doubled: { value: 84 } },
+      state: { count: ref(42), message: ref('Hello') },
+      computed: { doubled: ref(84) },
       methods: {},
       components: {},
       slots: {},
@@ -113,13 +114,13 @@ describe('renderVNode', () => {
   });
 
   it('should apply v-if with core-engine state reference', () => {
-    const ctx = { ...mockContext, state: { show: { value: true } } };
+    const ctx = { ...mockContext, state: { show: ref(true) } };
     const definition: RenderDefinition = {
       type: 'template',
       content: {
         type: 'div',
         directives: {
-          vIf: { _type: 'expression', expression: 'ref_state_show' },
+          vIf: { _type: 'expression', expression: '$state.show' },
         },
         children: 'Shown',
       },
@@ -199,7 +200,7 @@ describe('renderVNode', () => {
       type: 'template',
       content: {
         type: 'span',
-        children: { _type: 'expression', expression: 'ref_state_message' },
+        children: { _type: 'expression', expression: '$state.message' },
       },
     };
 
@@ -214,7 +215,7 @@ describe('renderVNode', () => {
       content: {
         type: 'div',
         props: {
-          title: { _type: 'expression', expression: 'ref_props_title' },
+          title: { _type: 'expression', expression: '$props.title' },
         },
         children: 'Content',
       },
@@ -230,7 +231,7 @@ describe('renderVNode', () => {
       type: 'template',
       content: {
         type: 'span',
-        children: 'ref_state_count + 1',
+        children: 'true ? "shown" : "hidden"',
       },
     };
 
