@@ -33,19 +33,15 @@
         },
         {
           "type": "AModal",
-          "directives": {
-            "vModel": {
-              "prop": { "$ref": "state.visible" },
-              "arg": "open"
-            }
-          },
           "props": {
             "title": "Title",
+            "open": { "$expr": "$state.visible" },
             "confirmLoading": { "$expr": "$state.confirmLoading" }
           },
           "directives": {
             "vOn": {
-              "ok": { "$fn": "methods.handleOk();" }
+              "ok": { "$fn": "methods.handleOk();" },
+              "cancel": { "$fn": "methods.handleCancel();" }
             }
           },
           "children": [
