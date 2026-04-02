@@ -21,34 +21,34 @@
 - [x] 2.1.5 创建 demos/general/button/disabled.json
 - [x] 2.1.6 创建 demos/general/button/danger.json
 - [x] 2.1.7 创建 demos/general/button/block.json
-- [ ] 2.1.8 创建 demos/general/button/ghost.json
+- [x] 2.1.8 创建 demos/general/button/ghost.json
 
 ### 2.2 Icon
 - [x] 2.2.1 创建 demos/general/icon/basic.json
-- [ ] 2.2.2 创建 demos/general/icon/two-tone.json
+- [x] 2.2.2 创建 demos/general/icon/two-tone.json
 
 ### 2.3 Typography
 - [x] 2.3.1 创建 demos/general/typography/basic.json
-- [ ] 2.3.2 创建 demos/general/typography/title.json
-- [ ] 2.3.3 创建 demos/general/typography/text.json
-- [ ] 2.3.4 创建 demos/general/typography/paragraph.json
+- [x] 2.3.2 创建 demos/general/typography/title.json
+- [x] 2.3.3 创建 demos/general/typography/text.json
+- [x] 2.3.4 创建 demos/general/typography/paragraph.json
 
 ## 3. 布局组件 Layout
 
 ### 3.1 Grid
 - [x] 3.1.1 创建 demos/layout/grid/basic.json
-- [ ] 3.1.2 创建 demos/layout/grid/gutter.json
-- [ ] 3.1.3 创建 demos/layout/grid/offset.json
+- [x] 3.1.2 创建 demos/layout/grid/gutter.json
+- [x] 3.1.3 创建 demos/layout/grid/offset.json
 - [ ] 3.1.4 创建 demos/layout/grid/sort.json
 
 ### 3.2 Layout
-- [ ] 3.2.1 创建 demos/layout/layout/basic.json
+- [x] 3.2.1 创建 demos/layout/layout/basic.json
 - [ ] 3.2.2 创建 demos/layout/layout/top-side.json
 - [ ] 3.2.3 创建 demos/layout/layout/custom-trigger.json
 
 ### 3.3 Space
 - [x] 3.3.1 创建 demos/layout/space/basic.json
-- [ ] 3.3.2 创建 demos/layout/space/size.json
+- [x] 3.3.2 创建 demos/layout/space/size.json
 - [ ] 3.3.3 创建 demos/layout/space/direction.json
 
 ### 3.4 Divider
@@ -97,13 +97,13 @@
 
 ### 5.3 Select
 - [x] 5.3.1 创建 demos/data-entry/select/basic.json
-- [ ] 5.3.2 创建 demos/data-entry/select/multiple.json
+- [x] 5.3.2 创建 demos/data-entry/select/multiple.json
 - [ ] 5.3.3 创建 demos/data-entry/select/search.json
 - [ ] 5.3.4 创建 demos/data-entry/select/size.json
 
 ### 5.4 Checkbox
 - [x] 5.4.1 创建 demos/data-entry/checkbox/basic.json
-- [ ] 5.4.2 创建 demos/data-entry/checkbox/group.json
+- [x] 5.4.2 创建 demos/data-entry/checkbox/group.json
 - [ ] 5.4.3 创建 demos/data-entry/checkbox/controller.json
 
 ### 5.5 Radio
@@ -117,44 +117,44 @@
 - [ ] 5.6.3 创建 demos/data-entry/switch/loading.json
 
 ### 5.7 DatePicker
-- [ ] 5.7.1 创建 demos/data-entry/date-picker/basic.json
+- [x] 5.7.1 创建 demos/data-entry/date-picker/basic.json
 - [ ] 5.7.2 创建 demos/data-entry/date-picker/format.json
 - [ ] 5.7.3 创建 demos/data-entry/date-picker/disabled-date.json
 
 ### 5.8 TimePicker
-- [ ] 5.8.1 创建 demos/data-entry/time-picker/basic.json
+- [x] 5.8.1 创建 demos/data-entry/time-picker/basic.json
 - [ ] 5.8.2 创建 demos/data-entry/time-picker/format.json
 
 ### 5.9 Upload
-- [ ] 5.9.1 创建 demos/data-entry/upload/basic.json
+- [x] 5.9.1 创建 demos/data-entry/upload/basic.json
 - [ ] 5.9.2 创建 demos/data-entry/upload/drag.json
 
 ### 5.10 Rate
-- [ ] 5.10.1 创建 demos/data-entry/rate/basic.json
+- [x] 5.10.1 创建 demos/data-entry/rate/basic.json
 - [ ] 5.10.2 创建 demos/data-entry/rate/half.json
 
 ### 5.11 Slider
-- [ ] 5.11.1 创建 demos/data-entry/slider/basic.json
+- [x] 5.11.1 创建 demos/data-entry/slider/basic.json
 - [ ] 5.11.2 创建 demos/data-entry/slider/marks.json
 
 ## 6. 数据展示 Data Display
 
 ### 6.1 Table
 - [x] 6.1.1 创建 demos/data-display/table/basic.json
-- [ ] 6.1.2 创建 demos/data-display/table/pagination.json
-- [ ] 6.1.3 创建 demos/data-display/table/selection.json
+- [x] 6.1.2 创建 demos/data-display/table/pagination.json
+- [x] 6.1.3 创建 demos/data-display/table/selection.json
 - [ ] 6.1.4 创建 demos/data-display/table/sort-filter.json
 
 ### 6.2 Modal
 - [x] 6.2.1 创建 demos/data-display/modal/basic.json
 - [ ] 6.2.2 创建 demos/data-display/modal/position.json
-- [ ] 6.2.3 创建 demos/data-display/modal/confirm.json
+- [x] 6.2.3 创建 demos/data-display/modal/confirm.json
 - [ ] 6.2.4 创建 demos/data-display/modal/async.json
 
 ### 6.3 Tabs
 - [x] 6.3.1 创建 demos/data-display/tabs/basic.json
-- [ ] 6.3.2 创建 demos/data-display/tabs/position.json
-- [ ] 6.3.3 创建 demos/data-display/tabs/card.json
+- [x] 6.3.2 创建 demos/data-display/tabs/position.json
+- [x] 6.3.3 创建 demos/data-display/tabs/card.json
 
 ### 6.4 List
 - [x] 6.4.1 创建 demos/data-display/list/basic.json
@@ -172,7 +172,7 @@
 - [ ] 6.6.3 创建 demos/data-display/tree/search.json
 
 ### 6.7 Descriptions
-- [ ] 6.7.1 创建 demos/data-display/descriptions/basic.json
+- [x] 6.7.1 创建 demos/data-display/descriptions/basic.json
 - [ ] 6.7.2 创建 demos/data-display/descriptions/border.json
 
 ### 6.8 Avatar
@@ -183,23 +183,23 @@
 ### 6.9 Badge
 - [x] 6.9.1 创建 demos/data-display/badge/basic.json
 - [ ] 6.9.2 创建 demos/data-display/badge/no-wrapper.json
-- [ ] 6.9.3 创建 demos/data-display/badge/status.json
+- [x] 6.9.3 创建 demos/data-display/badge/status.json
 
 ### 6.10 Tag
 - [x] 6.10.1 创建 demos/data-display/tag/basic.json
-- [ ] 6.10.2 创建 demos/data-display/tag/colorful.json
+- [x] 6.10.2 创建 demos/data-display/tag/colorful.json
 - [ ] 6.10.3 创建 demos/data-display/tag/checkable.json
 
 ## 7. 反馈组件 Feedback
 
 ### 7.1 Alert
 - [x] 7.1.1 创建 demos/feedback/alert/basic.json
-- [ ] 7.1.2 创建 demos/feedback/alert/closable.json
-- [ ] 7.1.3 创建 demos/feedback/alert/description.json
+- [x] 7.1.2 创建 demos/feedback/alert/closable.json
+- [x] 7.1.3 创建 demos/feedback/alert/description.json
 
 ### 7.2 Message
 - [x] 7.2.1 创建 demos/feedback/message/basic.json
-- [ ] 7.2.2 创建 demos/feedback/message/type.json
+- [x] 7.2.2 创建 demos/feedback/message/type.json
 - [ ] 7.2.3 创建 demos/feedback/message/loading.json
 
 ### 7.3 Notification
@@ -209,34 +209,34 @@
 
 ### 7.4 Progress
 - [x] 7.4.1 创建 demos/feedback/progress/basic.json
-- [ ] 7.4.2 创建 demos/feedback/progress/circle.json
-- [ ] 7.4.3 创建 demos/feedback/progress/dynamic.json
+- [x] 7.4.2 创建 demos/feedback/progress/circle.json
+- [x] 7.4.3 创建 demos/feedback/progress/dynamic.json
 
 ### 7.5 Spin
 - [x] 7.5.1 创建 demos/feedback/spin/basic.json
-- [ ] 7.5.2 创建 demos/feedback/spin/size.json
+- [x] 7.5.2 创建 demos/feedback/spin/size.json
 - [ ] 7.5.3 创建 demos/feedback/spin/tip.json
 
 ### 7.6 Skeleton
 - [x] 7.6.1 创建 demos/feedback/skeleton/basic.json
-- [ ] 7.6.2 创建 demos/feedback/skeleton/complex.json
+- [x] 7.6.2 创建 demos/feedback/skeleton/complex.json
 
 ## 8. 其他组件 Other
 
 ### 8.1 Affix
-- [ ] 8.1.1 创建 demos/other/affix/basic.json
+- [x] 8.1.1 创建 demos/other/affix/basic.json
 - [ ] 8.1.2 创建 demos/other/affix/bottom.json
 
 ### 8.2 Anchor
-- [ ] 8.2.1 创建 demos/other/anchor/basic.json
+- [x] 8.2.1 创建 demos/other/anchor/basic.json
 - [ ] 8.2.2 创建 demos/other/anchor/horizontal.json
 
 ### 8.3 BackTop
-- [ ] 8.3.1 创建 demos/other/back-top/basic.json
+- [x] 8.3.1 创建 demos/other/back-top/basic.json
 - [ ] 8.3.2 创建 demos/other/back-top/custom.json
 
 ### 8.4 Collapse
-- [ ] 8.4.1 创建 demos/other/collapse/basic.json
+- [x] 8.4.1 创建 demos/other/collapse/basic.json
 - [ ] 8.4.2 创建 demos/other/collapse/accordion.json
 - [ ] 8.4.3 创建 demos/other/collapse/mix.json
 
@@ -244,15 +244,38 @@
 - [ ] 8.5.1 创建 demos/other/calendar/basic.json
 
 ### 8.6 Drawer
-- [ ] 8.6.1 创建 demos/other/drawer/basic.json
+- [x] 8.6.1 创建 demos/other/drawer/basic.json
 - [ ] 8.6.2 创建 demos/other/drawer/placement.json
 
 ### 8.7 Empty
-- [ ] 8.7.1 创建 demos/other/empty/basic.json
+- [x] 8.7.1 创建 demos/other/empty/basic.json
 - [ ] 8.7.2 创建 demos/other/empty/custom.json
 
 ### 8.8 Popover
-- [ ] 8.8.1 创建 demos/other/popover/basic.json
+- [x] 8.8.1 创建 demos/other/popover/basic.json
 - [ ] 8.8.2 创建 demos/other/popover/trigger.json
 
-### 8
+### 8.9 Popconfirm
+- [x] 8.9.1 创建 demos/other/popconfirm/basic.json
+- [ ] 8.9.2 创建 demos/other/popconfirm/placement.json
+
+### 8.10 Tooltip
+- [x] 8.10.1 创建 demos/other/tooltip/basic.json
+
+## 9. 路由配置
+
+- [x] 9.1 更新 app.json 添加所有路由
+- [x] 9.2 更新 app-root.json 添加所有菜单项
+
+## Summary
+
+**已完成: 78 个 demo**
+**待完成: 约 50 个 demo**
+
+优先级高的待完成项：
+- Form: layout, validation, dynamic
+- Input: size, addon, password, textarea
+- Select: search, size
+- Table: sort-filter
+- Modal: position, async
+- List: vertical, grid
