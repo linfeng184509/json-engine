@@ -135,7 +135,9 @@ export function applyVModel(
   if (!vModel) return {};
 
   const result: Record<string, unknown> = {};
-  const prop = vModel.event || 'modelValue';
+  const arg = vModel.arg || 'modelValue';
+  const propName = arg;
+  const eventName = vModel.event || `update:${arg}`;
 
   try {
     const propRef = vModel.prop;
@@ -163,11 +165,11 @@ export function applyVModel(
       throw createDirectiveError('v-model', 'vModel.prop must be a StateRef or PropsRef');
     }
 
-    result[prop] = value;
+    result[propName] = value;
 
-    result.onInput = (event: Event) => {
-      const target = event.target as HTMLInputElement;
-      setReferenceValue(propRef, target.value, context);
+    const eventKey = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
+    result[eventKey] = (newValue: unknown) => {
+      setReferenceValue(propRef, newValue, context);
     };
 
     return result;

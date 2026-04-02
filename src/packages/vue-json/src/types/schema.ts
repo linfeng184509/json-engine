@@ -230,6 +230,7 @@ export interface VNodeDirectives {
   };
   vModel?: {
     prop: StateRef | PropsRef;
+    arg?: string;
     event?: string;
     modifiers?: string[];
   };

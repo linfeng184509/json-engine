@@ -100,21 +100,66 @@ describe('directive-runtime', () => {
       expect(result).toEqual({});
     });
 
-    it('should return binding props with modelValue and onInput', () => {
+    it('should return binding props with modelValue and onUpdate:modelValue by default', () => {
       const prop: StateRef = { _type: 'reference', prefix: 'state', variable: 'inputValue' };
       const vModel = { prop };
       const result = applyVModel(vModel, mockContext);
       expect(result).toHaveProperty('modelValue');
-      expect(result).toHaveProperty('onInput');
+      expect(result).toHaveProperty('onUpdate:modelValue');
+      expect(result.modelValue).toBe('test value');
     });
 
-    it('should use custom prop name but still use onInput', () => {
+    it('should support v-model:open for Modal', () => {
+      const prop: StateRef = { _type: 'reference', prefix: 'state', variable: 'visible' };
+      const vModel = { prop, arg: 'open' };
+      const result = applyVModel(vModel, mockContext);
+      expect(result).toHaveProperty('open');
+      expect(result).toHaveProperty('onUpdate:open');
+      expect(result.open).toBe(true);
+    });
+
+    it('should support v-model:checked for Checkbox', () => {
+      const ctx = { ...mockContext, state: { ...mockContext.state, checked: { value: false } } };
+      const prop: StateRef = { _type: 'reference', prefix: 'state', variable: 'checked' };
+      const vModel = { prop, arg: 'checked' };
+      const result = applyVModel(vModel, ctx);
+      expect(result).toHaveProperty('checked');
+      expect(result).toHaveProperty('onUpdate:checked');
+      expect(result.checked).toBe(false);
+    });
+
+    it('should support v-model:value for Input', () => {
       const prop: StateRef = { _type: 'reference', prefix: 'state', variable: 'inputValue' };
-      const vModel = { prop, event: 'value' };
+      const vModel = { prop, arg: 'value' };
       const result = applyVModel(vModel, mockContext);
       expect(result).toHaveProperty('value');
-      expect(result).toHaveProperty('onInput');
-      expect(result).not.toHaveProperty('modelValue');
+      expect(result).toHaveProperty('onUpdate:value');
+      expect(result.value).toBe('test value');
+    });
+
+    it('should support custom event name override', () => {
+      const prop: StateRef = { _type: 'reference', prefix: 'state', variable: 'inputValue' };
+      const vModel = { prop, arg: 'value', event: 'change' };
+      const result = applyVModel(vModel, mockContext);
+      expect(result).toHaveProperty('value');
+      expect(result).toHaveProperty('onChange');
+    });
+
+    it('should update state when event handler is called', () => {
+      const ctx = { 
+        ...mockContext, 
+        state: { count: { value: 0 } },
+        stateTypes: { count: 'ref' }
+      };
+      const prop: StateRef = { _type: 'reference', prefix: 'state', variable: 'count' };
+      const vModel = { prop, arg: 'value' };
+      const result = applyVModel(vModel, ctx);
+      
+      const handler = result['onUpdate:value'];
+      expect(typeof handler).toBe('function');
+      
+      handler(42);
+      expect(ctx.state.count.value).toBe(42);
     });
   });
 

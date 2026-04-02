@@ -18,6 +18,7 @@ import {
   applyVBind,
   applyVHtml,
   applyVText,
+  applyVSlot,
   type VForResult,
 } from './directive-runtime';
 import { resolvePropertyValue, evaluateExpression, isExpressionParseData } from './value-resolver';
@@ -97,15 +98,76 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
 
   const type = resolveNodeType(node.type, context);
   const props = resolveNodeProps(node.props, node.directives, context);
-  const children = resolveNodeChildren(node.children, node.directives, context);
-
   const isComponent = typeof type !== 'string';
+
+  // For components with children, check for slots FIRST before resolving children
+  // Slot children will be rendered inside slot functions with proper context
+  if (isComponent && node.children) {
+    const slots = resolveSlots(node.children, context);
+    if (slots) {
+      return h(type, props, slots);
+    }
+  }
+
+  // Only resolve children if not a slot scenario
+  const children = resolveNodeChildren(node.children, node.directives, context);
 
   if (isComponent && children) {
     return h(type, props, () => children);
   }
 
   return h(type, props, children);
+}
+
+function resolveSlots(
+  children: VNodeChildren,
+  context: RenderContext
+): Record<string, (props: Record<string, unknown>) => VNode | VNode[]> | null {
+  if (!Array.isArray(children)) return null;
+
+  const slots: Record<string, (props: Record<string, unknown>) => VNode | VNode[]> = {};
+  let hasSlots = false;
+
+  for (const child of children) {
+    if (typeof child !== 'object' || child === null) continue;
+    if (!('type' in child)) continue;
+
+    const childDef = child as VNodeDefinition;
+    if (!childDef.directives?.vSlot) continue;
+
+    const slotInfo = applyVSlot(childDef.directives.vSlot, context);
+    if (!slotInfo) continue;
+
+    hasSlots = true;
+    const slotName = slotInfo.name || 'default';
+
+    slots[slotName] = (slotProps: Record<string, unknown>) => {
+      const props = slotProps || {};
+      const slotState: Record<string, { value: unknown }> = {};
+      const slotStateTypes: Record<string, 'ref'> = {};
+      
+      for (const [key, value] of Object.entries(props)) {
+        slotState[key] = { value };
+        slotStateTypes[key] = 'ref';
+      }
+      
+      const slotContext: RenderContext = {
+        ...context,
+        state: {
+          ...context.state,
+          ...slotState,
+        },
+        stateTypes: {
+          ...context.stateTypes,
+          ...slotStateTypes,
+        },
+      };
+      const rendered = renderVNodeDefinition(childDef, slotContext);
+      return rendered || [];
+    };
+  }
+
+  return hasSlots ? slots : null;
 }
 
 function resolveNodeType(type: string, context: RenderContext): string | Component {
@@ -180,7 +242,7 @@ function resolveNodeChildren(
           return evaluateExpression(child.expression as string | AbstractReferenceParseData | AbstractScopeParseData, context);
         }
         if (typeof child === 'object' && child !== null) {
-          if ('type' in child) {
+          if ('_type' in child) {
             const childRecord = child as unknown as Record<string, unknown>;
             if (childRecord._type === 'expression') {
               const expr = childRecord.expression;
@@ -188,6 +250,8 @@ function resolveNodeChildren(
                 return evaluateExpression(expr as string | AbstractReferenceParseData | AbstractScopeParseData, context);
               }
             }
+          }
+          if ('type' in child) {
             return renderVNodeDefinition(child as VNodeDefinition, context);
           }
         }

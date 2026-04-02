@@ -3,13 +3,22 @@ import { registerGlobalComponents } from '@json-engine/vue-json'
 import { antdConfigSchema } from './config-schema'
 import { createAntdFactory } from './runtime/antd-factory'
 import { getAntdComponents } from './antdComponents'
+import { getAntdIconComponents } from './iconComponents'
 import type { AntdPluginConfig } from './types'
-import { message, notification } from 'ant-design-vue'
+import { message, notification, Modal } from 'ant-design-vue'
 
 function createAntdScope(_config: AntdPluginConfig) {
   return {
     message,
     notification,
+    modal: {
+      confirm: Modal.confirm,
+      info: Modal.info,
+      success: Modal.success,
+      error: Modal.error,
+      warning: Modal.warning,
+      destroyAll: Modal.destroyAll,
+    },
   }
 }
 
@@ -41,6 +50,12 @@ export const antdPlugin: VueJsonPlugin = {
     const allComponents = getAntdComponents()
     registerGlobalComponents(allComponents)
     console.log(`[plugin-antd] Registered ${Object.keys(allComponents).length} components`)
+
+    if (config.includeIcons) {
+      const iconComponents = getAntdIconComponents()
+      registerGlobalComponents(iconComponents)
+      console.log(`[plugin-antd] Registered ${Object.keys(iconComponents).length} icon components`)
+    }
   },
 }
 
