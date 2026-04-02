@@ -74,6 +74,7 @@ function buildParserConfig(): ParserConfig {
       ...vueParserConfig.keyParsers,
       ...getVueKeyParsers(),
     },
+    debug: vueParserConfig.debug,
   };
 }
 

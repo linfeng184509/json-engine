@@ -256,11 +256,6 @@ function parseKey(key: string, registry: KeyParserRegistry): string {
   return key;
 }
 
-function isDSLNode(obj: Record<string, unknown>): boolean {
-  return typeof obj.type === 'string' && 
-         ['reference', 'scope', 'expression', 'function', 'object', 'string'].includes(obj.type);
-}
-
 function isParsedDSLNode(obj: Record<string, unknown>): boolean {
   return typeof obj._type === 'string' && 
          ['reference', 'scope', 'expression', 'function', 'object', 'string'].includes(obj._type);
