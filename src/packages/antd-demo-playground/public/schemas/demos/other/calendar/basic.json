@@ -1,0 +1,46 @@
+{
+  "name": "CalendarBasicDemo",
+  "state": {
+    "selectedDate": { "type": "ref", "initial": null }
+  },
+  "methods": {
+    "onSelect": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_selectedDate = args[0]}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "props": { "style": "margin-bottom:16px" },
+          "children": ["Calendar Basic"]
+        },
+        {
+          "type": "ACalendar",
+          "props": {
+            "onSelect": { "type": "function", "params": {}, "body": "{{methods.onSelect(args[0])}}" },
+            "fullscreen": false
+          }
+        },
+        {
+          "type": "ADivider"
+        },
+        {
+          "type": "h4",
+          "children": ["Full Screen Calendar"]
+        },
+        {
+          "type": "ACalendar",
+          "props": {
+            "fullscreen": true
+          }
+        }
+      ]
+    }
+  }
+}

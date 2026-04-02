@@ -161,6 +161,7 @@
       { "path": "/demos/anchor/horizontal", "name": "AnchorHorizontal", "component": "/schemas/demos/other/anchor/horizontal.json", "meta": { "title": "Anchor Horizontal", "category": "other" } },
       { "path": "/demos/affix/basic", "name": "AffixBasic", "component": "/schemas/demos/other/affix/basic.json", "meta": { "title": "Affix Basic", "category": "other" } },
       { "path": "/demos/affix/bottom", "name": "AffixBottom", "component": "/schemas/demos/other/affix/bottom.json", "meta": { "title": "Affix Bottom", "category": "other" } },
+      { "path": "/demos/calendar/basic", "name": "CalendarBasic", "component": "/schemas/demos/other/calendar/basic.json", "meta": { "title": "Calendar Basic", "category": "other" } },
       
       { "path": "/:pathMatch(.*)*", "name": "NotFound", "component": "/schemas/pages/404.json" }
     ]

@@ -239,7 +239,8 @@
                     { "type": "AMenuItem", "props": { "key": "anchor/basic" }, "children": ["Anchor Basic"] },
                     { "type": "AMenuItem", "props": { "key": "anchor/horizontal" }, "children": ["Anchor Horizontal"] },
                     { "type": "AMenuItem", "props": { "key": "affix/basic" }, "children": ["Affix Basic"] },
-                    { "type": "AMenuItem", "props": { "key": "affix/bottom" }, "children": ["Affix Bottom"] }
+                    { "type": "AMenuItem", "props": { "key": "affix/bottom" }, "children": ["Affix Bottom"] },
+                    { "type": "AMenuItem", "props": { "key": "calendar/basic" }, "children": ["Calendar Basic"] }
                   ]
                 }
               ]
