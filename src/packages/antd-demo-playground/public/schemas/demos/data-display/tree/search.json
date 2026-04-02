@@ -1,0 +1,62 @@
+{
+  "name": "TreeSearchDemo",
+  "state": {
+    "searchValue": { "type": "ref", "initial": "" },
+    "expandedKeys": { "type": "ref", "initial": [] }
+  },
+  "methods": {
+    "handleSearch": {
+      "type": "function",
+      "params": {},
+      "body": "{{var val = args[0]; ref_state_searchValue = val; if(val) { ref_state_expandedKeys = ['0-0', '0-1']; } else { ref_state_expandedKeys = []; }}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Tree Search"]
+        },
+        {
+          "type": "AInputSearch",
+          "props": {
+            "placeholder": "Search",
+            "style": "margin-bottom:8px"
+          },
+          "directives": {
+            "vOn": {
+              "search": { "type": "function", "params": {}, "body": "{{methods.handleSearch(args[0])}}" }
+            }
+          }
+        },
+        {
+          "type": "ATree",
+          "props": {
+            "expandedKeys": { "type": "expression", "body": "{{ref_state_expandedKeys}}" },
+            "autoExpandParent": true,
+            "treeData": [
+              {
+                "title": "parent 1",
+                "key": "0-0",
+                "children": [
+                  { "title": "child 1", "key": "0-0-0" },
+                  { "title": "child 2", "key": "0-0-1" }
+                ]
+              },
+              {
+                "title": "parent 2",
+                "key": "0-1",
+                "children": [
+                  { "title": "child 3", "key": "0-1-0" }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

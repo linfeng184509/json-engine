@@ -1,0 +1,25 @@
+{
+  "name": "AvatarGroupDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Avatar Group"]
+        },
+        {
+          "type": "AAvatarGroup",
+          "children": [
+            { "type": "AAvatar", "props": { "src": "https://via.placeholder.com/40" } },
+            { "type": "AAvatar", "props": { "src": "https://via.placeholder.com/40" } },
+            { "type": "AAvatar", "props": { "src": "https://via.placeholder.com/40" } },
+            { "type": "AAvatar", "props": { "src": "https://via.placeholder.com/40" } },
+            { "type": "AAvatar", "children": ["+5"] }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "ListGridDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["List Grid"]
+        },
+        {
+          "type": "AList",
+          "props": {
+            "grid": { "gutter": 16, "column": 4 },
+            "dataSource": [
+              { "title": "Title 1" },
+              { "title": "Title 2" },
+              { "title": "Title 3" },
+              { "title": "Title 4" }
+            ]
+          },
+          "directives": {
+            "vSlot": {
+              "name": "renderItem",
+              "value": "item"
+            }
+          },
+          "children": [
+            {
+              "type": "AListItem",
+              "children": [
+                { "type": "ACard", "props": { "title": { "type": "expression", "body": "{{scope.item.title}}" } }, "children": ["Card content"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

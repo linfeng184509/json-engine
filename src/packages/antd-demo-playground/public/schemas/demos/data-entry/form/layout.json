@@ -1,0 +1,72 @@
+{
+  "name": "FormLayoutDemo",
+  "state": {
+    "formState": { "type": "ref", "initial": { "layout": "horizontal" } }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "props": { "style": "margin-bottom:16px" },
+          "children": ["Form Layout"]
+        },
+        {
+          "type": "ARadioGroup",
+          "props": {
+            "value": { "type": "expression", "body": "{{ref_state_formState.layout}}" },
+            "onChange": { "type": "function", "params": {}, "body": "{{ref_state_formState.layout = args[0].target.value}}" }
+          },
+          "children": [
+            { "type": "ARadioButton", "props": { "value": "horizontal" }, "children": ["Horizontal"] },
+            { "type": "ARadioButton", "props": { "value": "vertical" }, "children": ["Vertical"] },
+            { "type": "ARadioButton", "props": { "value": "inline" }, "children": ["Inline"] }
+          ]
+        },
+        {
+          "type": "ADivider"
+        },
+        {
+          "type": "AForm",
+          "props": {
+            "layout": { "type": "expression", "body": "{{ref_state_formState.layout}}" },
+            "labelCol": { "span": 4 },
+            "wrapperCol": { "span": 14 }
+          },
+          "children": [
+            {
+              "type": "AFormItem",
+              "props": { "label": "Form Layout" },
+              "children": [
+                { "type": "AInput", "props": { "placeholder": "input placeholder" } }
+              ]
+            },
+            {
+              "type": "AFormItem",
+              "props": { "label": "Field A" },
+              "children": [
+                { "type": "AInput", "props": { "placeholder": "input placeholder" } }
+              ]
+            },
+            {
+              "type": "AFormItem",
+              "props": { "label": "Field B" },
+              "children": [
+                { "type": "AInput", "props": { "placeholder": "input placeholder" } }
+              ]
+            },
+            {
+              "type": "AFormItem",
+              "props": { "wrapperCol": { "offset": 4, "span": 14 } },
+              "children": [
+                { "type": "AButton", "props": { "type": "primary" }, "children": ["Submit"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

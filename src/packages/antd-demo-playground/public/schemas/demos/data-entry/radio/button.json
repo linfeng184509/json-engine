@@ -1,0 +1,31 @@
+{
+  "name": "RadioButtonDemo",
+  "state": {
+    "value": { "type": "ref", "initial": "a" }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Radio Button"]
+        },
+        {
+          "type": "ARadioGroup",
+          "props": {
+            "value": { "type": "expression", "body": "{{ref_state_value}}" },
+            "buttonStyle": "solid"
+          },
+          "children": [
+            { "type": "ARadioButton", "props": { "value": "a" }, "children": ["Hangzhou"] },
+            { "type": "ARadioButton", "props": { "value": "b" }, "children": ["Shanghai"] },
+            { "type": "ARadioButton", "props": { "value": "c" }, "children": ["Beijing"] },
+            { "type": "ARadioButton", "props": { "value": "d" }, "children": ["Guangzhou"] }
+          ]
+        }
+      ]
+    }
+  }
+}

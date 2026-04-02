@@ -1,0 +1,56 @@
+{
+  "name": "NotificationPlacementDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Notification Placement"]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "AButton",
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{ANotification.open({message: 'Top Left', description: 'This is top left notification', placement: 'topLeft'})}}" }
+                }
+              },
+              "children": ["TopLeft"]
+            },
+            {
+              "type": "AButton",
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{ANotification.open({message: 'Top Right', description: 'This is top right notification', placement: 'topRight'})}}" }
+                }
+              },
+              "children": ["TopRight"]
+            },
+            {
+              "type": "AButton",
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{ANotification.open({message: 'Bottom Left', description: 'This is bottom left notification', placement: 'bottomLeft'})}}" }
+                }
+              },
+              "children": ["BottomLeft"]
+            },
+            {
+              "type": "AButton",
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{ANotification.open({message: 'Bottom Right', description: 'This is bottom right notification', placement: 'bottomRight'})}}" }
+                }
+              },
+              "children": ["BottomRight"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

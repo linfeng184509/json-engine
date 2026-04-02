@@ -1,0 +1,60 @@
+{
+  "name": "ModalAsyncDemo",
+  "state": {
+    "visible": { "type": "ref", "initial": false },
+    "confirmLoading": { "type": "ref", "initial": false }
+  },
+  "methods": {
+    "showModal": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_visible = true}}"
+    },
+    "handleOk": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_confirmLoading = true; setTimeout(function(){ ref_state_confirmLoading = false; ref_state_visible = false; }, 2000)}}"
+    },
+    "handleCancel": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_visible = false}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "props": { "style": "margin-bottom:16px" },
+          "children": ["Modal Async"]
+        },
+        {
+          "type": "AButton",
+          "props": { "type": "primary" },
+          "directives": {
+            "vOn": {
+              "click": { "type": "function", "params": {}, "body": "{{methods.showModal()}}" }
+            }
+          },
+          "children": ["Open Modal"]
+        },
+        {
+          "type": "AModal",
+          "props": {
+            "open": { "type": "expression", "body": "{{ref_state_visible}}" },
+            "title": "Async Modal",
+            "confirmLoading": { "type": "expression", "body": "{{ref_state_confirmLoading}}" },
+            "onOk": { "type": "function", "params": {}, "body": "{{methods.handleOk()}}" },
+            "onCancel": { "type": "function", "params": {}, "body": "{{methods.handleCancel()}}" }
+          },
+          "children": [
+            { "type": "p", "children": ["Click OK will take 2 seconds to close..."] }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "InputSizeDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "props": { "style": "margin-bottom:16px" },
+          "children": ["Input Size"]
+        },
+        {
+          "type": "ASpace",
+          "props": { "direction": "vertical", "size": 12 },
+          "children": [
+            { "type": "AInput", "props": { "size": "large", "placeholder": "large size" } },
+            { "type": "AInput", "props": { "size": "middle", "placeholder": "middle size" } },
+            { "type": "AInput", "props": { "size": "small", "placeholder": "small size" } }
+          ]
+        }
+      ]
+    }
+  }
+}

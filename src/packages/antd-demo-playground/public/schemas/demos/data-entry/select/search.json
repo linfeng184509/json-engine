@@ -1,0 +1,60 @@
+{
+  "name": "SelectSearchDemo",
+  "state": {
+    "searchValue": { "type": "ref", "initial": "" },
+    "options": { "type": "ref", "initial": [] }
+  },
+  "methods": {
+    "handleSearch": {
+      "type": "function",
+      "params": {},
+      "body": "{{var val = args[0]; if(val) { ref_state_options = [{value: val, label: val}]; } else { ref_state_options = []; }}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "props": { "style": "margin-bottom:16px" },
+          "children": ["Select Search"]
+        },
+        {
+          "type": "ASpace",
+          "props": { "direction": "vertical", "size": 12 },
+          "children": [
+            {
+              "type": "ASelect",
+              "props": {
+                "showSearch": true,
+                "placeholder": "Search and select",
+                "filterOption": false,
+                "options": { "type": "expression", "body": "{{ref_state_options}}" }
+              },
+              "directives": {
+                "vOn": {
+                  "search": { "type": "function", "params": {}, "body": "{{methods.handleSearch(args[0])}}" }
+                }
+              }
+            },
+            {
+              "type": "ASelect",
+              "props": {
+                "showSearch": true,
+                "placeholder": "Search with filter",
+                "options": [
+                  { "value": "apple", "label": "Apple" },
+                  { "value": "banana", "label": "Banana" },
+                  { "value": "orange", "label": "Orange" },
+                  { "value": "pear", "label": "Pear" }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

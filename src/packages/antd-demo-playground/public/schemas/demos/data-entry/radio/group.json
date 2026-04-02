@@ -1,0 +1,29 @@
+{
+  "name": "RadioGroupDemo",
+  "state": {
+    "value": { "type": "ref", "initial": 1 }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Radio Group"]
+        },
+        {
+          "type": "ARadioGroup",
+          "props": {
+            "value": { "type": "expression", "body": "{{ref_state_value}}" }
+          },
+          "children": [
+            { "type": "ARadio", "props": { "value": 1 }, "children": ["Option A"] },
+            { "type": "ARadio", "props": { "value": 2 }, "children": ["Option B"] },
+            { "type": "ARadio", "props": { "value": 3 }, "children": ["Option C"] }
+          ]
+        }
+      ]
+    }
+  }
+}

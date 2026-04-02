@@ -1,0 +1,53 @@
+{
+  "name": "LayoutCustomTriggerDemo",
+  "state": {
+    "collapsed": { "type": "ref", "initial": false }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ALayout",
+      "props": { "style": "min-height:100vh" },
+      "children": [
+        {
+          "type": "ALayoutSider",
+          "props": {
+            "trigger": null,
+            "collapsible": true,
+            "collapsed": { "type": "expression", "body": "{{ref_state_collapsed}}" }
+          },
+          "children": [
+            { "type": "div", "props": { "class": "logo" }, "children": ["Logo"] }
+          ]
+        },
+        {
+          "type": "ALayout",
+          "children": [
+            {
+              "type": "ALayoutHeader",
+              "props": { "style": "background:#fff;padding:0" },
+              "children": [
+                {
+                  "type": "div",
+                  "directives": {
+                    "vOn": {
+                      "click": { "type": "function", "params": {}, "body": "{{ref_state_collapsed = !ref_state_collapsed}}" }
+                    }
+                  },
+                  "children": [
+                    { "type": "MenuUnfoldOutlined", "props": { "style": "font-size:18px" } }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ALayoutContent",
+              "props": { "style": "margin:24px" },
+              "children": ["Content"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

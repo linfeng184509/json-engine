@@ -1,0 +1,46 @@
+{
+  "name": "DividerWithTextDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Divider with Text"]
+        },
+        {
+          "type": "p",
+          "children": ["Lorem ipsum dolor sit amet"]
+        },
+        {
+          "type": "ADivider",
+          "props": {
+            "dashed": true
+          },
+          "children": [
+            {
+              "type": "template",
+              "directives": { "vSlot": { "name": "default" } },
+              "children": ["Text"]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": ["Lorem ipsum dolor sit amet"]
+        },
+        {
+          "type": "ADivider",
+          "children": [
+            {
+              "type": "template",
+              "directives": { "vSlot": { "name": "default" } },
+              "children": [{ "type": "span", "props": { "style": "color:#1677ff" }, "children": ["Colored Text"] }]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

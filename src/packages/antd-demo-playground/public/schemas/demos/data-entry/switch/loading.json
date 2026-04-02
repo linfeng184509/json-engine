@@ -1,0 +1,22 @@
+{
+  "name": "SwitchLoadingDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Switch Loading"]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "ASwitch", "props": { "loading": true, "checked": true } },
+            { "type": "ASwitch", "props": { "loading": true, "checked": false } }
+          ]
+        }
+      ]
+    }
+  }
+}

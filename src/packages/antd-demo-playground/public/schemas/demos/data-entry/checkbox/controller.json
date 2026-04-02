@@ -1,0 +1,47 @@
+{
+  "name": "CheckboxControllerDemo",
+  "state": {
+    "checked": { "type": "ref", "initial": false }
+  },
+  "methods": {
+    "toggle": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_checked = !ref_state_checked}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Checkbox Controller"]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "ACheckbox",
+              "props": {
+                "checked": { "type": "expression", "body": "{{ref_state_checked}}" }
+              },
+              "children": ["Checkbox"]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "size": "small" },
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{methods.toggle()}}" }
+                }
+              },
+              "children": ["Toggle"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

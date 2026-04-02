@@ -1,0 +1,24 @@
+{
+  "name": "TimePickerFormatDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["TimePicker Format"]
+        },
+        {
+          "type": "ASpace",
+          "props": { "direction": "vertical" },
+          "children": [
+            { "type": "ATimePicker", "props": { "format": "HH:mm:ss", "placeholder": "HH:mm:ss" } },
+            { "type": "ATimePicker", "props": { "format": "HH:mm", "placeholder": "HH:mm" } },
+            { "type": "ATimePicker", "props": { "use12Hours": true, "format": "h:mm:ss A", "placeholder": "12 hours format" } }
+          ]
+        }
+      ]
+    }
+  }
+}

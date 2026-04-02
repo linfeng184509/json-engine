@@ -1,0 +1,24 @@
+{
+  "name": "EmptyCustomDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Empty Custom"]
+        },
+        {
+          "type": "AEmpty",
+          "props": {
+            "description": "No Data"
+          },
+          "children": [
+            { "type": "AButton", "props": { "type": "primary" }, "children": ["Create Now"] }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "DescriptionsBorderDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Descriptions Border"]
+        },
+        {
+          "type": "ADescriptions",
+          "props": {
+            "title": " bordered",
+            "bordered": true,
+            "column": 2
+          },
+          "children": [
+            { "type": "ADescriptionsItem", "props": { "label": "Product" }, "children": ["Cloud Database"] },
+            { "type": "ADescriptionsItem", "props": { "label": "Billing Mode" }, "children": ["Prepaid"] },
+            { "type": "ADescriptionsItem", "props": { "label": "Time" }, "children": ["18:00:00"] },
+            { "type": "ADescriptionsItem", "props": { "label": "Amount" }, "children": ["$80.00"] }
+          ]
+        }
+      ]
+    }
+  }
+}

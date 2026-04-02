@@ -1,0 +1,46 @@
+{
+  "name": "MenuInlineDemo",
+  "state": {
+    "openKeys": { "type": "ref", "initial": ["sub1"] },
+    "selectedKeys": { "type": "ref", "initial": ["1"] }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Menu Inline"]
+        },
+        {
+          "type": "AMenu",
+          "props": {
+            "mode": "inline",
+            "openKeys": { "type": "expression", "body": "{{ref_state_openKeys}}" },
+            "selectedKeys": { "type": "expression", "body": "{{ref_state_selectedKeys}}" },
+            "style": "width:256px"
+          },
+          "children": [
+            {
+              "type": "ASubMenu",
+              "props": { "key": "sub1", "title": "Navigation One" },
+              "children": [
+                { "type": "AMenuItem", "props": { "key": "1" }, "children": ["Option 1"] },
+                { "type": "AMenuItem", "props": { "key": "2" }, "children": ["Option 2"] }
+              ]
+            },
+            {
+              "type": "ASubMenu",
+              "props": { "key": "sub2", "title": "Navigation Two" },
+              "children": [
+                { "type": "AMenuItem", "props": { "key": "3" }, "children": ["Option 3"] },
+                { "type": "AMenuItem", "props": { "key": "4" }, "children": ["Option 4"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

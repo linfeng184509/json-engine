@@ -1,0 +1,24 @@
+{
+  "name": "PaginationChangerDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Pagination Changer"]
+        },
+        {
+          "type": "APagination",
+          "props": {
+            "showSizeChanger": true,
+            "defaultPageSize": 20,
+            "pageSizeOptions": ["10", "20", "30", "40"],
+            "total": 100
+          }
+        }
+      ]
+    }
+  }
+}

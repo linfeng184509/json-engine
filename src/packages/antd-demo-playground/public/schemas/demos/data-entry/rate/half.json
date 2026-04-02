@@ -1,0 +1,25 @@
+{
+  "name": "RateHalfDemo",
+  "state": {
+    "value": { "type": "ref", "initial": 3.5 }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Rate Half"]
+        },
+        {
+          "type": "ARate",
+          "props": {
+            "allowHalf": true,
+            "value": { "type": "expression", "body": "{{ref_state_value}}" }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "SpinTipDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Spin Tip"]
+        },
+        {
+          "type": "ASpin",
+          "props": {
+            "tip": "Loading...",
+            "size": "large"
+          }
+        }
+      ]
+    }
+  }
+}

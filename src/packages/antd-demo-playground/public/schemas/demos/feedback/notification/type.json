@@ -1,0 +1,56 @@
+{
+  "name": "NotificationTypeDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Notification Type"]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "AButton",
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{ANotification.success({message: 'Success', description: 'This is a success notification'})}}" }
+                }
+              },
+              "children": ["Success"]
+            },
+            {
+              "type": "AButton",
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{ANotification.error({message: 'Error', description: 'This is an error notification'})}}" }
+                }
+              },
+              "children": ["Error"]
+            },
+            {
+              "type": "AButton",
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{ANotification.warning({message: 'Warning', description: 'This is a warning notification'})}}" }
+                }
+              },
+              "children": ["Warning"]
+            },
+            {
+              "type": "AButton",
+              "directives": {
+                "vOn": {
+                  "click": { "type": "function", "params": {}, "body": "{{ANotification.info({message: 'Info', description: 'This is an info notification'})}}" }
+                }
+              },
+              "children": ["Info"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

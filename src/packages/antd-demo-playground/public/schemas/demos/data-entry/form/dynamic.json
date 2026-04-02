@@ -1,0 +1,90 @@
+{
+  "name": "FormDynamicDemo",
+  "state": {
+    "items": { "type": "ref", "initial": [{ "id": 1, "name": "" }] }
+  },
+  "methods": {
+    "addItem": {
+      "type": "function",
+      "params": {},
+      "body": "{{ref_state_items.push({id: Date.now(), name: ''})}}"
+    },
+    "removeItem": {
+      "type": "function",
+      "params": {},
+      "body": "{{var id = args[0]; ref_state_items = ref_state_items.filter(item => item.id !== id)}}"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "props": { "style": "margin-bottom:16px" },
+          "children": ["Dynamic Form Items"]
+        },
+        {
+          "type": "AForm",
+          "props": {
+            "labelCol": { "span": 4 },
+            "wrapperCol": { "span": 18 }
+          },
+          "children": [
+            {
+              "type": "template",
+              "directives": {
+                "vFor": {
+                  "value": { "type": "expression", "body": "{{ref_state_items}}" },
+                  "key": "id"
+                }
+              },
+              "children": [
+                {
+                  "type": "ASpace",
+                  "props": { "style": "display:flex;margin-bottom:8px" },
+                  "children": [
+                    {
+                      "type": "AInput",
+                      "props": { "placeholder": "Item name", "style": "width:300px" }
+                    },
+                    {
+                      "type": "AButton",
+                      "props": { "type": "dashed", "danger": true },
+                      "directives": {
+                        "vOn": {
+                          "click": { "type": "function", "params": {}, "body": "{{methods.removeItem(scope.item.id)}}" }
+                        }
+                      },
+                      "children": ["Remove"]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "AFormItem",
+              "children": [
+                {
+                  "type": "AButton",
+                  "props": { "type": "dashed" },
+                  "directives": {
+                    "vOn": {
+                      "click": { "type": "function", "params": {}, "body": "{{methods.addItem()}}" }
+                    }
+                  },
+                  "children": [
+                    { "type": "PlusOutlined" },
+                    "type": "span",
+                    "children": [" Add Item"]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
