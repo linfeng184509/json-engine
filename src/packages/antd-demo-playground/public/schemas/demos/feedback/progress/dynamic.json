@@ -4,28 +4,28 @@
     "defaultPercent": { "type": "ref", "initial": 0 }
   },
   "methods": {
-    "increase": { "type": "function", "params": "{{{}}}", "body": "{{var p = ref_state_defaultPercent.value + 10; ref_state_defaultPercent.value = p > 100 ? 100 : p;}}" },
-    "decline": { "type": "function", "params": "{{{}}}", "body": "{{var p = ref_state_defaultPercent.value - 10; ref_state_defaultPercent.value = p < 0 ? 0 : p;}}" }
+    "increase": { "$fn": "var p = state.defaultPercent + 10; state.defaultPercent = p > 100 ? 100 : p;" },
+    "decline": { "$fn": "var p = state.defaultPercent - 10; state.defaultPercent = p < 0 ? 0 : p;" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
       "children": [
-        { "type": "AProgress", "props": { "percent": { "type": "expression", "body": "{{ref_state_defaultPercent}}" } } },
+        { "type": "AProgress", "props": { "percent": { "$expr": "$state.defaultPercent" } } },
         {
           "type": "AButtonGroup",
           "children": [
             {
               "type": "AButton",
-              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.decline()}}" } } },
+              "directives": { "vOn": { "click": { "$fn": "methods.decline();" } } },
               "children": [
                 { "type": "MinusOutlined", "directives": { "vSlot": { "name": "icon" } } }
               ]
             },
             {
               "type": "AButton",
-              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.increase()}}" } } },
+              "directives": { "vOn": { "click": { "$fn": "methods.increase();" } } },
               "children": [
                 { "type": "PlusOutlined", "directives": { "vSlot": { "name": "icon" } } }
               ]

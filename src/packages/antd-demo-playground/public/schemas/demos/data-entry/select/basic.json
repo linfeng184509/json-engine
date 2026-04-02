@@ -22,7 +22,7 @@
               "props": { "style": "width:120px" },
               "directives": {
                 "vModel": {
-                  "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+                  "prop": { "$ref": "state.value1" },
                   "arg": "value"
                 }
               },
@@ -38,7 +38,7 @@
               "props": { "style": "width:120px", "disabled": true },
               "directives": {
                 "vModel": {
-                  "prop": { "_type": "reference", "prefix": "state", "variable": "value2" },
+                  "prop": { "$ref": "state.value2" },
                   "arg": "value"
                 }
               },
@@ -51,7 +51,7 @@
               "props": { "style": "width:120px", "loading": true },
               "directives": {
                 "vModel": {
-                  "prop": { "_type": "reference", "prefix": "state", "variable": "value3" },
+                  "prop": { "$ref": "state.value3" },
                   "arg": "value"
                 }
               },
@@ -67,30 +67,30 @@
           "children": [
             {
               "type": "ASelect",
-              "props": { "style": "width:120px", "options": { "type": "expression", "body": "{{ref_state_options1}}" } },
+              "props": { "style": "width:120px", "options": { "$expr": "$state.options1" } },
               "directives": {
                 "vModel": {
-                  "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+                  "prop": { "$ref": "state.value1" },
                   "arg": "value"
                 }
               }
             },
             {
               "type": "ASelect",
-              "props": { "style": "width:120px", "disabled": true, "options": { "type": "expression", "body": "{{ref_state_options2}}" } },
+              "props": { "style": "width:120px", "disabled": true, "options": { "$expr": "$state.options2" } },
               "directives": {
                 "vModel": {
-                  "prop": { "_type": "reference", "prefix": "state", "variable": "value2" },
+                  "prop": { "$ref": "state.value2" },
                   "arg": "value"
                 }
               }
             },
             {
               "type": "ASelect",
-              "props": { "style": "width:120px", "loading": true, "options": { "type": "expression", "body": "{{ref_state_options3}}" } },
+              "props": { "style": "width:120px", "loading": true, "options": { "$expr": "$state.options3" } },
               "directives": {
                 "vModel": {
-                  "prop": { "_type": "reference", "prefix": "state", "variable": "value3" },
+                  "prop": { "$ref": "state.value3" },
                   "arg": "value"
                 }
               }

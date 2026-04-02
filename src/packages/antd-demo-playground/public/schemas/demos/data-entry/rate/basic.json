@@ -8,11 +8,11 @@
     "content": {
       "type": "ARate",
       "props": {
-        "value": { "type": "expression", "body": "{{ref_state_value}}" }
+        "value": { "$expr": "$state.value" }
       },
       "directives": {
         "vOn": {
-          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_value.value = args[0]}}" }
+          "update:value": { "$fn": "state.value = args[0];" }
         }
       }
     }

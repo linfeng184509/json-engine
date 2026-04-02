@@ -14,7 +14,7 @@
           "props": {
             "trigger": null,
             "collapsible": true,
-            "collapsed": { "type": "expression", "body": "{{ref_state_collapsed}}" }
+            "collapsed": { "$expr": "$state.collapsed" }
           },
           "children": [
             { "type": "div", "props": { "class": "logo" }, "children": ["Logo"] }
@@ -31,7 +31,7 @@
                   "type": "div",
                   "directives": {
                     "vOn": {
-                      "click": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_collapsed = !ref_state_collapsed}}" }
+                      "click": { "$fn": "state.collapsed = !state.collapsed;" }
                     }
                   },
                   "children": [

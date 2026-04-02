@@ -5,19 +5,13 @@
   },
   "methods": {
     "showModal": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_open.value = true}}"
+      "$fn": "state.open = true;"
     },
     "handleOk": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_open.value = false}}"
+      "$fn": "state.open = false;"
     },
     "handleCancel": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_open.value = false}}"
+      "$fn": "state.open = false;"
     }
   },
   "render": {
@@ -28,19 +22,19 @@
         { 
           "type": "AButton", 
           "props": { "type": "primary" }, 
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showModal()}}" } } },
+          "directives": { "vOn": { "click": { "$fn": "methods.showModal();" } } },
           "children": ["Open Modal"]
         },
         {
           "type": "AModal",
           "props": {
             "title": "Basic Modal",
-            "open": { "type": "expression", "body": "{{ref_state_open}}" }
+            "open": { "$expr": "$state.open" }
           },
           "directives": {
             "vOn": {
-              "ok": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleOk()}}" },
-              "cancel": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleCancel()}}" }
+              "ok": { "$fn": "methods.handleOk();" },
+              "cancel": { "$fn": "methods.handleCancel();" }
             }
           },
           "children": [

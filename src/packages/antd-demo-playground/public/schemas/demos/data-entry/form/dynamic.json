@@ -5,14 +5,10 @@
   },
   "methods": {
     "addItem": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_items.push({id: Date.now(), name: ''})}}"
+      "$fn": "state.items.push({id: Date.now(), name: ''});"
     },
     "removeItem": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var id = args[0]; ref_state_items = ref_state_items.filter(item => item.id !== id)}}"
+      "$fn": "var id = args[0]; state.items = state.items.filter(item => item.id !== id);"
     }
   },
   "render": {
@@ -36,7 +32,7 @@
               "type": "template",
               "directives": {
                 "vFor": {
-                  "value": { "type": "expression", "body": "{{ref_state_items}}" },
+                  "value": { "$expr": "$state.items" },
                   "key": "id"
                 }
               },
@@ -54,7 +50,7 @@
                       "props": { "type": "dashed", "danger": true },
                       "directives": {
                         "vOn": {
-                          "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.removeItem(scope.item.id)}}" }
+                          "click": { "$fn": "methods.removeItem(scope.item.id);" }
                         }
                       },
                       "children": ["Remove"]
@@ -71,7 +67,7 @@
                   "props": { "type": "dashed" },
                   "directives": {
                     "vOn": {
-                      "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.addItem()}}" }
+                      "click": { "$fn": "methods.addItem();" }
                     }
                   },
                   "children": [

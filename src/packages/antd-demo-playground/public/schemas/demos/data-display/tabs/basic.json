@@ -8,11 +8,11 @@
     "content": {
       "type": "ATabs",
       "props": {
-        "activeKey": { "type": "expression", "body": "{{ref_state_activeKey}}" }
+        "activeKey": { "$expr": "$state.activeKey" }
       },
       "directives": {
         "vModel": {
-          "prop": { "_type": "reference", "prefix": "state", "variable": "activeKey" },
+          "prop": { "$ref": "state.activeKey" },
           "arg": "activeKey"
         }
       },

@@ -16,7 +16,7 @@
           "type": "AMenu",
           "props": {
             "mode": "vertical",
-            "selectedKeys": { "type": "expression", "body": "{{ref_state_selectedKeys}}" },
+            "selectedKeys": { "$expr": "$state.selectedKeys" },
             "style": "width:256px"
           },
           "children": [

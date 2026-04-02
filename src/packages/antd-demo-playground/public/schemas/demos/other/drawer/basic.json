@@ -4,16 +4,16 @@
     "open": { "type": "ref", "initial": false }
   },
   "methods": {
-    "showDrawer": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_open.value = true}}" },
-    "onClose": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_open.value = false}}" }
+    "showDrawer": { "$fn": "state.open = true;" },
+    "onClose": { "$fn": "state.open = false;" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
       "children": [
-        { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer()}}" } } }, "children": ["Open"] },
-        { "type": "ADrawer", "props": { "title": "Basic Drawer", "open": { "type": "expression", "body": "{{ref_state_open}}" }, "onClose": { "type": "function", "params": "{{{}}}", "body": "{{methods.onClose()}}" } }, "children": [
+        { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "$fn": "methods.showDrawer();" } } }, "children": ["Open"] },
+        { "type": "ADrawer", "props": { "title": "Basic Drawer", "open": { "$expr": "$state.open" }, "onClose": { "$fn": "methods.onClose();" } }, "children": [
           { "type": "p", "children": ["Some contents..."] },
           { "type": "p", "children": ["Some contents..."] },
           { "type": "p", "children": ["Some contents..."] }

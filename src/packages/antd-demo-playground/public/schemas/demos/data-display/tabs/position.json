@@ -8,12 +8,12 @@
     "content": {
       "type": "ATabs",
       "props": {
-        "activeKey": { "type": "expression", "body": "{{ref_state_activeKey}}" },
+        "activeKey": { "$expr": "$state.activeKey" },
         "tabPosition": "left"
       },
       "directives": {
         "vOn": {
-          "update:activeKey": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_activeKey.value = args[0]}}" }
+          "update:activeKey": { "$fn": "state.activeKey = args[0];" }
         }
       },
       "children": [

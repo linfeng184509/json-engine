@@ -8,14 +8,10 @@
   },
   "methods": {
     "onFinish": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{console.log('Success:', args[0])}}"
+      "$fn": "console.log('Success:', args[0]);"
     },
     "onFinishFailed": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{console.log('Failed:', args[0])}}"
+      "$fn": "console.log('Failed:', args[0]);"
     }
   },
   "render": {
@@ -23,14 +19,14 @@
     "content": {
       "type": "AForm",
       "props": {
-        "model": { "type": "expression", "body": "{{ref_state_formState}}" },
+        "model": { "$expr": "$state.formState" },
         "name": "basic",
         "labelCol": { "span": 8 },
         "wrapperCol": { "span": 16 },
         "autocomplete": "off",
         "style": "max-width:600px",
-        "onFinish": { "type": "function", "params": "{{{}}}", "body": "{{methods.onFinish(args[0])}}" },
-        "onFinishFailed": { "type": "function", "params": "{{{}}}", "body": "{{methods.onFinishFailed(args[0])}}" }
+        "onFinish": { "$fn": "methods.onFinish(args[0]);" },
+        "onFinishFailed": { "$fn": "methods.onFinishFailed(args[0]);" }
       },
       "children": [
         {
@@ -39,7 +35,7 @@
           "children": [
             {
               "type": "AInput",
-              "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formState.username}}" } } }
+              "directives": { "vModel": { "prop": { "$ref": "state.formState.username" } } }
             }
           ]
         },
@@ -49,7 +45,7 @@
           "children": [
             {
               "type": "AInputPassword",
-              "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formState.password}}" } } }
+              "directives": { "vModel": { "prop": { "$ref": "state.formState.password" } } }
             }
           ]
         },
@@ -59,7 +55,7 @@
           "children": [
             {
               "type": "ACheckbox",
-              "directives": { "vModel": { "prop": { "type": "state", "body": "{{ref_state_formState.remember}}" }, "arg": "checked" } },
+              "directives": { "vModel": { "prop": { "$ref": "state.formState.remember" }, "arg": "checked" } },
               "children": ["Remember me"]
             }
           ]

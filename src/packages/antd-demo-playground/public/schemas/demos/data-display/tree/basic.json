@@ -36,20 +36,20 @@
       "type": "ATree",
       "props": {
         "checkable": true,
-        "treeData": { "type": "expression", "body": "{{ref_state_treeData}}" }
+        "treeData": { "$expr": "$state.treeData" }
       },
       "directives": {
         "vModel": [
-          { "prop": { "_type": "reference", "prefix": "state", "variable": "expandedKeys" }, "arg": "expandedKeys" },
-          { "prop": { "_type": "reference", "prefix": "state", "variable": "selectedKeys" }, "arg": "selectedKeys" },
-          { "prop": { "_type": "reference", "prefix": "state", "variable": "checkedKeys" }, "arg": "checkedKeys" }
+          { "prop": { "$ref": "state.expandedKeys" }, "arg": "expandedKeys" },
+          { "prop": { "$ref": "state.selectedKeys" }, "arg": "selectedKeys" },
+          { "prop": { "$ref": "state.checkedKeys" }, "arg": "checkedKeys" }
         ]
       },
       "children": [
         {
           "type": "span",
           "directives": { "vSlot": { "name": "title", "props": ["title", "key"] } },
-          "children": [{ "type": "expression", "body": "{{ref_state_title}}" }]
+          "children": [{ "$expr": "$state.title" }]
         }
       ]
     }

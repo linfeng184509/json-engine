@@ -84,118 +84,76 @@
   "computed": {
     "hasNodeSelected": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{ return !!ref_state_selectedNode }}"
+        "$fn": "return !!state.selectedNode"
       }
     },
     "isFieldNode": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{ return !!(ref_state_selectedNode && ref_state_selectedNode.type === 'field') }}"
+        "$fn": "return !!(state.selectedNode && state.selectedNode.type === 'field')"
       }
     },
     "canInherit": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{ return !!(ref_state_selectedNode && (ref_state_selectedNode.type === 'page' || ref_state_selectedNode.type === 'form')) }}"
+        "$fn": "return !!(state.selectedNode && (state.selectedNode.type === 'page' || state.selectedNode.type === 'form'))"
       }
     }
   },
   "methods": {
     "loadRoleId": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var hash = window.location.hash; var match = hash.match(/\\/system\\/role\\/([^\\/]+)\\/permissions/); if (match) { ref_state_roleId.value = match[1]; } else { window.location.hash = '#/system/role'; return; } methods.loadData(); }}"
+      "$fn": "var hash = window.location.hash; var match = hash.match(/\\/system\\/role\\/([^\\/]+)\\/permissions/); if (match) { state.roleId = match[1]; } else { window.location.hash = '#/system/role'; return; } methods.loadData();"
     },
     "loadData": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ ref_state_loading.value = true; Promise.all([$_core_api.get('/api/role/' + ref_state_roleId.value), $_core_api.get('/api/permission-tree'), $_core_api.get('/api/role/all'), $_core_api.get('/api/role/' + ref_state_roleId.value + '/permissions/preview')]).then(function(results) { var roleRes = results[0]; var treeRes = results[1]; var rolesRes = results[2]; var previewRes = results[3]; if (roleRes.success) ref_state_roleInfo.value = roleRes.data; if (treeRes.success) { ref_state_permissionTree.value = treeRes.data; ref_state_expandedKeys.value = ['p1', 'm1', 'm2']; } if (rolesRes.success) ref_state_allRoles.value = rolesRes.data.filter(function(r) { return r.id !== ref_state_roleId.value; }); if (previewRes.success) { ref_state_previewData.value = previewRes.data.permissions; ref_state_stats.value = previewRes.data.stats; ref_state_inheritanceTree.value = previewRes.data.inheritanceTree; ref_state_currentPermissions.value = { pages: previewRes.data.permissions.pages || [], forms: previewRes.data.permissions.forms || [], fields: previewRes.data.permissions.fields || [] }; } ref_state_loading.value = false; }).catch(function(e) { console.error(e); ref_state_loading.value = false; }) }}"
+      "$fn": "state.loading = true; Promise.all([$_core_api.get('/api/role/' + state.roleId), $_core_api.get('/api/permission-tree'), $_core_api.get('/api/role/all'), $_core_api.get('/api/role/' + state.roleId + '/permissions/preview')]).then(function(results) { var roleRes = results[0]; var treeRes = results[1]; var rolesRes = results[2]; var previewRes = results[3]; if (roleRes.success) state.roleInfo = roleRes.data; if (treeRes.success) { state.permissionTree = treeRes.data; state.expandedKeys = ['p1', 'm1', 'm2']; } if (rolesRes.success) state.allRoles = rolesRes.data.filter(function(r) { return r.id !== state.roleId; }); if (previewRes.success) { state.previewData = previewRes.data.permissions; state.stats = previewRes.data.stats; state.inheritanceTree = previewRes.data.inheritanceTree; state.currentPermissions = { pages: previewRes.data.permissions.pages || [], forms: previewRes.data.permissions.forms || [], fields: previewRes.data.permissions.fields || [] }; } state.loading = false; }).catch(function(e) { console.error(e); state.loading = false; })"
     },
     "loadCompareResult": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ if (!ref_state_compareRoleId.value) return; $_core_api.get('/api/role/compare', { params: { roleId1: ref_state_roleId.value, roleId2: ref_state_compareRoleId.value } }).then(function(res) { if (res.success) ref_state_compareResult.value = res.data; else $_antd.message.error(res.error); }); }}"
+      "$fn": "if (!state.compareRoleId) return; $_core_api.get('/api/role/compare', { params: { roleId1: state.roleId, roleId2: state.compareRoleId } }).then(function(res) { if (res.success) state.compareResult = res.data; else $_antd.message.error(res.error); });"
     },
     "findNode": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var nodes = args[0]; var key = args[1]; for (var i = 0; i < nodes.length; i++) { var n = nodes[i]; if (n.key === key || n.id === key) return n; if (n.children) { var f = methods.findNode(n.children, key); if (f) return f; } } return null; }}"
+      "$fn": "var nodes = args[0]; var key = args[1]; for (var i = 0; i < nodes.length; i++) { var n = nodes[i]; if (n.key === key || n.id === key) return n; if (n.children) { var f = methods.findNode(n.children, key); if (f) return f; } } return null;"
     },
     "onSelect": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var key = args[0] && args[0][0]; if (!key) { ref_state_selectedNode.value = null; return; } ref_state_selectedNode.value = methods.findNode(ref_state_permissionTree.value, key); if (ref_state_selectedNode.value && ref_state_selectedNode.value.type === 'field') { var fieldPerm = ref_state_currentPermissions.value.fields.find(function(f) { return f.fieldId === ref_state_selectedNode.value.id; }); if (fieldPerm) { ref_state_selectedNodePerm.read = fieldPerm.read; ref_state_selectedNodePerm.write = fieldPerm.write; ref_state_selectedNodePerm.hidden = fieldPerm.hidden; ref_state_selectedNodePerm.privacy = fieldPerm.privacy; } else { ref_state_selectedNodePerm.read = true; ref_state_selectedNodePerm.write = false; ref_state_selectedNodePerm.hidden = false; ref_state_selectedNodePerm.privacy = false; } } }}"
+      "$fn": "var key = args[0] && args[0][0]; if (!key) { state.selectedNode = null; return; } state.selectedNode = methods.findNode(state.permissionTree, key); if (state.selectedNode && state.selectedNode.type === 'field') { var fieldPerm = state.currentPermissions.fields.find(function(f) { return f.fieldId === state.selectedNode.id; }); if (fieldPerm) { state.selectedNodePerm.read = fieldPerm.read; state.selectedNodePerm.write = fieldPerm.write; state.selectedNodePerm.hidden = fieldPerm.hidden; state.selectedNodePerm.privacy = fieldPerm.privacy; } else { state.selectedNodePerm.read = true; state.selectedNodePerm.write = false; state.selectedNodePerm.hidden = false; state.selectedNodePerm.privacy = false; } }"
     },
     "onExpand": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ ref_state_expandedKeys.value = args[0] }}"
+      "$fn": "state.expandedKeys = args[0]"
     },
     "handlePageCheck": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var node = args[0]; var checked = args[1]; if (checked) { if (!ref_state_currentPermissions.value.pages.includes(node.code)) ref_state_currentPermissions.value.pages.push(node.code); } else { var idx = ref_state_currentPermissions.value.pages.indexOf(node.code); if (idx > -1) ref_state_currentPermissions.value.pages.splice(idx, 1); } methods.updatePreview(); }}"
+      "$fn": "var node = args[0]; var checked = args[1]; if (checked) { if (!state.currentPermissions.pages.includes(node.code)) state.currentPermissions.pages.push(node.code); } else { var idx = state.currentPermissions.pages.indexOf(node.code); if (idx > -1) state.currentPermissions.pages.splice(idx, 1); } methods.updatePreview();"
     },
     "handleFormCheck": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var node = args[0]; var checked = args[1]; if (checked) { if (!ref_state_currentPermissions.value.forms.includes(node.code)) ref_state_currentPermissions.value.forms.push(node.code); } else { var idx = ref_state_currentPermissions.value.forms.indexOf(node.code); if (idx > -1) ref_state_currentPermissions.value.forms.splice(idx, 1); } methods.updatePreview(); }}"
+      "$fn": "var node = args[0]; var checked = args[1]; if (checked) { if (!state.currentPermissions.forms.includes(node.code)) state.currentPermissions.forms.push(node.code); } else { var idx = state.currentPermissions.forms.indexOf(node.code); if (idx > -1) state.currentPermissions.forms.splice(idx, 1); } methods.updatePreview();"
     },
     "handleFieldPermChange": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var fieldId = ref_state_selectedNode.value.id; var fieldCode = ref_state_selectedNode.value.code; var fieldName = ref_state_selectedNode.value.name; var existingIdx = ref_state_currentPermissions.value.fields.findIndex(function(f) { return f.fieldId === fieldId; }); var newPerm = { fieldId: fieldId, fieldCode: fieldCode, fieldName: fieldName, read: ref_state_selectedNodePerm.read, write: ref_state_selectedNodePerm.write, hidden: ref_state_selectedNodePerm.hidden, privacy: ref_state_selectedNodePerm.privacy, inherited: false }; if (existingIdx > -1) ref_state_currentPermissions.value.fields[existingIdx] = newPerm; else ref_state_currentPermissions.value.fields.push(newPerm); methods.updatePreview(); }}"
+      "$fn": "var fieldId = state.selectedNode.id; var fieldCode = state.selectedNode.code; var fieldName = state.selectedNode.name; var existingIdx = state.currentPermissions.fields.findIndex(function(f) { return f.fieldId === fieldId; }); var newPerm = { fieldId: fieldId, fieldCode: fieldCode, fieldName: fieldName, read: state.selectedNodePerm.read, write: state.selectedNodePerm.write, hidden: state.selectedNodePerm.hidden, privacy: state.selectedNodePerm.privacy, inherited: false }; if (existingIdx > -1) state.currentPermissions.fields[existingIdx] = newPerm; else state.currentPermissions.fields.push(newPerm); methods.updatePreview();"
     },
     "updatePreview": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ $_core_api.get('/api/role/' + ref_state_roleId.value + '/permissions/preview').then(function(res) { if (res.success) { ref_state_previewData.value = res.data.permissions; ref_state_stats.value = res.data.stats; ref_state_inheritanceTree.value = res.data.inheritanceTree; } }); }}"
+      "$fn": "$_core_api.get('/api/role/' + state.roleId + '/permissions/preview').then(function(res) { if (res.success) { state.previewData = res.data.permissions; state.stats = res.data.stats; state.inheritanceTree = res.data.inheritanceTree; } });"
     },
     "handleSave": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ ref_state_saving.value = true; $_core_api.put('/api/role/' + ref_state_roleId.value + '/permissions', { permissions: ref_state_currentPermissions.value }).then(function(res) { if (res.success) $_antd.message.success('保存成功'); else $_antd.message.error(res.error || '保存失败'); }).finally(function() { ref_state_saving.value = false; }); }}"
+      "$fn": "state.saving = true; $_core_api.put('/api/role/' + state.roleId + '/permissions', { permissions: state.currentPermissions }).then(function(res) { if (res.success) $_antd.message.success('保存成功'); else $_antd.message.error(res.error || '保存失败'); }).finally(function() { state.saving = false; });"
     },
     "handleBack": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ window.location.hash = '#/system/role' }}"
+      "$fn": "window.location.hash = '#/system/role'"
     },
     "handleBatchAllow": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var type = args[0]; if (type === 'page') ref_state_currentPermissions.value.pages = ['*']; else if (type === 'form') ref_state_currentPermissions.value.forms = ['*']; methods.updatePreview(); }}"
+      "$fn": "var type = args[0]; if (type === 'page') state.currentPermissions.pages = ['*']; else if (type === 'form') state.currentPermissions.forms = ['*']; methods.updatePreview();"
     },
     "handleBatchDeny": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var type = args[0]; if (type === 'page') ref_state_currentPermissions.value.pages = []; else if (type === 'form') ref_state_currentPermissions.value.forms = []; methods.updatePreview(); }}"
+      "$fn": "var type = args[0]; if (type === 'page') state.currentPermissions.pages = []; else if (type === 'form') state.currentPermissions.forms = []; methods.updatePreview();"
     },
     "getNodeTypeText": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var type = args[0]; var map = { 'platform': '平台', 'menu': '菜单', 'page': '页面', 'feature': '功能', 'form': '表单', 'field': '字段' }; return map[type] || type; }}"
+      "$fn": "var type = args[0]; var map = { 'platform': '平台', 'menu': '菜单', 'page': '页面', 'feature': '功能', 'form': '表单', 'field': '字段' }; return map[type] || type;"
     },
     "getNodeTypeColor": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ var type = args[0]; var map = { 'platform': 'blue', 'menu': 'green', 'page': 'orange', 'feature': 'purple', 'form': 'cyan', 'field': 'gold' }; return map[type] || 'default'; }}"
+      "$fn": "var type = args[0]; var map = { 'platform': 'blue', 'menu': 'green', 'page': 'orange', 'feature': 'purple', 'form': 'cyan', 'field': 'gold' }; return map[type] || 'default';"
     },
     "getCompareStats": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ if (!ref_state_compareResult.value) return { added: 0, removed: 0, common: 0 }; return { added: ref_state_compareResult.value.added.length, removed: ref_state_compareResult.value.removed.length, common: ref_state_compareResult.value.common.length }; }}"
+      "$fn": "if (!state.compareResult) return { added: 0, removed: 0, common: 0 }; return { added: state.compareResult.added.length, removed: state.compareResult.removed.length, common: state.compareResult.common.length };"
     }
   },
   "lifecycle": {
     "onMounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ methods.loadRoleId() }}"
+      "$fn": "methods.loadRoleId()"
     }
   },
   "render": {
@@ -240,15 +198,15 @@
                 },
                 {
                   "type": "expression",
-                  "body": "{{ref_state_roleInfo.value?.name || '加载中...'}}"
+                  "body": "$state.roleInfo?.name || '加载中...'"
                 },
                 {
                   "type": "expression",
-                  "body": "{{' ('}}"
+                  "body": "' ('"
                 },
                 {
                   "type": "expression",
-                  "body": "{{ref_state_roleInfo.value?.code}}"
+                  "body": "$state.roleInfo?.code"
                 },
                 {
                   "type": "expression",
@@ -277,8 +235,7 @@
                   "type": "div",
                   "directives": {
                     "vIf": {
-                      "type": "expression",
-                      "body": "{{ref_state_loading}}"
+                      "$expr": "$state.loading"
                     }
                   },
                   "props": {
@@ -294,8 +251,7 @@
                   "type": "div",
                   "directives": {
                     "vIf": {
-                      "type": "expression",
-                      "body": "{{!ref_state_loading}}"
+                      "$expr": "!$state.loading"
                     }
                   },
                   "children": [
@@ -303,16 +259,13 @@
                       "type": "ATree",
                       "props": {
                         "treeData": {
-                          "type": "expression",
-                          "body": "{{ref_state_permissionTree}}"
+                          "$expr": "$state.permissionTree"
                         },
                         "selectedKeys": {
-                          "type": "expression",
-                          "body": "{{ref_state_selectedNode.value ? [ref_state_selectedNode.value.id] : []}}"
+                          "$expr": "$state.selectedNode ? [$state.selectedNode.id] : []"
                         },
                         "expandedKeys": {
-                          "type": "expression",
-                          "body": "{{ref_state_expandedKeys}}"
+                          "$expr": "$state.expandedKeys"
                         },
                         "blockNode": true,
                         "showLine": true,
@@ -322,19 +275,13 @@
                       "directives": {
                         "vOn": {
                           "select": {
-                            "type": "function",
-                            "params": "{{{}}}",
-                            "body": "{{methods.onSelect(args[0])}}"
+                            "$fn": "methods.onSelect(args[0])"
                           },
                           "expand": {
-                            "type": "function",
-                            "params": "{{{}}}",
-                            "body": "{{methods.onExpand(args[0])}}"
+                            "$fn": "methods.onExpand(args[0])"
                           },
                           "check": {
-                            "type": "function",
-                            "params": "{{{}}}",
-                            "body": "{{var node = args[0]; var checked = args[1]; if (node.type === 'page') methods.handlePageCheck(node, checked); else if (node.type === 'form') methods.handleFormCheck(node, checked);}}"
+                            "$fn": "var node = args[0]; var checked = args[1]; if (node.type === 'page') methods.handlePageCheck(node, checked); else if (node.type === 'form') methods.handleFormCheck(node, checked);"
                           }
                         }
                       }
@@ -356,8 +303,7 @@
                   "type": "div",
                   "directives": {
                     "vIf": {
-                      "type": "expression",
-                      "body": "{{!ref_computed_hasNodeSelected}}"
+                      "$expr": "!computed.hasNodeSelected"
                     }
                   },
                   "props": {
@@ -371,8 +317,7 @@
                   "type": "div",
                   "directives": {
                     "vIf": {
-                      "type": "expression",
-                      "body": "{{ref_computed_hasNodeSelected}}"
+                      "$expr": "computed.hasNodeSelected"
                     }
                   },
                   "children": [
@@ -389,15 +334,12 @@
                               "type": "ATag",
                               "props": {
                                 "color": {
-                                  "type": "function",
-                                  "params": "{{{}}}",
-                                  "body": "{{methods.getNodeTypeColor(ref_state_selectedNode.value.type)}}"
+                                  "$expr": "methods.getNodeTypeColor($state.selectedNode.type)"
                                 }
                               },
                               "children": [
                                 {
-                                  "type": "expression",
-                                  "body": "{{methods.getNodeTypeText(ref_state_selectedNode.value.type)}}"
+                                  "$expr": "methods.getNodeTypeText($state.selectedNode.type)"
                                 }
                               ]
                             },
@@ -408,8 +350,7 @@
                               },
                               "children": [
                                 {
-                                  "type": "expression",
-                                  "body": "{{ref_state_selectedNode.value.name}}"
+                                  "$expr": "$state.selectedNode.name"
                                 }
                               ]
                             },
@@ -421,11 +362,11 @@
                               "children": [
                                 {
                                   "type": "expression",
-                                  "body": "{{'('}}"
+                                  "body": "'('"
                                 },
                                 {
                                   "type": "expression",
-                                  "body": "{{ref_state_selectedNode.value.code}}"
+                                  "body": "$state.selectedNode.code"
                                 },
                                 {
                                   "type": "expression",
@@ -441,13 +382,10 @@
                       "type": "ATabs",
                       "props": {
                         "activeKey": {
-                          "type": "expression",
-                          "body": "{{ref_state_activeTab}}"
+                          "$expr": "$state.activeTab"
                         },
                         "onChange": {
-                          "type": "function",
-                          "params": "{{{}}}",
-                          "body": "{{ref_state_activeTab.value = args[0]}}"
+                          "$fn": "$state.activeTab = args[0]"
                         }
                       },
                       "children": [
@@ -466,8 +404,7 @@
                               "type": "div",
                               "directives": {
                                 "vIf": {
-                                  "type": "expression",
-                                  "body": "{{ref_computed_canInherit}}"
+                                  "$expr": "computed.canInherit"
                                 }
                               },
                               "props": {
@@ -484,9 +421,7 @@
                                           "type": "string", "body": "'small'"
                                         },
                                         "onClick": {
-                                          "type": "function",
-                                          "params": "{{{}}}",
-                                          "body": "{{methods.handleBatchAllow(ref_state_selectedNode.value.type)}}"
+                                          "$fn": "methods.handleBatchAllow($state.selectedNode.type)"
                                         }
                                       },
                                       "children": [
@@ -500,9 +435,7 @@
                                           "type": "string", "body": "'small'"
                                         },
                                         "onClick": {
-                                          "type": "function",
-                                          "params": "{{{}}}",
-                                          "body": "{{methods.handleBatchDeny(ref_state_selectedNode.value.type)}}"
+                                          "$fn": "methods.handleBatchDeny($state.selectedNode.type)"
                                         }
                                       },
                                       "children": [
@@ -516,11 +449,10 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.read}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.read=args[0].target.checked; methods.handleFieldPermChange()}}" },
+                                "checked": { "$expr": "$state.selectedNodePerm.read" }, "onChange": { "$fn": "state.selectedNodePerm.read=args[0].target.checked; methods.handleFieldPermChange()" }",
                                 "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
                                 "disabled": {
-                                  "type": "expression",
-                                  "body": "{{!ref_computed_isFieldNode}}"
+                                  "$expr": "!computed.isFieldNode"
                                 }
                               },
                               "children": [
@@ -530,11 +462,10 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.write}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.write=args[0].target.checked; methods.handleFieldPermChange()}}" },
+                                "checked": { "$expr": "$state.selectedNodePerm.write" }, "onChange": { "$fn": "state.selectedNodePerm.write=args[0].target.checked; methods.handleFieldPermChange()" }",
                                 "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
                                 "disabled": {
-                                  "type": "expression",
-                                  "body": "{{!ref_computed_isFieldNode}}"
+                                  "$expr": "!computed.isFieldNode"
                                 }
                               },
                               "children": [
@@ -544,11 +475,10 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.hidden}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.hidden=args[0].target.checked; methods.handleFieldPermChange()}}" },
+                                "checked": { "$expr": "$state.selectedNodePerm.hidden" }, "onChange": { "$fn": "state.selectedNodePerm.hidden=args[0].target.checked; methods.handleFieldPermChange()" }",
                                 "style": { "type": "object", "body": "{{{ \"marginRight\": \"24px\" }}}" },
                                 "disabled": {
-                                  "type": "expression",
-                                  "body": "{{!ref_computed_isFieldNode}}"
+                                  "$expr": "!computed.isFieldNode"
                                 }
                               },
                               "children": [
@@ -558,10 +488,9 @@
                             {
                               "type": "ACheckbox",
                               "props": {
-                                "checked": { "type": "expression", "body": "{{ref_state_selectedNodePerm.privacy}}" }, "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_selectedNodePerm.privacy=args[0].target.checked; methods.handleFieldPermChange()}}" },
+                                "checked": { "$expr": "$state.selectedNodePerm.privacy" }, "onChange": { "$fn": "state.selectedNodePerm.privacy=args[0].target.checked; methods.handleFieldPermChange()" }",
                                 "disabled": {
-                                  "type": "expression",
-                                  "body": "{{!ref_computed_isFieldNode}}"
+                                  "$expr": "!computed.isFieldNode"
                                 }
                               },
                               "children": [
@@ -607,8 +536,7 @@
                                           },
                                           "children": [
                                             {
-                                              "type": "expression",
-                                              "body": "{{ref_state_stats.value.pageLevel}}"
+                                              "$expr": "$state.stats.pageLevel"
                                             }
                                           ]
                                         },
@@ -645,8 +573,7 @@
                                           },
                                           "children": [
                                             {
-                                              "type": "expression",
-                                              "body": "{{ref_state_stats.value.formLevel}}"
+                                              "$expr": "$state.stats.formLevel"
                                             }
                                           ]
                                         },
@@ -683,8 +610,7 @@
                                           },
                                           "children": [
                                             {
-                                              "type": "expression",
-                                              "body": "{{ref_state_stats.value.fieldLevel}}"
+                                              "$expr": "$state.stats.fieldLevel"
                                             }
                                           ]
                                         },
@@ -733,24 +659,23 @@
                                       "props": {
                                         "style": { "type": "object", "body": "{{{ \"fontWeight\": \"600\" }}}" }
                                       },
-                                      "children": [
-                                        {
-                                          "type": "expression",
-                                          "body": "{{ref_state_stats.value.fieldLevel}}"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "span",
-                                      "children": [
-                                        " 个"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "div",
-                                  "props": {
+"children": [
+                                         {
+                                           "$expr": "$state.stats.fieldLevel"
+                                         }
+                                       ]
+                                     },
+                                     {
+                                       "type": "span",
+                                       "children": [
+                                         " 个"
+                                       ]
+                                     }
+                                   ]
+                                 },
+                                 {
+                                   "type": "div",
+                                   "props": {
                                     "style": "font-size: 14px; margin-top: 8px"
                                   },
                                   "children": [
@@ -765,12 +690,11 @@
                                       "props": {
                                         "style": { "type": "object", "body": "{{{ \"fontWeight\": \"600\" }}}" }
                                       },
-                                      "children": [
-                                        {
-                                          "type": "expression",
-                                          "body": "{{ref_state_stats.value.inheritedFieldLevel}}"
-                                        }
-                                      ]
+"children": [
+                                         {
+                                           "$expr": "$state.stats.inheritedFieldLevel"
+                                         }
+                                       ]
                                     },
                                     {
                                       "type": "span",
@@ -875,13 +799,10 @@
                                       "type": "string", "body": "'请选择角色'"
                                     },
                                     "value": {
-                                      "type": "expression",
-                                      "body": "{{ref_state_compareRoleId}}"
+                                      "$expr": "$state.compareRoleId"
                                     },
                                     "onChange": {
-                                      "type": "function",
-                                      "params": "{{{}}}",
-                                      "body": "{{ref_state_compareRoleId.value = args[0]; if (args[0]) methods.loadCompareResult();}}"
+                                      "$fn": "state.compareRoleId = args[0]; if (args[0]) methods.loadCompareResult();"
                                     },
                                     "style": { "type": "object", "body": "{{{ \"width\": \"200px\" }}}" }
                                   },
@@ -909,8 +830,7 @@
                               "type": "div",
                               "directives": {
                                 "vIf": {
-                                  "type": "expression",
-                                  "body": "{{ref_state_compareResult}}"
+                                  "$expr": "$state.compareResult"
                                 }
                               },
                               "children": [
@@ -950,11 +870,10 @@
                                               "props": {
                                                 "style": "font-size: 14px; color: #666"
                                               },
-                                              "children": [
-                                                {
-                                                  "type": "expression",
-                                                  "body": "{{ref_state_roleInfo.value?.name}}"
-                                                },
+"children": [
+                                                 {
+                                                   "$expr": "$state.roleInfo?.name"
+                                                 },
                                                 {
                                                   "type": "expression",
                                                   "body": "{{' 独有的权限'}}"
@@ -995,11 +914,10 @@
                                               "props": {
                                                 "style": "font-size: 14px; color: #666"
                                               },
-                                              "children": [
-                                                {
-                                                  "type": "expression",
-                                                  "body": "{{ref_state_compareResult.value?.role2?.name}}"
-                                                },
+"children": [
+                                                 {
+                                                   "$expr": "$state.compareResult?.role2?.name"
+                                                 },
                                                 {
                                                   "type": "expression",
                                                   "body": "{{' 独有的权限'}}"
@@ -1075,9 +993,7 @@
                   "type": "AButton",
                   "props": {
                     "onClick": {
-                      "type": "function",
-                      "params": "{{{}}}",
-                      "body": "{{methods.handleBack()}}"
+                      "$fn": "methods.handleBack()"
                     }
                   },
                   "children": [
@@ -1091,13 +1007,10 @@
                       "type": "string", "body": "'primary'"
                     },
                     "loading": {
-                      "type": "expression",
-                      "body": "{{ref_state_saving}}"
+                      "$expr": "$state.saving"
                     },
                     "onClick": {
-                      "type": "function",
-                      "params": "{{{}}}",
-                      "body": "{{methods.handleSave()}}"
+                      "$fn": "methods.handleSave()"
                     }
                   },
                   "children": [

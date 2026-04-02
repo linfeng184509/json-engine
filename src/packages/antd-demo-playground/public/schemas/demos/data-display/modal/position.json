@@ -6,9 +6,7 @@
   },
   "methods": {
     "setModal1Visible": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_modal1Visible.value = args[0]}}"
+      "$fn": "state.modal1Visible = args[0];"
     }
   },
   "render": {
@@ -19,7 +17,7 @@
         {
           "type": "AButton",
           "props": { "type": "primary" },
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.setModal1Visible(true)}}" } } },
+          "directives": { "vOn": { "click": { "$fn": "methods.setModal1Visible(true);" } } },
           "children": ["Display a modal dialog at 20px to Top"]
         },
         {
@@ -27,7 +25,7 @@
           "props": { "title": "20px to Top", "style": "top:20px" },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "modal1Visible" },
+              "prop": { "$ref": "state.modal1Visible" },
               "arg": "open"
             }
           },
@@ -42,7 +40,7 @@
         {
           "type": "AButton",
           "props": { "type": "primary" },
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_modal2Visible.value = true}}" } } },
+          "directives": { "vOn": { "click": { "$fn": "state.modal2Visible = true;" } } },
           "children": ["Vertically centered modal dialog"]
         },
         {
@@ -50,7 +48,7 @@
           "props": { "title": "Vertically centered modal dialog", "centered": true },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "modal2Visible" },
+              "prop": { "$ref": "state.modal2Visible" },
               "arg": "open"
             }
           },

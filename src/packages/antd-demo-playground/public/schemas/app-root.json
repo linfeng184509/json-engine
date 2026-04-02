@@ -13,41 +13,27 @@
   },
   "methods": {
     "onOpenChange": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_openKeys = args[0]}}"
+      "$fn": "state.openKeys = args[0];"
     },
     "onMenuClick": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var item = args[0]; if(item && item.key) { ref_state_selectedKeys = [item.key]; window.location.hash = '/demos/' + item.key; }}}"
+      "$fn": "var item = args[0]; if(item && item.key) { state.selectedKeys = [item.key]; window.location.hash = '/demos/' + item.key; }"
     },
     "loadPage": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var route = args[0] || ref_state_currentRoute; var path = route.split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { ref_state_error = 'Page not found: ' + path; return; } if (matched.redirect) { window.location.hash = matched.redirect; return; } ref_state_isLoading = true; ref_state_error = null; ref_state_pageSchemaPath = matched.component; ref_state_jsonCode = ''; if(matched.component) { fetch(matched.component).then(function(r){ return r.text(); }).then(function(text){ ref_state_jsonCode.value = text; }).catch(function(e){ ref_state_jsonCode.value = 'Failed to load JSON: ' + e.message; }); } ref_state_isLoading = false;}}"
+      "$fn": "var route = args[0] || state.currentRoute; var path = route.split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { state.error = 'Page not found: ' + path; return; } if (matched.redirect) { window.location.hash = matched.redirect; return; } state.isLoading = true; state.error = null; state.pageSchemaPath = matched.component; state.jsonCode = ''; if(matched.component) { fetch(matched.component).then(function(r){ return r.text(); }).then(function(text){ state.jsonCode = text; }).catch(function(e){ state.jsonCode = 'Failed to load JSON: ' + e.message; }); } state.isLoading = false;"
     },
     "handleHashChange": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(ref_state_currentRoute);}}"
+      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute);"
     },
     "retry": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{methods.loadPage(ref_state_currentRoute);}}"
+      "$fn": "methods.loadPage(state.currentRoute);"
     }
   },
   "lifecycle": {
     "onMounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(ref_state_currentRoute); window.addEventListener('hashchange', methods.handleHashChange);}}"
+      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute); window.addEventListener('hashchange', methods.handleHashChange);"
     },
     "onUnmounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{window.removeEventListener('hashchange', methods.handleHashChange);}}"
+      "$fn": "window.removeEventListener('hashchange', methods.handleHashChange);"
     }
   },
   "render": {
@@ -65,13 +51,13 @@
               "props": {
                 "theme": { "type": "string", "body": "'light'" },
                 "collapsible": true,
-                "collapsed": { "type": "expression", "body": "{{ref_state_collapsed}}" },
+                "collapsed": { "$expr": "$state.collapsed" },
                 "width": 240,
                 "style": { "type": "string", "body": "'background:#fff;overflow:auto;height:100vh;position:sticky;left:0;top:0;bottom:0'" }
               },
               "directives": {
                 "vOn": {
-                  "collapse": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_collapsed = args[0]}}" }
+                  "collapse": { "$fn": "state.collapsed = args[0];" }
                 }
               },
               "children": [
@@ -87,14 +73,14 @@
                   "props": {
                     "theme": { "type": "string", "body": "'light'" },
                     "mode": { "type": "string", "body": "'inline'" },
-                    "selectedKeys": { "type": "expression", "body": "{{ref_state_selectedKeys}}" },
-                    "openKeys": { "type": "expression", "body": "{{ref_state_openKeys}}" },
+                    "selectedKeys": { "$expr": "$state.selectedKeys" },
+                    "openKeys": { "$expr": "$state.openKeys" },
                     "style": { "type": "string", "body": "'border-right:0;height:calc(100vh - 64px);overflow-y:auto'" }
                   },
                   "directives": {
                     "vOn": {
-                      "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.onMenuClick(args[0])}}" },
-                      "openChange": { "type": "function", "params": "{{{}}}", "body": "{{methods.onOpenChange(args[0])}}" }
+                      "click": { "$fn": "methods.onMenuClick(args[0]);" },
+                      "openChange": { "$fn": "methods.onOpenChange(args[0]);" }
                     }
                   },
                   "children": [
@@ -278,23 +264,23 @@
                   "children": [
                     {
                       "type": "div",
-                      "directives": { "vIf": { "type": "expression", "body": "{{ref_state_isLoading}}" } },
+                      "directives": { "vIf": { "$expr": "$state.isLoading" } },
                       "props": { "style": { "type": "string", "body": "'display:flex;justify-content:center;align-items:center;min-height:200px'" } },
                       "children": ["Loading..."]
                     },
                     {
                       "type": "div",
-                      "directives": { "vIf": { "type": "expression", "body": "{{ref_state_error}}" } },
+                      "directives": { "vIf": { "$expr": "$state.error" } },
                       "props": { "style": { "type": "string", "body": "'text-align:center;padding:48px'" } },
                       "children": [
                         { "type": "h3", "children": ["Error"] },
-                        { "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_error}}" }] },
-                        { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.retry()}}" } } }, "children": ["Retry"] }
+                        { "type": "p", "children": [{ "$expr": "$state.error" }] },
+                        { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "$fn": "methods.retry();" } } }, "children": ["Retry"] }
                       ]
                     },
                     {
                       "type": "div",
-                      "directives": { "vIf": { "type": "expression", "body": "{{ref_state_pageSchemaPath && !ref_state_error}}" } },
+                      "directives": { "vIf": { "$expr": "$state.pageSchemaPath && !$state.error" } },
                       "children": [
                         {
                           "type": "div",
@@ -304,28 +290,28 @@
                             {
                               "type": "AButton",
                               "props": { "type": "primary", "ghost": true, "size": "small" },
-                              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_showJson.value = !ref_state_showJson.value}}" } } },
-                              "children": [{ "type": "expression", "body": "{{ref_state_showJson.value ? 'Hide JSON' : 'Show JSON'}}" }]
+                              "directives": { "vOn": { "click": { "$fn": "state.showJson = !state.showJson;" } } },
+                              "children": [{ "$expr": "state.showJson ? 'Hide JSON' : 'Show JSON'" }]
                             }
                           ]
                         },
                         {
                           "type": "PageLoader",
                           "props": {
-                            "schemaPath": { "type": "expression", "body": "{{ref_state_pageSchemaPath}}" },
+                            "schemaPath": { "$expr": "$state.pageSchemaPath" },
                             "cache": true
                           }
                         },
                         {
                           "type": "div",
-                          "directives": { "vIf": { "type": "expression", "body": "{{ref_state_showJson}}" } },
+                          "directives": { "vIf": { "$expr": "$state.showJson" } },
                           "props": { "style": { "type": "string", "body": "'margin-top:24px;border-top:1px solid #f0f0f0;padding-top:16px'" } },
                           "children": [
                             { "type": "h4", "children": ["JSON Schema"] },
                             {
                               "type": "pre",
                               "props": { "style": { "type": "string", "body": "'background:#f5f5f5;padding:16px;border-radius:4px;overflow:auto;max-height:500px;font-size:12px;white-space:pre-wrap;word-break:break-all'" } },
-                              "children": [{ "type": "expression", "body": "{{ref_state_jsonCode}}" }]
+                              "children": [{ "$expr": "$state.jsonCode" }]
                             }
                           ]
                         }

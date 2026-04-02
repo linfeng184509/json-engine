@@ -16,10 +16,10 @@
       "children": [
         {
           "type": "ACheckboxGroup",
-          "props": { "options": { "type": "expression", "body": "{{ref_state_plainOptions}}" }, "name": "checkboxgroup" },
+          "props": { "options": { "$expr": "$state.plainOptions" }, "name": "checkboxgroup" },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+              "prop": { "$ref": "state.value1" },
               "arg": "value"
             }
           }
@@ -28,10 +28,10 @@
         { "type": "br" },
         {
           "type": "ACheckboxGroup",
-          "props": { "options": { "type": "expression", "body": "{{ref_state_plainOptions}}" } },
+          "props": { "options": { "$expr": "$state.plainOptions" } },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "value2" },
+              "prop": { "$ref": "state.value2" },
               "arg": "value"
             }
           }
@@ -40,10 +40,10 @@
         { "type": "br" },
         {
           "type": "ACheckboxGroup",
-          "props": { "options": { "type": "expression", "body": "{{ref_state_options}}" } },
+          "props": { "options": { "$expr": "$state.options" } },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "value3" },
+              "prop": { "$ref": "state.value3" },
               "arg": "value"
             }
           }
@@ -52,10 +52,10 @@
         { "type": "br" },
         {
           "type": "ACheckboxGroup",
-          "props": { "options": { "type": "expression", "body": "{{ref_state_optionsWithDisabled}}" }, "disabled": true },
+          "props": { "options": { "$expr": "$state.optionsWithDisabled" }, "disabled": true },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "value4" },
+              "prop": { "$ref": "state.value4" },
               "arg": "value"
             }
           }

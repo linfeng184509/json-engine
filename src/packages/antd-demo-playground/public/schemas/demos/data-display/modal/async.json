@@ -7,19 +7,13 @@
   },
   "methods": {
     "showModal": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_visible.value = true}}"
+      "$fn": "state.visible = true;"
     },
     "handleOk": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_modalText.value = 'The modal will be closed after two seconds'; ref_state_confirmLoading.value = true; setTimeout(function(){ ref_state_visible.value = false; ref_state_confirmLoading.value = false; }, 2000)}}"
+      "$fn": "state.modalText = 'The modal will be closed after two seconds'; state.confirmLoading = true; setTimeout(function(){ state.visible = false; state.confirmLoading = false; }, 2000);"
     },
     "handleCancel": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_visible.value = false}}"
+      "$fn": "state.visible = false;"
     }
   },
   "render": {
@@ -32,7 +26,7 @@
           "props": { "type": "primary" },
           "directives": {
             "vOn": {
-              "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showModal()}}" }
+              "click": { "$fn": "methods.showModal();" }
             }
           },
           "children": ["Open Modal with async logic"]
@@ -41,21 +35,21 @@
           "type": "AModal",
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "visible" },
+              "prop": { "$ref": "state.visible" },
               "arg": "open"
             }
           },
           "props": {
             "title": "Title",
-            "confirmLoading": { "type": "expression", "body": "{{ref_state_confirmLoading}}" }
+            "confirmLoading": { "$expr": "$state.confirmLoading" }
           },
           "directives": {
             "vOn": {
-              "ok": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleOk()}}" }
+              "ok": { "$fn": "methods.handleOk();" }
             }
           },
           "children": [
-            { "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_modalText}}" }] }
+            { "type": "p", "children": [{ "$expr": "$state.modalText" }] }
           ]
         }
       ]

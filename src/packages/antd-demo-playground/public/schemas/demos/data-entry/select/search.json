@@ -6,9 +6,7 @@
   },
   "methods": {
     "handleSearch": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var val = args[0]; if(val) { ref_state_options = [{value: val, label: val}]; } else { ref_state_options = []; }}}"
+      "$fn": "var val = args[0]; if(val) { state.options = [{value: val, label: val}]; } else { state.options = []; }"
     }
   },
   "render": {
@@ -31,11 +29,11 @@
                 "showSearch": true,
                 "placeholder": "Search and select",
                 "filterOption": false,
-                "options": { "type": "expression", "body": "{{ref_state_options}}" }
+                "options": { "$expr": "$state.options" }
               },
               "directives": {
                 "vOn": {
-                  "search": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleSearch(args[0])}}" }
+                  "search": { "$fn": "methods.handleSearch(args[0]);" }
                 }
               }
             },

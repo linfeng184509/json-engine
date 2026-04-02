@@ -6,13 +6,18 @@
   },
   "computed": {
     "label": {
-      "type": "computed",
-      "body": "{{(ref_state_checked.value ? 'Checked' : 'Unchecked') + '-' + (ref_state_disabled.value ? 'Disabled' : 'Enabled')}}"
+      "get": {
+        "$fn": "(state.checked ? 'Checked' : 'Unchecked') + '-' + (state.disabled ? 'Disabled' : 'Enabled')"
+      }
     }
   },
   "methods": {
-    "toggleChecked": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_checked.value = !ref_state_checked.value}}" },
-    "toggleDisable": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_disabled.value = !ref_state_disabled.value}}" }
+    "toggleChecked": {
+      "$fn": "state.checked = !state.checked;"
+    },
+    "toggleDisable": {
+      "$fn": "state.disabled = !state.disabled;"
+    }
   },
   "render": {
     "type": "template",
@@ -27,14 +32,14 @@
               "type": "ACheckbox",
               "directives": {
                 "vModel": {
-                  "prop": { "_type": "reference", "prefix": "state", "variable": "checked" },
+                  "prop": { "$ref": "state.checked" },
                   "arg": "checked"
                 }
               },
               "props": {
-                "disabled": { "type": "expression", "body": "{{ref_state_disabled}}" }
+                "disabled": { "$expr": "$state.disabled" }
               },
-              "children": [{ "type": "expression", "body": "{{ref_computed_label}}" }]
+              "children": [{ "$expr": "$computed.label" }]
             }
           ]
         },
@@ -44,14 +49,14 @@
             {
               "type": "AButton",
               "props": { "type": "primary", "size": "small" },
-              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.toggleChecked()}}" } } },
-              "children": [{ "type": "expression", "body": "{{!ref_state_checked.value ? 'Check' : 'Uncheck'}}" }]
+              "directives": { "vOn": { "click": { "$fn": "methods.toggleChecked();" } } },
+              "children": [{ "$expr": "!state.checked ? 'Check' : 'Uncheck'" }]
             },
             {
               "type": "AButton",
               "props": { "type": "primary", "size": "small", "style": "margin-left:10px" },
-              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.toggleDisable()}}" } } },
-              "children": [{ "type": "expression", "body": "{{!ref_state_disabled.value ? 'Disable' : 'Enable'}}" }]
+              "directives": { "vOn": { "click": { "$fn": "methods.toggleDisable();" } } },
+              "children": [{ "$expr": "!state.disabled ? 'Disable' : 'Enable'" }]
             }
           ]
         }

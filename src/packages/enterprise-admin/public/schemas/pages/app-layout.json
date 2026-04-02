@@ -19,9 +19,7 @@
   },
   "methods": {
     "loadUser": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var u=$_core_storage.get('userInfo');if(u)ref_state_user=u}}",
+      "$fn": "var u=$_core_storage.get('userInfo');if(u)state.user=u",
       "cached": false
     },
     "logout": {
@@ -53,26 +51,26 @@
               "props": {
                 "theme": { "type": "string", "body": "'light'" },
                 "collapsible": true,
-                "collapsed": { "type": "expression", "body": "{{ref_state_collapsed}}" },
+                "collapsed": { "$expr": "$state.collapsed" },
                 "style": { "type": "string", "body": "'min-height: 100vh; overflow: auto'" }
               },
               "directives": {
                 "vOn": {
-                  "collapse": { "type": "function", "params": "{{{}}}", "body": "{{var collapsed=args[0];ref_state_collapsed = collapsed}}" }
+                  "collapse": { "$fn": "var collapsed=args[0];state.collapsed = collapsed" }
                 }
               },
               "children": [
                 {
                   "type": "div",
                   "props": { "style": { "type": "string", "body": "'height: 64px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f0f0f0; font-size: 16px; font-weight: 600; color: #1677ff'" } },
-                  "children": [{ "type": "expression", "body": "{{ref_state_collapsed ? 'E' : '企业管理系统'}}" }]
+                  "children": [{ "$expr": "$state.collapsed ? 'E' : '企业管理系统'" }]
                 },
                 {
                   "type": "AMenu",
                   "props": {
                     "theme": { "type": "string", "body": "'light'" },
                     "mode": { "type": "string", "body": "'inline'" },
-                    "selectedKeys": { "type": "expression", "body": "{{ref_computed_selectedKeys.value}}" },
+                    "selectedKeys": { "$expr": "computed.selectedKeys" },
                     "style": { "type": "string", "body": "'border: none; height: calc(100vh - 64px); overflow-y: auto'" }
                   },
                   "children": [
@@ -94,7 +92,7 @@
                     {
                       "type": "div",
                       "props": { "style": { "type": "string", "body": "'font-size: 16px; font-weight: 600'" } },
-                      "children": [{ "type": "expression", "body": "{{ref_state_user?.nickname || ref_state_user?.username || '用户'}}" }]
+                      "children": [{ "$expr": "$state.user?.nickname || $state.user?.username || '用户'" }]
                     },
                     {
                       "type": "div",
@@ -114,7 +112,7 @@
                   "type": "ALayoutContent",
                   "props": { "style": { "type": "string", "body": "'padding: 24px; background: #f5f5f5; overflow-y: auto'" } },
                   "children": [
-                    { "type": "expression", "body": "{{ref_props_pageContent}}" }
+                    { "$expr": "props.pageContent" }
                   ]
                 }
               ]

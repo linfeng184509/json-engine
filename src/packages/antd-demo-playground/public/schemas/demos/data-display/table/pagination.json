@@ -19,9 +19,9 @@
     "content": {
       "type": "ATable",
       "props": {
-        "columns": { "type": "expression", "body": "{{ref_state_columns}}" },
-        "dataSource": { "type": "expression", "body": "{{ref_state_data}}" },
-        "pagination": { "type": "expression", "body": "{{ref_state_pagination}}" }
+        "columns": { "$expr": "$state.columns" },
+        "dataSource": { "$expr": "$state.data" },
+        "pagination": { "$expr": "$state.pagination" }
       }
     }
   }

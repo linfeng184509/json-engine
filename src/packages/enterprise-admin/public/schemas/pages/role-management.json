@@ -19,101 +19,65 @@
   "computed": {
     "hasSelected": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{return !!ref_state_selectedRow}}"
+        "$fn": "return !!state.selectedRow"
       }
     },
     "isEditing": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{return !!ref_state_editingRole}}"
+        "$fn": "return !!state.editingRole"
       }
     },
     "formIsValid": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{return !!ref_state_formData.code && !!ref_state_formData.name}}"
+        "$fn": "return !!state.formData.code && !!state.formData.name"
       }
     }
   },
   "methods": {
     "loadRoleList": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_loading.value = true; var params = { page: ref_state_pagination.current, pageSize: ref_state_pagination.pageSize, keyword: ref_state_searchForm.keyword, status: ref_state_searchForm.status }; $_core_api.get('/api/role/list', { params: params }).then(function(res) { ref_state_roleList.value = res.data.list; ref_state_pagination.total = res.data.total; ref_state_loading.value = false; }).catch(function(e) { console.error(e); $_antd.message.error('加载失败'); ref_state_loading.value = false; }) }}"
+      "$fn": "state.loading = true; var params = { page: state.pagination.current, pageSize: state.pagination.pageSize, keyword: state.searchForm.keyword, status: state.searchForm.status }; $_core_api.get('/api/role/list', { params: params }).then(function(res) { state.roleList = res.data.list; state.pagination.total = res.data.total; state.loading = false; }).catch(function(e) { console.error(e); $_antd.message.error('加载失败'); state.loading = false; })"
     },
     "handleSearch": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_pagination.current = 1; methods.loadRoleList() }}"
+      "$fn": "state.pagination.current = 1; methods.loadRoleList()"
     },
     "handleReset": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_searchForm.keyword = ''; ref_state_searchForm.status = ''; ref_state_pagination.current = 1; methods.loadRoleList() }}"
+      "$fn": "state.searchForm.keyword = ''; state.searchForm.status = ''; state.pagination.current = 1; methods.loadRoleList()"
     },
     "handleTableChange": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_pagination.current = args[0].current; ref_state_pagination.pageSize = args[0].pageSize; methods.loadRoleList() }}"
+      "$fn": "state.pagination.current = args[0].current; state.pagination.pageSize = args[0].pageSize; methods.loadRoleList()"
     },
     "handleAdd": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_editingRole.value = null; ref_state_modalTitle.value = '新增角色'; ref_state_formData.code = ''; ref_state_formData.name = ''; ref_state_formData.description = ''; ref_state_formData.status = 'active'; ref_state_modalVisible.value = true }}"
+      "$fn": "state.editingRole = null; state.modalTitle = '新增角色'; state.formData.code = ''; state.formData.name = ''; state.formData.description = ''; state.formData.status = 'active'; state.modalVisible = true"
     },
     "handleEdit": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_editingRole.value = args[0]; ref_state_modalTitle.value = '编辑角色'; ref_state_formData.code = args[0].code; ref_state_formData.name = args[0].name; ref_state_formData.description = args[0].description || ''; ref_state_formData.status = args[0].status; ref_state_modalVisible.value = true }}"
+      "$fn": "state.editingRole = args[0]; state.modalTitle = '编辑角色'; state.formData.code = args[0].code; state.formData.name = args[0].name; state.formData.description = args[0].description || ''; state.formData.status = args[0].status; state.modalVisible = true"
     },
     "handleDelete": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_deletingRole.value = args[0]; ref_state_deleteModalVisible.value = true }}"
+      "$fn": "state.deletingRole = args[0]; state.deleteModalVisible = true"
     },
     "confirmDelete": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ if (!ref_state_deletingRole.value) return; ref_state_confirmLoading.value = true; $_core_api.delete('/api/role/' + ref_state_deletingRole.value.id).then(function(res) { if (res.success) { $_antd.message.success('删除成功'); ref_state_deleteModalVisible.value = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '删除失败'); } }).catch(function(e) { $_antd.message.error('删除失败'); console.error(e); }).finally(function() { ref_state_confirmLoading.value = false; ref_state_deletingRole.value = null; }) }}"
+      "$fn": "if (!state.deletingRole) return; state.confirmLoading = true; $_core_api.delete('/api/role/' + state.deletingRole.id).then(function(res) { if (res.success) { $_antd.message.success('删除成功'); state.deleteModalVisible = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '删除失败'); } }).catch(function(e) { $_antd.message.error('删除失败'); console.error(e); }).finally(function() { state.confirmLoading = false; state.deletingRole = null; })"
     },
     "cancelDelete": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_deleteModalVisible.value = false; ref_state_deletingRole.value = null }}"
+      "$fn": "state.deleteModalVisible = false; state.deletingRole = null"
     },
     "handleModalOk": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ if (!ref_computed_formIsValid.value) { $_antd.message.warning('请填写必填项'); return; } ref_state_confirmLoading.value = true; var data = { code: ref_state_formData.code, name: ref_state_formData.name, description: ref_state_formData.description, status: ref_state_formData.status }; var promise = ref_state_editingRole.value ? $_core_api.put('/api/role/' + ref_state_editingRole.value.id, data) : $_core_api.post('/api/role', data); promise.then(function(res) { if (res.success) { $_antd.message.success(ref_state_editingRole.value ? '编辑成功' : '新增成功'); ref_state_modalVisible.value = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '操作失败'); } }).catch(function(e) { $_antd.message.error('操作失败'); console.error(e); }).finally(function() { ref_state_confirmLoading.value = false; }) }}"
+      "$fn": "if (!computed.formIsValid) { $_antd.message.warning('请填写必填项'); return; } state.confirmLoading = true; var data = { code: state.formData.code, name: state.formData.name, description: state.formData.description, status: state.formData.status }; var promise = state.editingRole ? $_core_api.put('/api/role/' + state.editingRole.id, data) : $_core_api.post('/api/role', data); promise.then(function(res) { if (res.success) { $_antd.message.success(state.editingRole ? '编辑成功' : '新增成功'); state.modalVisible = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '操作失败'); } }).catch(function(e) { $_antd.message.error('操作失败'); console.error(e); }).finally(function() { state.confirmLoading = false; })"
     },
     "handleModalCancel": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_modalVisible.value = false }}"
+      "$fn": "state.modalVisible = false"
     },
     "handleConfigPermissions": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ window.location.hash = '#/system/role/' + args[0].id + '/permissions' }}"
+      "$fn": "window.location.hash = '#/system/role/' + args[0].id + '/permissions'"
     },
     "handleToggleStatus": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ ref_state_togglingRole.value = args[0]; ref_state_statusToggleModalVisible.value = true }}"
+      "$fn": "state.togglingRole = args[0]; state.statusToggleModalVisible = true"
     },
     "confirmToggleStatus": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ if (!ref_state_togglingRole.value) return; var role = ref_state_togglingRole.value; var newStatus = role.status === 'active' ? 'inactive' : 'active'; ref_state_confirmLoading.value = true; $_core_api.put('/api/role/' + role.id, { status: newStatus }).then(function(res) { if (res.success) { $_antd.message.success(newStatus === 'active' ? '已启用' : '已停用'); ref_state_statusToggleModalVisible.value = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '操作失败'); } }).catch(function(e) { $_antd.message.error('操作失败'); console.error(e); }).finally(function() { ref_state_confirmLoading.value = false; ref_state_togglingRole.value = null; }) }}"
+      "$fn": "if (!state.togglingRole) return; var role = state.togglingRole; var newStatus = role.status === 'active' ? 'inactive' : 'active'; state.confirmLoading = true; $_core_api.put('/api/role/' + role.id, { status: newStatus }).then(function(res) { if (res.success) { $_antd.message.success(newStatus === 'active' ? '已启用' : '已停用'); state.statusToggleModalVisible = false; methods.loadRoleList(); } else { $_antd.message.error(res.error || '操作失败'); } }).catch(function(e) { $_antd.message.error('操作失败'); console.error(e); }).finally(function() { state.confirmLoading = false; state.togglingRole = null; })"
     },
     "cancelToggleStatus": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ ref_state_statusToggleModalVisible.value = false; ref_state_togglingRole.value = null }}"
+      "$fn": "state.statusToggleModalVisible = false; state.togglingRole = null"
     },
     "getStatusTag": {
       "type": "function",
@@ -128,9 +92,7 @@
   },
   "lifecycle": {
     "onMounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ methods.loadRoleList() }}"
+      "$fn": "methods.loadRoleList()"
     }
   },
   "render": {
@@ -186,13 +148,10 @@
                               "body": "'请输入角色名称'"
                             },
                             "value": {
-                              "type": "expression",
-                              "body": "{{ref_state_searchForm.keyword}}"
+                              "$expr": "$state.searchForm.keyword"
                             },
                             "onChange": {
-                              "type": "function",
-                              "params": "{{{}}}",
-                              "body": "{{ref_state_searchForm.keyword = args[0].target.value}}"
+                              "$fn": "state.searchForm.keyword = args[0].target.value"
                             },
                             "style": {
                               "type": "string",
@@ -219,13 +178,10 @@
                               "body": "'请选择状态'"
                             },
                             "value": {
-                              "type": "expression",
-                              "body": "{{ref_state_searchForm.status}}"
+                              "$expr": "$state.searchForm.status"
                             },
                             "onChange": {
-                              "type": "function",
-                              "params": "{{{}}}",
-                              "body": "{{ref_state_searchForm.status = args[0]}}"
+                              "$fn": "state.searchForm.status = args[0]"
                             },
                             "style": {
                               "type": "string",
@@ -332,20 +288,17 @@
               "type": "ATable",
               "props": {
                 "dataSource": {
-                  "type": "expression",
-                  "body": "{{ref_state_roleList}}"
+                  "$expr": "$state.roleList"
                 },
                 "rowKey": {
                   "type": "string",
                   "body": "'id'"
                 },
                 "loading": {
-                  "type": "expression",
-                  "body": "{{ref_state_loading}}"
+                  "$expr": "$state.loading"
                 },
                 "pagination": {
-                  "type": "expression",
-                  "body": "{{ref_state_pagination}}"
+                  "$expr": "$state.pagination"
                 },
                 "onChange": {
                   "type": "function",
@@ -572,12 +525,10 @@
           "type": "AModal",
           "props": {
             "title": {
-              "type": "expression",
-              "body": "{{ref_state_modalTitle}}"
+              "$expr": "$state.modalTitle"
             },
             "open": {
-              "type": "expression",
-              "body": "{{ref_state_modalVisible}}"
+              "$expr": "$state.modalVisible"
             },
             "onOk": {
               "type": "function",
@@ -590,8 +541,7 @@
               "body": "{{methods.handleModalCancel()}}"
             },
             "confirmLoading": {
-              "type": "expression",
-              "body": "{{ref_state_confirmLoading}}"
+              "$expr": "$state.confirmLoading"
             },
             "width": 500
           },
@@ -620,17 +570,13 @@
                           "body": "'请输入角色编码'"
                         },
                         "value": {
-                          "type": "expression",
-                          "body": "{{ref_state_formData.code}}"
+                          "$expr": "$state.formData.code"
                         },
                         "onChange": {
-                          "type": "function",
-                          "params": "{{{}}}",
-                          "body": "{{ref_state_formData.code = args[0].target.value}}"
+                          "$fn": "state.formData.code = args[0].target.value"
                         },
                         "disabled": {
-                          "type": "expression",
-                          "body": "{{ref_state_editingRole}}"
+                          "$expr": "$state.editingRole"
                         }
                       }
                     }
@@ -654,13 +600,10 @@
                           "body": "'请输入角色名称'"
                         },
                         "value": {
-                          "type": "expression",
-                          "body": "{{ref_state_formData.name}}"
+                          "$expr": "$state.formData.name"
                         },
                         "onChange": {
-                          "type": "function",
-                          "params": "{{{}}}",
-                          "body": "{{ref_state_formData.name = args[0].target.value}}"
+                          "$fn": "state.formData.name = args[0].target.value"
                         }
                       }
                     }
@@ -683,13 +626,10 @@
                           "body": "'请输入角色描述'"
                         },
                         "value": {
-                          "type": "expression",
-                          "body": "{{ref_state_formData.description}}"
+                          "$expr": "$state.formData.description"
                         },
                         "onChange": {
-                          "type": "function",
-                          "params": "{{{}}}",
-                          "body": "{{ref_state_formData.description = args[0].target.value}}"
+                          "$fn": "state.formData.description = args[0].target.value"
                         },
                         "rows": 3
                       }
@@ -709,13 +649,10 @@
                       "type": "ARadioGroup",
                       "props": {
                         "value": {
-                          "type": "expression",
-                          "body": "{{ref_state_formData.status}}"
+                          "$expr": "$state.formData.status"
                         },
                         "onChange": {
-                          "type": "function",
-                          "params": "{{{}}}",
-                          "body": "{{ref_state_formData.status = args[0].target.value}}"
+                          "$fn": "state.formData.status = args[0].target.value"
                         }
                       },
                       "children": [
@@ -755,8 +692,7 @@
               "body": "'确认删除'"
             },
             "open": {
-              "type": "expression",
-              "body": "{{ref_state_deleteModalVisible}}"
+              "$expr": "$state.deleteModalVisible"
             },
             "onOk": {
               "type": "function",
@@ -769,8 +705,7 @@
               "body": "{{methods.cancelDelete()}}"
             },
             "confirmLoading": {
-              "type": "expression",
-              "body": "{{ref_state_confirmLoading}}"
+              "$expr": "$state.confirmLoading"
             }
           },
           "children": [
@@ -779,11 +714,11 @@
               "children": [
                 {
                   "type": "expression",
-                  "body": "{{'确定要删除角色 '}}"
+                  "body": "'确定要删除角色 '"
                 },
                 {
                   "type": "expression",
-                  "body": "{{ref_state_deletingRole?.value?.name || ''}}"
+                  "body": "$state.deletingRole?.name || ''"
                 },
                 {
                   "type": "expression",
@@ -801,8 +736,7 @@
               "body": "'确认切换状态'"
             },
             "open": {
-              "type": "expression",
-              "body": "{{ref_state_statusToggleModalVisible}}"
+              "$expr": "$state.statusToggleModalVisible"
             },
             "onOk": {
               "type": "function",
@@ -815,8 +749,7 @@
               "body": "{{methods.cancelToggleStatus()}}"
             },
             "confirmLoading": {
-              "type": "expression",
-              "body": "{{ref_state_confirmLoading}}"
+              "$expr": "$state.confirmLoading"
             }
           },
           "children": [
@@ -825,11 +758,11 @@
               "children": [
                 {
                   "type": "expression",
-                  "body": "{{ref_state_togglingRole.value?.status === 'active' ? '确定要停用角色 ' : '确定要启用角色 '}}"
+                  "body": "$state.togglingRole?.status === 'active' ? '确定要停用角色 ' : '确定要启用角色 '"
                 },
                 {
                   "type": "expression",
-                  "body": "{{ref_state_togglingRole?.value?.name || ''}}"
+                  "body": "$state.togglingRole?.name || ''"
                 },
                 {
                   "type": "expression",

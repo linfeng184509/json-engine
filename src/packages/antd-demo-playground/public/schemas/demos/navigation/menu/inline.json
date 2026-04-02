@@ -17,8 +17,8 @@
           "type": "AMenu",
           "props": {
             "mode": "inline",
-            "openKeys": { "type": "expression", "body": "{{ref_state_openKeys}}" },
-            "selectedKeys": { "type": "expression", "body": "{{ref_state_selectedKeys}}" },
+            "openKeys": { "$expr": "$state.openKeys" },
+            "selectedKeys": { "$expr": "$state.selectedKeys" },
             "style": "width:256px"
           },
           "children": [

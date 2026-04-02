@@ -4,17 +4,17 @@
     "current": { "type": "ref", "initial": 1 }
   },
   "methods": {
-    "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_current.value = args[0]}}" }
+    "onChange": { "$fn": "state.current = args[0];" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "APagination",
       "props": {
-        "current": { "type": "expression", "body": "{{}}" },
+        "current": { "$expr": "state.current" },
         "total": 50
       },
-      "directives": { "vOn": { "change": { "type": "function", "params": "{{{}}}", "body": "{{methods.onChange(args[0])}}" } } }
+      "directives": { "vOn": { "change": { "$fn": "methods.onChange(args[0]);" } } }
     }
   }
 }

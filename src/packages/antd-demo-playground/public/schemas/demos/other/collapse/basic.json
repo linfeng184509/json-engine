@@ -10,14 +10,14 @@
       "type": "ACollapse",
       "directives": {
         "vModel": {
-          "prop": { "_type": "reference", "prefix": "state", "variable": "activeKey" },
+          "prop": { "$ref": "state.activeKey" },
           "arg": "activeKey"
         }
       },
       "children": [
-        { "type": "ACollapsePanel", "props": { "key": "1", "header": "This is panel header 1" }, "children": [{ "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_text}}" }] }] },
-        { "type": "ACollapsePanel", "props": { "key": "2", "header": "This is panel header 2" }, "children": [{ "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_text}}" }] }] },
-        { "type": "ACollapsePanel", "props": { "key": "3", "header": "This is panel header 3", "collapsible": "disabled" }, "children": [{ "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_text}}" }] }] }
+        { "type": "ACollapsePanel", "props": { "key": "1", "header": "This is panel header 1" }, "children": [{ "type": "p", "children": [{ "$expr": "$state.text" }] }] },
+        { "type": "ACollapsePanel", "props": { "key": "2", "header": "This is panel header 2" }, "children": [{ "type": "p", "children": [{ "$expr": "$state.text" }] }] },
+        { "type": "ACollapsePanel", "props": { "key": "3", "header": "This is panel header 3", "collapsible": "disabled" }, "children": [{ "type": "p", "children": [{ "$expr": "$state.text" }] }] }
       ]
     }
   }

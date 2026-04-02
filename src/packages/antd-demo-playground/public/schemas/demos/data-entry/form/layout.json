@@ -16,8 +16,8 @@
         {
           "type": "ARadioGroup",
           "props": {
-            "value": { "type": "expression", "body": "{{ref_state_formState.layout}}" },
-            "onChange": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_formState.layout = args[0].target.value}}" }
+            "value": { "$expr": "$state.formState.layout" },
+            "onChange": { "$fn": "state.formState.layout = args[0].target.value;" }
           },
           "children": [
             { "type": "ARadioButton", "props": { "value": "horizontal" }, "children": ["Horizontal"] },
@@ -31,7 +31,7 @@
         {
           "type": "AForm",
           "props": {
-            "layout": { "type": "expression", "body": "{{ref_state_formState.layout}}" },
+            "layout": { "$expr": "$state.formState.layout" },
             "labelCol": { "span": 4 },
             "wrapperCol": { "span": 14 }
           },

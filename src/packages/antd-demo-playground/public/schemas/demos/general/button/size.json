@@ -13,7 +13,7 @@
           "type": "ARadioGroup",
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "size" },
+              "prop": { "$ref": "state.size" },
               "arg": "value"
             }
           },
@@ -26,11 +26,11 @@
         {
           "type": "ASpace",
           "children": [
-            { "type": "AButton", "props": { "type": "primary", "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Primary"] },
-            { "type": "AButton", "props": { "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Normal"] },
-            { "type": "AButton", "props": { "type": "dashed", "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Dashed"] },
-            { "type": "AButton", "props": { "danger": true, "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Danger"] },
-            { "type": "AButton", "props": { "type": "link", "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Link"] }
+            { "type": "AButton", "props": { "type": "primary", "size": { "$expr": "$state.size" } }, "children": ["Primary"] },
+            { "type": "AButton", "props": { "size": { "$expr": "$state.size" } }, "children": ["Normal"] },
+            { "type": "AButton", "props": { "type": "dashed", "size": { "$expr": "$state.size" } }, "children": ["Dashed"] },
+            { "type": "AButton", "props": { "danger": true, "size": { "$expr": "$state.size" } }, "children": ["Danger"] },
+            { "type": "AButton", "props": { "type": "link", "size": { "$expr": "$state.size" } }, "children": ["Link"] }
           ]
         },
         {
@@ -38,21 +38,21 @@
           "children": [
             {
               "type": "AButton",
-              "props": { "type": "primary", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "props": { "type": "primary", "size": { "$expr": "$state.size" } },
               "children": [
                 { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
               ]
             },
             {
               "type": "AButton",
-              "props": { "type": "primary", "shape": "circle", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "props": { "type": "primary", "shape": "circle", "size": { "$expr": "$state.size" } },
               "children": [
                 { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
               ]
             },
             {
               "type": "AButton",
-              "props": { "type": "primary", "shape": "round", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "props": { "type": "primary", "shape": "round", "size": { "$expr": "$state.size" } },
               "children": [
                 { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } },
                 "Download"
@@ -60,14 +60,14 @@
             },
             {
               "type": "AButton",
-              "props": { "type": "primary", "shape": "round", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "props": { "type": "primary", "shape": "round", "size": { "$expr": "$state.size" } },
               "children": [
                 { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
               ]
             },
             {
               "type": "AButton",
-              "props": { "type": "primary", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "props": { "type": "primary", "size": { "$expr": "$state.size" } },
               "children": [
                 { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } },
                 "Download"

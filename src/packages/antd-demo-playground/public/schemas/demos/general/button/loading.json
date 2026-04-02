@@ -6,9 +6,7 @@
   },
   "methods": {
     "enterIconLoading": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_iconLoading = { delay: 1000 }; setTimeout(function() { ref_state_iconLoading.value = false; }, 6000);}}"
+      "$fn": "state.iconLoading = { delay: 1000 }; setTimeout(function() { state.iconLoading = false; }, 6000);"
     }
   },
   "render": {
@@ -29,14 +27,14 @@
           "children": [
             {
               "type": "AButton",
-              "props": { "type": "primary", "loading": { "type": "expression", "body": "{{ref_state_loading}}" } },
-              "directives": { "vOn": { "mouseenter": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_loading = true}}" } } },
+              "props": { "type": "primary", "loading": { "$expr": "$state.loading" } },
+              "directives": { "vOn": { "mouseenter": { "$fn": "state.loading = true;" } } },
               "children": ["mouseenter me!"]
             },
             {
               "type": "AButton",
-              "props": { "type": "primary", "loading": { "type": "expression", "body": "{{ref_state_iconLoading}}" } },
-              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.enterIconLoading()}}" } } },
+              "props": { "type": "primary", "loading": { "$expr": "$state.iconLoading" } },
+              "directives": { "vOn": { "click": { "$fn": "methods.enterIconLoading();" } } },
               "children": [
                 { "type": "PoweroffOutlined", "directives": { "vSlot": { "name": "icon" } } },
                 "延迟1s"

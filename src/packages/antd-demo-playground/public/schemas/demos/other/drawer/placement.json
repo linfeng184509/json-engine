@@ -6,14 +6,10 @@
   },
   "methods": {
     "showDrawer": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_placement = args[0]; ref_state_visible = true}}"
+      "$fn": "state.placement = args[0]; state.visible = true;"
     },
     "closeDrawer": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_visible = false}}"
+      "$fn": "state.visible = false;"
     }
   },
   "render": {
@@ -32,7 +28,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer('left')}}" }
+                  "click": { "$fn": "methods.showDrawer('left');" }
                 }
               },
               "children": ["Left"]
@@ -41,7 +37,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer('right')}}" }
+                  "click": { "$fn": "methods.showDrawer('right');" }
                 }
               },
               "children": ["Right"]
@@ -50,7 +46,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer('top')}}" }
+                  "click": { "$fn": "methods.showDrawer('top');" }
                 }
               },
               "children": ["Top"]
@@ -59,7 +55,7 @@
               "type": "AButton",
               "directives": {
                 "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showDrawer('bottom')}}" }
+                  "click": { "$fn": "methods.showDrawer('bottom');" }
                 }
               },
               "children": ["Bottom"]
@@ -69,10 +65,10 @@
         {
           "type": "ADrawer",
           "props": {
-            "open": { "type": "expression", "body": "{{ref_state_visible}}" },
-            "placement": { "type": "expression", "body": "{{ref_state_placement}}" },
+            "open": { "$expr": "$state.visible" },
+            "placement": { "$expr": "$state.placement" },
             "title": "Drawer",
-            "onClose": { "type": "function", "params": "{{{}}}", "body": "{{methods.closeDrawer()}}" }
+            "onClose": { "$fn": "methods.closeDrawer();" }
           },
           "children": [
             { "type": "p", "children": ["Drawer content..."] }

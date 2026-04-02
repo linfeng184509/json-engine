@@ -15,119 +15,83 @@
   "computed": {
     "isFieldSelected": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{return ref_state_selectedNode && ref_state_selectedNode.type==='field'}}"
+        "$fn": "return state.selectedNode && state.selectedNode.type==='field'"
       }
     },
     "isNotRoot": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{return ref_state_selectedNode && ref_state_selectedNode.parentId}}"
+        "$fn": "return state.selectedNode && state.selectedNode.parentId"
       }
     },
     "hasSelected": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{return !!ref_state_selectedKey}}"
+        "$fn": "return !!state.selectedKey"
       }
     },
     "canAddChild": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{return ref_state_selectedNode && (ref_state_selectedNode.type==='platform' || ref_state_selectedNode.type==='menu' || ref_state_selectedNode.type==='page' || ref_state_selectedNode.type==='feature' || ref_state_selectedNode.type==='form')}}"
+        "$fn": "return state.selectedNode && (state.selectedNode.type==='platform' || state.selectedNode.type==='menu' || state.selectedNode.type==='page' || state.selectedNode.type==='feature' || state.selectedNode.type==='form')"
       }
     },
     "addFormIsValid": {
       "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{return !!ref_state_addFormData.code && !!ref_state_addFormData.name}}"
+        "$fn": "return !!state.addFormData.code && !!state.addFormData.name"
       }
     }
   },
   "methods": {
     "loadTreeData": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_loading=true; $_core_api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,parentId:n.parentId,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; ref_state_treeData=transform(raw); ref_state_expandedKeys=['p1','m1','m2']; ref_state_loading=false}).catch(function(e){console.error(e); ref_state_loading=false})}}",
+      "$fn": "state.loading=true; $_core_api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,parentId:n.parentId,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; state.treeData=transform(raw); state.expandedKeys=['p1','m1','m2']; state.loading=false}).catch(function(e){console.error(e); state.loading=false})",
       "cached": false
     },
     "onSelect": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var key=$event&&$event[0]; if(!key){ref_state_selectedKey=null; ref_state_selectedNode=null; return} ref_state_selectedKey=key; var node=methods.findNode(ref_state_treeData,key); ref_state_selectedNode=node; if(node&&node.type==='field'){ref_state_editForm.code=node.code; ref_state_editForm.name=node.name; ref_state_editForm.read=node.permissions?.read??true; ref_state_editForm.write=node.permissions?.write??true; ref_state_editForm.hidden=node.permissions?.hidden??false; ref_state_editForm.privacy=node.permissions?.privacy??false} else if(node){ref_state_editForm.code=node.code; ref_state_editForm.name=node.name}}}",
+      "$fn": "var key=$event&&$event[0]; if(!key){state.selectedKey=null; state.selectedNode=null; return} state.selectedKey=key; var node=methods.findNode(state.treeData,key); state.selectedNode=node; if(node&&node.type==='field'){state.editForm.code=node.code; state.editForm.name=node.name; state.editForm.read=node.permissions?.read??true; state.editForm.write=node.permissions?.write??true; state.editForm.hidden=node.permissions?.hidden??false; state.editForm.privacy=node.permissions?.privacy??false} else if(node){state.editForm.code=node.code; state.editForm.name=node.name}",
       "cached": false
     },
     "findNode": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var nodes=args[0];var key=args[1];for(var i=0;i<nodes.length;i++){var n=nodes[i]; if(n.key===key)return n; if(n.children){var f=methods.findNode(n.children,key); if(f)return f}} return null}}",
+      "$fn": "var nodes=args[0];var key=args[1];for(var i=0;i<nodes.length;i++){var n=nodes[i]; if(n.key===key)return n; if(n.children){var f=methods.findNode(n.children,key); if(f)return f}} return null",
       "cached": false
     },
     "onExpand": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_expandedKeys=$event}}",
+      "$fn": "state.expandedKeys=$event",
       "cached": false
     },
     "getNodeTypeText": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var type=args[0];var map={'platform':'平台','menu':'菜单','page':'页面','feature':'功能','form':'表单','field':'字段'};return map[type]||type}}",
+      "$fn": "var type=args[0];var map={'platform':'平台','menu':'菜单','page':'页面','feature':'功能','form':'表单','field':'字段'};return map[type]||type",
       "cached": false
     },
     "handleSavePermissions": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{if(!ref_state_selectedNode||ref_state_selectedNode.type!=='field')return; ref_state_saving=true; var data={permissions:{read:ref_state_editForm.read,write:ref_state_editForm.write,hidden:ref_state_editForm.hidden,privacy:ref_state_editForm.privacy}}; $_core_api.put('/api/basic-data/node/'+ref_state_selectedNode.id,data).then(function(res){if(res.success){$_antd.message.success('保存成功'); methods.loadTreeData()}else{$_antd.message.error(res.error||'保存失败')}}).catch(function(e){$_antd.message.error('保存失败');console.error(e)}).finally(function(){ref_state_saving=false})}}",
+      "$fn": "if(!state.selectedNode||state.selectedNode.type!=='field')return; state.saving=true; var data={permissions:{read:state.editForm.read,write:state.editForm.write,hidden:state.editForm.hidden,privacy:state.editForm.privacy}}; $_core_api.put('/api/basic-data/node/'+state.selectedNode.id,data).then(function(res){if(res.success){$_antd.message.success('保存成功'); methods.loadTreeData()}else{$_antd.message.error(res.error||'保存失败')}}).catch(function(e){$_antd.message.error('保存失败');console.error(e)}).finally(function(){state.saving=false})",
       "cached": false
     },
     "handleAddNode": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{if(!ref_state_selectedNode)return; ref_state_addFormData.code=''; ref_state_addFormData.name=''; var typeMap={'platform':'menu','menu':'page','page':'feature','feature':'form','form':'field'}; ref_state_addFormData.nodeType=typeMap[ref_state_selectedNode.type]||'field'; ref_state_addModalVisible=true}}",
+      "$fn": "if(!state.selectedNode)return; state.addFormData.code=''; state.addFormData.name=''; var typeMap={'platform':'menu','menu':'page','page':'feature','feature':'form','form':'field'}; state.addFormData.nodeType=typeMap[state.selectedNode.type]||'field'; state.addModalVisible=true",
       "cached": false
     },
     "confirmAddNode": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{if(!ref_state_addFormData.code||!ref_state_addFormData.name){$_antd.message.warning('请填写必填项');return} ref_state_saving=true; var data={code:ref_state_addFormData.code,name:ref_state_addFormData.name,type:ref_state_addFormData.nodeType,parentId:ref_state_selectedNode.id,permissions:{read:true,write:true,hidden:false,privacy:false}}; $_core_api.post('/api/basic-data/node',data).then(function(res){if(res.success){$_antd.message.success('新增成功'); ref_state_addModalVisible=false; methods.loadTreeData()}else{$_antd.message.error(res.error||'新增失败')}}).catch(function(e){$_antd.message.error('新增失败');console.error(e)}).finally(function(){ref_state_saving=false})}}",
+      "$fn": "if(!state.addFormData.code||!state.addFormData.name){$_antd.message.warning('请填写必填项');return} state.saving=true; var data={code:state.addFormData.code,name:state.addFormData.name,type:state.addFormData.nodeType,parentId:state.selectedNode.id,permissions:{read:true,write:true,hidden:false,privacy:false}}; $_core_api.post('/api/basic-data/node',data).then(function(res){if(res.success){$_antd.message.success('新增成功'); state.addModalVisible=false; methods.loadTreeData()}else{$_antd.message.error(res.error||'新增失败')}}).catch(function(e){$_antd.message.error('新增失败');console.error(e)}).finally(function(){state.saving=false})",
       "cached": false
     },
     "cancelAddNode": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_addModalVisible=false}}",
+      "$fn": "state.addModalVisible=false",
       "cached": false
     },
     "handleDeleteNode": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{if(!ref_state_selectedNode||!ref_state_selectedNode.parentId)return; ref_state_deleteModalVisible=true}}",
+      "$fn": "if(!state.selectedNode||!state.selectedNode.parentId)return; state.deleteModalVisible=true",
       "cached": false
     },
     "confirmDeleteNode": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{if(!ref_state_selectedNode)return; ref_state_saving=true; $_core_api.delete('/api/basic-data/node/'+ref_state_selectedNode.id).then(function(res){if(res.success){$_antd.message.success('删除成功'); ref_state_deleteModalVisible=false; ref_state_selectedKey=null; ref_state_selectedNode=null; methods.loadTreeData()}else{$_antd.message.error(res.error||'删除失败')}}).catch(function(e){$_antd.message.error('删除失败');console.error(e)}).finally(function(){ref_state_saving=false})}}",
+      "$fn": "if(!state.selectedNode)return; state.saving=true; $_core_api.delete('/api/basic-data/node/'+state.selectedNode.id).then(function(res){if(res.success){$_antd.message.success('删除成功'); state.deleteModalVisible=false; state.selectedKey=null; state.selectedNode=null; methods.loadTreeData()}else{$_antd.message.error(res.error||'删除失败')}}).catch(function(e){$_antd.message.error('删除失败');console.error(e)}).finally(function(){state.saving=false})",
       "cached": false
     },
     "cancelDeleteNode": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_deleteModalVisible=false}}",
+      "$fn": "state.deleteModalVisible=false",
       "cached": false
     }
   },
   "lifecycle": {
     "onMounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{methods.loadTreeData()}}"
+      "$fn": "methods.loadTreeData()"
     }
   },
   "render": {
@@ -165,8 +129,7 @@
                       "body": "'plus'"
                     },
                     "disabled": {
-                      "type": "expression",
-                      "body": "{{!ref_computed_canAddChild.value}}"
+                      "$expr": "!computed.canAddChild"
                     },
                     "onClick": {
                       "type": "function",
@@ -185,8 +148,7 @@
                     },
                     "danger": true,
                     "disabled": {
-                      "type": "expression",
-                      "body": "{{!ref_computed_isNotRoot.value}}"
+                      "$expr": "!computed.isNotRoot"
                     },
                     "onClick": {
                       "type": "function",
@@ -226,8 +188,7 @@
                   "type": "div",
                   "directives": {
                     "vIf": {
-                      "type": "expression",
-                      "body": "{{ref_state_loading}}"
+                      "$expr": "$state.loading"
                     }
                   },
                   "props": {
@@ -242,16 +203,13 @@
                   "type": "ATree",
                   "props": {
                     "treeData": {
-                      "type": "expression",
-                      "body": "{{ref_state_treeData}}"
+                      "$expr": "$state.treeData"
                     },
                     "selectedKeys": {
-                      "type": "expression",
-                      "body": "{{[ref_state_selectedKey]}}"
+                      "$expr": "[$state.selectedKey]"
                     },
                     "expandedKeys": {
-                      "type": "expression",
-                      "body": "{{ref_state_expandedKeys}}"
+                      "$expr": "$state.expandedKeys"
                     },
                     "blockNode": true,
                     "showLine": true
@@ -259,14 +217,10 @@
                   "directives": {
                     "vOn": {
                       "select": {
-                        "type": "function",
-                        "params": "{{{}}}",
-                        "body": "{{methods.onSelect($event)}}"
+                        "$fn": "methods.onSelect($event)"
                       },
                       "expand": {
-                        "type": "function",
-                        "params": "{{{}}}",
-                        "body": "{{methods.onExpand($event)}}"
+                        "$fn": "methods.onExpand($event)"
                       }
                     }
                   }
@@ -290,8 +244,7 @@
                   "type": "div",
                   "directives": {
                     "vIf": {
-                      "type": "expression",
-                      "body": "{{!ref_computed_hasSelected.value}}"
+                      "$expr": "!computed.hasSelected"
                     }
                   },
                   "props": {
@@ -306,8 +259,7 @@
                   "type": "div",
                   "directives": {
                     "vIf": {
-                      "type": "expression",
-                      "body": "{{ref_computed_hasSelected.value}}"
+                      "$expr": "computed.hasSelected"
                     }
                   },
                   "children": [
@@ -324,14 +276,12 @@
                           "type": "ATag",
                           "props": {
                             "color": {
-                              "type": "expression",
-                              "body": "{{ref_state_selectedNode.type==='platform' ? 'blue' : ref_state_selectedNode.type==='menu' ? 'green' : ref_state_selectedNode.type==='page' ? 'orange' : ref_state_selectedNode.type==='feature' ? 'purple' : ref_state_selectedNode.type==='form' ? 'cyan' : 'gold'}}"
+                              "$expr": "$state.selectedNode.type==='platform' ? 'blue' : $state.selectedNode.type==='menu' ? 'green' : $state.selectedNode.type==='page' ? 'orange' : $state.selectedNode.type==='feature' ? 'purple' : $state.selectedNode.type==='form' ? 'cyan' : 'gold'"
                             }
                           },
                           "children": [
                             {
-                              "type": "expression",
-                              "body": "{{methods.getNodeTypeText(ref_state_selectedNode.type)}}"
+                              "$expr": "methods.getNodeTypeText($state.selectedNode.type)"
                             }
                           ]
                         },
@@ -345,8 +295,7 @@
                           },
                           "children": [
                             {
-                              "type": "expression",
-                              "body": "{{ref_state_selectedNode.name}}"
+                              "$expr": "$state.selectedNode.name"
                             }
                           ]
                         }
@@ -371,10 +320,9 @@
                               "body": "'编码'"
                             }
                           },
-                          "children": [
+"children": [
                             {
-                              "type": "expression",
-                              "body": "{{ref_state_selectedNode.code}}"
+                              "$expr": "methods.getNodeTypeText($state.selectedNode.type)"
                             }
                           ]
                         },
@@ -388,8 +336,7 @@
                           },
                           "children": [
                             {
-                              "type": "expression",
-                              "body": "{{ref_state_selectedNode.name}}"
+                              "$expr": "$state.selectedNode.name"
                             }
                           ]
                         },
@@ -403,8 +350,7 @@
                           },
                           "children": [
                             {
-                              "type": "expression",
-                              "body": "{{methods.getNodeTypeText(ref_state_selectedNode.type)}}"
+                              "$expr": "methods.getNodeTypeText($state.selectedNode.type)"
                             }
                           ]
                         },
@@ -416,10 +362,9 @@
                               "body": "'ID'"
                             }
                           },
-                          "children": [
+"children": [
                             {
-                              "type": "expression",
-                              "body": "{{ref_state_selectedNode.id}}"
+                              "$expr": "$state.selectedNode.name"
                             }
                           ]
                         }
@@ -428,10 +373,9 @@
                     {
                       "type": "div",
                       "directives": {
-                        "vIf": {
-                          "type": "expression",
-                          "body": "{{ref_computed_isFieldSelected.value}}"
-                        }
+"vIf": {
+                      "$expr": "computed.isFieldSelected"
+                    }
                       },
                       "props": {
                         "style": {
@@ -451,13 +395,10 @@
                           "type": "ACheckbox",
                           "props": {
                             "checked": {
-                              "type": "expression",
-                              "body": "{{ref_state_editForm.read}}"
+                              "$expr": "$state.editForm.read"
                             },
                             "onChange": {
-                              "type": "function",
-                              "params": "{{{}}}",
-                              "body": "{{ref_state_editForm.read=args[0].target.checked}}"
+                              "$fn": "state.editForm.read=args[0].target.checked"
                             },
                             "style": {
                               "type": "string",
@@ -470,13 +411,10 @@
                           "type": "ACheckbox",
                           "props": {
                             "checked": {
-                              "type": "expression",
-                              "body": "{{ref_state_editForm.write}}"
+                              "$expr": "$state.editForm.write"
                             },
                             "onChange": {
-                              "type": "function",
-                              "params": "{{{}}}",
-                              "body": "{{ref_state_editForm.write=args[0].target.checked}}"
+                              "$fn": "state.editForm.write=args[0].target.checked"
                             },
                             "style": {
                               "type": "string",
@@ -489,13 +427,10 @@
                           "type": "ACheckbox",
                           "props": {
                             "checked": {
-                              "type": "expression",
-                              "body": "{{ref_state_editForm.hidden}}"
+                              "$expr": "$state.editForm.hidden"
                             },
                             "onChange": {
-                              "type": "function",
-                              "params": "{{{}}}",
-                              "body": "{{ref_state_editForm.hidden=args[0].target.checked}}"
+                              "$fn": "state.editForm.hidden=args[0].target.checked"
                             },
                             "style": {
                               "type": "string",
@@ -508,13 +443,10 @@
                           "type": "ACheckbox",
                           "props": {
                             "checked": {
-                              "type": "expression",
-                              "body": "{{ref_state_editForm.privacy}}"
+                              "$expr": "$state.editForm.privacy"
                             },
                             "onChange": {
-                              "type": "function",
-                              "params": "{{{}}}",
-                              "body": "{{ref_state_editForm.privacy=args[0].target.checked}}"
+                              "$fn": "state.editForm.privacy=args[0].target.checked"
                             }
                           },
                           "children": ["隐私"]
@@ -527,8 +459,7 @@
                               "body": "'primary'"
                             },
                             "loading": {
-                              "type": "expression",
-                              "body": "{{ref_state_saving}}"
+                              "$expr": "$state.saving"
                             },
                             "onClick": {
                               "type": "function",
@@ -558,8 +489,7 @@
               "body": "'新增节点'"
             },
             "open": {
-              "type": "expression",
-              "body": "{{ref_state_addModalVisible}}"
+              "$expr": "$state.addModalVisible"
             },
             "onOk": {
               "type": "function",
@@ -572,8 +502,7 @@
               "body": "{{methods.cancelAddNode()}}"
             },
             "confirmLoading": {
-              "type": "expression",
-              "body": "{{ref_state_saving}}"
+              "$expr": "$state.saving"
             }
           },
           "children": [
@@ -601,13 +530,10 @@
                           "body": "'请输入节点编码'"
                         },
                         "value": {
-                          "type": "expression",
-                          "body": "{{ref_state_addFormData.code}}"
+                          "$expr": "$state.addFormData.code"
                         },
                         "onChange": {
-                          "type": "function",
-                          "params": "{{{}}}",
-                          "body": "{{ref_state_addFormData.code=args[0].target.value}}"
+                          "$fn": "state.addFormData.code=args[0].target.value"
                         }
                       }
                     }
@@ -631,13 +557,10 @@
                           "body": "'请输入节点名称'"
                         },
                         "value": {
-                          "type": "expression",
-                          "body": "{{ref_state_addFormData.name}}"
+                          "$expr": "$state.addFormData.name"
                         },
                         "onChange": {
-                          "type": "function",
-                          "params": "{{{}}}",
-                          "body": "{{ref_state_addFormData.name=args[0].target.value}}"
+                          "$fn": "state.addFormData.name=args[0].target.value"
                         }
                       }
                     }
@@ -656,13 +579,10 @@
                       "type": "ASelect",
                       "props": {
                         "value": {
-                          "type": "expression",
-                          "body": "{{ref_state_addFormData.nodeType}}"
+                          "$expr": "$state.addFormData.nodeType"
                         },
                         "onChange": {
-                          "type": "function",
-                          "params": "{{{}}}",
-                          "body": "{{ref_state_addFormData.nodeType=args[0]}}"
+                          "$fn": "state.addFormData.nodeType=args[0]"
                         },
                         "disabled": true
                       },
@@ -733,8 +653,7 @@
               "body": "'确认删除'"
             },
             "open": {
-              "type": "expression",
-              "body": "{{ref_state_deleteModalVisible}}"
+              "$expr": "$state.deleteModalVisible"
             },
             "onOk": {
               "type": "function",
@@ -746,9 +665,8 @@
               "params": "{{{}}}",
               "body": "{{methods.cancelDeleteNode()}}"
             },
-            "confirmLoading": {
-              "type": "expression",
-              "body": "{{ref_state_saving}}"
+"confirmLoading": {
+              "$expr": "$state.saving"
             }
           },
           "children": [
@@ -757,9 +675,11 @@
               "children": [
                 {
                   "type": "expression",
-                  "body": "{{'确定要删除节点 \"' + (ref_state_selectedNode?.name || '') + '\" 吗？该操作将同时删除其所有子节点。'}}"
+                  "body": "'确定要删除节点 \"' + ($state.selectedNode?.name || '') + '\" 吗？该操作将同时删除其所有子节点。'"
                 }
               ]
+            }
+          ]
             }
           ]
         }

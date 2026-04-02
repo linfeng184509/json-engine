@@ -16,7 +16,7 @@
     "content": {
       "type": "AList",
       "props": {
-        "dataSource": { "type": "expression", "body": "{{ref_state_data}}" },
+        "dataSource": { "$expr": "$state.data" },
         "bordered": true,
         "header": "Header",
         "footer": "Footer"
@@ -29,7 +29,7 @@
             { "type": "AListItem", "children": [
               { "type": "AListItemMeta", "props": { "description": "Ant Design, a design language for background applications" }, "children": [
                 { "type": "template", "directives": { "vSlot": { "name": "title" } }, "children": [
-                  { "type": "a", "props": { "href": "https://www.antdv.com/" }, "children": [ { "type": "expression", "body": "{{ref_state_item.title}}" } ] }
+                  { "type": "a", "props": { "href": "https://www.antdv.com/" }, "children": [ { "$expr": "$state.item.title" } ] }
                 ]}
               ]}
             ]}

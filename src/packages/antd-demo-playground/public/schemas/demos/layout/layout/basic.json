@@ -4,7 +4,7 @@
     "collapsed": { "type": "ref", "initial": false }
   },
   "methods": {
-    "toggle": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_collapsed.value = !ref_state_collapsed.value}}" }
+    "toggle": { "$fn": "state.collapsed = !state.collapsed;" }
   },
   "render": {
     "type": "template",
@@ -12,7 +12,7 @@
       "type": "ALayout",
       "props": { "style": "min-height:380px" },
       "children": [
-        { "type": "ALayoutSider", "props": { "collapsible": true, "collapsed": { "type": "expression", "body": "{{ref_state_collapsed}}" }, "onCollapse": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_collapsed.value = args[0]}}" } }, "children": [
+        { "type": "ALayoutSider", "props": { "collapsible": true, "collapsed": { "$expr": "$state.collapsed" }, "onCollapse": { "$fn": "state.collapsed = args[0];" } }, "children": [
           { "type": "div", "props": { "style": "height:32px;margin:16px;background:rgba(255,255,255,0.2)" } }
         ]},
         { "type": "ALayout", "children": [

@@ -12,20 +12,20 @@
       "children": [
         {
           "type": "ASlider",
-          "props": { "id": "test", "disabled": { "type": "expression", "body": "{{ref_state_disabled}}" } },
+          "props": { "id": "test", "disabled": { "$expr": "$state.disabled" } },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+              "prop": { "$ref": "state.value1" },
               "arg": "value"
             }
           }
         },
         {
           "type": "ASlider",
-          "props": { "range": true, "disabled": { "type": "expression", "body": "{{ref_state_disabled}}" } },
+          "props": { "range": true, "disabled": { "$expr": "$state.disabled" } },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "value2" },
+              "prop": { "$ref": "state.value2" },
               "arg": "value"
             }
           }
@@ -36,7 +36,7 @@
           "props": { "size": "small" },
           "directives": {
             "vModel": {
-              "prop": { "_type": "reference", "prefix": "state", "variable": "disabled" },
+              "prop": { "$ref": "state.disabled" },
               "arg": "checked"
             }
           }

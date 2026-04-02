@@ -9,36 +9,27 @@
   },
   "computed": {
     "hasToken": {
-      "get": { "type": "function", "params": "{{{}}}", "body": "{{return $_core_storage.get('token') != null;}}" }
+      "get": { "$fn": "return $_core_storage.get('token') != null;" }
     }
   },
   "methods": {
     "loadPage": {
-      "type": "function",
-      "params": "{{{ {\"route\": null} }}}",
-      "body": "{{var path = (route || ref_state_currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { ref_state_error = 'Page not found'; return; } if (matched.redirect) { $_core_router.replace(matched.redirect); return; } var token = $_core_storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_core_router.push('/login'); return; } if (path === '/login' && token) { $_core_router.replace('/dashboard'); return; } ref_state_isLoading = true; ref_state_error = null; ref_state_pageSchemaPath = matched.component; ref_state_layoutSchemaPath = matched.meta?.layout || null; ref_state_isLoading = false;}}"
+      "$fn": "var path = (route || state.currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { state.error = 'Page not found'; return; } if (matched.redirect) { $_core_router.replace(matched.redirect); return; } var token = $_core_storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_core_router.push('/login'); return; } if (path === '/login' && token) { $_core_router.replace('/dashboard'); return; } state.isLoading = true; state.error = null; state.pageSchemaPath = matched.component; state.layoutSchemaPath = matched.meta?.layout || null; state.isLoading = false;",
+      "params": "{ \"route\": null }"
     },
     "handleHashChange": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(ref_state_currentRoute);}}"
+      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute);"
     },
     "retry": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{methods.loadPage(ref_state_currentRoute);}}"
+      "$fn": "methods.loadPage(state.currentRoute);"
     }
   },
   "lifecycle": {
     "onMounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(ref_state_currentRoute); window.addEventListener('hashchange', methods.handleHashChange);}}"
+      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute); window.addEventListener('hashchange', methods.handleHashChange);"
     },
     "onUnmounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{window.removeEventListener('hashchange', methods.handleHashChange);}}"
+      "$fn": "window.removeEventListener('hashchange', methods.handleHashChange);"
     }
   },
   "render": {
@@ -49,7 +40,7 @@
       "children": [
         {
           "type": "div",
-          "directives": { "vIf": { "type": "expression", "body": "{{ref_state_isLoading}}" } },
+          "directives": { "vIf": { "$expr": "$state.isLoading" } },
           "props": { "class": { "type": "string", "body": "'loading-container'" } },
           "children": [
             { "type": "span", "props": { "class": { "type": "string", "body": "'ant-spin ant-spin-spinning'" } }, "children": ["Loading..."] }
@@ -57,7 +48,7 @@
         },
         {
           "type": "div",
-          "directives": { "vIf": { "type": "expression", "body": "{{ref_state_error}}" } },
+          "directives": { "vIf": { "$expr": "$state.error" } },
           "props": { "class": { "type": "string", "body": "'error-container'" } },
           "children": [
             {
@@ -66,18 +57,18 @@
               "children": [
                 { "type": "div", "props": { "class": { "type": "string", "body": "'error-icon'" } }, "children": ["!"] },
                 { "type": "h2", "children": ["Load Failed"] },
-                { "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_error}}" }] },
-                { "type": "button", "props": { "class": { "type": "string", "body": "'retry-btn'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.retry();}}" } } }, "children": ["Retry"] }
+                { "type": "p", "children": [{ "$expr": "$state.error" }] },
+                { "type": "button", "props": { "class": { "type": "string", "body": "'retry-btn'" } }, "directives": { "vOn": { "click": { "$fn": "methods.retry();" } } }, "children": ["Retry"] }
               ]
             }
           ]
         },
         {
           "type": "PageLoader",
-          "directives": { "vIf": { "type": "expression", "body": "{{ref_state_pageSchemaPath && !ref_state_error}}" } },
+          "directives": { "vIf": { "$expr": "$state.pageSchemaPath && !$state.error" } },
           "props": {
-            "schemaPath": { "type": "expression", "body": "{{ref_state_pageSchemaPath}}" },
-            "layout": { "type": "expression", "body": "{{ref_state_layoutSchemaPath}}" },
+            "schemaPath": { "$expr": "$state.pageSchemaPath" },
+            "layout": { "$expr": "$state.layoutSchemaPath" },
             "cache": true
           }
         }

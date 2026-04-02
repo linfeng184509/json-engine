@@ -25,8 +25,8 @@
     "content": {
       "type": "ATable",
       "props": {
-        "columns": { "type": "expression", "body": "{{ref_state_columns}}" },
-        "dataSource": { "type": "expression", "body": "{{ref_state_data}}" }
+        "columns": { "$expr": "$state.columns" },
+        "dataSource": { "$expr": "$state.data" }
       },
       "children": [
         {
@@ -35,7 +35,7 @@
           "children": [
             {
               "type": "template",
-              "directives": { "vIf": { "type": "expression", "body": "{{ref_state_column.key === 'name'}}" } },
+              "directives": { "vIf": { "$expr": "$state.column.key === 'name'" } },
               "children": [
                 { "type": "span", "children": [ { "type": "SmileOutlined" }, " Name" ] }
               ]
@@ -48,23 +48,23 @@
           "children": [
             {
               "type": "template",
-              "directives": { "vIf": { "type": "expression", "body": "{{ref_state_column.key === 'name'}}" } },
+              "directives": { "vIf": { "$expr": "$state.column.key === 'name'" } },
               "children": [
-                { "type": "a", "children": [ { "type": "expression", "body": "{{ref_state_record.name}}" } ] }
+                { "type": "a", "children": [ { "$expr": "$state.record.name" } ] }
               ]
             },
             {
               "type": "template",
-              "directives": { "vIf": { "type": "expression", "body": "{{ref_state_column.key === 'tags'}}" } },
+              "directives": { "vIf": { "$expr": "$state.column.key === 'tags'" } },
               "children": [
                 { "type": "span", "children": [
-                  { "type": "ATag", "props": { "color": "blue" }, "children": [ { "type": "expression", "body": "{{ref_state_record.tags[0]}}" } ] }
+                  { "type": "ATag", "props": { "color": "blue" }, "children": [ { "$expr": "$state.record.tags[0]" } ] }
                 ]}
               ]
             },
             {
               "type": "template",
-              "directives": { "vIf": { "type": "expression", "body": "{{ref_state_column.key === 'action'}}" } },
+              "directives": { "vIf": { "$expr": "$state.column.key === 'action'" } },
               "children": [
                 { "type": "span", "children": [
                   { "type": "a", "children": ["Invite"] },

@@ -100,8 +100,8 @@
         {
           "type": "ATypographyParagraph",
           "children": [
-            { "type": "blockquote", "children": [{ "type": "expression", "body": "{{ref_state_blockContent}}" }] },
-            { "type": "pre", "children": [{ "type": "expression", "body": "{{ref_state_blockContent}}" }] }
+            { "type": "blockquote", "children": [{ "$expr": "$state.blockContent" }] },
+            { "type": "pre", "children": [{ "$expr": "$state.blockContent" }] }
           ]
         },
         {

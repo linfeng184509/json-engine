@@ -21,9 +21,7 @@
   },
   "methods": {
     "updateData": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var newData=ref_state_barChartData.map(v=>v+Math.floor(Math.random()*100-50));ref_state_barChartData=newData}}"
+      "$fn": "var newData=state.barChartData.map(v=>v+Math.floor(Math.random()*100-50));state.barChartData=newData"
     }
   },
   "render": {
@@ -64,7 +62,7 @@
                         "series": [
                           {
                             "type": "bar",
-                            "data": "{{ref_state_barChartData}}",
+                            "data": { "$expr": "$state.barChartData" },
                             "itemStyle": {
                               "color": "#1677ff"
                             }
@@ -127,7 +125,7 @@
                           {
                             "type": "pie",
                             "radius": "60%",
-                            "data": "{{ref_state_pieChartData}}",
+                            "data": { "$expr": "$state.pieChartData" },
                             "emphasis": {
                               "itemStyle": {
                                 "shadowBlur": 10,
