@@ -2,16 +2,12 @@ import type {
   ValueBody,
   FunctionBody,
   ParseResult,
-  ObjectParseResult,
   AbstractScopeParseData,
   AbstractReferenceParseData,
   ExpressionParseData,
-  StringParseData,
   FunctionParseData,
 } from './types';
 import {
-  ValueObjectParser,
-  ValueConstraintParser,
   ValueScopeParser,
   ValueReferenceParser,
   ValueExpressionParser,
@@ -26,6 +22,85 @@ interface KeyParserRegistry {
 }
 
 type ParseCallback = (path: string, key: string, value: unknown) => void;
+
+/**
+ * Transforms structured DSL input ($ref/$expr/$fn/$scope) into
+ * the internal { type, body } format that existing parsers understand.
+ * 
+ * Legacy { type: 'xxx', body: '...' } format is NOT supported.
+ */
+function normalizeValue(value: unknown): unknown {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return value;
+  }
+
+  const obj = value as Record<string, unknown>;
+
+  // $ref — reference to state/props/computed
+  if ('$ref' in obj && typeof obj.$ref === 'string') {
+    const refPath = obj.$ref as string;
+    const dotIndex = refPath.indexOf('.');
+    if (dotIndex < 0) {
+      return value; // malformed, let downstream handle error
+    }
+    const prefix = refPath.substring(0, dotIndex);
+    const rest = refPath.substring(dotIndex + 1);
+    const varDotIndex = rest.indexOf('.');
+    if (varDotIndex > 0) {
+      const variable = rest.substring(0, varDotIndex);
+      const path = rest.substring(varDotIndex + 1);
+      return { type: 'reference', body: `{{ref_${prefix}_${variable}.${path}}}` };
+    }
+    return { type: 'reference', body: `{{ref_${prefix}_${rest}}}` };
+  }
+
+  // $expr — expression
+  if ('$expr' in obj && typeof obj.$expr === 'string') {
+    return { type: 'expression', body: `{{${obj.$expr}}}` };
+  }
+
+  // $fn — function
+  if ('$fn' in obj) {
+    if (typeof obj.$fn === 'string') {
+      return { type: 'function', params: '{{{}}}', body: `{{${obj.$fn}}}` };
+    }
+    const fnObj = obj.$fn as Record<string, unknown>;
+    if (Array.isArray(fnObj.params)) {
+      const paramsJson = JSON.stringify(
+        Object.fromEntries(fnObj.params.map((p: string) => [p, null]))
+      );
+      return { type: 'function', params: `{{{ ${paramsJson} }}}`, body: `{{${fnObj.body}}}` };
+    }
+    return { type: 'function', params: '{{{}}}', body: `{{${fnObj.body}}}` };
+  }
+
+  // $scope — service injection
+  if ('$scope' in obj && typeof obj.$scope === 'string') {
+    const scopePath = obj.$scope as string;
+    const dotIndex = scopePath.indexOf('.');
+    if (dotIndex > 0) {
+      const scope = scopePath.substring(0, dotIndex);
+      const variable = scopePath.substring(dotIndex + 1);
+      return { type: 'scope', body: `{{$_[${scope}]_${variable}}}` };
+    }
+  }
+
+  // Legacy format detection: { type: 'xxx', body: '...' } is NOT supported
+  // But allow structured formats: { type: 'reference', prefix, variable } and { type: 'scope', scope, variable }
+  if ('type' in obj && 'body' in obj && typeof obj.type === 'string') {
+    const isStructuredReference = obj.type === 'reference' && 'prefix' in obj && 'variable' in obj;
+    const isStructuredScope = obj.type === 'scope' && 'scope' in obj && 'variable' in obj;
+    
+    if (!isStructuredReference && !isStructuredScope) {
+      throw new Error(
+        `[parseJson] Legacy format { type: '${obj.type}', body: '...' } is no longer supported. ` +
+        `Use new format: $ref, $expr, $fn, or $scope.`
+      );
+    }
+  }
+
+  return value;
+}
 
 function parseValueByType(
   value: unknown,
@@ -46,21 +121,7 @@ function parseValueByType(
 
   const valueObj = value as Record<string, unknown>;
 
-  if (
-    valueObj.type === 'scope' &&
-    typeof valueObj.scope === 'string' &&
-    typeof valueObj.variable === 'string'
-  ) {
-    const result = ValueScopeParser({ type: 'scope', body: `{{$_[${valueObj.scope}]_${valueObj.variable}}}` }, config.scopeRegex);
-    if (!result.success) {
-      if (config.onError) {
-        return config.onError(path ?? '', result.error);
-      }
-      throw new Error(result.error.message);
-    }
-    return result.data;
-  }
-
+  // Handle structured reference input: { type: 'reference', prefix, variable }
   if (
     valueObj.type === 'reference' &&
     typeof valueObj.prefix === 'string' &&
@@ -77,6 +138,23 @@ function parseValueByType(
     return result.data;
   }
 
+  // Handle structured scope input: { type: 'scope', scope, variable }
+  if (
+    valueObj.type === 'scope' &&
+    typeof valueObj.scope === 'string' &&
+    typeof valueObj.variable === 'string'
+  ) {
+    const result = ValueScopeParser({ type: 'scope', body: `{{$_[${valueObj.scope}]_${valueObj.variable}}}` }, config.scopeRegex);
+    if (!result.success) {
+      if (config.onError) {
+        return config.onError(path ?? '', result.error);
+      }
+      throw new Error(result.error.message);
+    }
+    return result.data;
+  }
+
+  // Handle function input: { type: 'function', params, body }
   if (
     valueObj.type === 'function' &&
     'params' in valueObj &&
@@ -97,10 +175,11 @@ function parseValueByType(
     return result.data;
   }
 
+  // Handle body-based value types: { type: 'string'|'reference'|'scope'|'expression', body: '...' }
   if (
     typeof valueObj.type === 'string' &&
     'body' in valueObj &&
-    ['string', 'scope', 'reference', 'expression', 'object'].includes(valueObj.type)
+    ['string', 'scope', 'reference', 'expression'].includes(valueObj.type)
   ) {
     const valueBody: ValueBody = {
       type: valueObj.type as ValueBody['type'],
@@ -108,29 +187,9 @@ function parseValueByType(
     };
 
     switch (valueBody.type) {
-      case 'object': {
-        const result: ParseResult<ObjectParseResult> = ValueObjectParser(
-          valueBody,
-          config.innerReferenceRegex,
-          config.innerScopeRegex
-        );
-        if (!result.success) {
-          if (config.onError) {
-            return config.onError(path ?? '', result.error);
-          }
-          throw new Error(result.error.message);
-        }
-        return result.data;
-      }
       case 'string': {
-        const result: ParseResult<StringParseData> = ValueConstraintParser(valueBody);
-        if (!result.success) {
-          if (config.onError) {
-            return config.onError(path ?? '', result.error);
-          }
-          throw new Error(result.error.message);
-        }
-        return result.data;
+        // String values pass through as-is (no more single-quote wrapping)
+        return { _type: 'string', value: valueBody.body };
       }
       case 'scope': {
         const result: ParseResult<AbstractScopeParseData> = ValueScopeParser(valueBody, config.scopeRegex);
@@ -176,12 +235,8 @@ function parseValueByType(
   // Handle custom value parsers
   if (typeof valueObj.type === 'string' && config.valueParsers && config.valueParsers[valueObj.type]) {
     const parser = config.valueParsers[valueObj.type];
-    
-    // First, recursively walk the body to resolve any nested expressions
     const body = valueObj.body !== undefined ? valueObj.body : valueObj;
     const walkedBody = walkJson(body, config, '');
-    
-    // Convert to string for parser
     const bodyStr = typeof walkedBody === 'string' ? walkedBody : JSON.stringify(walkedBody);
     return parser(bodyStr);
   }
@@ -219,7 +274,8 @@ function walkJson(data: unknown, config: ParserConfig, path: string): unknown {
         }
       }
 
-      const parsedValue = parseValueByType(item, config);
+      const normalized = normalizeValue(item);
+      const parsedValue = parseValueByType(normalized, config);
       let parsedItem = walkJson(parsedValue, config, itemPath);
 
       if (config.hooks?.transformResult) {
@@ -252,7 +308,8 @@ function walkJson(data: unknown, config: ParserConfig, path: string): unknown {
       }
     }
 
-    const parsedValue = parseValueByType(currentValue, config);
+    const normalized = normalizeValue(currentValue);
+    const parsedValue = parseValueByType(normalized, config);
     let finalValue = walkJson(parsedValue, config, keyPath);
 
     if (config.hooks?.transformResult) {
@@ -277,11 +334,12 @@ export function parseJson(input: unknown, config?: ParserConfig | ParserOptions)
   const parserConfig = config instanceof Object && 'referencePrefixes' in config
     ? config as ParserConfig
     : createParserConfig(config as ParserOptions);
-  const parsed = parseValueByType(input, parserConfig);
+  const normalized = normalizeValue(input);
+  const parsed = parseValueByType(normalized, parserConfig);
   return walkJson(parsed, parserConfig, '');
 }
 
-export { createParserConfig };
+export { createParserConfig, normalizeValue };
 
 export type {
   KeyParserFunction,

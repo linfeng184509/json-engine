@@ -44,6 +44,7 @@ export {
 export {
   createParserConfig,
   parseJson,
+  normalizeValue,
 } from './parseJson';
 
 export type {

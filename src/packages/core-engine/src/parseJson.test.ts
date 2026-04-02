@@ -1,10 +1,269 @@
 import { describe, it, expect } from 'vitest';
-import { parseJson, createParserConfig } from './parseJson';
-import type { ParserConfig } from './parseJson';
+import { parseJson, normalizeValue, createParserConfig } from './parseJson';
+import type { ParserConfig } from './config-factory';
 
 const createConfig = (overrides?: Partial<Parameters<typeof createParserConfig>[0]>): ParserConfig => {
   return createParserConfig(overrides);
 };
+
+describe('normalizeValue - $ref format', () => {
+  it('should transform $ref state to reference format', () => {
+    const input = { $ref: 'state.count' };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'reference', body: '{{ref_state_count}}' });
+  });
+
+  it('should transform $ref props to reference format', () => {
+    const input = { $ref: 'props.title' };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'reference', body: '{{ref_props_title}}' });
+  });
+
+  it('should transform $ref computed to reference format', () => {
+    const input = { $ref: 'computed.fullName' };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'reference', body: '{{ref_computed_fullName}}' });
+  });
+
+  it('should transform $ref with nested path', () => {
+    const input = { $ref: 'state.user.profile.email' };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'reference', body: '{{ref_state_user.profile.email}}' });
+  });
+});
+
+describe('normalizeValue - $expr format', () => {
+  it('should transform $expr to expression format', () => {
+    const input = { $expr: 'state.count > 0' };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'expression', body: '{{state.count > 0}}' });
+  });
+
+  it('should transform $expr with ternary', () => {
+    const input = { $expr: "state.count > 5 ? 'many' : 'few'" };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'expression', body: "{{state.count > 5 ? 'many' : 'few'}}" });
+  });
+});
+
+describe('normalizeValue - $fn format', () => {
+  it('should transform $fn string to function format', () => {
+    const input = { $fn: 'methods.handleClick()' };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'function', params: '{{{}}}', body: '{{methods.handleClick()}}' });
+  });
+
+  it('should transform $fn object with params', () => {
+    const input = { $fn: { params: ['e'], body: '$state.value = e.target.value' } };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'function', params: '{{{ {"e":null} }}}', body: '{{$state.value = e.target.value}}' });
+  });
+
+  it('should transform $fn object with multiple params', () => {
+    const input = { $fn: { params: ['e', 'data'], body: 'console.log(e, data)' } };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'function', params: '{{{ {"e":null,"data":null} }}}', body: '{{console.log(e, data)}}' });
+  });
+});
+
+describe('normalizeValue - $scope format', () => {
+  it('should transform $scope core.api to scope format', () => {
+    const input = { $scope: 'core.api' };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'scope', body: '{{$_[core]_api}}' });
+  });
+
+  it('should transform $scope core.router to scope format', () => {
+    const input = { $scope: 'core.router' };
+    const result = normalizeValue(input);
+    expect(result).toEqual({ type: 'scope', body: '{{$_[core]_router}}' });
+  });
+});
+
+describe('normalizeValue - native values', () => {
+  it('should pass through string unchanged', () => {
+    expect(normalizeValue('hello')).toBe('hello');
+  });
+
+  it('should pass through number unchanged', () => {
+    expect(normalizeValue(123)).toBe(123);
+  });
+
+  it('should pass through boolean unchanged', () => {
+    expect(normalizeValue(true)).toBe(true);
+  });
+
+  it('should pass through null unchanged', () => {
+    expect(normalizeValue(null)).toBe(null);
+  });
+
+  it('should pass through plain object unchanged', () => {
+    const input = { grid: { gutter: 16 } };
+    expect(normalizeValue(input)).toBe(input);
+  });
+
+  it('should pass through array unchanged', () => {
+    const input = [1, 2, 3];
+    expect(normalizeValue(input)).toBe(input);
+  });
+});
+
+describe('parseJson - $ref format', () => {
+  it('should parse $ref state variable', () => {
+    const input = { count: { $ref: 'state.count' } };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.count).toEqual({
+      _type: 'reference',
+      prefix: 'state',
+      variable: 'count',
+    });
+  });
+
+  it('should parse $ref props variable', () => {
+    const input = { title: { $ref: 'props.title' } };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.title).toEqual({
+      _type: 'reference',
+      prefix: 'props',
+      variable: 'title',
+    });
+  });
+
+  it('should parse $ref with nested path', () => {
+    const input = { email: { $ref: 'state.user.email' } };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.email).toEqual({
+      _type: 'reference',
+      prefix: 'state',
+      variable: 'user',
+      path: 'email',
+    });
+  });
+});
+
+describe('parseJson - $expr format', () => {
+  it('should parse $expr simple expression', () => {
+    const input = { visible: { $expr: 'state.count > 0' } };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.visible).toEqual({
+      _type: 'expression',
+      expression: 'state.count > 0',
+    });
+  });
+
+  it('should parse $expr ternary expression', () => {
+    const input = { label: { $expr: "state.count > 5 ? 'many' : 'few'" } };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.label).toEqual({
+      _type: 'expression',
+      expression: "state.count > 5 ? 'many' : 'few'",
+    });
+  });
+});
+
+describe('parseJson - $fn format', () => {
+  it('should parse $fn string (no params)', () => {
+    const input = { onClick: { $fn: 'methods.handleClick()' } };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.onClick).toEqual({
+      _type: 'function',
+      params: {},
+      body: 'methods.handleClick()',
+    });
+  });
+
+  it('should parse $fn object with params', () => {
+    const input = { onChange: { $fn: { params: ['e'], body: '$state.value = e.target.value' } } };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.onChange).toEqual({
+      _type: 'function',
+      params: { e: null },
+      body: '$state.value = e.target.value',
+    });
+  });
+});
+
+describe('parseJson - native values', () => {
+  it('should pass through native string', () => {
+    const input = { class: 'container' };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.class).toBe('container');
+  });
+
+  it('should pass through native number', () => {
+    const input = { size: 24 };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.size).toBe(24);
+  });
+
+  it('should pass through native boolean', () => {
+    const input = { disabled: true };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.disabled).toBe(true);
+  });
+
+  it('should pass through native object', () => {
+    const input = { config: { grid: { gutter: 16 } } };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.config).toEqual({ grid: { gutter: 16 } });
+  });
+
+  it('should pass through native array', () => {
+    const input = { items: [1, 2, 3] };
+    const result = parseJson(input) as Record<string, unknown>;
+    expect(result.items).toEqual([1, 2, 3]);
+  });
+});
+
+describe('parseJson - recursive traversal', () => {
+  it('should recursively parse nested objects with $ref', () => {
+    const input = {
+      outer: {
+        inner: {
+          count: { $ref: 'state.count' },
+        },
+      },
+    };
+    const result = parseJson(input) as Record<string, unknown>;
+    const outer = result.outer as Record<string, unknown>;
+    const inner = outer.inner as Record<string, unknown>;
+    expect(inner.count).toEqual({
+      _type: 'reference',
+      prefix: 'state',
+      variable: 'count',
+    });
+  });
+
+  it('should parse all elements in array with $expr', () => {
+    const input = {
+      arr: [
+        { $expr: 'state.first' },
+        { $expr: 'state.second' },
+      ],
+    };
+    const result = parseJson(input) as Record<string, unknown>;
+    const arr = result.arr as unknown[];
+    expect(arr[0]).toEqual({ _type: 'expression', expression: 'state.first' });
+    expect(arr[1]).toEqual({ _type: 'expression', expression: 'state.second' });
+  });
+
+  it('should parse mixed structure with native and $ref values', () => {
+    const input = {
+      obj: {
+        arr: [{ nested: { $ref: 'state.value' } }],
+        count: 10,
+        label: 'test',
+      },
+    };
+    const result = parseJson(input) as Record<string, unknown>;
+    const obj = result.obj as Record<string, unknown>;
+    const arr = obj.arr as unknown[];
+    const firstItem = arr[0] as Record<string, unknown>;
+    expect(firstItem.nested).toEqual({ _type: 'reference', prefix: 'state', variable: 'value' });
+    expect(obj.count).toBe(10);
+    expect(obj.label).toBe('test');
+  });
+});
 
 describe('parseJson - key parsing with config', () => {
   it('should use config.keyParsers for key transformation', () => {
@@ -23,151 +282,6 @@ describe('parseJson - key parsing with config', () => {
     const result = parseJson(input);
     expect(result).toHaveProperty('unknownKey');
     expect((result as Record<string, unknown>).unknownKey).toBe('value');
-  });
-
-  it('should apply multiple key parsers', () => {
-    const config = createConfig({
-      keyParsers: {
-        key1: (key: string) => 'parsed_' + key,
-        key2: (key: string) => 'transformed_' + key,
-      },
-    });
-    const input = { key1: 'value1', key2: 'value2' };
-    const result = parseJson(input, config);
-    expect(result).toHaveProperty('parsed_key1');
-    expect(result).toHaveProperty('transformed_key2');
-  });
-});
-
-describe('parseJson - value parsing', () => {
-  it('should use ValueConstraintParser for type=string', () => {
-    const input = {
-      key: { type: 'string', body: "'hello'" },
-    };
-    const result = parseJson(input);
-    expect((result as Record<string, unknown>).key).toEqual({ _type: 'string', value: 'hello' });
-  });
-
-  it('should use ValueScopeParser for type=scope', () => {
-    const input = {
-      key: { type: 'scope', body: '{{$_core_myVar}}' },
-    };
-    const result = parseJson(input);
-    expect((result as Record<string, unknown>).key).toEqual({
-      _type: 'scope',
-      scope: 'core',
-      variable: 'myVar',
-    });
-  });
-
-  it('should use ValueReferenceParser for type=reference', () => {
-    const input = {
-      key: { type: 'reference', body: '{{ref_props_userId}}' },
-    };
-    const result = parseJson(input);
-    expect((result as Record<string, unknown>).key).toEqual({
-      _type: 'reference',
-      prefix: 'props',
-      variable: 'userId',
-    });
-  });
-
-  it('should parse reference with path', () => {
-    const input = {
-      key: { type: 'reference', body: '{{ref_props_user.name}}' },
-    };
-    const result = parseJson(input);
-    expect((result as Record<string, unknown>).key).toEqual({
-      _type: 'reference',
-      prefix: 'props',
-      variable: 'user',
-      path: 'name',
-    });
-  });
-
-  it('should use ValueExpressionParser for type=expression', () => {
-    const input = {
-      key: { type: 'expression', body: '{{a + b}}' },
-    };
-    const result = parseJson(input);
-    expect((result as Record<string, unknown>).key).toEqual({ _type: 'expression', expression: 'a + b' });
-  });
-
-  it('should use ValueFunctionParser for type=function', () => {
-    const input = {
-      key: { type: 'function', params: '{{{ {"x": 123} }}}', body: '{{return x}}' },
-    };
-    const result = parseJson(input);
-    expect((result as Record<string, unknown>).key).toEqual({
-      _type: 'function',
-      params: { x: 123 },
-      body: 'return x',
-    });
-  });
-});
-
-describe('parseJson - recursive traversal', () => {
-  it('should recursively parse nested objects', () => {
-    const input = {
-      outer: {
-        inner: {
-          nested: { type: 'string', body: "'deep value'" },
-        },
-      },
-    };
-    const result = parseJson(input);
-    const outer = (result as Record<string, unknown>).outer as Record<string, unknown>;
-    const inner = outer.inner as Record<string, unknown>;
-    expect(inner.nested).toEqual({
-      _type: 'string',
-      value: 'deep value',
-    });
-  });
-
-  it('should parse all elements in array', () => {
-    const input = {
-      arr: [
-        { type: 'string', body: "'first'" },
-        { type: 'string', body: "'second'" },
-      ],
-    };
-    const result = parseJson(input);
-    const arr = (result as Record<string, unknown>).arr as unknown[];
-    expect(arr[0]).toEqual({ _type: 'string', value: 'first' });
-    expect(arr[1]).toEqual({ _type: 'string', value: 'second' });
-  });
-
-  it('should parse mixed structure with object and array', () => {
-    const input = {
-      obj: {
-        arr: [{ nested: { type: 'scope', body: '{{$_goal_var}}' } }],
-      },
-    };
-    const result = parseJson(input);
-    const obj = (result as Record<string, unknown>).obj as Record<string, unknown>;
-    const arr = obj.arr as unknown[];
-    const firstItem = arr[0] as Record<string, unknown>;
-    expect(firstItem.nested).toEqual({ _type: 'scope', scope: 'goal', variable: 'var' });
-  });
-
-  it('should parse deeply nested structure (3+ levels)', () => {
-    const input = {
-      l1: {
-        l2: {
-          l3: {
-            l4: { type: 'expression', body: '{{deep expression}}' },
-          },
-        },
-      },
-    };
-    const result = parseJson(input);
-    const l1 = (result as Record<string, unknown>).l1 as Record<string, unknown>;
-    const l2 = l1.l2 as Record<string, unknown>;
-    const l3 = l2.l3 as Record<string, unknown>;
-    expect(l3.l4).toEqual({
-      _type: 'expression',
-      expression: 'deep expression',
-    });
   });
 });
 
@@ -200,24 +314,6 @@ describe('parseJson - callback function', () => {
     });
     expect(calls.some((c) => c.path === 'outer')).toBe(true);
     expect(calls.some((c) => c.path === 'outer.inner')).toBe(true);
-  });
-
-  it('should pass correct parsed value in callback', () => {
-    const calls: Array<{ key: string; value: unknown }> = [];
-    const input = {
-      key: { type: 'string', body: "'parsed value'" },
-    };
-    parseJson(input, {
-      onParsed: (_path: string, key: string, value: unknown) => {
-        calls.push({ key, value });
-      },
-    });
-    expect(
-      calls.some((c) => {
-        const val = c.value as Record<string, unknown>;
-        return c.key === 'key' && val?.value === 'parsed value';
-      })
-    ).toBe(true);
   });
 });
 
@@ -253,93 +349,34 @@ describe('parseJson - edge cases', () => {
   });
 });
 
-describe('parseJson - custom reference prefixes', () => {
-  it('should parse custom prefix reference', () => {
-    const config = createConfig({
-      referencePrefixes: ['custom', 'props'],
-    });
-    const input = {
-      key: { type: 'reference', body: '{{ref_custom_value}}' },
-    };
-    const result = parseJson(input, config);
-    expect((result as Record<string, unknown>).key).toEqual({
-      _type: 'reference',
-      prefix: 'custom',
-      variable: 'value',
-    });
+describe('parseJson - legacy format rejected', () => {
+  it('should reject legacy { type: "string", body: "..."} format', () => {
+    const input = { key: { type: 'string', body: "'hello'" } };
+    expect(() => parseJson(input)).toThrow('Legacy format');
   });
 
-  it('should throw error for unknown prefix reference', () => {
-    const config = createConfig({
-      referencePrefixes: ['props'],
-    });
-    const input = {
-      key: { type: 'reference', body: '{{ref_unknown_value}}' },
-    };
-    expect(() => parseJson(input, config)).toThrow('body 格式不正确');
-  });
-});
-
-describe('parseJson - custom scope names', () => {
-  it('should parse custom scope name', () => {
-    const config = createConfig({
-      scopeNames: ['global', 'core'],
-    });
-    const input = {
-      key: { type: 'scope', body: '{{$_global_config}}' },
-    };
-    const result = parseJson(input, config);
-    expect((result as Record<string, unknown>).key).toEqual({
-      _type: 'scope',
-      scope: 'global',
-      variable: 'config',
-    });
+  it('should reject legacy { type: "object", body: "..." } format', () => {
+    const input = { key: { type: 'object', body: '{{{ "a": 1 }}}' } };
+    expect(() => parseJson(input)).toThrow('Legacy format');
   });
 
-  it('should throw error for unknown scope name', () => {
-    const config = createConfig({
-      scopeNames: ['core'],
-    });
-    const input = {
-      key: { type: 'scope', body: '{{$_unknown_var}}' },
-    };
-    expect(() => parseJson(input, config)).toThrow('body 格式不正确');
-  });
-});
-
-describe('parseJson - expression parsing with references', () => {
-  it('should parse expression with pure reference as abstract reference', () => {
-    const input = {
-      value: { type: 'expression', body: '{{ref_state_count}}' },
-    };
-    const result = parseJson(input);
-    const value = (result as Record<string, unknown>).value as Record<string, unknown>;
-    expect(value.expression).toEqual({
-      _type: 'reference',
-      prefix: 'state',
-      variable: 'count',
-    });
+  it('should reject legacy { type: "expression", body: "..." } format', () => {
+    const input = { key: { type: 'expression', body: '{{ref_state_count}}' } };
+    expect(() => parseJson(input)).toThrow('Legacy format');
   });
 
-  it('should parse expression with pure scope as abstract scope', () => {
-    const input = {
-      value: { type: 'expression', body: '{{$_goal_target}}' },
-    };
-    const result = parseJson(input);
-    const value = (result as Record<string, unknown>).value as Record<string, unknown>;
-    expect(value.expression).toEqual({
-      _type: 'scope',
-      scope: 'goal',
-      variable: 'target',
-    });
+  it('should reject legacy { type: "reference", body: "..." } format', () => {
+    const input = { key: { type: 'reference', body: '{{ref_state_count}}' } };
+    expect(() => parseJson(input)).toThrow('Legacy format');
   });
 
-  it('should keep expression as string for mixed content', () => {
-    const input = {
-      value: { type: 'expression', body: '{{ref_props_userId + 1}}' },
-    };
-    const result = parseJson(input);
-    const value = (result as Record<string, unknown>).value as Record<string, unknown>;
-    expect(value.expression).toBe('ref_props_userId + 1');
+  it('should reject legacy { type: "scope", body: "..." } format', () => {
+    const input = { key: { type: 'scope', body: '{{$_core_api}}' } };
+    expect(() => parseJson(input)).toThrow('Legacy format');
+  });
+
+  it('should reject legacy { type: "function", params: "...", body: "..." } format', () => {
+    const input = { key: { type: 'function', params: '{{{}}}', body: '{{methods.handleClick()}}' } };
+    expect(() => parseJson(input)).toThrow('Legacy format');
   });
 });

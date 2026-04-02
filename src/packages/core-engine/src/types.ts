@@ -64,17 +64,15 @@ interface ObjectParseResult {
 
 type ParseDataType = StringParseData | ObjectParseResult | AbstractScopeParseData | AbstractReferenceParseData | ExpressionParseData | FunctionParseData;
 
-const STRING_REGEX = /^'([\s\S]*)'$/;
 const FUNCTION_PARAMS_REGEX = /^\{\{\{(.*)\}\}\}$/s;
 const FUNCTION_BODY_REGEX = /^\{\{([\s\S]*)\}\}$/;
-const OBJECT_REGEX = /^\{\{\{([\s\S]*)\}\}\}$/;
 const EXPRESSION_REGEX = /^\{\{([\s\S]+)\}\}$/;
 
 function createError(parserName: string, reason: string, example: string): ParseError {
   return {
     code: 'PARSE_ERROR',
     parser: parserName,
-    message: `[${parserName}] 验证失败: ${reason}。期望格式: ${example}`,
+    message: `[${parserName}] Parse failed: ${reason}. Expected: ${example}`,
     expected: example,
     received: reason,
   };
@@ -226,15 +224,15 @@ const ValueObjectParser = (
   if (value.type !== 'object') {
     return {
       success: false,
-      error: createError('ValueObjectParser', `type 必须为 "object"，实际为 "${value.type}"`, '{{{ key: value, ... }}}'),
+      error: createError('ValueObjectParser', `type must be "object", got "${value.type}"`, '{{{ key: value, ... }}}'),
     };
   }
 
-  const match = value.body.match(OBJECT_REGEX);
+  const match = value.body.match(/^\{\{\{([\s\S]*)\}\}\}$/);
   if (!match) {
     return {
       success: false,
-      error: createError('ValueObjectParser', `body 格式不正确: "${value.body}"`, '{{{ key: value, ... }}}'),
+      error: createError('ValueObjectParser', `invalid body: "${value.body}"`, '{{{ key: value, ... }}}'),
     };
   }
 
@@ -254,28 +252,20 @@ const ValueObjectParser = (
   } catch {
     try {
       let processedContent = content;
-      
       processedContent = processedContent.replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)(\s*:)/g, '$1"$2"$3');
-      
-      processedContent = processedContent.replace(/(\[\s*)([a-zA-Z_$][a-zA-Z0-9_$.]*)(\s*[,\]])/g, (match, prefix, value, suffix) => {
-        if (/^[\d.]+$/.test(value) || value === 'true' || value === 'false' || value === 'null') {
-          return match;
-        }
-        return `${prefix}"${value}"${suffix}`;
+      processedContent = processedContent.replace(/(\[\s*)([a-zA-Z_$][a-zA-Z0-9_$.]*)(\s*[,\]])/g, (m, prefix, val, suffix) => {
+        if (/^[\d.]+$/.test(val) || val === 'true' || val === 'false' || val === 'null') return m;
+        return `${prefix}"${val}"${suffix}`;
       });
-      
-      processedContent = processedContent.replace(/(:\s*)([a-zA-Z_$][a-zA-Z0-9_$.]*)(\s*[,}]|\s*$)/g, (match, prefix, value, suffix) => {
-        if (/^[\d.]+$/.test(value) || value === 'true' || value === 'false' || value === 'null') {
-          return match;
-        }
-        return `${prefix}"${value}"${suffix}`;
+      processedContent = processedContent.replace(/(:\s*)([a-zA-Z_$][a-zA-Z0-9_$.]*)(\s*[,}]|\s*$)/g, (m, prefix, val, suffix) => {
+        if (/^[\d.]+$/.test(val) || val === 'true' || val === 'false' || val === 'null') return m;
+        return `${prefix}"${val}"${suffix}`;
       });
-
       parsed = JSON.parse(`{${processedContent}}`);
     } catch (e) {
       return {
         success: false,
-        error: createError('ValueObjectParser', `无法解析对象内容: ${e instanceof Error ? e.message : String(e)}`, '{{{ key: value, ... }}}'),
+        error: createError('ValueObjectParser', `cannot parse object: ${e instanceof Error ? e.message : String(e)}`, '{{{ key: value, ... }}}'),
       };
     }
   }
@@ -288,11 +278,13 @@ const ValueObjectParser = (
   };
 };
 
+const STRING_REGEX = /^'([\s\S]*)'$/;
+
 const ValueConstraintParser = (value: ValueBody): ParseResult<StringParseData> => {
   if (value.type !== 'string') {
     return {
       success: false,
-      error: createError('ValueConstraintParser', `type 必须为 "string"，实际为 "${value.type}"`, "'字符串内容'"),
+      error: createError('ValueConstraintParser', `type must be "string", got "${value.type}"`, "'string content'"),
     };
   }
 
@@ -300,7 +292,7 @@ const ValueConstraintParser = (value: ValueBody): ParseResult<StringParseData> =
   if (!match) {
     return {
       success: false,
-      error: createError('ValueConstraintParser', `body 必须被单引号包裹: "${value.body}"`, "'字符串内容'"),
+      error: createError('ValueConstraintParser', `body must be wrapped in single quotes: "${value.body}"`, "'string content'"),
     };
   }
 
@@ -317,7 +309,7 @@ const ValueScopeParser = (
   if (value.type !== 'scope') {
     return {
       success: false,
-      error: createError('ValueScopeParser', `type 必须为 "scope"，实际为 "${value.type}"`, '{{$_[*]_变量名}}'),
+      error: createError('ValueScopeParser', `type must be "scope", got "${value.type}"`, '{{$_[*]_variableName}}'),
     };
   }
 
@@ -325,7 +317,7 @@ const ValueScopeParser = (
   if (!match) {
     return {
       success: false,
-      error: createError('ValueScopeParser', `body 格式不正确: "${value.body}"`, '{{$_[*]_变量名}}'),
+      error: createError('ValueScopeParser', `invalid body: "${value.body}"`, '{{$_[*]_variableName}}'),
     };
   }
 
@@ -342,7 +334,7 @@ const ValueReferenceParser = (
   if (value.type !== 'reference') {
     return {
       success: false,
-      error: createError('ValueReferenceParser', `type 必须为 "reference"，实际为 "${value.type}"`, '{{ref_*_变量名}}'),
+      error: createError('ValueReferenceParser', `type must be "reference", got "${value.type}"`, '{{ref_*_variableName}}'),
     };
   }
 
@@ -350,7 +342,7 @@ const ValueReferenceParser = (
   if (!match) {
     return {
       success: false,
-      error: createError('ValueReferenceParser', `body 格式不正确: "${value.body}"`, '{{ref_*_变量名}}'),
+      error: createError('ValueReferenceParser', `invalid body: "${value.body}"`, '{{ref_*_variableName}}'),
     };
   }
 
@@ -383,7 +375,7 @@ const ValueExpressionParser = (
   if (value.type !== 'expression') {
     return {
       success: false,
-      error: createError('ValueExpressionParser', `type 必须为 "expression"，实际为 "${value.type}"`, '{{ 表达式 }}'),
+      error: createError('ValueExpressionParser', `type must be "expression", got "${value.type}"`, '{{ expression }}'),
     };
   }
 
@@ -391,7 +383,7 @@ const ValueExpressionParser = (
   if (!match) {
     return {
       success: false,
-      error: createError('ValueExpressionParser', `body 格式不正确: "${value.body}"`, '{{ 表达式 }}'),
+      error: createError('ValueExpressionParser', `invalid body: "${value.body}"`, '{{ expression }}'),
     };
   }
 
@@ -414,7 +406,7 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
   if (value.type !== 'function') {
     return {
       success: false,
-      error: createError('ValueFunctionParser', `type 必须为 "function"，实际为 "${value.type}"`, '{{{参数对象}}}, {{函数体}}'),
+      error: createError('ValueFunctionParser', `type must be "function", got "${value.type}"`, '{{{params}}}, {{body}}'),
     };
   }
 
@@ -422,7 +414,7 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
   if (!paramsMatch) {
     return {
       success: false,
-      error: createError('ValueFunctionParser', `params 格式不正确，期望三花括号: "${value.params}"`, '{{{参数对象}}}'),
+      error: createError('ValueFunctionParser', `invalid params, expected triple braces: "${value.params}"`, '{{{params}}}'),
     };
   }
 
@@ -430,7 +422,7 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
   if (!bodyMatch) {
     return {
       success: false,
-      error: createError('ValueFunctionParser', `body 格式不正确，期望双花括号: "${value.body}"`, '{{函数体}}'),
+      error: createError('ValueFunctionParser', `invalid body, expected double braces: "${value.body}"`, '{{body}}'),
     };
   }
 
@@ -445,7 +437,7 @@ const ValueFunctionParser = (value: FunctionBody): ParseResult<FunctionParseData
     } catch {
       return {
         success: false,
-        error: createError('ValueFunctionParser', `params JSON 解析失败: "${paramsContent}"`, '{{{ "key": "value" }}}'),
+        error: createError('ValueFunctionParser', `invalid params JSON: "${paramsContent}"`, '{{{ "key": "value" }}}'),
       };
     }
   }

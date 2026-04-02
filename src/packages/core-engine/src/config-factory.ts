@@ -1,10 +1,3 @@
-import {
-  createReferenceRegex,
-  createScopeRegex,
-  createInnerReferenceRegex,
-  createInnerScopeRegex,
-} from './regex-factory';
-
 type KeyParserFunction = (key: string, params?: Record<string, unknown>) => string;
 
 interface KeyParserRegistry {
@@ -71,17 +64,24 @@ interface ParserConfig {
 const DEFAULT_REFERENCE_PREFIXES = ['props', 'state', 'computed'];
 const DEFAULT_SCOPE_NAMES = ['core', 'goal'];
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function createParserConfig(options: ParserOptions = {}): ParserConfig {
   const referencePrefixes = options.referencePrefixes ?? DEFAULT_REFERENCE_PREFIXES;
   const scopeNames = options.scopeNames ?? DEFAULT_SCOPE_NAMES;
 
+  const refPattern = referencePrefixes.map(escapeRegex).join('|');
+  const scopePattern = scopeNames.map(escapeRegex).join('|');
+
   return {
     referencePrefixes,
     scopeNames,
-    referenceRegex: createReferenceRegex(referencePrefixes),
-    scopeRegex: createScopeRegex(scopeNames),
-    innerReferenceRegex: createInnerReferenceRegex(referencePrefixes),
-    innerScopeRegex: createInnerScopeRegex(scopeNames),
+    referenceRegex: new RegExp(`^\\{\\{ref_(${refPattern})_(.+)\\}\\}$`),
+    scopeRegex: new RegExp(`^\\{\\{\\$_(${scopePattern})_(.+)\\}\\}$`),
+    innerReferenceRegex: new RegExp(`^ref_(${refPattern})_([a-zA-Z_$][a-zA-Z0-9_$.]*)$`),
+    innerScopeRegex: new RegExp(`^\\$_(${scopePattern})_([a-zA-Z_$][a-zA-Z0-9_$.]*)$`),
     valueParsers: options.valueParsers ?? {},
     keyParsers: options.keyParsers ?? {},
     onParsed: options.onParsed,
