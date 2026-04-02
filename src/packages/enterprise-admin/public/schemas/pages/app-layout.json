@@ -7,11 +7,7 @@
   },
   "computed": {
     "selectedKeys": {
-      "get": {
-        "type": "function",
-        "params": "{{{}}}",
-        "body": "{{var path = window.location.hash.slice(1) || '/'; if(path.includes('dashboard')) return ['dashboard']; if(path.includes('basic-data')) return ['basic-data']; if(path.includes('role')) return ['role-management']; return ['dashboard']}}"
-      }
+      "get": { "$fn": "var path = window.location.hash.slice(1) || '/'; if(path.includes('dashboard')) return ['dashboard']; if(path.includes('basic-data')) return ['basic-data']; if(path.includes('role')) return ['role-management']; return ['dashboard']" }
     }
   },
   "props": {
@@ -19,40 +15,34 @@
   },
   "methods": {
     "loadUser": {
-      "$fn": "var u=$_core_storage.get('userInfo');if(u)state.user=u",
+      "$fn": "var u=$_core.storage.get('userInfo');if(u)state.user=u",
       "cached": false
     },
     "logout": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_core_storage.remove('token');$_core_storage.remove('userInfo');$_core_storage.remove('permissions');window.location.hash='#/login'}}",
+      "$fn": "$_core.storage.remove('token');$_core.storage.remove('userInfo');$_core.storage.remove('permissions');window.location.hash='#/login'",
       "cached": false
     }
   },
   "lifecycle": {
-    "onMounted": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{methods.loadUser()}}"
-    }
+    "onMounted": { "$fn": "methods.loadUser()" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
-      "props": { "style": { "type": "string", "body": "'min-height: 100vh'" } },
+      "props": { "style": 'min-height: 100vh' },
       "children": [
         {
           "type": "ALayout",
-          "props": { "style": { "type": "string", "body": "'min-height: 100vh'" } },
+          "props": { "style": 'min-height: 100vh' },
           "children": [
             {
               "type": "ALayoutSider",
               "props": {
-                "theme": { "type": "string", "body": "'light'" },
+                "theme": 'light',
                 "collapsible": true,
                 "collapsed": { "$expr": "$state.collapsed" },
-                "style": { "type": "string", "body": "'min-height: 100vh; overflow: auto'" }
+                "style": 'min-height: 100vh; overflow: auto'
               },
               "directives": {
                 "vOn": {
@@ -62,46 +52,46 @@
               "children": [
                 {
                   "type": "div",
-                  "props": { "style": { "type": "string", "body": "'height: 64px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f0f0f0; font-size: 16px; font-weight: 600; color: #1677ff'" } },
+                  "props": { "style": 'height: 64px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f0f0f0; font-size: 16px; font-weight: 600; color: #1677ff' },
                   "children": [{ "$expr": "$state.collapsed ? 'E' : '企业管理系统'" }]
                 },
                 {
                   "type": "AMenu",
                   "props": {
-                    "theme": { "type": "string", "body": "'light'" },
-                    "mode": { "type": "string", "body": "'inline'" },
+                    "theme": 'light',
+                    "mode": 'inline',
                     "selectedKeys": { "$expr": "computed.selectedKeys" },
-                    "style": { "type": "string", "body": "'border: none; height: calc(100vh - 64px); overflow-y: auto'" }
+                    "style": 'border: none; height: calc(100vh - 64px); overflow-y: auto'
                   },
                   "children": [
-                    { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'dashboard'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{window.location.hash='#/dashboard'}}" } } }, "children": ["首页"] },
-                    { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'basic-data'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{window.location.hash='#/basic-data-config'}}" } } }, "children": ["基础数据配置"] },
-                    { "type": "AMenuItem", "props": { "key": { "type": "string", "body": "'role-management'" } }, "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{window.location.hash='#/system/role'}}" } } }, "children": ["角色管理"] }
+                    { "type": "AMenuItem", "props": { "key": 'dashboard' }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/dashboard'" } } }, "children": ["首页"] },
+                    { "type": "AMenuItem", "props": { "key": 'basic-data' }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/basic-data-config'" } } }, "children": ["基础数据配置"] },
+                    { "type": "AMenuItem", "props": { "key": 'role-management' }, "directives": { "vOn": { "click": { "$fn": "window.location.hash='#/system/role'" } } }, "children": ["角色管理"] }
                   ]
                 }
               ]
             },
             {
               "type": "ALayout",
-              "props": { "style": { "type": "string", "body": "'min-height: 100vh; display: flex; flex-direction: column; flex: 1'" } },
+              "props": { "style": 'min-height: 100vh; display: flex; flex-direction: column; flex: 1' },
               "children": [
                 {
                   "type": "ALayoutHeader",
-                  "props": { "style": { "type": "string", "body": "'background: #fff; padding: 0 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center'" } },
+                  "props": { "style": 'background: #fff; padding: 0 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center' },
                   "children": [
                     {
                       "type": "div",
-                      "props": { "style": { "type": "string", "body": "'font-size: 16px; font-weight: 600'" } },
+                      "props": { "style": 'font-size: 16px; font-weight: 600' },
                       "children": [{ "$expr": "$state.user?.nickname || $state.user?.username || '用户'" }]
                     },
                     {
                       "type": "div",
-                      "props": { "style": { "type": "string", "body": "'display: flex; align-items: center; gap: 16px'" } },
+                      "props": { "style": 'display: flex; align-items: center; gap: 16px' },
                       "children": [
                         {
                           "type": "AButton",
-                          "props": { "type": { "type": "string", "body": "'link'" } },
-                          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.logout()}}" } } },
+                          "props": { "type": 'link' },
+                          "directives": { "vOn": { "click": { "$fn": "methods.logout()" } } },
                           "children": ["退出"]
                         }
                       ]
@@ -110,7 +100,7 @@
                 },
                 {
                   "type": "ALayoutContent",
-                  "props": { "style": { "type": "string", "body": "'padding: 24px; background: #f5f5f5; overflow-y: auto'" } },
+                  "props": { "style": 'padding: 24px; background: #f5f5f5; overflow-y: auto' },
                   "children": [
                     { "$expr": "props.pageContent" }
                   ]

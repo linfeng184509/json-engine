@@ -103,10 +103,10 @@
       "$fn": "var hash = window.location.hash; var match = hash.match(/\\/system\\/role\\/([^\\/]+)\\/permissions/); if (match) { state.roleId = match[1]; } else { window.location.hash = '#/system/role'; return; } methods.loadData();"
     },
     "loadData": {
-      "$fn": "state.loading = true; Promise.all([$_core_api.get('/api/role/' + state.roleId), $_core_api.get('/api/permission-tree'), $_core_api.get('/api/role/all'), $_core_api.get('/api/role/' + state.roleId + '/permissions/preview')]).then(function(results) { var roleRes = results[0]; var treeRes = results[1]; var rolesRes = results[2]; var previewRes = results[3]; if (roleRes.success) state.roleInfo = roleRes.data; if (treeRes.success) { state.permissionTree = treeRes.data; state.expandedKeys = ['p1', 'm1', 'm2']; } if (rolesRes.success) state.allRoles = rolesRes.data.filter(function(r) { return r.id !== state.roleId; }); if (previewRes.success) { state.previewData = previewRes.data.permissions; state.stats = previewRes.data.stats; state.inheritanceTree = previewRes.data.inheritanceTree; state.currentPermissions = { pages: previewRes.data.permissions.pages || [], forms: previewRes.data.permissions.forms || [], fields: previewRes.data.permissions.fields || [] }; } state.loading = false; }).catch(function(e) { console.error(e); state.loading = false; })"
+      "$fn": "state.loading = true; Promise.all([$_core.api.get('/api/role/' + state.roleId), $_core.api.get('/api/permission-tree'), $_core.api.get('/api/role/all'), $_core.api.get('/api/role/' + state.roleId + '/permissions/preview')]).then(function(results) { var roleRes = results[0]; var treeRes = results[1]; var rolesRes = results[2]; var previewRes = results[3]; if (roleRes.success) state.roleInfo = roleRes.data; if (treeRes.success) { state.permissionTree = treeRes.data; state.expandedKeys = ['p1', 'm1', 'm2']; } if (rolesRes.success) state.allRoles = rolesRes.data.filter(function(r) { return r.id !== state.roleId; }); if (previewRes.success) { state.previewData = previewRes.data.permissions; state.stats = previewRes.data.stats; state.inheritanceTree = previewRes.data.inheritanceTree; state.currentPermissions = { pages: previewRes.data.permissions.pages || [], forms: previewRes.data.permissions.forms || [], fields: previewRes.data.permissions.fields || [] }; } state.loading = false; }).catch(function(e) { console.error(e); state.loading = false; })"
     },
     "loadCompareResult": {
-      "$fn": "if (!state.compareRoleId) return; $_core_api.get('/api/role/compare', { params: { roleId1: state.roleId, roleId2: state.compareRoleId } }).then(function(res) { if (res.success) state.compareResult = res.data; else $_antd.message.error(res.error); });"
+      "$fn": "if (!state.compareRoleId) return; $_core.api.get('/api/role/compare', { params: { roleId1: state.roleId, roleId2: state.compareRoleId } }).then(function(res) { if (res.success) state.compareResult = res.data; else $_ui.antd.message.error(res.error); });"
     },
     "findNode": {
       "$fn": "var nodes = args[0]; var key = args[1]; for (var i = 0; i < nodes.length; i++) { var n = nodes[i]; if (n.key === key || n.id === key) return n; if (n.children) { var f = methods.findNode(n.children, key); if (f) return f; } } return null;"
@@ -127,10 +127,10 @@
       "$fn": "var fieldId = state.selectedNode.id; var fieldCode = state.selectedNode.code; var fieldName = state.selectedNode.name; var existingIdx = state.currentPermissions.fields.findIndex(function(f) { return f.fieldId === fieldId; }); var newPerm = { fieldId: fieldId, fieldCode: fieldCode, fieldName: fieldName, read: state.selectedNodePerm.read, write: state.selectedNodePerm.write, hidden: state.selectedNodePerm.hidden, privacy: state.selectedNodePerm.privacy, inherited: false }; if (existingIdx > -1) state.currentPermissions.fields[existingIdx] = newPerm; else state.currentPermissions.fields.push(newPerm); methods.updatePreview();"
     },
     "updatePreview": {
-      "$fn": "$_core_api.get('/api/role/' + state.roleId + '/permissions/preview').then(function(res) { if (res.success) { state.previewData = res.data.permissions; state.stats = res.data.stats; state.inheritanceTree = res.data.inheritanceTree; } });"
+      "$fn": "$_core.api.get('/api/role/' + state.roleId + '/permissions/preview').then(function(res) { if (res.success) { state.previewData = res.data.permissions; state.stats = res.data.stats; state.inheritanceTree = res.data.inheritanceTree; } });"
     },
     "handleSave": {
-      "$fn": "state.saving = true; $_core_api.put('/api/role/' + state.roleId + '/permissions', { permissions: state.currentPermissions }).then(function(res) { if (res.success) $_antd.message.success('保存成功'); else $_antd.message.error(res.error || '保存失败'); }).finally(function() { state.saving = false; });"
+      "$fn": "state.saving = true; $_core.api.put('/api/role/' + state.roleId + '/permissions', { permissions: state.currentPermissions }).then(function(res) { if (res.success) $_ui.antd.message.success('保存成功'); else $_ui.antd.message.error(res.error || '保存失败'); }).finally(function() { state.saving = false; });"
     },
     "handleBack": {
       "$fn": "window.location.hash = '#/system/role'"
@@ -173,13 +173,9 @@
             {
               "type": "AButton",
               "props": {
-                "icon": {
-                  "type": "string", "body": "'left'"
-                },
+                "icon": "'left'",
                 "onClick": {
-                  "type": "function",
-                  "params": "{{{}}}",
-                  "body": "{{methods.handleBack()}}"
+                  "$fn": "methods.handleBack()"
                 }
               },
               "children": [
@@ -225,9 +221,7 @@
             {
               "type": "ACard",
               "props": {
-                "title": {
-                  "type": "string", "body": "'权限树'"
-                },
+                "title": "'权限树'",
                 "style": "width: 400px; flex-shrink: 0"
               },
               "children": [
@@ -293,9 +287,7 @@
             {
               "type": "ACard",
               "props": {
-                "title": {
-                  "type": "string", "body": "'配置详情'"
-                },
+                "title": "'配置详情'",
                 "style": { "type": "object", "body": "{{{ \"flex\": \"1\" }}}" }
               },
               "children": [
@@ -392,12 +384,8 @@
                         {
                           "type": "ATabsTab",
                           "props": {
-                            "key": {
-                              "type": "string", "body": "'list'"
-                            },
-                            "tab": {
-                              "type": "string", "body": "'权限列表'"
-                            }
+                            "key": "'list'",
+                            "tab": "'权限列表'"
                           },
                           "children": [
                             {
@@ -417,9 +405,7 @@
                                     {
                                       "type": "AButton",
                                       "props": {
-                                        "size": {
-                                          "type": "string", "body": "'small'"
-                                        },
+                                        "size": "'small'",
                                         "onClick": {
                                           "$fn": "methods.handleBatchAllow($state.selectedNode.type)"
                                         }
@@ -431,9 +417,7 @@
                                     {
                                       "type": "AButton",
                                       "props": {
-                                        "size": {
-                                          "type": "string", "body": "'small'"
-                                        },
+                                        "size": "'small'",
                                         "onClick": {
                                           "$fn": "methods.handleBatchDeny($state.selectedNode.type)"
                                         }
@@ -502,12 +486,8 @@
                         {
                           "type": "ATabsTab",
                           "props": {
-                            "key": {
-                              "type": "string", "body": "'stats'"
-                            },
-                            "tab": {
-                              "type": "string", "body": "'权限统计'"
-                            }
+                            "key": "'stats'",
+                            "tab": "'权限统计'"
                           },
                           "children": [
                             {
@@ -711,12 +691,8 @@
                         {
                           "type": "ATabsTab",
                           "props": {
-                            "key": {
-                              "type": "string", "body": "'inheritance'"
-                            },
-                            "tab": {
-                              "type": "string", "body": "'继承关系'"
-                            }
+                            "key": "'inheritance'",
+                            "tab": "'继承关系'"
                           },
                           "children": [
                             {
@@ -724,17 +700,13 @@
                               "props": {
                                 "column": 1,
                                 "bordered": true,
-                                "size": {
-                                  "type": "string", "body": "'small'"
-                                }
+                                "size": "'small'"
                               },
                               "children": [
                                 {
                                   "type": "ADescriptionsItem",
                                   "props": {
-                                    "label": {
-                                      "type": "string", "body": "'继承说明'"
-                                    }
+                                    "label": "'继承说明'"
                                   },
                                   "children": [
                                     {
@@ -772,12 +744,8 @@
                         {
                           "type": "ATabsTab",
                           "props": {
-                            "key": {
-                              "type": "string", "body": "'compare'"
-                            },
-                            "tab": {
-                              "type": "string", "body": "'角色对比'"
-                            }
+                            "key": "'compare'",
+                            "tab": "'角色对比'"
                           },
                           "children": [
                             {
@@ -795,9 +763,7 @@
                                 {
                                   "type": "ASelect",
                                   "props": {
-                                    "placeholder": {
-                                      "type": "string", "body": "'请选择角色'"
-                                    },
+                                    "placeholder": "'请选择角色'",
                                     "value": {
                                       "$expr": "$state.compareRoleId"
                                     },
@@ -1003,9 +969,7 @@
                 {
                   "type": "AButton",
                   "props": {
-                    "type": {
-                      "type": "string", "body": "'primary'"
-                    },
+                    "type": "'primary'",
                     "loading": {
                       "$expr": "$state.saving"
                     },

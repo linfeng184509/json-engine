@@ -22,7 +22,10 @@
     "@json-engine/plugin-echarts": "*",
     "vue": "^3.4.0",
     "ant-design-vue": "^4.2.0",
-    "axios": "^1.7.0"
+    "axios": "^1.7.0",
+    "vue-router": "^4.3.0",
+    "vue-i18n": "^9.9.0",
+    "echarts": "^5.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",

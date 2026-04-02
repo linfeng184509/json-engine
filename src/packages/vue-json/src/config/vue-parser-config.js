@@ -68,6 +68,13 @@ const vueParserConfig = createParserConfig({
         props: propsValueParser,
         import: importValueParser,
     },
+    debug: {
+        enabled: true,
+        logLevel: 'debug',
+        onTrace: (trace) => {
+            console.log(`[DebugTrace] ${trace.parser} | ${trace.path} | ${trace.duration.toFixed(2)}ms`, trace.duration > 10 ? '⚠️ SLOW' : '');
+        },
+    },
 });
 export { vueParserConfig, createParserConfig };
 //# sourceMappingURL=vue-parser-config.js.map

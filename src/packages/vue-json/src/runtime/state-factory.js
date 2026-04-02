@@ -1,0 +1,134 @@
+import { ref, reactive, shallowRef, shallowReactive, toRef, toRefs, readonly, isRef, } from 'vue';
+import { evaluateExpression } from './value-resolver';
+import { ComponentCreationError } from '../utils/error';
+export function createState(definition, context) {
+    const state = {};
+    if (!definition)
+        return state;
+    for (const [stateName, stateDef] of Object.entries(definition)) {
+        try {
+            const def = stateDef;
+            const initialValue = evaluateInitialValue(def.initial, context);
+            switch (def.type) {
+                case 'ref':
+                    state[stateName] = ref(initialValue);
+                    break;
+                case 'reactive': {
+                    const obj = initialValue && typeof initialValue === 'object' ? initialValue : {};
+                    state[stateName] = reactive(obj);
+                    break;
+                }
+                case 'shallowRef':
+                    state[stateName] = shallowRef(initialValue);
+                    break;
+                case 'shallowReactive': {
+                    const obj = initialValue && typeof initialValue === 'object' ? initialValue : {};
+                    state[stateName] = shallowReactive(obj);
+                    break;
+                }
+                case 'toRef':
+                    if (def.source && def.key) {
+                        const source = getSourceValue(def.source, context, state);
+                        if (source && typeof source === 'object') {
+                            state[stateName] = toRef(source, def.key);
+                        }
+                    }
+                    break;
+                case 'toRefs':
+                    if (def.source) {
+                        const source = getSourceValue(def.source, context, state);
+                        if (source && typeof source === 'object') {
+                            Object.assign(state, toRefs(source));
+                        }
+                    }
+                    break;
+                case 'readonly': {
+                    if (def.source) {
+                        const source = getSourceValue(def.source, context, state);
+                        if (source && typeof source === 'object') {
+                            state[stateName] = readonly(source);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    state[stateName] = ref(initialValue);
+            }
+        }
+        catch (error) {
+            throw new ComponentCreationError(context.props?.['__componentName__'] || 'Unknown', `Failed to create state "${stateName}": ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+    return state;
+}
+/**
+ * Creates a Proxy wrapper around the state object that automatically
+ * unwraps `.value` from Vue ref objects when accessed via get,
+ * and wraps values in `.value` when setting.
+ *
+ * This allows $state.count to work without explicit .value references.
+ */
+export function createStateProxy(state) {
+    return new Proxy(state, {
+        get(target, prop) {
+            const value = target[prop];
+            if (isRef(value)) {
+                return value.value;
+            }
+            return value;
+        },
+        set(target, prop, value) {
+            const existing = target[prop];
+            if (isRef(existing)) {
+                existing.value = value;
+                return true;
+            }
+            target[prop] = value;
+            return true;
+        },
+    });
+}
+function evaluateInitialValue(initial, context) {
+    if (initial === null || initial === undefined) {
+        return initial;
+    }
+    if (typeof initial !== 'object') {
+        return initial;
+    }
+    const typed = initial;
+    if (typed._type === 'expression') {
+        return evaluateExpression(initial.expression, {
+            props: context.props,
+            state: {},
+            computed: {},
+            methods: {},
+            components: {},
+            slots: context.slots,
+            attrs: context.attrs,
+            emit: context.emit,
+            provide: {},
+        });
+    }
+    if (typed._type === 'state') {
+        return undefined;
+    }
+    if (typed._type === 'props') {
+        const ref = initial;
+        return context.props[ref.variable];
+    }
+    if (typed._type === 'function') {
+        return initial;
+    }
+    return initial;
+}
+function getSourceValue(source, setupContext, currentState) {
+    if (source === 'props') {
+        return setupContext.props;
+    }
+    if (source.startsWith('state.')) {
+        const stateKey = source.slice(6);
+        return currentState[stateKey];
+    }
+    return undefined;
+}
+//# sourceMappingURL=state-factory.js.map

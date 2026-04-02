@@ -264,13 +264,8 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     .replace(/\$state(?=\.|$|\s)/g, 'state')
     .replace(/\$props(?=\.|$|\s)/g, 'props')
     .replace(/\$computed(?=\.|$|\s)/g, 'computed')
-    .replace(/\$core\.api(?=\.|$|\s)/g, 'coreScope._api')
-    .replace(/\$core\.router(?=\.|$|\s)/g, 'coreScope._router')
-    .replace(/\$core\.storage(?=\.|$|\s)/g, 'coreScope._storage')
-    .replace(/\$core\.auth(?=\.|$|\s)/g, 'coreScope._auth')
-    .replace(/\$core\.i18n(?=\.|$|\s)/g, 'coreScope._i18n')
-    .replace(/\$core\.ws(?=\.|$|\s)/g, 'coreScope._ws')
-    .replace(/\$ui\.antd(?=\.|$|\s)/g, 'coreScope._antd');
+    .replace(/\$_(core|ui)\.(\w+)(?=\.|$|\s)/g, 'coreScope._$2')
+    .replace(/\$(core|ui)\.(\w+)(?=\.|$|\s)/g, 'coreScope._$2');
 
   const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
   const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
@@ -323,13 +318,8 @@ export function transformFunctionBody(body: string): string {
     .replace(/\$state(?=\.|$|\s)/g, 'state')
     .replace(/\$props(?=\.|$|\s)/g, 'props')
     .replace(/\$computed(?=\.|$|\s)/g, 'computed')
-    .replace(/\$core\.api(?=\.|$|\s)/g, 'coreScope._api')
-    .replace(/\$core\.router(?=\.|$|\s)/g, 'coreScope._router')
-    .replace(/\$core\.storage(?=\.|$|\s)/g, 'coreScope._storage')
-    .replace(/\$core\.auth(?=\.|$|\s)/g, 'coreScope._auth')
-    .replace(/\$core\.i18n(?=\.|$|\s)/g, 'coreScope._i18n')
-    .replace(/\$core\.ws(?=\.|$|\s)/g, 'coreScope._ws')
-    .replace(/\$ui\.antd(?=\.|$|\s)/g, 'coreScope._antd');
+    .replace(/\$_(core|ui)\.(\w+)(?=\.|$|\s)/g, 'coreScope._$2')
+    .replace(/\$(core|ui)\.(\w+)(?=\.|$|\s)/g, 'coreScope._$2');
 }
 
 function parseFunctionParams(params: Record<string, unknown> | string): string[] {

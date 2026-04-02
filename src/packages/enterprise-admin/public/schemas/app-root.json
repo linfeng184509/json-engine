@@ -9,13 +9,13 @@
   },
   "computed": {
     "hasToken": {
-      "get": { "$fn": "return $_core_storage.get('token') != null;" }
+      "get": { "$fn": "return $_core.storage.get('token') != null;" }
     }
   },
   "methods": {
     "loadPage": {
-      "$fn": "var path = (route || state.currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { state.error = 'Page not found'; return; } if (matched.redirect) { $_core_router.replace(matched.redirect); return; } var token = $_core_storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_core_router.push('/login'); return; } if (path === '/login' && token) { $_core_router.replace('/dashboard'); return; } state.isLoading = true; state.error = null; state.pageSchemaPath = matched.component; state.layoutSchemaPath = matched.meta?.layout || null; state.isLoading = false;",
-      "params": "{ \"route\": null }"
+      "$fn": "var path = (route || state.currentRoute).split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { state.error = 'Page not found'; return; } if (matched.redirect) { $_core.router.replace(matched.redirect); return; } var token = $_core.storage.get('token'); if (matched.meta && matched.meta.requiresAuth && !token) { $_core.router.push('/login'); return; } if (path === '/login' && token) { $_core.router.replace('/dashboard'); return; } state.isLoading = true; state.error = null; state.pageSchemaPath = matched.component; state.layoutSchemaPath = matched.meta?.layout || null; state.isLoading = false;",
+      "params": "{{{ {\"route\": null} }}}"
     },
     "handleHashChange": {
       "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute);"
@@ -35,30 +35,30 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
-      "props": { "class": { "type": "string", "body": "'app-root'" } },
+          "type": "div",
+          "props": { "class": "app-root" },
       "children": [
         {
           "type": "div",
           "directives": { "vIf": { "$expr": "$state.isLoading" } },
-          "props": { "class": { "type": "string", "body": "'loading-container'" } },
+          "props": { "class": "loading-container" },
           "children": [
-            { "type": "span", "props": { "class": { "type": "string", "body": "'ant-spin ant-spin-spinning'" } }, "children": ["Loading..."] }
+            { "type": "span", "props": { "class": "ant-spin ant-spin-spinning" }, "children": ["Loading..."] }
           ]
         },
         {
           "type": "div",
           "directives": { "vIf": { "$expr": "$state.error" } },
-          "props": { "class": { "type": "string", "body": "'error-container'" } },
+          "props": { "class": "error-container" },
           "children": [
             {
               "type": "div",
-              "props": { "class": { "type": "string", "body": "'error-result'" } },
+              "props": { "class": "error-result" },
               "children": [
-                { "type": "div", "props": { "class": { "type": "string", "body": "'error-icon'" } }, "children": ["!"] },
+                { "type": "div", "props": { "class": "error-icon" }, "children": ["!"] },
                 { "type": "h2", "children": ["Load Failed"] },
                 { "type": "p", "children": [{ "$expr": "$state.error" }] },
-                { "type": "button", "props": { "class": { "type": "string", "body": "'retry-btn'" } }, "directives": { "vOn": { "click": { "$fn": "methods.retry();" } } }, "children": ["Retry"] }
+                { "type": "button", "props": { "class": "retry-btn" }, "directives": { "vOn": { "click": { "$fn": "methods.retry();" } } }, "children": ["Retry"] }
               ]
             }
           ]

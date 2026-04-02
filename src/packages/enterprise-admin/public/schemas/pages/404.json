@@ -1,22 +1,22 @@
 {
   "name": "NotFoundPage",
   "methods": {
-    "goHome": { "type": "function", "params": "{{{}}}", "body": "{{window.location.hash = '#/';}}" }
+    "goHome": { "$fn": "window.location.hash = '#/';}" }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "div",
       "props": {
-        "class": { "type": "string", "body": "'not-found-container'" }
+        "class": "'not-found-container'"
       },
       "children": [
         {
           "type": "AResult",
           "props": {
-            "status": { "type": "string", "body": "'404'" },
-            "title": { "type": "string", "body": "'页面未找到'" },
-            "subTitle": { "type": "string", "body": "'抱歉，您访问的页面不存在'" }
+            "status": "'404'",
+            "title": "'页面未找到'",
+            "subTitle": "'抱歉，您访问的页面不存在'"
           },
           "children": [
             {
@@ -25,12 +25,12 @@
                 {
                   "type": "AButton",
                   "props": {
-                    "type": { "type": "string", "body": "'primary'" },
-                    "size": { "type": "string", "body": "'large'" }
+                    "type": "'primary'",
+                    "size": "'large'"
                   },
                   "directives": {
                     "vOn": {
-                      "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.goHome();}}" }
+                      "click": { "$fn": "methods.goHome();" }
                     }
                   },
                   "children": ["返回首页"]

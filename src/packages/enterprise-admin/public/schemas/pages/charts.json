@@ -28,22 +28,22 @@
     "type": "template",
     "content": {
       "type": "div",
-      "props": { "class": { "type": "string", "body": "'charts-container'" } },
+      "props": { "class": "'charts-container'" },
       "children": [
         {
           "type": "h2",
-          "props": { "class": { "type": "string", "body": "'charts-title'" } },
+          "props": { "class": "'charts-title'" },
           "children": ["ECharts 图表示例"]
         },
         {
           "type": "div",
-          "props": { "class": { "type": "string", "body": "'chart-row'" } },
+          "props": { "class": "'chart-row'" },
           "children": [
             {
               "type": "ACard",
               "props": {
-                "title": { "type": "string", "body": "'柱状图'" },
-                "class": { "type": "string", "body": "'chart-card'" }
+                "title": "'柱状图'",
+                "class": "'chart-card'"
               },
               "children": [
                 {
@@ -79,19 +79,17 @@
                 },
                 {
                   "type": "div",
-                  "props": { "class": { "type": "string", "body": "'chart-actions'" } },
+                  "props": { "class": "'chart-actions'" },
                   "children": [
                     {
                       "type": "AButton",
                       "props": {
-                        "type": { "type": "string", "body": "'primary'" }
+                        "type": "'primary'"
                       },
                       "directives": {
                         "vOn": {
                           "click": {
-                            "type": "function",
-                            "params": "{{{}}}",
-                            "body": "{{methods.updateData()}}"
+                            "$fn": "methods.updateData()"
                           }
                         }
                       },
@@ -104,8 +102,8 @@
             {
               "type": "ACard",
               "props": {
-                "title": { "type": "string", "body": "'饼图'" },
-                "class": { "type": "string", "body": "'chart-card'" }
+                "title": "'饼图'",
+                "class": "'chart-card'"
               },
               "children": [
                 {

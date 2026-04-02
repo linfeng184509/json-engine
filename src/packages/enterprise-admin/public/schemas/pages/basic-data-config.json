@@ -41,7 +41,7 @@
   },
   "methods": {
     "loadTreeData": {
-      "$fn": "state.loading=true; $_core_api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,parentId:n.parentId,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; state.treeData=transform(raw); state.expandedKeys=['p1','m1','m2']; state.loading=false}).catch(function(e){console.error(e); state.loading=false})",
+      "$fn": "state.loading=true; $_core.api.get('/api/basic-data/tree').then(function(d){var raw=d.data||[]; var transform=function(nodes){return nodes.map(function(n){var r={key:n.id,title:n.name,type:n.type,code:n.code,id:n.id,parentId:n.parentId,permissions:n.permissions}; if(n.children&&n.children.length>0){r.children=transform(n.children)} return r})}; state.treeData=transform(raw); state.expandedKeys=['p1','m1','m2']; state.loading=false}).catch(function(e){console.error(e); state.loading=false})",
       "cached": false
     },
     "onSelect": {
@@ -61,7 +61,7 @@
       "cached": false
     },
     "handleSavePermissions": {
-      "$fn": "if(!state.selectedNode||state.selectedNode.type!=='field')return; state.saving=true; var data={permissions:{read:state.editForm.read,write:state.editForm.write,hidden:state.editForm.hidden,privacy:state.editForm.privacy}}; $_core_api.put('/api/basic-data/node/'+state.selectedNode.id,data).then(function(res){if(res.success){$_antd.message.success('保存成功'); methods.loadTreeData()}else{$_antd.message.error(res.error||'保存失败')}}).catch(function(e){$_antd.message.error('保存失败');console.error(e)}).finally(function(){state.saving=false})",
+      "$fn": "if(!state.selectedNode||state.selectedNode.type!=='field')return; state.saving=true; var data={permissions:{read:state.editForm.read,write:state.editForm.write,hidden:state.editForm.hidden,privacy:state.editForm.privacy}}; $_core.api.put('/api/basic-data/node/'+state.selectedNode.id,data).then(function(res){if(res.success){$_ui.antd.message.success('保存成功'); methods.loadTreeData()}else{$_ui.antd.message.error(res.error||'保存失败')}}).catch(function(e){$_ui.antd.message.error('保存失败');console.error(e)}).finally(function(){state.saving=false})",
       "cached": false
     },
     "handleAddNode": {
@@ -69,7 +69,7 @@
       "cached": false
     },
     "confirmAddNode": {
-      "$fn": "if(!state.addFormData.code||!state.addFormData.name){$_antd.message.warning('请填写必填项');return} state.saving=true; var data={code:state.addFormData.code,name:state.addFormData.name,type:state.addFormData.nodeType,parentId:state.selectedNode.id,permissions:{read:true,write:true,hidden:false,privacy:false}}; $_core_api.post('/api/basic-data/node',data).then(function(res){if(res.success){$_antd.message.success('新增成功'); state.addModalVisible=false; methods.loadTreeData()}else{$_antd.message.error(res.error||'新增失败')}}).catch(function(e){$_antd.message.error('新增失败');console.error(e)}).finally(function(){state.saving=false})",
+      "$fn": "if(!state.addFormData.code||!state.addFormData.name){$_ui.antd.message.warning('请填写必填项');return} state.saving=true; var data={code:state.addFormData.code,name:state.addFormData.name,type:state.addFormData.nodeType,parentId:state.selectedNode.id,permissions:{read:true,write:true,hidden:false,privacy:false}}; $_core.api.post('/api/basic-data/node',data).then(function(res){if(res.success){$_ui.antd.message.success('新增成功'); state.addModalVisible=false; methods.loadTreeData()}else{$_ui.antd.message.error(res.error||'新增失败')}}).catch(function(e){$_ui.antd.message.error('新增失败');console.error(e)}).finally(function(){state.saving=false})",
       "cached": false
     },
     "cancelAddNode": {
@@ -81,7 +81,7 @@
       "cached": false
     },
     "confirmDeleteNode": {
-      "$fn": "if(!state.selectedNode)return; state.saving=true; $_core_api.delete('/api/basic-data/node/'+state.selectedNode.id).then(function(res){if(res.success){$_antd.message.success('删除成功'); state.deleteModalVisible=false; state.selectedKey=null; state.selectedNode=null; methods.loadTreeData()}else{$_antd.message.error(res.error||'删除失败')}}).catch(function(e){$_antd.message.error('删除失败');console.error(e)}).finally(function(){state.saving=false})",
+      "$fn": "if(!state.selectedNode)return; state.saving=true; $_core.api.delete('/api/basic-data/node/'+state.selectedNode.id).then(function(res){if(res.success){$_ui.antd.message.success('删除成功'); state.deleteModalVisible=false; state.selectedKey=null; state.selectedNode=null; methods.loadTreeData()}else{$_ui.antd.message.error(res.error||'删除失败')}}).catch(function(e){$_ui.antd.message.error('删除失败');console.error(e)}).finally(function(){state.saving=false})",
       "cached": false
     },
     "cancelDeleteNode": {
@@ -99,19 +99,13 @@
     "content": {
       "type": "div",
       "props": {
-        "style": {
-          "type": "string",
-          "body": "'padding: 24px'"
-        }
+        "style": "'padding: 24px'"
       },
       "children": [
         {
           "type": "div",
           "props": {
-            "style": {
-              "type": "string",
-              "body": "'margin-bottom: 16px'"
-            }
+            "style": "'margin-bottom: 16px'"
           },
           "children": [
             {
@@ -120,21 +114,13 @@
                 {
                   "type": "AButton",
                   "props": {
-                    "type": {
-                      "type": "string",
-                      "body": "'primary'"
-                    },
-                    "icon": {
-                      "type": "string",
-                      "body": "'plus'"
-                    },
+                    "type": "'primary'",
+                    "icon": "'plus'",
                     "disabled": {
                       "$expr": "!computed.canAddChild"
                     },
                     "onClick": {
-                      "type": "function",
-                      "params": "{{{}}}",
-                      "body": "{{methods.handleAddNode()}}"
+                      "$fn": "methods.handleAddNode()"
                     }
                   },
                   "children": ["新增节点"]
@@ -142,18 +128,13 @@
                 {
                   "type": "AButton",
                   "props": {
-                    "icon": {
-                      "type": "string",
-                      "body": "'delete'"
-                    },
+                    "icon": "'delete'",
                     "danger": true,
                     "disabled": {
                       "$expr": "!computed.isNotRoot"
                     },
                     "onClick": {
-                      "type": "function",
-                      "params": "{{{}}}",
-                      "body": "{{methods.handleDeleteNode()}}"
+                      "$fn": "methods.handleDeleteNode()"
                     }
                   },
                   "children": ["删除节点"]
@@ -178,10 +159,7 @@
                   "type": "string",
                   "body": "'层级结构'"
                 },
-                "style": {
-                  "type": "string",
-                  "body": "'width: 360px; flex-shrink: 0'"
-                }
+                "style": "'width: 360px; flex-shrink: 0'"
               },
               "children": [
                 {
@@ -192,10 +170,7 @@
                     }
                   },
                   "props": {
-                    "style": {
-                      "type": "string",
-                      "body": "'text-align: center; padding: 40px 0'"
-                    }
+                    "style": "'text-align: center; padding: 40px 0'"
                   },
                   "children": [{"type": "ASpin"}]
                 },
@@ -234,10 +209,7 @@
                   "type": "string",
                   "body": "'配置详情'"
                 },
-                "style": {
-                  "type": "string",
-                  "body": "'flex: 1'"
-                }
+                "style": "'flex: 1'"
               },
               "children": [
                 {
@@ -248,10 +220,7 @@
                     }
                   },
                   "props": {
-                    "style": {
-                      "type": "string",
-                      "body": "'text-align: center; padding: 60px 0; color: #999'"
-                    }
+                    "style": "'text-align: center; padding: 60px 0; color: #999'"
                   },
                   "children": ["请从左侧选择一个节点"]
                 },
@@ -266,10 +235,7 @@
                     {
                       "type": "div",
                       "props": {
-                        "style": {
-                          "type": "string",
-                          "body": "'margin-bottom: 16px'"
-                        }
+                        "style": "'margin-bottom: 16px'"
                       },
                       "children": [
                         {
@@ -288,10 +254,7 @@
                         {
                           "type": "span",
                           "props": {
-                            "style": {
-                              "type": "string",
-                              "body": "'margin-left: 8px; font-weight: 500'"
-                            }
+                            "style": "'margin-left: 8px; font-weight: 500'"
                           },
                           "children": [
                             {
@@ -306,19 +269,13 @@
                       "props": {
                         "column": 2,
                         "bordered": true,
-                        "size": {
-                          "type": "string",
-                          "body": "'small'"
-                        }
+                        "size": "'small'"
                       },
                       "children": [
                         {
                           "type": "ADescriptionsItem",
                           "props": {
-                            "label": {
-                              "type": "string",
-                              "body": "'编码'"
-                            }
+                            "label": "'编码'"
                           },
 "children": [
                             {
@@ -329,10 +286,7 @@
                         {
                           "type": "ADescriptionsItem",
                           "props": {
-                            "label": {
-                              "type": "string",
-                              "body": "'名称'"
-                            }
+                            "label": "'名称'"
                           },
                           "children": [
                             {
@@ -343,10 +297,7 @@
                         {
                           "type": "ADescriptionsItem",
                           "props": {
-                            "label": {
-                              "type": "string",
-                              "body": "'类型'"
-                            }
+                            "label": "'类型'"
                           },
                           "children": [
                             {
@@ -357,10 +308,7 @@
                         {
                           "type": "ADescriptionsItem",
                           "props": {
-                            "label": {
-                              "type": "string",
-                              "body": "'ID'"
-                            }
+                            "label": "'ID'"
                           },
 "children": [
                             {
@@ -378,10 +326,7 @@
                     }
                       },
                       "props": {
-                        "style": {
-                          "type": "string",
-                          "body": "'margin-top: 24px'"
-                        }
+                        "style": "'margin-top: 24px'"
                       },
                       "children": [
                         {
@@ -400,10 +345,7 @@
                             "onChange": {
                               "$fn": "state.editForm.read=args[0].target.checked"
                             },
-                            "style": {
-                              "type": "string",
-                              "body": "'margin-right: 24px'"
-                            }
+                            "style": "'margin-right: 24px'"
                           },
                           "children": ["可读"]
                         },
@@ -416,10 +358,7 @@
                             "onChange": {
                               "$fn": "state.editForm.write=args[0].target.checked"
                             },
-                            "style": {
-                              "type": "string",
-                              "body": "'margin-right: 24px'"
-                            }
+                            "style": "'margin-right: 24px'"
                           },
                           "children": ["可写"]
                         },
@@ -432,10 +371,7 @@
                             "onChange": {
                               "$fn": "state.editForm.hidden=args[0].target.checked"
                             },
-                            "style": {
-                              "type": "string",
-                              "body": "'margin-right: 24px'"
-                            }
+                            "style": "'margin-right: 24px'"
                           },
                           "children": ["隐藏"]
                         },
@@ -454,22 +390,14 @@
                         {
                           "type": "AButton",
                           "props": {
-                            "type": {
-                              "type": "string",
-                              "body": "'primary'"
-                            },
+                            "type": "'primary'",
                             "loading": {
                               "$expr": "$state.saving"
                             },
                             "onClick": {
-                              "type": "function",
-                              "params": "{{{}}}",
-                              "body": "{{methods.handleSavePermissions()}}"
+                              "$fn": "methods.handleSavePermissions()"
                             },
-                            "style": {
-                              "type": "string",
-                              "body": "'margin-top: 16px'"
-                            }
+                            "style": "'margin-top: 16px'"
                           },
                           "children": ["保存权限"]
                         }
@@ -484,22 +412,15 @@
         {
           "type": "AModal",
           "props": {
-            "title": {
-              "type": "string",
-              "body": "'新增节点'"
-            },
+            "title": "'新增节点'",
             "open": {
               "$expr": "$state.addModalVisible"
             },
             "onOk": {
-              "type": "function",
-              "params": "{{{}}}",
-              "body": "{{methods.confirmAddNode()}}"
+              "$fn": "methods.confirmAddNode()"
             },
             "onCancel": {
-              "type": "function",
-              "params": "{{{}}}",
-              "body": "{{methods.cancelAddNode()}}"
+              "$fn": "methods.cancelAddNode()"
             },
             "confirmLoading": {
               "$expr": "$state.saving"
@@ -515,20 +436,14 @@
                 {
                   "type": "AFormItem",
                   "props": {
-                    "label": {
-                      "type": "string",
-                      "body": "'节点编码'"
-                    },
+                    "label": "'节点编码'",
                     "required": true
                   },
                   "children": [
                     {
                       "type": "AInput",
                       "props": {
-                        "placeholder": {
-                          "type": "string",
-                          "body": "'请输入节点编码'"
-                        },
+                        "placeholder": "'请输入节点编码'",
                         "value": {
                           "$expr": "$state.addFormData.code"
                         },
@@ -542,20 +457,14 @@
                 {
                   "type": "AFormItem",
                   "props": {
-                    "label": {
-                      "type": "string",
-                      "body": "'节点名称'"
-                    },
+                    "label": "'节点名称'",
                     "required": true
                   },
                   "children": [
                     {
                       "type": "AInput",
                       "props": {
-                        "placeholder": {
-                          "type": "string",
-                          "body": "'请输入节点名称'"
-                        },
+                        "placeholder": "'请输入节点名称'",
                         "value": {
                           "$expr": "$state.addFormData.name"
                         },
@@ -569,10 +478,7 @@
                 {
                   "type": "AFormItem",
                   "props": {
-                    "label": {
-                      "type": "string",
-                      "body": "'节点类型'"
-                    }
+                    "label": "'节点类型'"
                   },
                   "children": [
                     {
@@ -590,50 +496,35 @@
                         {
                           "type": "ASelectOption",
                           "props": {
-                            "value": {
-                              "type": "string",
-                              "body": "'menu'"
-                            }
+                            "value": "'menu'"
                           },
                           "children": ["菜单"]
                         },
                         {
                           "type": "ASelectOption",
                           "props": {
-                            "value": {
-                              "type": "string",
-                              "body": "'page'"
-                            }
+                            "value": "'page'"
                           },
                           "children": ["页面"]
                         },
                         {
                           "type": "ASelectOption",
                           "props": {
-                            "value": {
-                              "type": "string",
-                              "body": "'feature'"
-                            }
+                            "value": "'feature'"
                           },
                           "children": ["功能"]
                         },
                         {
                           "type": "ASelectOption",
                           "props": {
-                            "value": {
-                              "type": "string",
-                              "body": "'form'"
-                            }
+                            "value": "'form'"
                           },
                           "children": ["表单"]
                         },
                         {
                           "type": "ASelectOption",
                           "props": {
-                            "value": {
-                              "type": "string",
-                              "body": "'field'"
-                            }
+                            "value": "'field'"
                           },
                           "children": ["字段"]
                         }
@@ -648,22 +539,15 @@
         {
           "type": "AModal",
           "props": {
-            "title": {
-              "type": "string",
-              "body": "'确认删除'"
-            },
+            "title": "'确认删除'",
             "open": {
               "$expr": "$state.deleteModalVisible"
             },
             "onOk": {
-              "type": "function",
-              "params": "{{{}}}",
-              "body": "{{methods.confirmDeleteNode()}}"
+              "$fn": "methods.confirmDeleteNode()"
             },
             "onCancel": {
-              "type": "function",
-              "params": "{{{}}}",
-              "body": "{{methods.cancelDeleteNode()}}"
+              "$fn": "methods.cancelDeleteNode()"
             },
 "confirmLoading": {
               "$expr": "$state.saving"

@@ -226,13 +226,14 @@ export class PluginRegistry {
       router: 'vue-router',
       echarts: 'echarts',
       pinia: 'pinia',
-      i18n: 'vue-i18n',
     };
 
     const peerDep = peerMap[pluginShortName];
     if (peerDep) {
       try {
-        require.resolve(peerDep);
+        if (typeof require !== 'undefined' && require.resolve) {
+          require.resolve(peerDep);
+        }
       } catch {
         console.warn(
           `[${plugin.name}] peerDependency "${peerDep}" not installed.\nPlease run: npm install ${peerDep}`
