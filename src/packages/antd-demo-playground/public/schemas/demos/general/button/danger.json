@@ -4,6 +4,7 @@
     "type": "template",
     "content": {
       "type": "ASpace",
+      "props": { "wrap": true },
       "children": [
         { "type": "AButton", "props": { "type": "primary", "danger": true }, "children": ["Primary"] },
         { "type": "AButton", "props": { "danger": true }, "children": ["Default"] },

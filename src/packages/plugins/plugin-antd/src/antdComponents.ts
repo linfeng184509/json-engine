@@ -143,6 +143,16 @@ const basicComponents: AntdComponentDefinition[] = [
   { name: 'ACalendar', component: Antd.Calendar },
   { name: 'ACarousel', component: Antd.Carousel },
   {
+    name: 'ATypography',
+    component: Antd.Typography,
+    subComponents: [
+      { name: 'ATypographyTitle', component: Antd.Typography.Title },
+      { name: 'ATypographyParagraph', component: Antd.Typography.Paragraph },
+      { name: 'ATypographyText', component: Antd.Typography.Text },
+      { name: 'ATypographyLink', component: Antd.Typography.Link },
+    ],
+  },
+  {
     name: 'ACollapse',
     component: Antd.Collapse,
     subComponents: [{ name: 'ACollapsePanel', component: Antd.Collapse.Panel }],

@@ -4,12 +4,17 @@
     "type": "template",
     "content": {
       "type": "div",
-      "props": { "style": "background:rgb(190,200,200);padding:16px" },
+      "props": { "style": "background:rgb(190,200,200);padding:16px 16px" },
       "children": [
-        { "type": "AButton", "props": { "type": "primary", "ghost": true }, "children": ["Primary"] },
-        { "type": "AButton", "props": { "ghost": true }, "children": ["Default"] },
-        { "type": "AButton", "props": { "type": "dashed", "ghost": true }, "children": ["Dashed"] },
-        { "type": "AButton", "props": { "type": "link", "ghost": true }, "children": ["Link"] }
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "primary", "ghost": true }, "children": ["Primary"] },
+            { "type": "AButton", "props": { "ghost": true }, "children": ["Default"] },
+            { "type": "AButton", "props": { "type": "dashed", "ghost": true }, "children": ["Dashed"] },
+            { "type": "AButton", "props": { "type": "primary", "danger": true, "ghost": true }, "children": ["Danger"] }
+          ]
+        }
       ]
     }
   }

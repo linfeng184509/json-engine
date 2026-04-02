@@ -1,7 +1,7 @@
 {
   "name": "RateBasicDemo",
   "state": {
-    "value": { "type": "ref", "initial": 3 }
+    "value": { "type": "ref", "initial": 2 }
   },
   "render": {
     "type": "template",

@@ -1,18 +1,16 @@
 {
   "name": "CheckboxBasicDemo",
   "state": {
-    "checked": { "type": "ref", "initial": true }
+    "checked": { "type": "ref", "initial": false }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "ACheckbox",
-      "props": {
-        "checked": { "type": "expression", "body": "{{}}" }
-      },
       "directives": {
-        "vOn": {
-          "update:checked": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_checked.value = args[0]}}" }
+        "vModel": {
+          "prop": { "_type": "reference", "prefix": "state", "variable": "checked" },
+          "arg": "checked"
         }
       },
       "children": ["Checkbox"]

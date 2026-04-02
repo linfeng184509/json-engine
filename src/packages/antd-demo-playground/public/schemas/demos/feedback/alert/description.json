@@ -6,10 +6,45 @@
       "type": "ASpace",
       "props": { "direction": "vertical", "style": "width:100%" },
       "children": [
-        { "type": "AAlert", "props": { "message": "Success Tips", "description": "Detailed description and advice about successful copywriting.", "type": "success", "showIcon": true } },
-        { "type": "AAlert", "props": { "message": "Informational Notes", "description": "Additional description and information about copywriting.", "type": "info", "showIcon": true } },
-        { "type": "AAlert", "props": { "message": "Warning", "description": "This is a warning notice about copywriting.", "type": "warning", "showIcon": true, "closable": true } },
-        { "type": "AAlert", "props": { "message": "Error", "description": "This is an error message about copywriting.", "type": "error", "showIcon": true } }
+        {
+          "type": "AAlert",
+          "props": { "message": "Success Text", "type": "success" },
+          "children": [
+            {
+              "type": "p",
+              "directives": { "vSlot": { "name": "description" } },
+              "children": [
+                "Success Description ",
+                { "type": "span", "props": { "style": "color:red" }, "children": ["Success"] },
+                " Description Success Description"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "AAlert",
+          "props": {
+            "message": "Info Text",
+            "description": "Info Description Info Description Info Description Info Description",
+            "type": "info"
+          }
+        },
+        {
+          "type": "AAlert",
+          "props": {
+            "message": "Warning Text",
+            "description": "Warning Description Warning Description Warning Description Warning Description",
+            "type": "warning"
+          }
+        },
+        {
+          "type": "AAlert",
+          "props": {
+            "message": "Error Text",
+            "description": "Error Description Error Description Error Description Error Description",
+            "type": "error"
+          }
+        }
       ]
     }
   }

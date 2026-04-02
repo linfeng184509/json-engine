@@ -1,20 +1,34 @@
 {
   "name": "SwitchLoadingDemo",
+  "state": {
+    "checked1": { "type": "ref", "initial": true },
+    "checked2": { "type": "ref", "initial": false }
+  },
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
       "children": [
         {
-          "type": "h3",
-          "children": ["Switch Loading"]
+          "type": "ASwitch",
+          "props": { "loading": true },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "checked1" },
+              "arg": "checked"
+            }
+          }
         },
         {
-          "type": "ASpace",
-          "children": [
-            { "type": "ASwitch", "props": { "loading": true, "checked": true } },
-            { "type": "ASwitch", "props": { "loading": true, "checked": false } }
-          ]
+          "type": "ASwitch",
+          "props": { "loading": true, "size": "small" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "checked2" },
+              "arg": "checked"
+            }
+          }
         }
       ]
     }

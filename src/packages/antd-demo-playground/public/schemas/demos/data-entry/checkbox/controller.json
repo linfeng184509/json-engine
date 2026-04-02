@@ -1,14 +1,18 @@
 {
   "name": "CheckboxControllerDemo",
   "state": {
-    "checked": { "type": "ref", "initial": false }
+    "checked": { "type": "ref", "initial": false },
+    "disabled": { "type": "ref", "initial": false }
+  },
+  "computed": {
+    "label": {
+      "type": "computed",
+      "body": "{{(ref_state_checked.value ? 'Checked' : 'Unchecked') + '-' + (ref_state_disabled.value ? 'Disabled' : 'Enabled')}}"
+    }
   },
   "methods": {
-    "toggle": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_checked = !ref_state_checked}}"
-    }
+    "toggleChecked": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_checked.value = !ref_state_checked.value}}" },
+    "toggleDisable": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_disabled.value = !ref_state_disabled.value}}" }
   },
   "render": {
     "type": "template",
@@ -16,28 +20,38 @@
       "type": "div",
       "children": [
         {
-          "type": "h3",
-          "children": ["Checkbox Controller"]
-        },
-        {
-          "type": "ASpace",
+          "type": "p",
+          "props": { "style": "margin-bottom:20px" },
           "children": [
             {
               "type": "ACheckbox",
-              "props": {
-                "checked": { "type": "expression", "body": "{{ref_state_checked}}" }
+              "directives": {
+                "vModel": {
+                  "prop": { "_type": "reference", "prefix": "state", "variable": "checked" },
+                  "arg": "checked"
+                }
               },
-              "children": ["Checkbox"]
-            },
+              "props": {
+                "disabled": { "type": "expression", "body": "{{ref_state_disabled}}" }
+              },
+              "children": [{ "type": "expression", "body": "{{ref_computed_label}}" }]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "children": [
             {
               "type": "AButton",
               "props": { "type": "primary", "size": "small" },
-              "directives": {
-                "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.toggle()}}" }
-                }
-              },
-              "children": ["Toggle"]
+              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.toggleChecked()}}" } } },
+              "children": [{ "type": "expression", "body": "{{!ref_state_checked.value ? 'Check' : 'Uncheck'}}" }]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "size": "small", "style": "margin-left:10px" },
+              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.toggleDisable()}}" } } },
+              "children": [{ "type": "expression", "body": "{{!ref_state_disabled.value ? 'Disable' : 'Enable'}}" }]
             }
           ]
         }

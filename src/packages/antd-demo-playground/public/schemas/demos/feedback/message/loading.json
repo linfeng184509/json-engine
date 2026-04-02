@@ -1,25 +1,22 @@
 {
   "name": "MessageLoadingDemo",
+  "methods": {
+    "success": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{var hide = $_antd.message.loading('Action in progress..', 0); setTimeout(hide, 2500);}}"
+    }
+  },
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
-      "children": [
-        {
-          "type": "h3",
-          "children": ["Message Loading"]
-        },
-        {
-          "type": "AButton",
-          "props": { "type": "primary" },
-          "directives": {
-            "vOn": {
-              "click": { "type": "function", "params": "{{{}}}", "body": "{{AMessage.loading('Loading...', 0)}}var hide = AMessage.loading('Loading...', 2.5); setTimeout(function(){ hide(); }, 2500);" }
-            }
-          },
-          "children": ["Show Loading Message"]
+      "type": "AButton",
+      "directives": {
+        "vOn": {
+          "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.success()}}" }
         }
-      ]
+      },
+      "children": ["Display a loading indicator"]
     }
   }
 }

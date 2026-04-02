@@ -1,26 +1,19 @@
 {
   "name": "RadioBasicDemo",
   "state": {
-    "value": { "type": "ref", "initial": 1 }
+    "checked": { "type": "ref", "initial": false }
   },
   "render": {
     "type": "template",
     "content": {
-      "type": "ARadioGroup",
-      "props": {
-        "value": { "type": "expression", "body": "{{ref_state_value}}" }
-      },
+      "type": "ARadio",
       "directives": {
-        "vOn": {
-          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_value.value = args[0]}}" }
+        "vModel": {
+          "prop": { "_type": "reference", "prefix": "state", "variable": "checked" },
+          "arg": "checked"
         }
       },
-      "children": [
-        { "type": "ARadio", "props": { "value": 1 }, "children": ["A"] },
-        { "type": "ARadio", "props": { "value": 2 }, "children": ["B"] },
-        { "type": "ARadio", "props": { "value": 3 }, "children": ["C"] },
-        { "type": "ARadio", "props": { "value": 4 }, "children": ["D"] }
-      ]
+      "children": ["Radio"]
     }
   }
 }

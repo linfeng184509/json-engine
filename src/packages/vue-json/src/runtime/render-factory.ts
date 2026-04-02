@@ -1,4 +1,4 @@
-import { h, type VNode, type Component } from 'vue';
+import { h, Fragment, type VNode, type Component } from 'vue';
 import type {
   VNodeDefinition,
   VNodeChildren,
@@ -94,6 +94,18 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
         .filter((vn): vn is VNode => vn !== null);
       return vnodes.length > 0 ? vnodes[0] : null;
     }
+  }
+
+  // Handle template elements: render children directly instead of the template element
+  if (node.type === 'template') {
+    const children = resolveNodeChildren(node.children, node.directives, context);
+    if (Array.isArray(children)) {
+      return children.length === 1 ? children[0] as VNode : h(Fragment, children);
+    }
+    if (children) {
+      return children as VNode;
+    }
+    return null;
   }
 
   const type = resolveNodeType(node.type, context);

@@ -5,11 +5,9 @@
     "content": {
       "type": "ASpace",
       "children": [
+        { "type": "SmileTwoTone" },
         { "type": "HeartTwoTone", "props": { "twoToneColor": "#eb2f96" } },
-        { "type": "HeartTwoTone", "props": { "twoToneColor": "green" } },
-        { "type": "CheckCircleTwoTone", "props": { "twoToneColor": "#52c41a" } },
-        { "type": "InfoCircleTwoTone", "props": { "twoToneColor": "#1677ff" } },
-        { "type": "CloseCircleTwoTone", "props": { "twoToneColor": "#ff4d4f" } }
+        { "type": "CheckCircleTwoTone", "props": { "twoToneColor": "#52c41a" } }
       ]
     }
   }

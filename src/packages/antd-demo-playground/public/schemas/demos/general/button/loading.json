@@ -1,29 +1,56 @@
 {
   "name": "ButtonLoadingDemo",
   "state": {
-    "loading": { "type": "ref", "initial": false }
+    "loading": { "type": "ref", "initial": false },
+    "iconLoading": { "type": "ref", "initial": false }
   },
   "methods": {
-    "enterLoading": {
+    "enterIconLoading": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ref_state_loading.value = true; setTimeout(function() { ref_state_loading.value = false; }, 3000);}}"
+      "body": "{{ref_state_iconLoading = { delay: 1000 }; setTimeout(function() { ref_state_iconLoading.value = false; }, 6000);}}"
     }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "ASpace",
+      "props": { "direction": "vertical" },
       "children": [
-        { "type": "AButton", "props": { "type": "primary", "loading": true }, "children": ["Loading"] },
-        { 
-          "type": "AButton", 
-          "props": { 
-            "type": "primary", 
-            "loading": { "type": "expression", "body": "{{ref_state_loading}}" } 
-          }, 
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.enterLoading()}}" } } },
-          "children": ["Click me!"]
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "primary", "loading": true }, "children": ["Loading"] },
+            { "type": "AButton", "props": { "type": "primary", "size": "small", "loading": true }, "children": ["Loading"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "loading": { "type": "expression", "body": "{{ref_state_loading}}" } },
+              "directives": { "vOn": { "mouseenter": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_loading = true}}" } } },
+              "children": ["mouseenter me!"]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "loading": { "type": "expression", "body": "{{ref_state_iconLoading}}" } },
+              "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.enterIconLoading()}}" } } },
+              "children": [
+                { "type": "PoweroffOutlined", "directives": { "vSlot": { "name": "icon" } } },
+                "延迟1s"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "primary", "loading": true } },
+            { "type": "AButton", "props": { "type": "primary", "shape": "circle", "loading": true } },
+            { "type": "AButton", "props": { "danger": true, "shape": "round", "loading": true } }
+          ]
         }
       ]
     }

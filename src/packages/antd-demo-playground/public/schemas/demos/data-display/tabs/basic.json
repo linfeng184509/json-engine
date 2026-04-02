@@ -8,16 +8,17 @@
     "content": {
       "type": "ATabs",
       "props": {
-        "activeKey": { "type": "expression", "body": "{{}}" }
+        "activeKey": { "type": "expression", "body": "{{ref_state_activeKey}}" }
       },
       "directives": {
-        "vOn": {
-          "update:activeKey": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_activeKey.value = args[0]}}" }
+        "vModel": {
+          "prop": { "_type": "reference", "prefix": "state", "variable": "activeKey" },
+          "arg": "activeKey"
         }
       },
       "children": [
         { "type": "ATabPane", "props": { "tab": "Tab 1", "key": "1" }, "children": ["Content of Tab Pane 1"] },
-        { "type": "ATabPane", "props": { "tab": "Tab 2", "key": "2" }, "children": ["Content of Tab Pane 2"] },
+        { "type": "ATabPane", "props": { "tab": "Tab 2", "key": "2", "forceRender": true }, "children": ["Content of Tab Pane 2"] },
         { "type": "ATabPane", "props": { "tab": "Tab 3", "key": "3" }, "children": ["Content of Tab Pane 3"] }
       ]
     }

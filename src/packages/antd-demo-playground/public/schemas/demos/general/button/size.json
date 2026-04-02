@@ -1,13 +1,80 @@
 {
   "name": "ButtonSizeDemo",
+  "state": {
+    "size": { "type": "ref", "initial": "large" }
+  },
   "render": {
     "type": "template",
     "content": {
       "type": "ASpace",
+      "props": { "direction": "vertical" },
       "children": [
-        { "type": "AButton", "props": { "type": "primary", "size": "large" }, "children": ["Large"] },
-        { "type": "AButton", "props": { "type": "primary" }, "children": ["Default"] },
-        { "type": "AButton", "props": { "type": "primary", "size": "small" }, "children": ["Small"] }
+        {
+          "type": "ARadioGroup",
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "size" },
+              "arg": "value"
+            }
+          },
+          "children": [
+            { "type": "ARadioButton", "props": { "value": "large" }, "children": ["Large"] },
+            { "type": "ARadioButton", "props": { "value": "default" }, "children": ["Default"] },
+            { "type": "ARadioButton", "props": { "value": "small" }, "children": ["Small"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "primary", "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Primary"] },
+            { "type": "AButton", "props": { "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Normal"] },
+            { "type": "AButton", "props": { "type": "dashed", "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Dashed"] },
+            { "type": "AButton", "props": { "danger": true, "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Danger"] },
+            { "type": "AButton", "props": { "type": "link", "size": { "type": "expression", "body": "{{ref_state_size}}" } }, "children": ["Link"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
+              ]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "shape": "circle", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
+              ]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "shape": "round", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } },
+                "Download"
+              ]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "shape": "round", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
+              ]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "size": { "type": "expression", "body": "{{ref_state_size}}" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } },
+                "Download"
+              ]
+            }
+          ]
+        }
       ]
     }
   }

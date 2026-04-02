@@ -1,24 +1,65 @@
 {
   "name": "CheckboxGroupDemo",
   "state": {
-    "checkedList": { "type": "ref", "initial": ["Apple", "Orange"] }
+    "value1": { "type": "ref", "initial": [] },
+    "value2": { "type": "ref", "initial": ["Apple"] },
+    "value3": { "type": "ref", "initial": ["Pear"] },
+    "value4": { "type": "ref", "initial": ["Apple"] },
+    "plainOptions": { "type": "ref", "initial": ["Apple", "Pear", "Orange"] },
+    "options": { "type": "ref", "initial": [{ "label": "Apple", "value": "Apple" }, { "label": "Pear", "value": "Pear" }, { "label": "Orange", "value": "Orange" }] },
+    "optionsWithDisabled": { "type": "ref", "initial": [{ "label": "Apple", "value": "Apple" }, { "label": "Pear", "value": "Pear" }, { "label": "Orange", "value": "Orange", "disabled": false }] }
   },
   "render": {
     "type": "template",
     "content": {
-      "type": "ACheckboxGroup",
-      "props": {
-        "value": { "type": "expression", "body": "{{ref_state_checkedList}}" }
-      },
-      "directives": {
-        "vOn": {
-          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_checkedList.value = args[0]}}" }
-        }
-      },
+      "type": "div",
       "children": [
-        { "type": "ACheckbox", "props": { "value": "Apple" }, "children": ["Apple"] },
-        { "type": "ACheckbox", "props": { "value": "Pear" }, "children": ["Pear"] },
-        { "type": "ACheckbox", "props": { "value": "Orange" }, "children": ["Orange"] }
+        {
+          "type": "ACheckboxGroup",
+          "props": { "options": { "type": "expression", "body": "{{ref_state_plainOptions}}" }, "name": "checkboxgroup" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+              "arg": "value"
+            }
+          }
+        },
+        { "type": "br" },
+        { "type": "br" },
+        {
+          "type": "ACheckboxGroup",
+          "props": { "options": { "type": "expression", "body": "{{ref_state_plainOptions}}" } },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value2" },
+              "arg": "value"
+            }
+          }
+        },
+        { "type": "br" },
+        { "type": "br" },
+        {
+          "type": "ACheckboxGroup",
+          "props": { "options": { "type": "expression", "body": "{{ref_state_options}}" } },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value3" },
+              "arg": "value"
+            }
+          }
+        },
+        { "type": "br" },
+        { "type": "br" },
+        {
+          "type": "ACheckboxGroup",
+          "props": { "options": { "type": "expression", "body": "{{ref_state_optionsWithDisabled}}" }, "disabled": true },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value4" },
+              "arg": "value"
+            }
+          }
+        }
       ]
     }
   }

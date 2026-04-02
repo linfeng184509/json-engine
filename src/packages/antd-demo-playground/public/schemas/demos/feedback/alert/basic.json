@@ -3,14 +3,8 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "ASpace",
-      "props": { "direction": "vertical", "style": "width:100%" },
-      "children": [
-        { "type": "AAlert", "props": { "message": "Success Tips", "type": "success", "showIcon": true } },
-        { "type": "AAlert", "props": { "message": "Informational Notes", "type": "info", "showIcon": true } },
-        { "type": "AAlert", "props": { "message": "Warning Tips", "type": "warning", "showIcon": true, "closable": true } },
-        { "type": "AAlert", "props": { "message": "Error Tips", "type": "error", "showIcon": true } }
-      ]
+      "type": "AAlert",
+      "props": { "message": "Success Text", "type": "success" }
     }
   }
 }

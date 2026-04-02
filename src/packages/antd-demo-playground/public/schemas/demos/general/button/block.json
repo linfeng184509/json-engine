@@ -3,10 +3,14 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
+      "type": "ASpace",
+      "props": { "wrap": true },
       "children": [
-        { "type": "AButton", "props": { "type": "primary", "block": true }, "children": ["Primary Block Button"] },
-        { "type": "AButton", "props": { "block": true, "style": "margin-top:8px" }, "children": ["Default Block Button"] }
+        { "type": "AButton", "props": { "type": "primary", "block": true }, "children": ["Primary"] },
+        { "type": "AButton", "props": { "block": true }, "children": ["Default"] },
+        { "type": "AButton", "props": { "type": "dashed", "block": true }, "children": ["Dashed"] },
+        { "type": "AButton", "props": { "danger": true, "block": true }, "children": ["Danger"] },
+        { "type": "AButton", "props": { "type": "link", "block": true }, "children": ["Link"] }
       ]
     }
   }

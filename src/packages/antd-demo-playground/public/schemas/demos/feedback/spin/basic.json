@@ -3,12 +3,7 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "ASpace",
-      "children": [
-        { "type": "ASpin" },
-        { "type": "ASpin", "props": { "size": "small" } },
-        { "type": "ASpin", "props": { "size": "large" } }
-      ]
+      "type": "ASpin"
     }
   }
 }

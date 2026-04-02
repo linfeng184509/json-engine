@@ -5,11 +5,11 @@
     "content": {
       "type": "ATypography",
       "children": [
-        { "type": "ATypographyTitle", "children": ["h1. Ant Design"] },
-        { "type": "ATypographyTitle", "props": { "level": 2 }, "children": ["h2. Ant Design"] },
-        { "type": "ATypographyTitle", "props": { "level": 3 }, "children": ["h3. Ant Design"] },
-        { "type": "ATypographyTitle", "props": { "level": 4 }, "children": ["h4. Ant Design"] },
-        { "type": "ATypographyTitle", "props": { "level": 5 }, "children": ["h5. Ant Design"] }
+        { "type": "ATypographyTitle", "children": ["h1. Ant Design Vue"] },
+        { "type": "ATypographyTitle", "props": { "level": 2 }, "children": ["h2. Ant Design Vue"] },
+        { "type": "ATypographyTitle", "props": { "level": 3 }, "children": ["h3. Ant Design Vue"] },
+        { "type": "ATypographyTitle", "props": { "level": 4 }, "children": ["h4. Ant Design Vue"] },
+        { "type": "ATypographyTitle", "props": { "level": 5 }, "children": ["h5. Ant Design Vue"] }
       ]
     }
   }

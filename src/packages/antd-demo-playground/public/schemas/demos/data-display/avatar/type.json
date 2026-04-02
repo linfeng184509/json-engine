@@ -3,23 +3,15 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
+      "type": "ASpace",
+      "props": { "size": 16, "wrap": true },
       "children": [
-        {
-          "type": "h3",
-          "children": ["Avatar Type"]
-        },
-        {
-          "type": "ASpace",
-          "props": { "size": 16 },
-          "children": [
-            { "type": "AAvatar", "props": { "size": 64 }, "children": ["U"] },
-            { "type": "AAvatar", "props": { "size": "large" }, "children": ["U"] },
-            { "type": "AAvatar", "children": ["U"] },
-            { "type": "AAvatar", "props": { "size": "small" }, "children": ["U"] },
-            { "type": "AAvatar", "props": { "shape": "square", "size": 40 }, "children": ["U"] }
-          ]
-        }
+        { "type": "AAvatar", "children": [{ "type": "UserOutlined", "directives": { "vSlot": { "name": "icon" } } }] },
+        { "type": "AAvatar", "children": ["U"] },
+        { "type": "AAvatar", "props": { "size": 40 }, "children": ["USER"] },
+        { "type": "AAvatar", "props": { "src": "https://www.antdv.com/assets/logo.1ef800a8.svg" } },
+        { "type": "AAvatar", "props": { "style": "color:#f56a00;background-color:#fde3cf" }, "children": ["U"] },
+        { "type": "AAvatar", "props": { "style": "background-color:#87d068" }, "children": [{ "type": "UserOutlined", "directives": { "vSlot": { "name": "icon" } } }] }
       ]
     }
   }

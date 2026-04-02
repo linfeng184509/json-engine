@@ -1,11 +1,32 @@
 {
   "name": "TreeBasicDemo",
   "state": {
+    "expandedKeys": { "type": "ref", "initial": ["0-0-0", "0-0-1"] },
+    "selectedKeys": { "type": "ref", "initial": ["0-0-0", "0-0-1"] },
+    "checkedKeys": { "type": "ref", "initial": ["0-0-0", "0-0-1"] },
     "treeData": {
       "type": "ref",
       "initial": [
-        { "title": "Node1", "key": "0-0", "children": [{ "title": "Child Node1", "key": "0-0-0" }] },
-        { "title": "Node2", "key": "0-1" }
+        {
+          "title": "parent 1",
+          "key": "0-0",
+          "children": [
+            {
+              "title": "parent 1-0",
+              "key": "0-0-0",
+              "disabled": true,
+              "children": [
+                { "title": "leaf", "key": "0-0-0-0", "disableCheckbox": true },
+                { "title": "leaf", "key": "0-0-0-1" }
+              ]
+            },
+            {
+              "title": "parent 1-1",
+              "key": "0-0-1",
+              "children": [{ "key": "0-0-1-0", "title": "sss" }]
+            }
+          ]
+        }
       ]
     }
   },
@@ -14,9 +35,23 @@
     "content": {
       "type": "ATree",
       "props": {
-        "treeData": { "type": "expression", "body": "{{ref_state_treeData}}" },
-        "defaultExpandAll": true
-      }
+        "checkable": true,
+        "treeData": { "type": "expression", "body": "{{ref_state_treeData}}" }
+      },
+      "directives": {
+        "vModel": [
+          { "prop": { "_type": "reference", "prefix": "state", "variable": "expandedKeys" }, "arg": "expandedKeys" },
+          { "prop": { "_type": "reference", "prefix": "state", "variable": "selectedKeys" }, "arg": "selectedKeys" },
+          { "prop": { "_type": "reference", "prefix": "state", "variable": "checkedKeys" }, "arg": "checkedKeys" }
+        ]
+      },
+      "children": [
+        {
+          "type": "span",
+          "directives": { "vSlot": { "name": "title", "props": ["title", "key"] } },
+          "children": [{ "type": "expression", "body": "{{ref_state_title}}" }]
+        }
+      ]
     }
   }
 }

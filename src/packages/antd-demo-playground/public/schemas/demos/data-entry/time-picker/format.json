@@ -1,22 +1,43 @@
 {
   "name": "TimePickerFormatDemo",
+  "state": {
+    "value": { "type": "ref", "initial": null }
+  },
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
       "children": [
         {
-          "type": "h3",
-          "children": ["TimePicker Format"]
+          "type": "ATimePicker",
+          "props": { "use12Hours": true },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
         },
         {
-          "type": "ASpace",
-          "props": { "direction": "vertical" },
-          "children": [
-            { "type": "ATimePicker", "props": { "format": "HH:mm:ss", "placeholder": "HH:mm:ss" } },
-            { "type": "ATimePicker", "props": { "format": "HH:mm", "placeholder": "HH:mm" } },
-            { "type": "ATimePicker", "props": { "use12Hours": true, "format": "h:mm:ss A", "placeholder": "12 hours format" } }
-          ]
+          "type": "ATimePicker",
+          "props": { "use12Hours": true, "format": "h:mm:ss A", "style": "width:140px" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
+        },
+        {
+          "type": "ATimePicker",
+          "props": { "use12Hours": true, "format": "h:mm a" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
         }
       ]
     }

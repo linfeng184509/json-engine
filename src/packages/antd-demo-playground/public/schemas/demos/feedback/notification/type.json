@@ -1,55 +1,20 @@
 {
   "name": "NotificationTypeDemo",
+  "methods": {
+    "openSuccess": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.notification.success({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
+    "openError": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.notification.error({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
+    "openWarning": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.notification.warning({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
+    "openInfo": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.notification.info({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" }
+  },
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
+      "type": "ASpace",
       "children": [
-        {
-          "type": "h3",
-          "children": ["Notification Type"]
-        },
-        {
-          "type": "ASpace",
-          "children": [
-            {
-              "type": "AButton",
-              "directives": {
-                "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{ANotification.success({message: 'Success', description: 'This is a success notification'})}}" }
-                }
-              },
-              "children": ["Success"]
-            },
-            {
-              "type": "AButton",
-              "directives": {
-                "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{ANotification.error({message: 'Error', description: 'This is an error notification'})}}" }
-                }
-              },
-              "children": ["Error"]
-            },
-            {
-              "type": "AButton",
-              "directives": {
-                "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{ANotification.warning({message: 'Warning', description: 'This is a warning notification'})}}" }
-                }
-              },
-              "children": ["Warning"]
-            },
-            {
-              "type": "AButton",
-              "directives": {
-                "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{ANotification.info({message: 'Info', description: 'This is an info notification'})}}" }
-                }
-              },
-              "children": ["Info"]
-            }
-          ]
-        }
+        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openSuccess()}}" } } }, "children": ["Success"] },
+        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openError()}}" } } }, "children": ["Error"] },
+        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openWarning()}}" } } }, "children": ["Warning"] },
+        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openInfo()}}" } } }, "children": ["Info"] }
       ]
     }
   }

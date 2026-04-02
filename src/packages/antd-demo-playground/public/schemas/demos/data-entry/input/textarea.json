@@ -1,7 +1,7 @@
 {
   "name": "InputTextareaDemo",
   "state": {
-    "textareaValue": { "type": "ref", "initial": "" }
+    "value": { "type": "ref", "initial": "" }
   },
   "render": {
     "type": "template",
@@ -9,19 +9,20 @@
       "type": "div",
       "children": [
         {
-          "type": "h3",
-          "props": { "style": "margin-bottom:16px" },
-          "children": ["Input TextArea"]
+          "type": "ATextarea",
+          "props": { "rows": 4 },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
         },
+        { "type": "br" },
+        { "type": "br" },
         {
-          "type": "ASpace",
-          "props": { "direction": "vertical", "size": 12 },
-          "children": [
-            { "type": "ATextarea", "props": { "placeholder": "Basic textarea", "rows": 4 } },
-            { "type": "ATextarea", "props": { "placeholder": "Textarea with autosize", "autoSize": true } },
-            { "type": "ATextarea", "props": { "placeholder": "Textarea with min/max rows", "autoSize": { "minRows": 2, "maxRows": 6 } } },
-            { "type": "ATextarea", "props": { "placeholder": "Textarea with maxLength", "maxLength": 100, "showCount": true } }
-          ]
+          "type": "ATextarea",
+          "props": { "rows": 4, "placeholder": "maxlength is 6", "maxlength": 6 }
         }
       ]
     }

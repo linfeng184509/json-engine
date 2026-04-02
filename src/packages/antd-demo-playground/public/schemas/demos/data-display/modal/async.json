@@ -2,23 +2,24 @@
   "name": "ModalAsyncDemo",
   "state": {
     "visible": { "type": "ref", "initial": false },
-    "confirmLoading": { "type": "ref", "initial": false }
+    "confirmLoading": { "type": "ref", "initial": false },
+    "modalText": { "type": "ref", "initial": "Content of the modal" }
   },
   "methods": {
     "showModal": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ref_state_visible = true}}"
+      "body": "{{ref_state_visible.value = true}}"
     },
     "handleOk": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ref_state_confirmLoading = true; setTimeout(function(){ ref_state_confirmLoading = false; ref_state_visible = false; }, 2000)}}"
+      "body": "{{ref_state_modalText.value = 'The modal will be closed after two seconds'; ref_state_confirmLoading.value = true; setTimeout(function(){ ref_state_visible.value = false; ref_state_confirmLoading.value = false; }, 2000)}}"
     },
     "handleCancel": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ref_state_visible = false}}"
+      "body": "{{ref_state_visible.value = false}}"
     }
   },
   "render": {
@@ -27,11 +28,6 @@
       "type": "div",
       "children": [
         {
-          "type": "h3",
-          "props": { "style": "margin-bottom:16px" },
-          "children": ["Modal Async"]
-        },
-        {
           "type": "AButton",
           "props": { "type": "primary" },
           "directives": {
@@ -39,19 +35,27 @@
               "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.showModal()}}" }
             }
           },
-          "children": ["Open Modal"]
+          "children": ["Open Modal with async logic"]
         },
         {
           "type": "AModal",
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "visible" },
+              "arg": "open"
+            }
+          },
           "props": {
-            "open": { "type": "expression", "body": "{{ref_state_visible}}" },
-            "title": "Async Modal",
-            "confirmLoading": { "type": "expression", "body": "{{ref_state_confirmLoading}}" },
-            "onOk": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleOk()}}" },
-            "onCancel": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleCancel()}}" }
+            "title": "Title",
+            "confirmLoading": { "type": "expression", "body": "{{ref_state_confirmLoading}}" }
+          },
+          "directives": {
+            "vOn": {
+              "ok": { "type": "function", "params": "{{{}}}", "body": "{{methods.handleOk()}}" }
+            }
           },
           "children": [
-            { "type": "p", "children": ["Click OK will take 2 seconds to close..."] }
+            { "type": "p", "children": [{ "type": "expression", "body": "{{ref_state_modalText}}" }] }
           ]
         }
       ]

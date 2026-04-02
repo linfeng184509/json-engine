@@ -1,26 +1,102 @@
 {
   "name": "SelectBasicDemo",
   "state": {
-    "value": { "type": "ref", "initial": "lucy" }
+    "value1": { "type": "ref", "initial": "lucy" },
+    "value2": { "type": "ref", "initial": "lucy" },
+    "value3": { "type": "ref", "initial": "lucy" },
+    "options1": { "type": "ref", "initial": [{ "value": "jack", "label": "Jack" }, { "value": "lucy", "label": "Lucy" }, { "value": "disabled", "label": "Disabled", "disabled": true }, { "value": "yiminghe", "label": "Yiminghe" }] },
+    "options2": { "type": "ref", "initial": [{ "value": "lucy", "label": "Lucy" }] },
+    "options3": { "type": "ref", "initial": [{ "value": "lucy", "label": "Lucy" }] }
   },
   "render": {
     "type": "template",
     "content": {
-      "type": "ASelect",
-      "props": {
-        "value": { "type": "expression", "body": "{{}}" },
-        "style": "width:200px"
-      },
-      "directives": {
-        "vOn": {
-          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_value.value = args[0]}}" }
-        }
-      },
+      "type": "div",
       "children": [
-        { "type": "ASelectOption", "props": { "value": "jack" }, "children": ["Jack"] },
-        { "type": "ASelectOption", "props": { "value": "lucy" }, "children": ["Lucy"] },
-        { "type": "ASelectOption", "props": { "value": "disabled", "disabled": true }, "children": ["Disabled"] },
-        { "type": "ASelectOption", "props": { "value": "Yiminghe" }, "children": ["yiminghe"] }
+        { "type": "h2", "children": ["use a-select-option"] },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "ASelect",
+              "props": { "style": "width:120px" },
+              "directives": {
+                "vModel": {
+                  "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+                  "arg": "value"
+                }
+              },
+              "children": [
+                { "type": "ASelectOption", "props": { "value": "jack" }, "children": ["Jack"] },
+                { "type": "ASelectOption", "props": { "value": "lucy" }, "children": ["Lucy"] },
+                { "type": "ASelectOption", "props": { "value": "disabled", "disabled": true }, "children": ["Disabled"] },
+                { "type": "ASelectOption", "props": { "value": "Yiminghe" }, "children": ["yiminghe"] }
+              ]
+            },
+            {
+              "type": "ASelect",
+              "props": { "style": "width:120px", "disabled": true },
+              "directives": {
+                "vModel": {
+                  "prop": { "_type": "reference", "prefix": "state", "variable": "value2" },
+                  "arg": "value"
+                }
+              },
+              "children": [
+                { "type": "ASelectOption", "props": { "value": "lucy" }, "children": ["Lucy"] }
+              ]
+            },
+            {
+              "type": "ASelect",
+              "props": { "style": "width:120px", "loading": true },
+              "directives": {
+                "vModel": {
+                  "prop": { "_type": "reference", "prefix": "state", "variable": "value3" },
+                  "arg": "value"
+                }
+              },
+              "children": [
+                { "type": "ASelectOption", "props": { "value": "lucy" }, "children": ["Lucy"] }
+              ]
+            }
+          ]
+        },
+        { "type": "h2", "props": { "style": "margin-top:10px" }, "children": ["use options (recommend)"] },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "ASelect",
+              "props": { "style": "width:120px", "options": { "type": "expression", "body": "{{ref_state_options1}}" } },
+              "directives": {
+                "vModel": {
+                  "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+                  "arg": "value"
+                }
+              }
+            },
+            {
+              "type": "ASelect",
+              "props": { "style": "width:120px", "disabled": true, "options": { "type": "expression", "body": "{{ref_state_options2}}" } },
+              "directives": {
+                "vModel": {
+                  "prop": { "_type": "reference", "prefix": "state", "variable": "value2" },
+                  "arg": "value"
+                }
+              }
+            },
+            {
+              "type": "ASelect",
+              "props": { "style": "width:120px", "loading": true, "options": { "type": "expression", "body": "{{ref_state_options3}}" } },
+              "directives": {
+                "vModel": {
+                  "prop": { "_type": "reference", "prefix": "state", "variable": "value3" },
+                  "arg": "value"
+                }
+              }
+            }
+          ]
+        }
       ]
     }
   }

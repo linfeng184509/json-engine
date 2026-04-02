@@ -9,18 +9,18 @@
       "type": "div",
       "children": [
         {
-          "type": "h3",
-          "children": ["Radio Group"]
-        },
-        {
           "type": "ARadioGroup",
-          "props": {
-            "value": { "type": "expression", "body": "{{ref_state_value}}" }
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
           },
           "children": [
-            { "type": "ARadio", "props": { "value": 1 }, "children": ["Option A"] },
-            { "type": "ARadio", "props": { "value": 2 }, "children": ["Option B"] },
-            { "type": "ARadio", "props": { "value": 3 }, "children": ["Option C"] }
+            { "type": "ARadio", "props": { "value": 1 }, "children": ["A"] },
+            { "type": "ARadio", "props": { "value": 2 }, "children": ["B"] },
+            { "type": "ARadio", "props": { "value": 3 }, "children": ["C"] },
+            { "type": "ARadio", "props": { "value": 4 }, "children": ["D"] }
           ]
         }
       ]

@@ -3,21 +3,22 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "ATypography",
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
       "children": [
-        { "type": "ATypographyText", "children": ["Ant Design (default)"] },
-        { "type": "ATypographyText", "props": { "type": "secondary" }, "children": ["Ant Design (secondary)"] },
-        { "type": "ATypographyText", "props": { "type": "success" }, "children": ["Ant Design (success)"] },
-        { "type": "ATypographyText", "props": { "type": "warning" }, "children": ["Ant Design (warning)"] },
-        { "type": "ATypographyText", "props": { "type": "danger" }, "children": ["Ant Design (danger)"] },
-        { "type": "ATypographyText", "props": { "disabled": true }, "children": ["Ant Design (disabled)"] },
-        { "type": "ATypographyText", "props": { "mark": true }, "children": ["Ant Design (mark)"] },
-        { "type": "ATypographyText", "props": { "code": true }, "children": ["Ant Design (code)"] },
-        { "type": "ATypographyText", "props": { "keyboard": true }, "children": ["Ant Design (keyboard)"] },
-        { "type": "ATypographyText", "props": { "underline": true }, "children": ["Ant Design (underline)"] },
-        { "type": "ATypographyText", "props": { "delete": true }, "children": ["Ant Design (delete)"] },
-        { "type": "ATypographyText", "props": { "strong": true }, "children": ["Ant Design (strong)"] },
-        { "type": "ATypographyText", "props": { "italic": true }, "children": ["Ant Design (italic)"] }
+        { "type": "ATypographyText", "children": ["Ant Design Vue (default)"] },
+        { "type": "ATypographyText", "props": { "type": "secondary" }, "children": ["Ant Design Vue (secondary)"] },
+        { "type": "ATypographyText", "props": { "type": "success" }, "children": ["Ant Design Vue (success)"] },
+        { "type": "ATypographyText", "props": { "type": "warning" }, "children": ["Ant Design Vue (warning)"] },
+        { "type": "ATypographyText", "props": { "type": "danger" }, "children": ["Ant Design Vue (danger)"] },
+        { "type": "ATypographyText", "props": { "disabled": true }, "children": ["Ant Design Vue (disabled)"] },
+        { "type": "ATypographyText", "props": { "mark": true }, "children": ["Ant Design Vue (mark)"] },
+        { "type": "ATypographyText", "props": { "code": true }, "children": ["Ant Design Vue (code)"] },
+        { "type": "ATypographyText", "props": { "keyboard": true }, "children": ["Ant Design Vue (keyboard)"] },
+        { "type": "ATypographyText", "props": { "underline": true }, "children": ["Ant Design Vue (underline)"] },
+        { "type": "ATypographyText", "props": { "delete": true }, "children": ["Ant Design Vue (delete)"] },
+        { "type": "ATypographyText", "props": { "strong": true }, "children": ["Ant Design Vue (strong)"] },
+        { "type": "ATypographyLink", "props": { "href": "https://antdv.com", "target": "_blank" }, "children": ["Ant Design Vue (Link)"] }
       ]
     }
   }

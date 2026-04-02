@@ -3,17 +3,14 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
+      "type": "ASpin",
+      "props": { "tip": "Loading..." },
       "children": [
         {
-          "type": "h3",
-          "children": ["Spin Tip"]
-        },
-        {
-          "type": "ASpin",
+          "type": "AAlert",
           "props": {
-            "tip": "Loading...",
-            "size": "large"
+            "message": "Alert message title",
+            "description": "Further details about the context of this alert."
           }
         }
       ]

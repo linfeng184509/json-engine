@@ -3,21 +3,21 @@
   "render": {
     "type": "template",
     "content": {
-      "type": "div",
+      "type": "AEmpty",
+      "props": {
+        "image": "https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original",
+        "imageStyle": { "height": "60px" }
+      },
       "children": [
         {
-          "type": "h3",
-          "children": ["Empty Custom"]
-        },
-        {
-          "type": "AEmpty",
-          "props": {
-            "description": "No Data"
-          },
+          "type": "span",
+          "directives": { "vSlot": { "name": "description" } },
           "children": [
-            { "type": "AButton", "props": { "type": "primary" }, "children": ["Create Now"] }
+            "Customize ",
+            { "type": "a", "props": { "href": "#api" }, "children": ["Description"] }
           ]
-        }
+        },
+        { "type": "AButton", "props": { "type": "primary" }, "children": ["Create Now"] }
       ]
     }
   }

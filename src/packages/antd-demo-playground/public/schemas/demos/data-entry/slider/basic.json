@@ -1,20 +1,47 @@
 {
   "name": "SliderBasicDemo",
   "state": {
-    "value": { "type": "ref", "initial": 30 }
+    "value1": { "type": "ref", "initial": 0 },
+    "value2": { "type": "ref", "initial": [20, 50] },
+    "disabled": { "type": "ref", "initial": false }
   },
   "render": {
     "type": "template",
     "content": {
-      "type": "ASlider",
-      "props": {
-        "value": { "type": "expression", "body": "{{ref_state_value}}" }
-      },
-      "directives": {
-        "vOn": {
-          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_value.value = args[0]}}" }
+      "type": "div",
+      "children": [
+        {
+          "type": "ASlider",
+          "props": { "id": "test", "disabled": { "type": "expression", "body": "{{ref_state_disabled}}" } },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+              "arg": "value"
+            }
+          }
+        },
+        {
+          "type": "ASlider",
+          "props": { "range": true, "disabled": { "type": "expression", "body": "{{ref_state_disabled}}" } },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value2" },
+              "arg": "value"
+            }
+          }
+        },
+        "Disabled: ",
+        {
+          "type": "ASwitch",
+          "props": { "size": "small" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "disabled" },
+              "arg": "checked"
+            }
+          }
         }
-      }
+      ]
     }
   }
 }

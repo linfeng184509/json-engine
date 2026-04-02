@@ -1,21 +1,36 @@
 {
   "name": "InputBasicDemo",
   "state": {
-    "value": { "type": "ref", "initial": "" }
+    "value": { "type": "ref", "initial": "" },
+    "value1": { "type": "ref", "initial": "" }
   },
   "render": {
     "type": "template",
     "content": {
-      "type": "AInput",
-      "props": {
-        "placeholder": "Basic usage",
-        "value": { "type": "expression", "body": "{{}}" }
-      },
-      "directives": {
-        "vOn": {
-          "update:value": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_value.value = args[0]}}" }
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
+      "children": [
+        {
+          "type": "AInput",
+          "props": { "placeholder": "Basic usage" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
+        },
+        {
+          "type": "AInput",
+          "props": { "placeholder": "Lazy usage", "autofocus": true },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value1" },
+              "arg": "value"
+            }
+          }
         }
-      }
+      ]
     }
   }
 }

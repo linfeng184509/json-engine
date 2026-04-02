@@ -1,13 +1,37 @@
 {
   "name": "AlertClosableDemo",
+  "methods": {
+    "onClose": {
+      "type": "function",
+      "params": "{{{}}}",
+      "body": "{{console.log(args[0], 'I was closed.')}}"
+    }
+  },
   "render": {
     "type": "template",
     "content": {
       "type": "ASpace",
-      "props": { "direction": "vertical", "style": "width:100%" },
+      "props": { "direction": "vertical" },
       "children": [
-        { "type": "AAlert", "props": { "message": "Warning Text Warning Text Warning TextW arning Text Warning Text Warning TextWarning Text", "type": "warning", "closable": true, "afterClose": "alert('After Close callback')" } },
-        { "type": "AAlert", "props": { "message": "Error Text", "description": "Error Description Error Description Error Description Error Description", "type": "error", "closable": true } }
+        {
+          "type": "AAlert",
+          "props": {
+            "message": "Warning Text Warning Text Warning TextW arning Text Warning Text Warning TextWarning Text",
+            "type": "warning",
+            "closable": true
+          },
+          "directives": { "vOn": { "close": { "type": "function", "params": "{{{}}}", "body": "{{methods.onClose()}}" } } }
+        },
+        {
+          "type": "AAlert",
+          "props": {
+            "message": "Error Text",
+            "description": "Error Description Error Description Error Description Error Description Error Description Error Description",
+            "type": "error",
+            "closable": true
+          },
+          "directives": { "vOn": { "close": { "type": "function", "params": "{{{}}}", "body": "{{methods.onClose()}}" } } }
+        }
       ]
     }
   }

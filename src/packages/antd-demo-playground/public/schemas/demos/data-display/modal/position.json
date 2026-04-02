@@ -1,19 +1,14 @@
 {
   "name": "ModalPositionDemo",
   "state": {
-    "visible": { "type": "ref", "initial": false },
-    "modalPosition": { "type": "ref", "initial": "center" }
+    "modal1Visible": { "type": "ref", "initial": false },
+    "modal2Visible": { "type": "ref", "initial": false }
   },
   "methods": {
-    "showModal": {
+    "setModal1Visible": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{ref_state_visible = true}}"
-    },
-    "hideModal": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{ref_state_visible = false}}"
+      "body": "{{ref_state_modal1Visible.value = args[0]}}"
     }
   },
   "render": {
@@ -22,44 +17,47 @@
       "type": "div",
       "children": [
         {
-          "type": "h3",
-          "props": { "style": "margin-bottom:16px" },
-          "children": ["Modal Position"]
-        },
-        {
-          "type": "ASpace",
-          "children": [
-            {
-              "type": "AButton",
-              "directives": {
-                "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_modalPosition = 'center'; methods.showModal()}}" }
-                }
-              },
-              "children": ["Center Modal"]
-            },
-            {
-              "type": "AButton",
-              "directives": {
-                "vOn": {
-                  "click": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_modalPosition = 'top'; methods.showModal()}}" }
-                }
-              },
-              "children": ["Top Modal"]
-            }
-          ]
+          "type": "AButton",
+          "props": { "type": "primary" },
+          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.setModal1Visible(true)}}" } } },
+          "children": ["Display a modal dialog at 20px to Top"]
         },
         {
           "type": "AModal",
-          "props": {
-            "open": { "type": "expression", "body": "{{ref_state_visible}}" },
-            "title": "Modal at Position",
-            "centered": { "type": "expression", "body": "{{ref_state_modalPosition === 'center'}}" },
-            "onOk": { "type": "function", "params": "{{{}}}", "body": "{{methods.hideModal()}}" },
-            "onCancel": { "type": "function", "params": "{{{}}}", "body": "{{methods.hideModal()}}" }
+          "props": { "title": "20px to Top", "style": "top:20px" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "modal1Visible" },
+              "arg": "open"
+            }
           },
           "children": [
-            { "type": "p", "children": ["Modal content here..."] }
+            { "type": "p", "children": ["some contents..."] },
+            { "type": "p", "children": ["some contents..."] },
+            { "type": "p", "children": ["some contents..."] }
+          ]
+        },
+        { "type": "br" },
+        { "type": "br" },
+        {
+          "type": "AButton",
+          "props": { "type": "primary" },
+          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{ref_state_modal2Visible.value = true}}" } } },
+          "children": ["Vertically centered modal dialog"]
+        },
+        {
+          "type": "AModal",
+          "props": { "title": "Vertically centered modal dialog", "centered": true },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "modal2Visible" },
+              "arg": "open"
+            }
+          },
+          "children": [
+            { "type": "p", "children": ["some contents..."] },
+            { "type": "p", "children": ["some contents..."] },
+            { "type": "p", "children": ["some contents..."] }
           ]
         }
       ]
