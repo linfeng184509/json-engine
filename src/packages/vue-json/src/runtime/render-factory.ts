@@ -9,6 +9,7 @@ import type {
 } from '../types';
 import type { AbstractReferenceParseData, AbstractScopeParseData } from '@json-engine/core-engine';
 import { DirectiveError } from '../utils/error';
+import { getLogger } from '../utils/logger';
 import {
   applyVIf,
   applyVShow,
@@ -19,10 +20,13 @@ import {
   applyVHtml,
   applyVText,
   applyVSlot,
+  applyVElseIf,
   type VForResult,
 } from './directive-runtime';
 import { resolvePropertyValue, evaluateExpression, isExpressionParseData } from './value-resolver';
 import { createStateProxy } from './state-factory';
+
+const logger = getLogger('render-factory');
 
 export function renderVNode(
   definition: RenderDefinition,
@@ -78,13 +82,13 @@ function renderTemplate(node: VNodeDefinition, context: RenderContext): VNode | 
 function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): VNode | null {
   if (node.directives) {
     if (node.directives.vIf !== undefined) {
-      console.log('[render-factory] v-if condition for', node.type, ':', JSON.stringify(node.directives.vIf));
+      logger.debug('v-if condition for %s:', node.type, JSON.stringify(node.directives.vIf));
       try {
         const result = applyVIf(node.directives.vIf, context);
-        console.log('[render-factory] v-if result for', node.type, ':', result);
+        logger.debug('v-if result for %s:', node.type, result);
         if (!result) return null;
       } catch (e) {
-        console.error('[render-factory] v-if error for', node.type, ':', e);
+        logger.error('v-if error for %s:', node.type, e);
         return null;
       }
     }
@@ -289,31 +293,77 @@ function resolveNodeChildren(
   }
 
   if (Array.isArray(children)) {
-    const mapped = children
-      .map((child) => {
-        if (typeof child === 'string' || typeof child === 'number') {
-          return child;
-        }
-        if (isExpressionParseData(child)) {
-          return evaluateExpression(child.expression as string | AbstractReferenceParseData | AbstractScopeParseData, proxiedContext);
-        }
-        if (typeof child === 'object' && child !== null) {
-          if ('_type' in child) {
-            const childRecord = child as unknown as Record<string, unknown>;
-            if (childRecord._type === 'expression') {
-              const expr = childRecord.expression;
-              if (typeof expr === 'string' || typeof expr === 'object') {
-                return evaluateExpression(expr as string | AbstractReferenceParseData | AbstractScopeParseData, proxiedContext);
-              }
-            }
+    const mapped: (string | number | VNode)[] = [];
+    let conditionalBranchActive = false;
+    let conditionalChainActive = false;
+
+    for (const child of children) {
+      if (typeof child === 'string' || typeof child === 'number') {
+        conditionalChainActive = false;
+        mapped.push(child);
+        continue;
+      }
+
+      if (isExpressionParseData(child)) {
+        conditionalChainActive = false;
+        const result = evaluateExpression(child.expression as string | AbstractReferenceParseData | AbstractScopeParseData, proxiedContext);
+        mapped.push(result as string | number | VNode);
+        continue;
+      }
+
+      if (typeof child === 'object' && child !== null && 'type' in child) {
+        const childDef = child as VNodeDefinition;
+        const dirs = childDef.directives;
+        const vIfCond = dirs?.vIf;
+        const vElseIfCond = dirs?.vElseIf;
+        const vElseFlag = dirs?.vElse;
+
+        if (vIfCond !== undefined) {
+          conditionalChainActive = true;
+          conditionalBranchActive = false;
+          const result = applyVIf(vIfCond, proxiedContext);
+          if (result) {
+            conditionalBranchActive = true;
+          } else {
+            continue;
           }
-          if ('type' in child) {
-            return renderVNodeDefinition(child as VNodeDefinition, proxiedContext);
+        } else if (vElseIfCond !== undefined && conditionalChainActive) {
+          if (conditionalBranchActive) {
+            continue;
+          }
+          const result = applyVElseIf(vElseIfCond, proxiedContext);
+          if (result) {
+            conditionalBranchActive = true;
+          } else {
+            continue;
+          }
+        } else if (vElseFlag !== undefined && conditionalChainActive) {
+          if (conditionalBranchActive) {
+            continue;
+          }
+          conditionalChainActive = false;
+        } else {
+          conditionalChainActive = false;
+        }
+
+        const rendered = renderVNodeDefinition(childDef, proxiedContext);
+        if (rendered) {
+          mapped.push(rendered);
+        }
+        continue;
+      }
+
+      conditionalChainActive = false;
+      if (typeof child === 'object' && child !== null && '_type' in child) {
+        const childRecord = child as unknown as Record<string, unknown>;
+        if (childRecord._type === 'expression') {
+          const expr = childRecord.expression;
+          if (typeof expr === 'string' || typeof expr === 'object') {
+            mapped.push(evaluateExpression(expr as string | AbstractReferenceParseData | AbstractScopeParseData, proxiedContext) as string | number | VNode);
           }
         }
-        return child;
-      })
-      .filter((child) => child !== null) as (string | number | VNode)[];
+      }
+    }
     return mapped.length > 0 ? mapped : undefined;
   }
 

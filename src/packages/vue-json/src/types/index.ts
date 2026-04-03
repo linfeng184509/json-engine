@@ -1,5 +1,6 @@
 export type { Platform, PlatformFeatures, PlatformInfo } from './platform';
 export type { VueJsonSchema, VueJsonSchemaInput, ParsedSchema } from './schema';
+export type { VueJsonSchema as VueJsonSchemaType } from './schema';
 export type {
   PluginConfig,
   PluginDeclaration,
@@ -13,7 +14,6 @@ export type {
   I18nConfig,
   AuthConfig,
   VueJsonAppSchema,
-  VueJsonSchema as VueJsonSchemaType,
 } from './app';
 export { SchemaValidationError } from './app';
 export type {

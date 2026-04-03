@@ -12,6 +12,9 @@ import {
 import type { LifecycleDefinition, RenderContext, SetupContext, FunctionValue } from '../types';
 import { ComponentCreationError } from '../utils/error';
 import { executeFunction } from './value-resolver';
+import { getLogger } from '../utils/logger';
+
+const logger = getLogger('lifecycle-factory');
 
 export function setupLifecycle(
   definition: LifecycleDefinition | undefined,
@@ -36,7 +39,7 @@ export function setupLifecycle(
     coreScope,
   };
 
-  console.log('[lifecycle-factory] Setting up onMounted hook, definition:', !!definition.onMounted);
+  logger.debug('Setting up lifecycle hooks');
   setupHook(definition.onMounted, onMounted, renderContext, 'onMounted');
   setupHook(definition.onUnmounted, onUnmounted, renderContext, 'onUnmounted');
   setupHook(definition.onUpdated, onUpdated, renderContext, 'onUpdated');
@@ -77,9 +80,8 @@ function createHookHandler(
   context: RenderContext,
   hasErrorArg: boolean
 ): (error?: Error) => void | boolean {
-  console.log('[createHookHandler] Creating handler for hook, fnValue:', fnValue);
   return (error?: Error) => {
-    console.log('[createHookHandler] Hook fired! error:', error);
+    logger.debug('Hook fired: %s', context.props?.['__componentName__']);
     if (hasErrorArg) {
       return executeFunction(fnValue, context, [error]) as void | boolean;
     }

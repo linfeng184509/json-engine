@@ -6,6 +6,9 @@ import {
   type ParserOptions,
   type ValueBody,
 } from '@json-engine/core-engine';
+import { getLogger } from '../utils/logger';
+
+const logger = getLogger('vue-parser-config');
 
 const VUE_REFERENCE_PREFIXES = ['props', 'state', 'computed'];
 const VUE_SCOPE_NAMES = ['core', 'goal'];
@@ -82,9 +85,12 @@ const vueParserConfig: ParserConfig = createParserConfig({
     enabled: true,
     logLevel: 'debug',
     onTrace: (trace) => {
-      console.log(
-        `[DebugTrace] ${trace.parser} | ${trace.path} | ${trace.duration.toFixed(2)}ms`,
-        trace.duration > 10 ? '⚠️ SLOW' : ''
+      logger.debug(
+        '%s | %s | %.2fms%s',
+        trace.parser,
+        trace.path,
+        trace.duration,
+        trace.duration > 10 ? ' ⚠️ SLOW' : ''
       );
     },
   },

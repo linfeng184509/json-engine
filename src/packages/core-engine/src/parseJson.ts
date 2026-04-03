@@ -16,6 +16,7 @@ import {
 } from './types';
 import { createParserConfig, type ParserConfig, type ParserOptions } from './config-factory';
 import { createDebugTracer, type DebugTracer } from './debug';
+import { ParserCache } from './cache';
 
 type KeyParserFunction = (key: string, params?: Record<string, unknown>) => string;
 
@@ -263,6 +264,12 @@ function isParsedDSLNode(obj: Record<string, unknown>): boolean {
 
 interface ExtendedParserConfig extends ParserConfig {
   tracer?: DebugTracer;
+  cacheInstance?: ParserCache;
+}
+
+function generateCacheKey(path: string, value: unknown): string {
+  const valueStr = typeof value === 'string' ? value : JSON.stringify(value);
+  return `${path}:${valueStr}`;
 }
 
 function walkJson(data: unknown, config: ExtendedParserConfig, path: string): unknown {
@@ -271,6 +278,15 @@ function walkJson(data: unknown, config: ExtendedParserConfig, path: string): un
     : null;
   
   const isParsedDSL = objData && isParsedDSLNode(objData);
+  
+  // Check cache for DSL nodes
+  if (isParsedDSL && config.cacheInstance) {
+    const cacheKey = generateCacheKey(path, data);
+    const cached = config.cacheInstance.get(cacheKey);
+    if (cached !== undefined) {
+      return cached;
+    }
+  }
   
   let traceCtx: TraceContext | undefined;
   if (isParsedDSL && config.tracer) {
@@ -362,6 +378,12 @@ function walkJson(data: unknown, config: ExtendedParserConfig, path: string): un
       }
     }
 
+    // Store DSL node result in cache
+    if (isParsedDSL && config.cacheInstance) {
+      const cacheKey = generateCacheKey(path, data);
+      config.cacheInstance.set(cacheKey, parsedObj);
+    }
+
     if (traceCtx && config.tracer) {
       config.tracer.endTrace(traceCtx, parsedObj);
     }
@@ -386,6 +408,12 @@ export function parseJson(input: unknown, config?: ParserConfig | ParserOptions)
   
   if (tracer) {
     parserConfig.tracer = tracer;
+  }
+  
+  // Initialize cache from options
+  const cacheOptions = (config as ParserOptions)?.cache;
+  if (cacheOptions?.enabled !== false) {
+    parserConfig.cacheInstance = new ParserCache(cacheOptions);
   }
   
   let rootCtx: TraceContext | undefined;

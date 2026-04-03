@@ -39,10 +39,11 @@ class ParserCache {
 
   private evictOldest(): void {
     if (this.cache.size <= this.maxSize) return;
-    
+
     const entriesToDelete = this.cache.size - this.maxSize;
     const keys = Array.from(this.cache.keys());
-    
+
+    // Delete from the front of the Map (least recently used entries)
     for (let i = 0; i < entriesToDelete; i++) {
       this.cache.delete(keys[i]);
     }
@@ -50,24 +51,31 @@ class ParserCache {
 
   get<T>(key: string): T | undefined {
     if (!this.enabled) return undefined;
-    
+
     const entry = this.cache.get(key) as CacheEntry<T> | undefined;
     if (!entry) return undefined;
-    
+
     if (this.isExpired(entry)) {
       this.cache.delete(key);
       return undefined;
     }
-    
+
+    // Update access order: delete and re-insert to move to end of Map
+    this.cache.delete(key);
+    this.cache.set(key, entry);
+
     return entry.value;
   }
 
   set<T>(key: string, value: T): void {
     if (!this.enabled) return;
-    
-    this.evictExpired();
-    this.evictOldest();
-    
+
+    // Evict expired entries only when cache is full to avoid O(n) on every set
+    if (this.cache.size >= this.maxSize) {
+      this.evictExpired();
+      this.evictOldest();
+    }
+
     this.cache.set(key, {
       value,
       timestamp: Date.now(),
@@ -91,15 +99,19 @@ class ParserCache {
 
   has(key: string): boolean {
     if (!this.enabled) return false;
-    
+
     const entry = this.cache.get(key);
     if (!entry) return false;
-    
+
     if (this.isExpired(entry)) {
       this.cache.delete(key);
       return false;
     }
-    
+
+    // Update access order
+    this.cache.delete(key);
+    this.cache.set(key, entry);
+
     return true;
   }
 

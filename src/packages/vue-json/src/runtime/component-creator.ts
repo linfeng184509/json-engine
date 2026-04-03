@@ -1,10 +1,5 @@
 import {
   defineComponent,
-  Fragment,
-  h,
-  isRef,
-  ref,
-  watch,
   type Component,
   type PropType,
   type ComponentOptions,
@@ -32,6 +27,7 @@ import type { PluginComponentDefinition } from '../types';
 import type { CoreScope } from '../composables/use-core-scope';
 import { PageLoader } from '../components/PageLoader';
 import { Slot } from '../components/Slot';
+import { getLogger } from '../utils/logger';
 
 export interface ComponentCreatorOptions {
   cache?: boolean;
@@ -119,22 +115,10 @@ export function createComponentCreator(
         attrs,
       };
 
+      const logger = getLogger(schema.name);
+
       const injected = schema.inject ? setupInject({ items: schema.inject.items }, context) : {};
       const state = createState(schema.state, context);
-
-      // Create a version ref that triggers re-render when any state ref changes.
-      const version = ref(0);
-
-      // Set up watchers for each state ref to increment version on change
-      for (const key of Object.keys(state)) {
-        const val = state[key];
-        if (isRef(val)) {
-          watch(val, () => {
-            console.log('[watch] State changed:', key, 'new version:', version.value + 1);
-            version.value++;
-          });
-        }
-      }
 
       const stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'> = {};
       if (schema.state) {
@@ -171,7 +155,7 @@ export function createComponentCreator(
       provideRef.value = { ...injected, ...provided };
 
       if (debug) {
-        console.log(`[vue-json-engine] ${schema.name} render context:`, {
+        logger.debug('render context', {
           props,
           state,
           computed: computedRefs,
@@ -201,10 +185,9 @@ export function createComponentCreator(
             coreScope: coreScope as unknown as Record<string, unknown>,
           });
 
-          // Wrap in Fragment with version key to force Vue to rebuild when state changes
-          return h(Fragment, { key: version.value }, [vnode]);
+          return vnode;
         } catch (error) {
-          console.error(`[vue-json-engine] Render error in ${schema.name}:`, error);
+          logger.error('Render error', error);
           throw error;
         }
       };

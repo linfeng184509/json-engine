@@ -393,3 +393,23 @@ export function applyVSlot(
 
   return result;
 }
+
+export function applyVElseIf(condition: ExpressionValue, context: RenderContext): boolean {
+  try {
+    const proxiedContext = {
+      ...context,
+      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+    } as RenderContext;
+    const result = evaluateExpression(condition.expression, proxiedContext);
+    return Boolean(result);
+  } catch (error) {
+    throw createDirectiveError(
+      'v-else-if',
+      `Failed to evaluate condition: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+
+export function applyVElse(_context: RenderContext): boolean {
+  return true;
+}

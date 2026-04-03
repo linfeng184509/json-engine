@@ -1,5 +1,6 @@
 import type { Platform } from './platform';
 import type { PluginDeclaration } from './plugin.definitions';
+import type { VueJsonSchema } from './schema';
 import type {
   AxiosPluginConfig,
   AntdPluginConfig,
@@ -107,11 +108,6 @@ export interface VueJsonAppSchema {
   i18n?: I18nConfig;
   auth?: AuthConfig;
   platform?: Platform;
-}
-
-export interface VueJsonSchema {
-  _type: string;
-  [key: string]: unknown;
 }
 
 export class SchemaValidationError extends Error {

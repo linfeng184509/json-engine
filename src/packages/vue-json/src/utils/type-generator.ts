@@ -104,6 +104,9 @@ export function writeTypeDefinition(
   schema: VueJsonSchema,
   outputPath: string
 ): void {
+  if (typeof process === 'undefined' || !process.versions || !process.versions.node) {
+    throw new Error('writeTypeDefinition requires Node.js environment');
+  }
   const types = generateTypes(schema);
   const { writeFileSync } = require('fs');
   const { resolve } = require('path');

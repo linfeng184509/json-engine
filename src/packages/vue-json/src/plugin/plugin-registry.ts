@@ -1,4 +1,7 @@
 import type { RegisteredPlugin, VueJsonPlugin, PluginDeclaration } from '../types/plugin.definitions';
+import { getLogger } from '../utils/logger';
+
+const logger = getLogger('PluginRegistry');
 
 export interface PluginRegistryOptions {
   coreVersion: string;
@@ -138,7 +141,7 @@ export class PluginRegistry {
     }
 
     registered.installed = true;
-    console.log(`[PluginRegistry] Installed plugin: ${name}@${registered.version}`);
+    logger.info('Installed plugin: %s@%s', name, registered.version);
   }
 
   /**

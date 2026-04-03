@@ -12,6 +12,7 @@ import {
 import type { SchemaLoadResult, SchemaLoadOptions } from '../runtime/schema-loader';
 import { getSchemaLoader } from '../runtime/schema-loader';
 import { getGlobalComponents } from '../composables/use-core-scope';
+import { getLogger } from '../utils/logger';
 
 export interface PageLoaderProps {
   schemaPath: string;
@@ -46,7 +47,8 @@ export const PageLoader = defineComponent({
     default?: () => VNode[];
   }>,
   setup(props, { slots }) {
-    console.log('[PageLoader] setup() called, schemaPath:', props.schemaPath, 'cache:', props.cache);
+    const logger = getLogger('PageLoader');
+    logger.debug('setup() called, schemaPath: %s, cache: %s', props.schemaPath, props.cache);
     const isLoading = ref(true);
     const error = ref<Error | null>(null);
     const pageComponent = shallowRef<Component | null>(null);
@@ -56,7 +58,7 @@ export const PageLoader = defineComponent({
     const schemaLoader = getSchemaLoader();
 
     async function loadSchema(): Promise<void> {
-      console.log('[PageLoader] loadSchema() called, schemaPath:', props.schemaPath);
+      logger.debug('loadSchema() called, schemaPath: %s', props.schemaPath);
       isLoading.value = true;
       error.value = null;
       pageComponent.value = null;
@@ -72,21 +74,15 @@ export const PageLoader = defineComponent({
 
       try {
         const result = await schemaLoader.load(props.schemaPath, options);
-        console.log('[PageLoader] load() result:', { 
-          schemaPath: props.schemaPath,
-          success: result.success, 
-          hasComponent: !!result.component,
-          hasError: !!result.error,
-          errorMessage: result.error?.message
-        });
+        logger.debug('load() result: schemaPath=%s, success=%s, hasComponent=%s', props.schemaPath, result.success, !!result.component);
         loadResult.value = result;
 
         if (result.success && result.component) {
           pageComponent.value = result.component;
-          console.log('[PageLoader] Component assigned, pageComponent:', !!result.component);
+          logger.debug('Component assigned successfully');
         } else {
           error.value = result.error || new Error('Unknown error loading schema');
-          console.error('[PageLoader] Failed to load:', props.schemaPath, result.error);
+          logger.error('Failed to load schema: %s', props.schemaPath, result.error);
         }
 
         if (props.layout) {
@@ -99,11 +95,11 @@ export const PageLoader = defineComponent({
         }
       } catch (e) {
         error.value = e instanceof Error ? e : new Error(String(e));
-        console.error('[PageLoader] Exception:', e);
+        logger.error('Exception during load:', e);
       }
 
       isLoading.value = false;
-      console.log('[PageLoader] loadSchema() complete, isLoading:', isLoading.value, 'hasError:', !!error.value);
+      logger.debug('loadSchema() complete, isLoading: %s, hasError: %s', isLoading.value, !!error.value);
     }
 
     function retry(): void {
@@ -122,9 +118,7 @@ export const PageLoader = defineComponent({
     loadSchema();
 
     return () => {
-      console.log('[PageLoader] render() called, isLoading:', isLoading.value, 'hasError:', !!error.value, 'hasPageComponent:', !!pageComponent.value, 'schemaPath:', props.schemaPath);
       if (isLoading.value) {
-        console.log('[PageLoader] Showing loading state');
         if (slots.loading) {
           return slots.loading();
         }
@@ -135,7 +129,6 @@ export const PageLoader = defineComponent({
       }
 
       if (error.value) {
-        console.log('[PageLoader] Showing error state:', error.value.message);
         if (slots.error) {
           return slots.error({ error: error.value, retry });
         }
@@ -148,19 +141,16 @@ export const PageLoader = defineComponent({
       }
 
       if (layoutComponent.value && pageComponent.value) {
-        console.log('[PageLoader] Rendering with layout and page component');
         return h(layoutComponent.value, { pageContent: h(pageComponent.value!) });
       }
 
       if (pageComponent.value) {
-        console.log('[PageLoader] Rendering page component only');
         if (slots.default) {
           return slots.default();
         }
         return h(pageComponent.value);
       }
 
-      console.log('[PageLoader] Returning null (no content)');
       return null;
     };
   },

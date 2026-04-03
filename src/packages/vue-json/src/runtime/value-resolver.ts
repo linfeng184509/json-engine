@@ -11,6 +11,9 @@ import {
 } from '@json-engine/core-engine';
 import type { FunctionValue } from '../types';
 import { isRef, type Ref } from 'vue';
+import { getLogger } from '../utils/logger';
+
+const logger = getLogger('value-resolver');
 
 function createStateProxyForEvaluation(
   state: Record<string, Ref | Record<string, unknown>>
@@ -325,7 +328,7 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     .replace(/\$_core\.(\w+)/g, 'coreScope._$1')
     .replace(/\$_antd\.(\w+)/g, 'coreScope._antd.$1');
   
-  console.log('[evaluateStringExpression] Transformed:', transformed);
+  logger.debug('evaluateStringExpression transformed:', transformed);
 
   const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
   const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
@@ -423,8 +426,8 @@ export function executeFunction(
     ? paramNames.map((name, index) => `var ${name} = args[${index}];`).join(' ')
     : '';
 
-  console.log('[executeFunction] fnValue.body:', fnValue.body);
-  console.log('[executeFunction] transformedBody:', transformedBody);
+  logger.debug('executeFunction body:', fnValue.body);
+  logger.debug('executeFunction transformedBody:', transformedBody);
 
   try {
     const fn = new Function(
@@ -441,7 +444,7 @@ export function executeFunction(
       `"use strict"; ${paramBindings} ${transformedBody}`
     );
 
-    console.log('[executeFunction] Calling function with context.props:', !!context.props);
+    logger.debug('executeFunction called with context');
 
     const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
     const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
@@ -460,7 +463,7 @@ export function executeFunction(
     );
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));
-    console.error('[vue-json-engine] Function execution error:', {
+    logger.error('Function execution error', {
       body: fnValue.body.substring(0, 100),
       transformedBody: transformedBody.substring(0, 200),
       params: fnValue.params,

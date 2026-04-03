@@ -4,6 +4,7 @@ import { createParserCache } from '@json-engine/core-engine';
 import { parseSchema } from '../parser';
 import { createComponentCreator } from './component-creator';
 import { SchemaParseError } from '../utils/error';
+import { getLogger } from '../utils/logger';
 
 export interface SchemaLoadResult {
   success: boolean;
@@ -33,45 +34,36 @@ export class SchemaLoaderImpl {
 
   async load(path: string, options: SchemaLoadOptions = {}): Promise<SchemaLoadResult> {
     const { cache = true, extraComponents = {}, injectStyles = true, debug = false } = options;
-
-    console.log('[SchemaLoader] load() called:', { path, cache, hasExtraComponents: Object.keys(extraComponents).length });
+    const logger = getLogger('SchemaLoader');
+    logger.debug('load() called: path=%s, cache=%s', path, cache);
 
     try {
       if (cache) {
         const cached = this.schemaCache.get<CachedSchema>(path);
         if (cached?.component) {
-          console.log('[SchemaLoader] Returning cached component for:', path);
+          logger.debug('Returning cached component for: %s', path);
           return { success: true, component: cached.component, schema: cached.schema };
         }
       }
 
-      console.log('[SchemaLoader] Fetching schema:', path);
+      logger.debug('Fetching schema: %s', path);
       const schema = await this.fetchSchema(path);
-      console.log('[SchemaLoader] Schema fetched, parsing:', path);
 
       const parseResult = parseSchema(schema);
-      console.log('[SchemaLoader] Parse result:', { 
-        path, 
-        success: parseResult.success, 
-        hasData: !!parseResult.data,
-        errorCount: parseResult.errors?.length 
-      });
       
       if (!parseResult.success || !parseResult.data) {
         const errors = parseResult.errors?.map((e) => e.message).join('; ') || 'Unknown parse error';
         const error = new SchemaParseError(path, errors);
-        console.error('[SchemaLoader] Parse failed:', path, errors);
+        logger.error('Parse failed: %s - %s', path, errors);
         return { success: false, error, schema };
       }
 
-      console.log('[SchemaLoader] Creating component for:', path);
       const component = createComponentCreator(schema, {
         cache,
         injectStyles,
         debug,
         extraComponents,
       });
-      console.log('[SchemaLoader] Component created:', { path, hasComponent: !!component });
 
       if (cache) {
         this.schemaCache.set(path, { schema, component });
@@ -80,7 +72,7 @@ export class SchemaLoaderImpl {
       return { success: true, component, schema };
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
-      console.error('[SchemaLoader] Exception:', path, error.message, error.stack);
+      logger.error('Exception: %s - %s', path, error.message);
       return { success: false, error };
     }
   }
