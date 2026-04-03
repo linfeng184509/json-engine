@@ -100,7 +100,7 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
       const vnodes = results
         .map((result) => renderVNodeDefinition(result.definition, result.context))
         .filter((vn): vn is VNode => vn !== null);
-      return vnodes.length > 0 ? vnodes[0] : null;
+      return vnodes.length === 1 ? vnodes[0] : vnodes.length > 1 ? h(Fragment, vnodes) : null;
     }
   }
 

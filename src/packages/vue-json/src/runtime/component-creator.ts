@@ -1,5 +1,10 @@
 import {
   defineComponent,
+  Fragment,
+  h,
+  isRef,
+  ref,
+  watch,
   type Component,
   type PropType,
   type ComponentOptions,
@@ -117,6 +122,20 @@ export function createComponentCreator(
       const injected = schema.inject ? setupInject({ items: schema.inject.items }, context) : {};
       const state = createState(schema.state, context);
 
+      // Create a version ref that triggers re-render when any state ref changes.
+      const version = ref(0);
+
+      // Set up watchers for each state ref to increment version on change
+      for (const key of Object.keys(state)) {
+        const val = state[key];
+        if (isRef(val)) {
+          watch(val, () => {
+            console.log('[watch] State changed:', key, 'new version:', version.value + 1);
+            version.value++;
+          });
+        }
+      }
+
       const stateTypes: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'> = {};
       if (schema.state) {
         for (const [key, def] of Object.entries(schema.state)) {
@@ -168,7 +187,7 @@ export function createComponentCreator(
             ...getAllAvailableComponents(extraComponents),
           };
 
-          return renderVNode(schema.render, {
+          const vnode = renderVNode(schema.render, {
             props: context.props,
             state,
             computed: computedRefs,
@@ -181,6 +200,9 @@ export function createComponentCreator(
             stateTypes,
             coreScope: coreScope as unknown as Record<string, unknown>,
           });
+
+          // Wrap in Fragment with version key to force Vue to rebuild when state changes
+          return h(Fragment, { key: version.value }, [vnode]);
         } catch (error) {
           console.error(`[vue-json-engine] Render error in ${schema.name}:`, error);
           throw error;

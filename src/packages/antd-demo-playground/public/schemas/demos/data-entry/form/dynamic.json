@@ -5,10 +5,10 @@
   },
   "methods": {
     "addItem": {
-      "$fn": "state.items.push({id: Date.now(), name: ''});"
+      "$fn": "$state.items = [...$state.items, {id: Date.now(), name: ''}]; console.log('addItem called, items count:', $state.items.length);"
     },
     "removeItem": {
-      "$fn": "var id = args[0]; state.items = state.items.filter(item => item.id !== id);"
+      "$fn": "var id = args[0]; $state.items = $state.items.filter(function(item) { return item.id !== id; });"
     }
   },
   "render": {
@@ -32,8 +32,8 @@
               "type": "template",
               "directives": {
                 "vFor": {
-                  "value": { "$expr": "$state.items" },
-                  "key": "id"
+                  "source": { "$expr": "$state.items" },
+                  "alias": "item"
                 }
               },
               "children": [
@@ -50,7 +50,7 @@
                       "props": { "type": "dashed", "danger": true },
                       "directives": {
                         "vOn": {
-                          "click": { "$fn": "methods.removeItem(scope.item.id);" }
+                          "click": { "$fn": "methods.removeItem($state.item.id);" }
                         }
                       },
                       "children": ["Remove"]
@@ -72,8 +72,7 @@
                   },
                   "children": [
                     { "type": "PlusOutlined" },
-                    "type": "span",
-                    "children": [" Add Item"]
+                    { "type": "span", "children": [" Add Item"] }
                   ]
                 }
               ]
