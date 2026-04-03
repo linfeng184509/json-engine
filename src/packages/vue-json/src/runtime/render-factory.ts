@@ -142,7 +142,9 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
         };
         const slotContext: RenderContext = {
           ...context,
-          state: createStateProxy(mergedState as Record<string, ReturnType<typeof ref>>) as unknown as RenderContext['state'],
+          state: mergedState,
+          stateProxy: undefined,
+          computedProxy: undefined,
         };
         const rendered = resolveNodeChildren(node.children, node.directives, slotContext);
         const vnodes: VNode[] = [];
@@ -215,7 +217,9 @@ function resolveSlots(
       
       const slotContext: RenderContext = {
         ...context,
-        state: createStateProxy(mergedState as Record<string, ReturnType<typeof ref>>) as unknown as RenderContext['state'],
+        state: mergedState,
+        stateProxy: undefined,
+        computedProxy: undefined,
       };
       const rendered = renderVNodeDefinition(childDef, slotContext);
       return rendered || [];
@@ -265,10 +269,12 @@ function resolveNodeChildren(
   directives: VNodeDefinition['directives'],
   context: RenderContext
 ): string | number | VNode | (string | number | VNode)[] | undefined {
-  const proxiedContext = {
-    ...context,
-    state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
-  } as RenderContext;
+  const proxiedContext = context.stateProxy
+    ? context
+    : ({
+        ...context,
+        state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+      } as RenderContext);
 
   if (directives?.vHtml !== undefined) {
     return applyVHtml(directives.vHtml, proxiedContext);
@@ -368,7 +374,7 @@ function resolveNodeChildren(
   }
 
   if (typeof children === 'object' && 'type' in children) {
-    return renderVNodeDefinition(children as VNodeDefinition, context) ?? undefined;
+    return renderVNodeDefinition(children as VNodeDefinition, proxiedContext) ?? undefined;
   }
 
   return undefined;

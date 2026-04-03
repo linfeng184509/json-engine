@@ -32,6 +32,8 @@ export interface RenderContext {
   provide: Record<string, unknown>;
   stateTypes?: Record<string, 'ref' | 'reactive' | 'shallowRef' | 'shallowReactive' | 'readonly'>;
   coreScope?: Record<string, unknown>;
+  stateProxy?: Record<string, unknown>;
+  computedProxy?: Record<string, unknown>;
 }
 
 export interface SetupContext {

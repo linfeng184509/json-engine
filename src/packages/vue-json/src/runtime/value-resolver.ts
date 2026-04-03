@@ -12,6 +12,7 @@ import {
 import type { FunctionValue } from '../types';
 import { isRef, type Ref } from 'vue';
 import { getLogger } from '../utils/logger';
+import { functionCache } from '../utils/expression';
 
 const logger = getLogger('value-resolver');
 
@@ -330,11 +331,12 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
   
   logger.debug('evaluateStringExpression transformed:', transformed);
 
-  const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
-  const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
+  const proxiedState = context.stateProxy || createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
+  const proxiedComputed = context.computedProxy || createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
 
   try {
-    const fn = new Function(
+    const cachedFn = functionCache.get<Function>(transformed);
+    const fn = cachedFn || new Function(
       'props',
       'state',
       'computed',
@@ -346,6 +348,10 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       'coreScope',
       `"use strict"; return (${transformed});`
     );
+
+    if (!cachedFn) {
+      functionCache.set(transformed, fn);
+    }
 
     const result = fn(
       context.props,
@@ -446,8 +452,8 @@ export function executeFunction(
 
     logger.debug('executeFunction called with context');
 
-    const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
-    const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
+    const proxiedState = context.stateProxy || createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
+    const proxiedComputed = context.computedProxy || createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
 
     return fn(
       context.props,

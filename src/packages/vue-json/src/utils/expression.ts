@@ -13,6 +13,8 @@ const functionCache = createParserCache({
   ttl: 0,
 });
 
+export { functionCache };
+
 export function resolveReference(expression: string, context: RenderContext): unknown {
   const { referenceRegex, scopeRegex, innerReferenceRegex, innerScopeRegex } = vueParserConfig;
 

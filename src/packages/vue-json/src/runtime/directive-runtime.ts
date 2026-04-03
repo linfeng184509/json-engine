@@ -36,10 +36,12 @@ function getNestedValue(obj: unknown, path: string): unknown {
 
 export function applyVIf(condition: ExpressionValue, context: RenderContext): boolean {
   try {
-    const proxiedContext = {
-      ...context,
-      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
-    } as RenderContext;
+    const proxiedContext = context.stateProxy
+      ? context
+      : {
+          ...context,
+          state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+        } as RenderContext;
     const result = evaluateExpression(condition.expression, proxiedContext);
     return Boolean(result);
   } catch (error) {
@@ -52,10 +54,12 @@ export function applyVIf(condition: ExpressionValue, context: RenderContext): bo
 
 export function applyVShow(vnode: VNode, condition: ExpressionValue, context: RenderContext): VNode {
   try {
-    const proxiedContext = {
-      ...context,
-      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
-    } as RenderContext;
+    const proxiedContext = context.stateProxy
+      ? context
+      : {
+          ...context,
+          state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+        } as RenderContext;
     const result = evaluateExpression(condition.expression, proxiedContext);
     if (!result) {
       const existingStyle = vnode.props?.style;
@@ -124,6 +128,8 @@ export function applyVFor(
           [vFor.alias]: item,
           ...(vFor.index ? { [vFor.index]: index } : {}),
         },
+        stateProxy: undefined,
+        computedProxy: undefined,
       };
 
       const newNode = { ...node, directives: { ...node.directives, vFor: undefined } };
@@ -275,10 +281,12 @@ export function applyVBind(
 ): Record<string, unknown> {
   if (!vBind) return {};
 
-  const proxiedContext = {
-    ...context,
-    state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
-  } as RenderContext;
+  const proxiedContext = context.stateProxy
+    ? context
+    : {
+        ...context,
+        state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+      } as RenderContext;
 
   const result: Record<string, unknown> = {};
 
@@ -298,10 +306,12 @@ export function applyVBind(
 
 export function applyVHtml(expression: ExpressionValue, context: RenderContext): string {
   try {
-    const proxiedContext = {
-      ...context,
-      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
-    } as RenderContext;
+    const proxiedContext = context.stateProxy
+      ? context
+      : {
+          ...context,
+          state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+        } as RenderContext;
     const result = evaluateExpression(expression.expression, proxiedContext);
     return String(result ?? '');
   } catch (error) {
@@ -314,10 +324,12 @@ export function applyVHtml(expression: ExpressionValue, context: RenderContext):
 
 export function applyVText(expression: ExpressionValue, context: RenderContext): string {
   try {
-    const proxiedContext = {
-      ...context,
-      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
-    } as RenderContext;
+    const proxiedContext = context.stateProxy
+      ? context
+      : {
+          ...context,
+          state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+        } as RenderContext;
     const result = evaluateExpression(expression.expression, proxiedContext);
     return String(result ?? '');
   } catch (error) {
@@ -396,10 +408,12 @@ export function applyVSlot(
 
 export function applyVElseIf(condition: ExpressionValue, context: RenderContext): boolean {
   try {
-    const proxiedContext = {
-      ...context,
-      state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
-    } as RenderContext;
+    const proxiedContext = context.stateProxy
+      ? context
+      : {
+          ...context,
+          state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+        } as RenderContext;
     const result = evaluateExpression(condition.expression, proxiedContext);
     return Boolean(result);
   } catch (error) {

@@ -12,7 +12,7 @@ import type {
 } from '../types';
 import { createParserCache } from '@json-engine/core-engine';
 import { parseSchema } from '../parser';
-import { createState } from './state-factory';
+import { createState, createStateProxy } from './state-factory';
 import { createComputed } from './computed-factory';
 import { setupWatchers } from './watch-factory';
 import { setupProvide, setupInject } from './provide-inject';
@@ -171,6 +171,9 @@ export function createComponentCreator(
             ...getAllAvailableComponents(extraComponents),
           };
 
+          const stateProxy = createStateProxy(state);
+          const computedProxy = createStateProxy(computedRefs as Record<string, ReturnType<typeof import('vue')['ref']>>);
+
           const vnode = renderVNode(schema.render, {
             props: context.props,
             state,
@@ -183,6 +186,8 @@ export function createComponentCreator(
             provide: provideRef.value,
             stateTypes,
             coreScope: coreScope as unknown as Record<string, unknown>,
+            stateProxy,
+            computedProxy,
           });
 
           return vnode;
