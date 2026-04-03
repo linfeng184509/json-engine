@@ -99,6 +99,24 @@ function resolveExpressionsDeep(value: unknown, context: RenderContext): unknown
     return evaluateExpression(value.expression as ExpressionResult, context);
   }
 
+  if (typeof value === 'object' && value !== null && '$expr' in value) {
+    const exprVal = (value as Record<string, unknown>)['$expr'];
+    if (typeof exprVal === 'string') {
+      return evaluateStringExpression(exprVal, context);
+    }
+    return evaluateExpression(exprVal as ExpressionResult, context);
+  }
+
+  if (typeof value === 'object' && value !== null && '$fn' in value) {
+    const fnVal = (value as Record<string, unknown>)['$fn'];
+    if (typeof fnVal === 'string') {
+      return (...args: unknown[]) => {
+        const fnContext = { ...context, args };
+        return evaluateStringExpression(fnVal, fnContext as RenderContext);
+      };
+    }
+  }
+
   if (Array.isArray(value)) {
     return value.map(item => resolveExpressionsDeep(item, context));
   }
@@ -121,6 +139,24 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
 
   if (isExpressionParseData(value)) {
     return evaluateExpression(value.expression as ExpressionResult, context);
+  }
+
+  if (typeof value === 'object' && value !== null && '$expr' in value) {
+    const exprVal = (value as Record<string, unknown>)['$expr'];
+    if (typeof exprVal === 'string') {
+      return evaluateStringExpression(exprVal, context);
+    }
+    return evaluateExpression(exprVal as ExpressionResult, context);
+  }
+
+  if (typeof value === 'object' && value !== null && '$fn' in value) {
+    const fnVal = (value as Record<string, unknown>)['$fn'];
+    if (typeof fnVal === 'string') {
+      return (...args: unknown[]) => {
+        const fnContext = { ...context, args };
+        return evaluateStringExpression(fnVal, fnContext as RenderContext);
+      };
+    }
   }
 
   if (isReferenceParseData(value)) {
@@ -193,6 +229,15 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
   if (isFunctionParseData(value)) {
     const fnValue = value as FunctionValue;
     return (...args: unknown[]) => executeFunction(fnValue, context, args);
+  }
+
+  // Recurse into plain objects to resolve nested $expr/$fn
+  if (!valueRecord._type && typeof value === 'object' && value !== null) {
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+      result[key] = resolvePropertyValue(val as PropertyValue, context);
+    }
+    return result;
   }
 
   return value;

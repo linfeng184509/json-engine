@@ -5,9 +5,7 @@
   },
   "methods": {
     "handleChange": {
-      "type": "function",
-      "params": "{{{info}}}",
-      "body": "{{if(info.file.status === 'done') { $_core.antd.message.success(info.file.name + ' file uploaded successfully'); } else if(info.file.status === 'error') { $_core.antd.message.error(info.file.name + ' file upload failed.'); } }}"
+      "$fn": "var info = args[0]; if(info.file.status === 'done') { $_core.antd.message.success(info.file.name + ' file uploaded successfully'); } else if(info.file.status === 'error') { $_core.antd.message.error(info.file.name + ' file upload failed.'); }"
     }
   },
   "render": {
@@ -25,7 +23,7 @@
           "arg": "fileList"
         },
         "vOn": {
-          "change": { "type": "function", "params": "{{{info}}}", "body": "{{methods.handleChange()}}" }
+          "change": { "$fn": "methods.handleChange(args[0]);" }
         }
       },
       "children": [
