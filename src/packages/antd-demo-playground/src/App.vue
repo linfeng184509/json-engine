@@ -14,7 +14,7 @@ const error = ref<string | null>(null);
 
 async function bootstrap(): Promise<void> {
   try {
-    const appConfigResponse = await fetch('/schemas/app.json');
+    const appConfigResponse = await fetch('/json-engine/schemas/app.json');
     if (!appConfigResponse.ok) {
       throw new Error(`Failed to load app config: ${appConfigResponse.status}`);
     }
@@ -24,7 +24,7 @@ async function bootstrap(): Promise<void> {
     
     await setupApp(appConfig);
 
-    const result = await loadComponent('/schemas/app-root.json', {
+    const result = await loadComponent('/json-engine/schemas/app-root.json', {
       cache: false,
       injectStyles: true,
     });
