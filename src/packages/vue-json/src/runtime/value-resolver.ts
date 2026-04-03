@@ -264,8 +264,8 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     .replace(/\$state(?=\.|$|\s)/g, 'state')
     .replace(/\$props(?=\.|$|\s)/g, 'props')
     .replace(/\$computed(?=\.|$|\s)/g, 'computed')
-    .replace(/\$_(core|ui)\.(\w+)(?=\.|$|\s)/g, 'coreScope._$2')
-    .replace(/\$(core|ui)\.(\w+)(?=\.|$|\s)/g, 'coreScope._$2');
+    .replace(/\$_(\w+)(?=\.|$|\s)/g, 'coreScope._$1')
+    .replace(/\$(\w+)(?=\.|$|\s)/g, 'coreScope._$1');
 
   const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
   const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
@@ -318,8 +318,8 @@ export function transformFunctionBody(body: string): string {
     .replace(/\$state(?=\.|$|\s)/g, 'state')
     .replace(/\$props(?=\.|$|\s)/g, 'props')
     .replace(/\$computed(?=\.|$|\s)/g, 'computed')
-    .replace(/\$_(core|ui)\.(\w+)(?=\.|$|\s)/g, 'coreScope._$2')
-    .replace(/\$(core|ui)\.(\w+)(?=\.|$|\s)/g, 'coreScope._$2');
+    .replace(/\$_(\w+)(?=\.|$|\s)/g, 'coreScope._$1')
+    .replace(/\$(\w+)(?=\.|$|\s)/g, 'coreScope._$1');
 }
 
 function parseFunctionParams(params: Record<string, unknown> | string): string[] {
