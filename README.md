@@ -198,6 +198,8 @@ json-engine/
 - **100+ Demo Schemas**: Comprehensive Ant Design component demos as JSON
 - **Enterprise Ready**: Admin dashboard with login, charts, role management
 
+## antd-demo-playground Ant Design Vue components
+https://linfeng184509.github.io/json-engine
 ## License
 
 MIT
