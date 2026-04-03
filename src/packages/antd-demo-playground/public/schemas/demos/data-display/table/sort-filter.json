@@ -15,7 +15,7 @@
           "props": {
             "columns": [
               { "title": "Name", "dataIndex": "name", "key": "name", "sorter": true },
-              { "title": "Age", "dataIndex": "age", "key": "age", "sorter": { "compare": "function(a,b){return a.age - b.age}" } },
+              { "title": "Age", "dataIndex": "age", "key": "age", "sorter": { "compare": { "$fn": "var a = args[0]; var b = args[1]; return a.age - b.age;" } } },
               { "title": "Address", "dataIndex": "address", "key": "address", "filters": [{ "text": "London", "value": "London" }, { "text": "New York", "value": "New York" }] }
             ],
             "dataSource": [
