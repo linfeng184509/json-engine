@@ -12,14 +12,15 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@json-engine/vue-json': resolve(__dirname, '../vue-json/src'),
+      '@json-engine/vue-json': resolve(__dirname, '../vue-json/dist'),
       '@json-engine/core-engine': resolve(__dirname, '../core-engine/src'),
       '@json-engine/plugin-antd': resolve(__dirname, '../plugins/plugin-antd/src'),
       '@json-engine/plugin-router': resolve(__dirname, '../plugins/plugin-router/src'),
     },
   },
   server: {
-    port: 3003,
+    port: 3014,
+    strictPort: true,
     host: true,
   },
   build: {

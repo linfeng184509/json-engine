@@ -78,8 +78,15 @@ function renderTemplate(node: VNodeDefinition, context: RenderContext): VNode | 
 function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): VNode | null {
   if (node.directives) {
     if (node.directives.vIf !== undefined) {
-      const result = applyVIf(node.directives.vIf, context);
-      if (!result) return null;
+      console.log('[render-factory] v-if condition for', node.type, ':', JSON.stringify(node.directives.vIf));
+      try {
+        const result = applyVIf(node.directives.vIf, context);
+        console.log('[render-factory] v-if result for', node.type, ':', result);
+        if (!result) return null;
+      } catch (e) {
+        console.error('[render-factory] v-if error for', node.type, ':', e);
+        return null;
+      }
     }
 
     if (node.directives.vShow !== undefined) {

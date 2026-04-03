@@ -24,6 +24,4 @@ export async function setupApp(schema: VueJsonAppSchema): Promise<void> {
   Object.assign(coreScope, scopeExtensions);
 
   setCoreScope(coreScope);
-
-  console.log('[setupApp] Plugins installed:', getPluginRegistry().getInstalledPlugins().map((p) => p.definition.name));
 }

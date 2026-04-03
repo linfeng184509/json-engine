@@ -36,6 +36,7 @@ export function setupLifecycle(
     coreScope,
   };
 
+  console.log('[lifecycle-factory] Setting up onMounted hook, definition:', !!definition.onMounted);
   setupHook(definition.onMounted, onMounted, renderContext, 'onMounted');
   setupHook(definition.onUnmounted, onUnmounted, renderContext, 'onUnmounted');
   setupHook(definition.onUpdated, onUpdated, renderContext, 'onUpdated');
@@ -76,7 +77,9 @@ function createHookHandler(
   context: RenderContext,
   hasErrorArg: boolean
 ): (error?: Error) => void | boolean {
+  console.log('[createHookHandler] Creating handler for hook, fnValue:', fnValue);
   return (error?: Error) => {
+    console.log('[createHookHandler] Hook fired! error:', error);
     if (hasErrorArg) {
       return executeFunction(fnValue, context, [error]) as void | boolean;
     }

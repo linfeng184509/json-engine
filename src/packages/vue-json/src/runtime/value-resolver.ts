@@ -264,8 +264,9 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     .replace(/\$state(?=\.|$|\s)/g, 'state')
     .replace(/\$props(?=\.|$|\s)/g, 'props')
     .replace(/\$computed(?=\.|$|\s)/g, 'computed')
-    .replace(/\$_(\w+)(?=\.|$|\s)/g, 'coreScope._$1')
-    .replace(/\$(\w+)(?=\.|$|\s)/g, 'coreScope._$1');
+    .replace(/\$_core\.(\w+)/g, 'coreScope._$1');
+  
+  console.log('[evaluateStringExpression] Transformed:', transformed);
 
   const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
   const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
@@ -318,8 +319,7 @@ export function transformFunctionBody(body: string): string {
     .replace(/\$state(?=\.|$|\s)/g, 'state')
     .replace(/\$props(?=\.|$|\s)/g, 'props')
     .replace(/\$computed(?=\.|$|\s)/g, 'computed')
-    .replace(/\$_(\w+)(?=\.|$|\s)/g, 'coreScope._$1')
-    .replace(/\$(\w+)(?=\.|$|\s)/g, 'coreScope._$1');
+    .replace(/\$_core\.(\w+)/g, 'coreScope._$1');
 }
 
 function parseFunctionParams(params: Record<string, unknown> | string): string[] {
@@ -364,6 +364,9 @@ export function executeFunction(
     ? paramNames.map((name, index) => `var ${name} = args[${index}];`).join(' ')
     : '';
 
+  console.log('[executeFunction] fnValue.body:', fnValue.body);
+  console.log('[executeFunction] transformedBody:', transformedBody);
+
   try {
     const fn = new Function(
       'props',
@@ -378,6 +381,8 @@ export function executeFunction(
       'coreScope',
       `"use strict"; ${paramBindings} ${transformedBody}`
     );
+
+    console.log('[executeFunction] Calling function with context.props:', !!context.props);
 
     return fn(
       context.props,

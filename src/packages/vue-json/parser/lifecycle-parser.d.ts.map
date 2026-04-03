@@ -1,0 +1,1 @@
+{"version":3,"file":"lifecycle-parser.d.ts","sourceRoot":"","sources":["../src/parser/lifecycle-parser.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,mBAAmB,EAAE,aAAa,EAAiB,MAAM,UAAU,CAAC;AAiElF,wBAAgB,cAAc,CAC5B,UAAU,EAAE,mBAAmB,EAC/B,OAAO,EAAE,aAAa,GACrB,mBAAmB,CAuBrB"}
