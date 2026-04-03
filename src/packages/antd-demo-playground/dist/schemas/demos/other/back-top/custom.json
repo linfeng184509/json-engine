@@ -1,0 +1,26 @@
+{
+  "name": "BackTopCustomDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["BackTop Custom"]
+        },
+        {
+          "type": "ABackTop",
+          "children": [
+            {
+              "type": "div",
+              "props": { "style": "height:40px;width:40px;line-height:40px;text-align:center;font-size:14px;background:#1677ff;color:#fff;border-radius:50%" },
+              "children": ["UP"]
+            }
+          ]
+        },
+        { "type": "div", "props": { "style": "height:600px" }, "children": ["Scroll down to see the custom back-top button"] }
+      ]
+    }
+  }
+}

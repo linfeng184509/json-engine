@@ -1,0 +1,73 @@
+{
+  "name": "FormBasicDemo",
+  "state": {
+    "formState": {
+      "type": "reactive",
+      "initial": { "username": "", "password": "", "remember": true }
+    }
+  },
+  "methods": {
+    "onFinish": {
+      "$fn": "console.log('Success:', args[0]);"
+    },
+    "onFinishFailed": {
+      "$fn": "console.log('Failed:', args[0]);"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AForm",
+      "props": {
+        "model": { "$expr": "$state.formState" },
+        "name": "basic",
+        "labelCol": { "span": 8 },
+        "wrapperCol": { "span": 16 },
+        "autocomplete": "off",
+        "style": "max-width:600px",
+        "onFinish": { "$fn": "methods.onFinish(args[0]);" },
+        "onFinishFailed": { "$fn": "methods.onFinishFailed(args[0]);" }
+      },
+      "children": [
+        {
+          "type": "AFormItem",
+          "props": { "label": "Username", "name": "username", "rules": [{ "required": true, "message": "Please input your username!" }] },
+          "children": [
+            {
+              "type": "AInput",
+              "directives": { "vModel": { "prop": { "$ref": "state.formState.username" } } }
+            }
+          ]
+        },
+        {
+          "type": "AFormItem",
+          "props": { "label": "Password", "name": "password", "rules": [{ "required": true, "message": "Please input your password!" }] },
+          "children": [
+            {
+              "type": "AInputPassword",
+              "directives": { "vModel": { "prop": { "$ref": "state.formState.password" } } }
+            }
+          ]
+        },
+        {
+          "type": "AFormItem",
+          "props": { "name": "remember", "wrapperCol": { "offset": 8, "span": 16 } },
+          "children": [
+            {
+              "type": "ACheckbox",
+              "directives": { "vModel": { "prop": { "$ref": "state.formState.remember" }, "arg": "checked" } },
+              "children": ["Remember me"]
+            }
+          ]
+        },
+        {
+          "type": "AFormItem",
+          "props": { "wrapperCol": { "offset": 8, "span": 16 } },
+          "children": [
+            { "type": "AButton", "props": { "type": "primary", "htmlType": "submit" }, "children": ["Submit"] }
+          ]
+        }
+      ]
+    }
+  }
+}

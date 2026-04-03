@@ -1,0 +1,39 @@
+{
+  "name": "MenuVerticalDemo",
+  "state": {
+    "selectedKeys": { "type": "ref", "initial": ["1"] }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Menu Vertical"]
+        },
+        {
+          "type": "AMenu",
+          "props": {
+            "mode": "vertical",
+            "selectedKeys": { "$expr": "$state.selectedKeys" },
+            "style": "width:256px"
+          },
+          "children": [
+            { "type": "AMenuItem", "props": { "key": "1" }, "children": ["Option 1"] },
+            { "type": "AMenuItem", "props": { "key": "2" }, "children": ["Option 2"] },
+            { "type": "AMenuItem", "props": { "key": "3" }, "children": ["Option 3"] },
+            {
+              "type": "ASubMenu",
+              "props": { "key": "sub1", "title": "Sub Menu" },
+              "children": [
+                { "type": "AMenuItem", "props": { "key": "4" }, "children": ["Option 4"] },
+                { "type": "AMenuItem", "props": { "key": "5" }, "children": ["Option 5"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

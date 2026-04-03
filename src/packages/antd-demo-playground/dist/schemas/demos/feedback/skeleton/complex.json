@@ -1,0 +1,10 @@
+{
+  "name": "SkeletonComplexDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASkeleton",
+      "props": { "active": true, "avatar": true, "paragraph": { "rows": 4 } }
+    }
+  }
+}

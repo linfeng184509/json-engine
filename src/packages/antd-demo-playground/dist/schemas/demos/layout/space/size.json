@@ -1,0 +1,24 @@
+{
+  "name": "SpaceSizeDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
+      "children": [
+        { "type": "ASpace", "props": { "size": "small" }, "children": [
+          { "type": "AButton", "children": ["Small"] },
+          { "type": "AButton", "children": ["Small"] }
+        ]},
+        { "type": "ASpace", "children": [
+          { "type": "AButton", "children": ["Default"] },
+          { "type": "AButton", "children": ["Default"] }
+        ]},
+        { "type": "ASpace", "props": { "size": "large" }, "children": [
+          { "type": "AButton", "children": ["Large"] },
+          { "type": "AButton", "children": ["Large"] }
+        ]}
+      ]
+    }
+  }
+}

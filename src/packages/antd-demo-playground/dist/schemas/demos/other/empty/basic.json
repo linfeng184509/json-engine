@@ -1,0 +1,9 @@
+{
+  "name": "EmptyBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AEmpty"
+    }
+  }
+}

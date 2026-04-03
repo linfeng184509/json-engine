@@ -1,0 +1,27 @@
+{
+  "name": "MenuBasicDemo",
+  "state": {
+    "current": { "type": "ref", "initial": "mail" }
+  },
+  "methods": {
+    "handleClick": {
+      "$fn": "state.current = args[0].key;"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AMenu",
+      "props": {
+        "mode": "horizontal",
+        "selectedKeys": { "$expr": "[state.current]" }
+      },
+      "directives": { "vOn": { "click": { "$fn": "methods.handleClick(args[0]);" } } },
+      "children": [
+        { "type": "AMenuItem", "props": { "key": "mail" }, "children": [ { "type": "MailOutlined" }, " Navigation One" ] },
+        { "type": "AMenuItem", "props": { "key": "app", "disabled": true }, "children": [ { "type": "AppstoreOutlined" }, " Navigation Two" ] },
+        { "type": "AMenuItem", "props": { "key": "alipay" }, "children": [ { "type": "LinkOutlined" }, " Navigation Three" ] }
+      ]
+    }
+  }
+}

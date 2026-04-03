@@ -1,0 +1,24 @@
+{
+  "name": "BadgeNoWrapperDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Badge No Wrapper"]
+        },
+        {
+          "type": "ASpace",
+          "props": { "size": 16 },
+          "children": [
+            { "type": "ABadge", "props": { "count": 5 } },
+            { "type": "ABadge", "props": { "count": 0, "showZero": true } },
+            { "type": "ABadge", "props": { "count": 99, "overflowCount": 10 } }
+          ]
+        }
+      ]
+    }
+  }
+}

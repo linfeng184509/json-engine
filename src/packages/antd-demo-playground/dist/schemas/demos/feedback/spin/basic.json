@@ -1,0 +1,9 @@
+{
+  "name": "SpinBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpin"
+    }
+  }
+}

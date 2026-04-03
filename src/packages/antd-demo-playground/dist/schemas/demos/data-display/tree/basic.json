@@ -1,0 +1,57 @@
+{
+  "name": "TreeBasicDemo",
+  "state": {
+    "expandedKeys": { "type": "ref", "initial": ["0-0-0", "0-0-1"] },
+    "selectedKeys": { "type": "ref", "initial": ["0-0-0", "0-0-1"] },
+    "checkedKeys": { "type": "ref", "initial": ["0-0-0", "0-0-1"] },
+    "treeData": {
+      "type": "ref",
+      "initial": [
+        {
+          "title": "parent 1",
+          "key": "0-0",
+          "children": [
+            {
+              "title": "parent 1-0",
+              "key": "0-0-0",
+              "disabled": true,
+              "children": [
+                { "title": "leaf", "key": "0-0-0-0", "disableCheckbox": true },
+                { "title": "leaf", "key": "0-0-0-1" }
+              ]
+            },
+            {
+              "title": "parent 1-1",
+              "key": "0-0-1",
+              "children": [{ "key": "0-0-1-0", "title": "sss" }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ATree",
+      "props": {
+        "checkable": true,
+        "treeData": { "$expr": "$state.treeData" }
+      },
+      "directives": {
+        "vModel": [
+          { "prop": { "$ref": "state.expandedKeys" }, "arg": "expandedKeys" },
+          { "prop": { "$ref": "state.selectedKeys" }, "arg": "selectedKeys" },
+          { "prop": { "$ref": "state.checkedKeys" }, "arg": "checkedKeys" }
+        ]
+      },
+      "children": [
+        {
+          "type": "span",
+          "directives": { "vSlot": { "name": "title", "props": ["title", "key"] } },
+          "children": [{ "$expr": "$state.title" }]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "UploadBasicDemo",
+  "state": {
+    "fileList": { "type": "ref", "initial": [] }
+  },
+  "methods": {
+    "handleChange": {
+      "$fn": "var info = args[0]; if(info.file.status === 'done') { $_core.antd.message.success(info.file.name + ' file uploaded successfully'); } else if(info.file.status === 'error') { $_core.antd.message.error(info.file.name + ' file upload failed.'); }"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AUpload",
+      "props": {
+        "name": "file",
+        "action": "https://www.mocky.io/v2/5cc8019d300000980a055e76",
+        "headers": { "authorization": "authorization-text" }
+      },
+      "directives": {
+        "vModel": {
+          "prop": { "_type": "reference", "prefix": "state", "variable": "fileList" },
+          "arg": "fileList"
+        },
+        "vOn": {
+          "change": { "$fn": "methods.handleChange(args[0]);" }
+        }
+      },
+      "children": [
+        {
+          "type": "AButton",
+          "children": [
+            { "type": "UploadOutlined" },
+            "Click to Upload"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "TimePickerFormatDemo",
+  "state": {
+    "value": { "type": "ref", "initial": null }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
+      "children": [
+        {
+          "type": "ATimePicker",
+          "props": { "use12Hours": true },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
+        },
+        {
+          "type": "ATimePicker",
+          "props": { "use12Hours": true, "format": "h:mm:ss A", "style": "width:140px" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
+        },
+        {
+          "type": "ATimePicker",
+          "props": { "use12Hours": true, "format": "h:mm a" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

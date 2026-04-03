@@ -1,0 +1,45 @@
+{
+  "name": "InputSizeDemo",
+  "state": {
+    "value": { "type": "ref", "initial": "" }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": { "class": "components-input-demo-size" },
+      "children": [
+        {
+          "type": "AInput",
+          "props": { "size": "large", "placeholder": "large size" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
+        },
+        {
+          "type": "AInput",
+          "props": { "placeholder": "default size" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
+        },
+        {
+          "type": "AInput",
+          "props": { "size": "small", "placeholder": "small size" },
+          "directives": {
+            "vModel": {
+              "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+              "arg": "value"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

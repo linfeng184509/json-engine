@@ -1,0 +1,35 @@
+{
+  "name": "CollapseMixDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Collapse Mix"]
+        },
+        {
+          "type": "ACollapse",
+          "children": [
+            {
+              "type": "ACollapsePanel",
+              "props": { "key": "1", "header": "Panel 1", "collapsible": "disabled" },
+              "children": ["This panel can't be collapsed"]
+            },
+            {
+              "type": "ACollapsePanel",
+              "props": { "key": "2", "header": "Panel 2", "collapsible": "header" },
+              "children": ["Only header can trigger collapse"]
+            },
+            {
+              "type": "ACollapsePanel",
+              "props": { "key": "3", "header": "Panel 3" },
+              "children": ["Normal panel"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

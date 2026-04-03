@@ -1,0 +1,26 @@
+{
+  "name": "AnchorHorizontalDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Anchor Horizontal"]
+        },
+        {
+          "type": "AAnchor",
+          "props": {
+            "direction": "horizontal"
+          },
+          "children": [
+            { "type": "AAnchorLink", "props": { "href": "#components-anchor-demo-basic", "title": "Basic" } },
+            { "type": "AAnchorLink", "props": { "href": "#components-anchor-demo-static", "title": "Static" } },
+            { "type": "AAnchorLink", "props": { "href": "#components-anchor-demo-custom", "title": "Custom" } }
+          ]
+        }
+      ]
+    }
+  }
+}

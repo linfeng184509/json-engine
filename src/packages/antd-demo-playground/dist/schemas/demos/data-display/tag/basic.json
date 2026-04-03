@@ -1,0 +1,68 @@
+{
+  "name": "TagBasicDemo",
+  "methods": {
+    "log": {
+      "$fn": "console.log(args[0])"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "ATag",
+          "children": [
+            "Tag 1"
+          ]
+        },
+        {
+          "type": "ATag",
+          "children": [
+            {
+              "type": "a",
+              "props": {
+                "href": "https://github.com/vueComponent/ant-design"
+              },
+              "children": [
+                "Link"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ATag",
+          "props": {
+            "closable": true
+          },
+          "directives": {
+            "vOn": {
+              "close": {
+                "$fn": "methods.log()"
+              }
+            }
+          },
+          "children": [
+            "Tag 2"
+          ]
+        },
+        {
+          "type": "ATag",
+          "props": {
+            "closable": true
+          },
+          "directives": {
+            "vOn": {
+              "close.prevent": {
+                "$fn": ""
+              }
+            }
+          },
+          "children": [
+            "Prevent Default"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "UploadDragDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Upload Drag"]
+        },
+        {
+          "type": "ADragger",
+          "props": {
+            "name": "file",
+            "multiple": true,
+            "action": "https://www.mocky.io/v2/5cc8019d300000980a055e76"
+          },
+          "children": [
+            { "type": "p", "props": { "class": "ant-upload-drag-icon" }, "children": [{ "type": "InboxOutlined" }] },
+            { "type": "p", "props": { "class": "ant-upload-text" }, "children": ["Click or drag file to this area to upload"] },
+            { "type": "p", "props": { "class": "ant-upload-hint" }, "children": ["Support for single or bulk upload."] }
+          ]
+        }
+      ]
+    }
+  }
+}

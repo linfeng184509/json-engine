@@ -1,0 +1,9 @@
+{
+  "name": "SkeletonBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASkeleton"
+    }
+  }
+}

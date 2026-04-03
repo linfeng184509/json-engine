@@ -1,0 +1,33 @@
+{
+  "name": "SliderMarksDemo",
+  "state": {
+    "value": { "type": "ref", "initial": 37 }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Slider Marks"]
+        },
+        {
+          "type": "ASlider",
+          "props": {
+            "marks": { "0": "0°C", "26": "26°C", "37": "37°C", "100": { "style": { "color": "#f50" }, "label": "100°C" } },
+            "value": { "$expr": "$state.value" }
+          }
+        },
+        {
+          "type": "ASlider",
+          "props": {
+            "range": true,
+            "marks": { "0": "0", "100": "100" },
+            "defaultValue": [20, 80]
+          }
+        }
+      ]
+    }
+  }
+}

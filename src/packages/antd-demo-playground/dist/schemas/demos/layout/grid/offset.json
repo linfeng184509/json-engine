@@ -1,0 +1,22 @@
+{
+  "name": "GridOffsetDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        { "type": "ARow", "children": [
+          { "type": "ACol", "props": { "span": 8 }, "children": [ { "type": "div", "props": { "style": "background:#0092ff;color:#fff;padding:20px;text-align:center" }, "children": ["col-8"] } ] },
+          { "type": "ACol", "props": { "span": 8, "offset": 8 }, "children": [ { "type": "div", "props": { "style": "background:#0092ff;color:#fff;padding:20px;text-align:center" }, "children": ["col-8 offset-8"] } ] }
+        ]},
+        { "type": "ARow", "children": [
+          { "type": "ACol", "props": { "span": 6, "offset": 6 }, "children": [ { "type": "div", "props": { "style": "background:#0092ff;color:#fff;padding:20px;text-align:center" }, "children": ["col-6 offset-6"] } ] },
+          { "type": "ACol", "props": { "span": 6, "offset": 6 }, "children": [ { "type": "div", "props": { "style": "background:#0092ff;color:#fff;padding:20px;text-align:center" }, "children": ["col-6 offset-6"] } ] }
+        ]},
+        { "type": "ARow", "children": [
+          { "type": "ACol", "props": { "span": 12, "offset": 6 }, "children": [ { "type": "div", "props": { "style": "background:#0092ff;color:#fff;padding:20px;text-align:center" }, "children": ["col-12 offset-6"] } ] }
+        ]}
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "SpinTipDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpin",
+      "props": { "tip": "Loading..." },
+      "children": [
+        {
+          "type": "AAlert",
+          "props": {
+            "message": "Alert message title",
+            "description": "Further details about the context of this alert."
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "TabsPositionDemo",
+  "state": {
+    "activeKey": { "type": "ref", "initial": "1" }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ATabs",
+      "props": {
+        "activeKey": { "$expr": "$state.activeKey" },
+        "tabPosition": "left"
+      },
+      "directives": {
+        "vOn": {
+          "update:activeKey": { "$fn": "state.activeKey = args[0];" }
+        }
+      },
+      "children": [
+        { "type": "ATabPane", "props": { "tab": "Tab 1", "key": "1" }, "children": ["Content of Tab 1"] },
+        { "type": "ATabPane", "props": { "tab": "Tab 2", "key": "2" }, "children": ["Content of Tab 2"] },
+        { "type": "ATabPane", "props": { "tab": "Tab 3", "key": "3" }, "children": ["Content of Tab 3"] }
+      ]
+    }
+  }
+}
