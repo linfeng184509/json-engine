@@ -13,7 +13,7 @@
   },
   "methods": {
     "onOpenChange": {
-      "$fn": "state.openKeys = args[0];"
+      "$fn": "var newKeys = args[0]; if(newKeys.length > state.openKeys.length) { state.openKeys = [newKeys[newKeys.length - 1]]; } else { state.openKeys = newKeys; }"
     },
     "onMenuClick": {
       "$fn": "var item = args[0]; if(item && item.key) { state.selectedKeys = [item.key]; window.location.hash = '/demos/' + item.key; }"
