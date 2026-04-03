@@ -9,6 +9,7 @@ const __dirname = dirname(__filename);
 
 export default defineConfig({
   plugins: [vue()],
+  base: '/json-engine/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -25,6 +26,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false,
   },
 });
