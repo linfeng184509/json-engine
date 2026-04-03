@@ -46,6 +46,7 @@ export {
   isExpressionParseData,
   isFunctionParseData,
   isScopeParseData,
+  evaluateStringExpression,
 };
 
 export function isStateReference(value: unknown): value is AbstractReferenceParseData & { prefix: 'state' } {

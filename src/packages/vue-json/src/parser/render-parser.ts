@@ -11,6 +11,20 @@ import type {
 import { isExpressionParseData, isFunctionParseData, isReferenceParseData } from '@json-engine/core-engine';
 import { createValidationError } from '../utils/error';
 
+function normalizeRefToReference(value: unknown): unknown {
+  if (typeof value === 'object' && value !== null && '$ref' in value) {
+    const refStr = (value as Record<string, unknown>)['$ref'] as string;
+    const parts = refStr.split('.');
+    if (parts.length >= 2) {
+      const prefix = parts[0];
+      const variable = parts[1];
+      const path = parts.slice(2).join('.') || undefined;
+      return { _type: 'reference', prefix, variable, ...(path ? { path } : {}) };
+    }
+  }
+  return value;
+}
+
 function isPropertyValue(value: unknown): value is PropertyValue {
   if (value === null || value === undefined) return true;
   if (typeof value !== 'object') return true;
@@ -146,14 +160,35 @@ function validateVNodeDirectives(directives: VNodeDirectives, path: string, cont
   }
 
   if (directives.vModel) {
-    if (!isReferenceParseData(directives.vModel.prop)) {
-      context.errors.push({
-        path: `${path}.vModel.prop`,
-        message: 'vModel.prop must be a ReferenceParseData (state or props reference)',
-        value: directives.vModel.prop,
-        expectedType: 'ReferenceParseData',
-        actualType: typeof directives.vModel.prop,
-      });
+    const vModel = directives.vModel as unknown;
+    if (Array.isArray(vModel)) {
+      for (let i = 0; i < vModel.length; i++) {
+        const item = vModel[i] as Record<string, unknown>;
+        if (item && item.prop) {
+          item.prop = normalizeRefToReference(item.prop);
+          if (!isReferenceParseData(item.prop)) {
+            context.errors.push({
+              path: `${path}.vModel[${i}].prop`,
+              message: 'vModel.prop must be a ReferenceParseData (state or props reference)',
+              value: item.prop,
+              expectedType: 'ReferenceParseData',
+              actualType: typeof item.prop,
+            });
+          }
+        }
+      }
+    } else {
+      const normalizedProp = normalizeRefToReference((vModel as Record<string, unknown>).prop);
+      (vModel as Record<string, unknown>).prop = normalizedProp;
+      if (!isReferenceParseData((vModel as Record<string, unknown>).prop)) {
+        context.errors.push({
+          path: `${path}.vModel.prop`,
+          message: 'vModel.prop must be a ReferenceParseData (state or props reference)',
+          value: (vModel as Record<string, unknown>).prop,
+          expectedType: 'ReferenceParseData',
+          actualType: typeof (vModel as Record<string, unknown>).prop,
+        });
+      }
     }
   }
 

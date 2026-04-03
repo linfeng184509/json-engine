@@ -9,6 +9,7 @@ import type {
 import { createDirectiveError } from '../utils/error';
 import {
   evaluateExpression,
+  evaluateStringExpression,
   executeFunction,
   isStateReference,
   isPropsReference,
@@ -145,47 +146,58 @@ export function applyVModel(
   if (!vModel) return {};
 
   const result: Record<string, unknown> = {};
-  const arg = vModel.arg || 'modelValue';
-  const propName = arg;
-  const eventName = vModel.event || `update:${arg}`;
 
-  try {
-    const propRef = vModel.prop;
-    let value: unknown;
+  const items = Array.isArray(vModel) ? vModel : [vModel];
 
-    if (isStateReference(propRef)) {
-      const stateValue = context.state[propRef.variable];
-      if (isRef(stateValue)) {
-        value = stateValue.value;
-      } else if (typeof stateValue === 'object' && stateValue !== null && 'value' in stateValue) {
-        value = (stateValue as { value: unknown }).value;
+  for (const item of items) {
+    const arg = item.arg || 'modelValue';
+    const propName = arg;
+    const eventName = item.event || `update:${arg}`;
+
+    try {
+      let propRef = item.prop;
+      // Normalize $ref format to ReferenceParseData
+      if (typeof propRef === 'object' && propRef !== null && '$ref' in propRef) {
+        const refStr = (propRef as Record<string, unknown>)['$ref'] as string;
+        const parts = refStr.split('.');
+        propRef = { _type: 'reference', prefix: parts[0] as 'state' | 'props', variable: parts[1], ...(parts.length > 2 ? { path: parts.slice(2).join('.') } : {}) };
+      }
+      let value: unknown;
+
+      if (isStateReference(propRef)) {
+        const stateValue = context.state[propRef.variable];
+        if (isRef(stateValue)) {
+          value = stateValue.value;
+        } else if (typeof stateValue === 'object' && stateValue !== null && 'value' in stateValue) {
+          value = (stateValue as { value: unknown }).value;
+        } else {
+          value = stateValue;
+        }
+        
+        if (propRef.path) {
+          value = getNestedValue(value, propRef.path);
+        }
+      } else if (isPropsReference(propRef)) {
+        value = context.props[propRef.variable];
       } else {
-        value = stateValue;
+        throw createDirectiveError('v-model', 'vModel.prop must be a StateRef or PropsRef');
       }
-      
-      if (propRef.path) {
-        value = getNestedValue(value, propRef.path);
-      }
-    } else if (isPropsReference(propRef)) {
-      value = context.props[propRef.variable];
-    } else {
-      throw createDirectiveError('v-model', 'vModel.prop must be a StateRef or PropsRef');
+
+      result[propName] = value;
+
+      const eventKey = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
+      result[eventKey] = (newValue: unknown) => {
+        setReferenceValue(propRef, newValue, context);
+      };
+    } catch (error) {
+      throw createDirectiveError(
+        'v-model',
+        `Failed to bind: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
-
-    result[propName] = value;
-
-    const eventKey = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
-    result[eventKey] = (newValue: unknown) => {
-      setReferenceValue(propRef, newValue, context);
-    };
-
-    return result;
-  } catch (error) {
-    throw createDirectiveError(
-      'v-model',
-      `Failed to bind: ${error instanceof Error ? error.message : String(error)}`
-    );
   }
+
+  return result;
 }
 
 function setReferenceValue(ref: StateRef | PropsRef, value: unknown, context: RenderContext): void {
@@ -243,7 +255,14 @@ export function applyVOn(
         $event.stopPropagation();
       }
 
-      executeFunction(handler, context, [$event]);
+      // Handle $fn format
+      if (typeof handler === 'object' && handler !== null && '$fn' in handler) {
+        const fnBody = (handler as Record<string, unknown>)['$fn'] as string;
+        const fnContext = { ...context, args: [$event] };
+        evaluateStringExpression(fnBody, fnContext);
+      } else {
+        executeFunction(handler, context, [$event]);
+      }
     };
   }
 

@@ -23,14 +23,14 @@
           "directives": {
             "vSlot": {
               "name": "renderItem",
-              "value": "item"
+              "props": ["item"]
             }
           },
           "children": [
             {
               "type": "AListItem",
               "children": [
-                { "type": "ACard", "props": { "title": { "type": "expression", "body": "{{scope.item.title}}" } }, "children": ["Card content"] }
+                { "type": "ACard", "props": { "title": { "$expr": "$state.item.title" } }, "children": ["Card content"] }
               ]
             }
           ]

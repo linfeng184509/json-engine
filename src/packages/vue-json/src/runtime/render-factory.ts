@@ -120,6 +120,41 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
   const props = resolveNodeProps(node.props, node.directives, context);
   const isComponent = typeof type !== 'string';
 
+  // Check if this component node itself has a vSlot directive
+  if (isComponent && node.directives?.vSlot) {
+    const slotInfo = applyVSlot(node.directives.vSlot, context);
+    if (slotInfo) {
+      const slotName = slotInfo.name || 'default';
+      const slots: Record<string, (slotProps: Record<string, unknown>) => VNode | VNode[]> = {};
+      slots[slotName] = (slotProps: Record<string, unknown>) => {
+        const props = slotProps || {};
+        const slotState: Record<string, ReturnType<typeof ref>> = {};
+        for (const [key, value] of Object.entries(props)) {
+          slotState[key] = ref(value);
+        }
+        const mergedState: Record<string, ReturnType<typeof ref>> = {
+          ...context.state as Record<string, ReturnType<typeof ref>>,
+          ...slotState,
+        };
+        const slotContext: RenderContext = {
+          ...context,
+          state: createStateProxy(mergedState as Record<string, ReturnType<typeof ref>>) as unknown as RenderContext['state'],
+        };
+        const rendered = resolveNodeChildren(node.children, node.directives, slotContext);
+        const vnodes: VNode[] = [];
+        if (Array.isArray(rendered)) {
+          for (const r of rendered) {
+            if (typeof r !== 'string' && typeof r !== 'number') vnodes.push(r as VNode);
+          }
+        } else if (rendered && typeof rendered !== 'string' && typeof rendered !== 'number') {
+          vnodes.push(rendered as VNode);
+        }
+        return vnodes;
+      };
+      return h(type, props, slots);
+    }
+  }
+
   // For components with children, check for slots FIRST before resolving children
   // Slot children will be rendered inside slot functions with proper context
   if (isComponent && node.children) {
@@ -133,12 +168,6 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
   const children = resolveNodeChildren(node.children, node.directives, context);
 
   if (isComponent && children) {
-    // For components that rely on provide/inject context (like AMenu/ASubMenu),
-    // render children directly to preserve the component context chain.
-    const preserveContextTypes = ['AMenu', 'ASubMenu'];
-    if (preserveContextTypes.includes(node.type)) {
-      return h(type, props, children);
-    }
     return h(type, props, () => children);
   }
 

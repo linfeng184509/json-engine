@@ -43,6 +43,10 @@ const basicComponents: AntdComponentDefinition[] = [
     subComponents: [{ name: 'ATreeNode', component: Antd.TreeNode }],
   },
   {
+    name: 'ATreeDirectory',
+    component: Antd.Tree.DirectoryTree,
+  },
+  {
     name: 'ATreeSelect',
     component: Antd.TreeSelect,
     subComponents: [{ name: 'ATreeSelectNode', component: Antd.TreeSelectNode }],
@@ -201,6 +205,7 @@ export function getAntdComponentCategories() {
     display: [
       'ATable',
       'ATree',
+      'ATreeDirectory',
       'ATreeSelect',
       'AList',
       'ACard',

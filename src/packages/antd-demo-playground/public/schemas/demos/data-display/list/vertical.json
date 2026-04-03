@@ -21,7 +21,7 @@
           "directives": {
             "vSlot": {
               "name": "renderItem",
-              "value": "item"
+              "props": ["item"]
             }
           },
           "children": [
@@ -31,8 +31,8 @@
                 {
                   "type": "AListItemMeta",
                   "props": {
-                    "title": { "type": "expression", "body": "{{scope.item.title}}" },
-                    "description": { "type": "expression", "body": "{{scope.item.description}}" }
+                    "title": { "$expr": "$state.item.title" },
+                    "description": { "$expr": "$state.item.description" }
                   }
                 }
               ]
