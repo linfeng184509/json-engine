@@ -1,10 +1,10 @@
 {
   "name": "NotificationTypeDemo",
   "methods": {
-    "openSuccess": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.notification.success({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
-    "openError": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.notification.error({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
-    "openWarning": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.notification.warning({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
-    "openInfo": { "type": "function", "params": "{{{}}}", "body": "{{$_antd.notification.info({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" }
+    "openSuccess": { "type": "function", "params": "{{{}}}", "body": "{{$_core.antd.notification.success({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
+    "openError": { "type": "function", "params": "{{{}}}", "body": "{{$_core.antd.notification.error({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
+    "openWarning": { "type": "function", "params": "{{{}}}", "body": "{{$_core.antd.notification.warning({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" },
+    "openInfo": { "type": "function", "params": "{{{}}}", "body": "{{$_core.antd.notification.info({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.' })}}" }
   },
   "render": {
     "type": "template",

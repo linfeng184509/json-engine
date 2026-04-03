@@ -4,7 +4,7 @@
     "success": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{var hide = $_antd.message.loading('Action in progress..', 0); setTimeout(hide, 2500);}}"
+      "body": "{{var hide = $_core.antd.message.loading('Action in progress..', 0); setTimeout(hide, 2500);}}"
     }
   },
   "render": {

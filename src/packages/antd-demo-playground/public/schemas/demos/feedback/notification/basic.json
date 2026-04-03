@@ -4,7 +4,7 @@
     "openNotification": {
       "type": "function",
       "params": "{{{}}}",
-      "body": "{{$_antd.notification.open({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', onClick: function() { console.log('Notification Clicked!'); } })}}"
+      "body": "{{$_core.antd.notification.open({ message: 'Notification Title', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', onClick: function() { console.log('Notification Clicked!'); } })}}"
     }
   },
   "render": {

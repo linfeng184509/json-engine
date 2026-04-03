@@ -7,7 +7,7 @@
     "handleChange": {
       "type": "function",
       "params": "{{{info}}}",
-      "body": "{{if(info.file.status === 'done') { $_antd.message.success(info.file.name + ' file uploaded successfully'); } else if(info.file.status === 'error') { $_antd.message.error(info.file.name + ' file upload failed.'); } }}"
+      "body": "{{if(info.file.status === 'done') { $_core.antd.message.success(info.file.name + ' file uploaded successfully'); } else if(info.file.status === 'error') { $_core.antd.message.error(info.file.name + ' file upload failed.'); } }}"
     }
   },
   "render": {

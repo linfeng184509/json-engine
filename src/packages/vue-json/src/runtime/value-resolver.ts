@@ -269,7 +269,8 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
     .replace(/\$state(?=\.|$|\s)/g, 'state')
     .replace(/\$props(?=\.|$|\s)/g, 'props')
     .replace(/\$computed(?=\.|$|\s)/g, 'computed')
-    .replace(/\$_core\.(\w+)/g, 'coreScope._$1');
+    .replace(/\$_core\.(\w+)/g, 'coreScope._$1')
+    .replace(/\$_antd\.(\w+)/g, 'coreScope._antd.$1');
   
   console.log('[evaluateStringExpression] Transformed:', transformed);
 
