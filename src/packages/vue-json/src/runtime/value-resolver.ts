@@ -24,6 +24,11 @@ function createStateProxyForEvaluation(
       return value;
     },
     set(target: Record<string, unknown>, prop: string, value: unknown): boolean {
+      const existing = target[prop];
+      if (isRef(existing)) {
+        (existing as Ref<unknown>).value = value;
+        return true;
+      }
       target[prop] = value as Ref | Record<string, unknown>;
       return true;
     },
@@ -384,10 +389,13 @@ export function executeFunction(
 
     console.log('[executeFunction] Calling function with context.props:', !!context.props);
 
+    const proxiedState = createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
+    const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
+
     return fn(
       context.props,
-      context.state,
-      context.computed,
+      proxiedState,
+      proxiedComputed,
       context.methods,
       context.emit,
       context.slots,

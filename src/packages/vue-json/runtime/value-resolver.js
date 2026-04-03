@@ -10,6 +10,11 @@ function createStateProxyForEvaluation(state) {
             return value;
         },
         set(target, prop, value) {
+            const existing = target[prop];
+            if (isRef(existing)) {
+                existing.value = value;
+                return true;
+            }
             target[prop] = value;
             return true;
         },
@@ -275,7 +280,9 @@ export function executeFunction(fnValue, context, args = []) {
         : '';
     try {
         const fn = new Function('props', 'state', 'computed', 'methods', 'emit', 'slots', 'attrs', 'provide', 'args', 'coreScope', `"use strict"; ${paramBindings} ${transformedBody}`);
-        return fn(context.props, context.state, context.computed, context.methods, context.emit, context.slots, context.attrs, context.provide, args, context.coreScope || {});
+        const proxiedState = createStateProxyForEvaluation(context.state);
+        const proxiedComputed = createStateProxyForEvaluation(context.computed);
+        return fn(context.props, proxiedState, proxiedComputed, context.methods, context.emit, context.slots, context.attrs, context.provide, args, context.coreScope || {});
     }
     catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
