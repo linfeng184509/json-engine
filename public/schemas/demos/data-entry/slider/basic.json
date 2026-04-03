@@ -1,0 +1,47 @@
+{
+  "name": "SliderBasicDemo",
+  "state": {
+    "value1": { "type": "ref", "initial": 0 },
+    "value2": { "type": "ref", "initial": [20, 50] },
+    "disabled": { "type": "ref", "initial": false }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "ASlider",
+          "props": { "id": "test", "disabled": { "$expr": "$state.disabled" } },
+          "directives": {
+            "vModel": {
+              "prop": { "$ref": "state.value1" },
+              "arg": "value"
+            }
+          }
+        },
+        {
+          "type": "ASlider",
+          "props": { "range": true, "disabled": { "$expr": "$state.disabled" } },
+          "directives": {
+            "vModel": {
+              "prop": { "$ref": "state.value2" },
+              "arg": "value"
+            }
+          }
+        },
+        "Disabled: ",
+        {
+          "type": "ASwitch",
+          "props": { "size": "small" },
+          "directives": {
+            "vModel": {
+              "prop": { "$ref": "state.disabled" },
+              "arg": "checked"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

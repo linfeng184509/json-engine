@@ -1,0 +1,22 @@
+{
+  "name": "PaginationMoreDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Pagination More"]
+        },
+        {
+          "type": "APagination",
+          "props": {
+            "defaultCurrent": 6,
+            "total": 500
+          }
+        }
+      ]
+    }
+  }
+}

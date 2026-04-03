@@ -1,0 +1,14 @@
+{
+  "name": "IconTwoToneDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "SmileTwoTone" },
+        { "type": "HeartTwoTone", "props": { "twoToneColor": "#eb2f96" } },
+        { "type": "CheckCircleTwoTone", "props": { "twoToneColor": "#52c41a" } }
+      ]
+    }
+  }
+}

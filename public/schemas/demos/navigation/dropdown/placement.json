@@ -1,0 +1,59 @@
+{
+  "name": "DropdownPlacementDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Dropdown Placement"]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "ADropdown",
+              "props": {
+                "placement": "bottomLeft"
+              },
+              "directives": {
+                "vSlot": {
+                  "name": "overlay"
+                }
+              },
+              "children": [
+                {
+                  "type": "AMenu",
+                  "children": [
+                    { "type": "AMenuItem", "children": ["1st item"] },
+                    { "type": "AMenuItem", "children": ["2nd item"] }
+                  ]
+                },
+                { "type": "AButton", "children": ["BottomLeft"] }
+              ]
+            },
+            {
+              "type": "ADropdown",
+              "props": {
+                "placement": "bottomCenter"
+              },
+              "children": [
+                { "type": "AButton", "children": ["BottomCenter"] }
+              ]
+            },
+            {
+              "type": "ADropdown",
+              "props": {
+                "placement": "bottomRight"
+              },
+              "children": [
+                { "type": "AButton", "children": ["BottomRight"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

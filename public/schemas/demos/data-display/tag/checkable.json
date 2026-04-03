@@ -1,0 +1,27 @@
+{
+  "name": "TagCheckableDemo",
+  "state": {
+    "checked": { "type": "ref", "initial": false }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Tag Checkable"]
+        },
+        {
+          "type": "ASpace",
+          "props": { "size": 8 },
+          "children": [
+            { "type": "ATag", "props": { "color": "blue", "checked": true }, "children": ["Movies"] },
+            { "type": "ATag", "props": { "color": "green", "checked": false }, "children": ["Books"] },
+            { "type": "ATag", "props": { "color": "orange", "checked": false }, "children": ["Music"] }
+          ]
+        }
+      ]
+    }
+  }
+}

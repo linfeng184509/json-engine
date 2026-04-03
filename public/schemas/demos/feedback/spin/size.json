@@ -1,0 +1,14 @@
+{
+  "name": "SpinSizeDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "children": [
+        { "type": "ASpin", "props": { "size": "small" } },
+        { "type": "ASpin" },
+        { "type": "ASpin", "props": { "size": "large" } }
+      ]
+    }
+  }
+}

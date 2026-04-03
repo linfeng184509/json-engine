@@ -1,0 +1,10 @@
+{
+  "name": "AlertBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AAlert",
+      "props": { "message": "Success Text", "type": "success" }
+    }
+  }
+}

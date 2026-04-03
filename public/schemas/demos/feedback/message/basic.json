@@ -1,0 +1,27 @@
+{
+  "name": "MessageBasicDemo",
+  "methods": {
+    "info": {
+      "$fn": "$_core.antd.message.info('This is a normal message')"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AButton",
+      "props": {
+        "type": "primary"
+      },
+      "directives": {
+        "vOn": {
+          "click": {
+            "$fn": "methods.info()"
+          }
+        }
+      },
+      "children": [
+        "Display normal message"
+      ]
+    }
+  }
+}

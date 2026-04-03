@@ -1,0 +1,13 @@
+{
+  "name": "AffixBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "AAffix",
+      "props": { "offsetTop": 0 },
+      "children": [
+        { "type": "AButton", "children": ["Affix Top"] }
+      ]
+    }
+  }
+}

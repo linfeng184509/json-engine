@@ -1,0 +1,31 @@
+{
+  "name": "StepsBasicDemo",
+  "state": {
+    "current": { "type": "ref", "initial": 0 }
+  },
+  "methods": {
+    "next": { "$fn": "state.current = state.current + 1;" },
+    "prev": { "$fn": "state.current = state.current - 1;" }
+  },
+  "computed": {
+    "isNextDisabled": { "get": { "$fn": "return state.current >= 2;" } },
+    "isPrevDisabled": { "get": { "$fn": "return state.current <= 0;" } }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        { "type": "ASteps", "props": { "current": { "$expr": "state.current" } }, "children": [
+          { "type": "AStep", "props": { "title": "Finished", "description": "This is a description." } },
+          { "type": "AStep", "props": { "title": "In Progress", "description": "This is a description." } },
+          { "type": "AStep", "props": { "title": "Waiting", "description": "This is a description." } }
+        ]},
+        { "type": "div", "props": { "style": "margin-top:24px" }, "children": [
+          { "type": "AButton", "props": { "disabled": { "$expr": "computed.isPrevDisabled" } }, "directives": { "vOn": { "click": { "$fn": "methods.prev();" } } }, "children": ["Previous"] },
+          { "type": "AButton", "props": { "type": "primary", "disabled": { "$expr": "computed.isNextDisabled" }, "style": "margin-left:8px" }, "directives": { "vOn": { "click": { "$fn": "methods.next();" } } }, "children": ["Next"] }
+        ]}
+      ]
+    }
+  }
+}

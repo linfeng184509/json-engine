@@ -1,0 +1,27 @@
+{
+  "name": "StepsSmallDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "children": ["Steps Small"]
+        },
+        {
+          "type": "ASteps",
+          "props": {
+            "size": "small",
+            "current": 1
+          },
+          "children": [
+            { "type": "AStep", "props": { "title": "Finished", "description": "This is description" } },
+            { "type": "AStep", "props": { "title": "In Progress", "description": "This is description" } },
+            { "type": "AStep", "props": { "title": "Waiting", "description": "This is description" } }
+          ]
+        }
+      ]
+    }
+  }
+}

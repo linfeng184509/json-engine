@@ -1,0 +1,68 @@
+{
+  "name": "FormValidationDemo",
+  "state": {
+    "formData": { "type": "ref", "initial": {} }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "h3",
+          "props": { "style": "margin-bottom:16px" },
+          "children": ["Form Validation"]
+        },
+        {
+          "type": "AForm",
+          "props": {
+            "labelCol": { "span": 4 },
+            "wrapperCol": { "span": 14 }
+          },
+          "children": [
+            {
+              "type": "AFormItem",
+              "props": {
+                "label": "Username",
+                "required": true,
+                "rules": [{ "required": true, "message": "Please input username!" }]
+              },
+              "children": [
+                { "type": "AInput", "props": { "placeholder": "Username" } }
+              ]
+            },
+            {
+              "type": "AFormItem",
+              "props": {
+                "label": "Password",
+                "required": true,
+                "rules": [{ "required": true, "message": "Please input password!" }]
+              },
+              "children": [
+                { "type": "AInputPassword", "props": { "placeholder": "Password" } }
+              ]
+            },
+            {
+              "type": "AFormItem",
+              "props": {
+                "label": "Email",
+                "rules": [{ "type": "email", "message": "Please input valid email!" }]
+              },
+              "children": [
+                { "type": "AInput", "props": { "placeholder": "Email" } }
+              ]
+            },
+            {
+              "type": "AFormItem",
+              "props": { "wrapperCol": { "offset": 4, "span": 14 } },
+              "children": [
+                { "type": "AButton", "props": { "type": "primary" }, "children": ["Submit"] },
+                { "type": "AButton", "props": { "style": "margin-left:8px" }, "children": ["Cancel"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

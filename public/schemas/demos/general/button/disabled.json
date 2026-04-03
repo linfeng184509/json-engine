@@ -1,0 +1,81 @@
+{
+  "name": "ButtonDisabledDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
+      "children": [
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "primary" }, "children": ["Primary"] },
+            { "type": "AButton", "props": { "type": "primary", "disabled": true }, "children": ["Primary(disabled)"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "children": ["Default"] },
+            { "type": "AButton", "props": { "disabled": true }, "children": ["Default(disabled)"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "dashed" }, "children": ["Dashed"] },
+            { "type": "AButton", "props": { "type": "dashed", "disabled": true }, "children": ["Dashed(disabled)"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "text" }, "children": ["Text"] },
+            { "type": "AButton", "props": { "type": "text", "disabled": true }, "children": ["Text(disabled)"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "link" }, "children": ["Link"] },
+            { "type": "AButton", "props": { "type": "link", "disabled": true }, "children": ["Link(disabled)"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "danger": true }, "children": ["Danger Default"] },
+            { "type": "AButton", "props": { "danger": true, "disabled": true }, "children": ["Danger Default(disabled)"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "danger": true, "type": "text" }, "children": ["Danger Text"] },
+            { "type": "AButton", "props": { "danger": true, "type": "text", "disabled": true }, "children": ["Danger Text(disabled)"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "danger": true, "type": "link" }, "children": ["Danger Link"] },
+            { "type": "AButton", "props": { "danger": true, "type": "link", "disabled": true }, "children": ["Danger Link(disabled)"] }
+          ]
+        },
+        {
+          "type": "div",
+          "props": { "style": "padding:8px;background:rgb(190,200,200)" },
+          "children": [
+            {
+              "type": "ASpace",
+              "children": [
+                { "type": "AButton", "props": { "ghost": true }, "children": ["Ghost"] },
+                { "type": "AButton", "props": { "ghost": true, "disabled": true }, "children": ["Ghost(disabled)"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

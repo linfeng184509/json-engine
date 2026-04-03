@@ -1,0 +1,19 @@
+{
+  "name": "RadioBasicDemo",
+  "state": {
+    "checked": { "type": "ref", "initial": false }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ARadio",
+      "directives": {
+        "vModel": {
+          "prop": { "_type": "reference", "prefix": "state", "variable": "checked" },
+          "arg": "checked"
+        }
+      },
+      "children": ["Radio"]
+    }
+  }
+}

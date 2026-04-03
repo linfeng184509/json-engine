@@ -1,0 +1,19 @@
+{
+  "name": "RateHalfDemo",
+  "state": {
+    "value": { "type": "ref", "initial": 2.5 }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ARate",
+      "props": { "allowHalf": true },
+      "directives": {
+        "vModel": {
+          "prop": { "_type": "reference", "prefix": "state", "variable": "value" },
+          "arg": "value"
+        }
+      }
+    }
+  }
+}

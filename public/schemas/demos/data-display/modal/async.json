@@ -1,0 +1,54 @@
+{
+  "name": "ModalAsyncDemo",
+  "state": {
+    "visible": { "type": "ref", "initial": false },
+    "confirmLoading": { "type": "ref", "initial": false },
+    "modalText": { "type": "ref", "initial": "Content of the modal" }
+  },
+  "methods": {
+    "showModal": {
+      "$fn": "state.visible = true;"
+    },
+    "handleOk": {
+      "$fn": "state.modalText = 'The modal will be closed after two seconds'; state.confirmLoading = true; setTimeout(function(){ state.visible = false; state.confirmLoading = false; }, 2000);"
+    },
+    "handleCancel": {
+      "$fn": "state.visible = false;"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "children": [
+        {
+          "type": "AButton",
+          "props": { "type": "primary" },
+          "directives": {
+            "vOn": {
+              "click": { "$fn": "methods.showModal();" }
+            }
+          },
+          "children": ["Open Modal with async logic"]
+        },
+        {
+          "type": "AModal",
+          "props": {
+            "title": "Title",
+            "open": { "$expr": "$state.visible" },
+            "confirmLoading": { "$expr": "$state.confirmLoading" }
+          },
+          "directives": {
+            "vOn": {
+              "ok": { "$fn": "methods.handleOk();" },
+              "cancel": { "$fn": "methods.handleCancel();" }
+            }
+          },
+          "children": [
+            { "type": "p", "children": [{ "$expr": "$state.modalText" }] }
+          ]
+        }
+      ]
+    }
+  }
+}

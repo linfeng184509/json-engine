@@ -1,0 +1,81 @@
+{
+  "name": "ButtonSizeDemo",
+  "state": {
+    "size": { "type": "ref", "initial": "large" }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "ASpace",
+      "props": { "direction": "vertical" },
+      "children": [
+        {
+          "type": "ARadioGroup",
+          "directives": {
+            "vModel": {
+              "prop": { "$ref": "state.size" },
+              "arg": "value"
+            }
+          },
+          "children": [
+            { "type": "ARadioButton", "props": { "value": "large" }, "children": ["Large"] },
+            { "type": "ARadioButton", "props": { "value": "default" }, "children": ["Default"] },
+            { "type": "ARadioButton", "props": { "value": "small" }, "children": ["Small"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            { "type": "AButton", "props": { "type": "primary", "size": { "$expr": "$state.size" } }, "children": ["Primary"] },
+            { "type": "AButton", "props": { "size": { "$expr": "$state.size" } }, "children": ["Normal"] },
+            { "type": "AButton", "props": { "type": "dashed", "size": { "$expr": "$state.size" } }, "children": ["Dashed"] },
+            { "type": "AButton", "props": { "danger": true, "size": { "$expr": "$state.size" } }, "children": ["Danger"] },
+            { "type": "AButton", "props": { "type": "link", "size": { "$expr": "$state.size" } }, "children": ["Link"] }
+          ]
+        },
+        {
+          "type": "ASpace",
+          "children": [
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "size": { "$expr": "$state.size" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
+              ]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "shape": "circle", "size": { "$expr": "$state.size" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
+              ]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "shape": "round", "size": { "$expr": "$state.size" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } },
+                "Download"
+              ]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "shape": "round", "size": { "$expr": "$state.size" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } }
+              ]
+            },
+            {
+              "type": "AButton",
+              "props": { "type": "primary", "size": { "$expr": "$state.size" } },
+              "children": [
+                { "type": "DownloadOutlined", "directives": { "vSlot": { "name": "icon" } } },
+                "Download"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

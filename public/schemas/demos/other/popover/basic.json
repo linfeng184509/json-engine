@@ -1,0 +1,15 @@
+{
+  "name": "PopoverBasicDemo",
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "APopover",
+      "props": { "title": "Title" },
+      "children": [
+        { "type": "p", "directives": { "vSlot": { "name": "content" } }, "children": ["Content"] },
+        { "type": "p", "directives": { "vSlot": { "name": "content" } }, "children": ["Content"] },
+        { "type": "AButton", "props": { "type": "primary" }, "children": ["Hover me"] }
+      ]
+    }
+  }
+}
