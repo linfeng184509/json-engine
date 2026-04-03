@@ -29,6 +29,10 @@ function createStateProxyForEvaluation(
         (existing as Ref<unknown>).value = value;
         return true;
       }
+      if (isRef(value)) {
+        target[prop] = value;
+        return true;
+      }
       target[prop] = value as Ref | Record<string, unknown>;
       return true;
     },
@@ -233,6 +237,9 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
 
   // Recurse into plain objects to resolve nested $expr/$fn
   if (!valueRecord._type && typeof value === 'object' && value !== null) {
+    if (Array.isArray(value)) {
+      return value.map(item => resolvePropertyValue(item as PropertyValue, context));
+    }
     const result: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
       result[key] = resolvePropertyValue(val as PropertyValue, context);

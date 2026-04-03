@@ -133,6 +133,12 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
   const children = resolveNodeChildren(node.children, node.directives, context);
 
   if (isComponent && children) {
+    // For components that rely on provide/inject context (like AMenu/ASubMenu),
+    // render children directly to preserve the component context chain.
+    const preserveContextTypes = ['AMenu', 'ASubMenu'];
+    if (preserveContextTypes.includes(node.type)) {
+      return h(type, props, children);
+    }
     return h(type, props, () => children);
   }
 
