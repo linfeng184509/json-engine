@@ -2,34 +2,22 @@
   "name": "NotificationPlacementDemo",
   "methods": {
     "openTop": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_core.antd.notification.open({ message: 'Notification top', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'top' })}}"
+      "$fn": "$_core.antd.notification.open({ message: 'Notification top', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'top' })"
     },
     "openBottom": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_core.antd.notification.open({ message: 'Notification bottom', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'bottom' })}}"
+      "$fn": "$_core.antd.notification.open({ message: 'Notification bottom', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'bottom' })"
     },
     "openTopLeft": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_core.antd.notification.open({ message: 'Notification topLeft', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'topLeft' })}}"
+      "$fn": "$_core.antd.notification.open({ message: 'Notification topLeft', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'topLeft' })"
     },
     "openTopRight": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_core.antd.notification.open({ message: 'Notification topRight', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'topRight' })}}"
+      "$fn": "$_core.antd.notification.open({ message: 'Notification topRight', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'topRight' })"
     },
     "openBottomLeft": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_core.antd.notification.open({ message: 'Notification bottomLeft', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'bottomLeft' })}}"
+      "$fn": "$_core.antd.notification.open({ message: 'Notification bottomLeft', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'bottomLeft' })"
     },
     "openBottomRight": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_core.antd.notification.open({ message: 'Notification bottomRight', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'bottomRight' })}}"
+      "$fn": "$_core.antd.notification.open({ message: 'Notification bottomRight', description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.', placement: 'bottomRight' })"
     }
   },
   "render": {
@@ -39,56 +27,148 @@
       "children": [
         {
           "type": "AButton",
-          "props": { "type": "primary" },
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openTop()}}" } } },
+          "props": {
+            "type": "primary"
+          },
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.openTop()"
+              }
+            }
+          },
           "children": [
-            { "type": "BorderTopOutlined", "directives": { "vSlot": { "name": "icon" } } },
+            {
+              "type": "BorderTopOutlined",
+              "directives": {
+                "vSlot": {
+                  "name": "icon"
+                }
+              }
+            },
             "top"
           ]
         },
         {
           "type": "AButton",
-          "props": { "type": "primary" },
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openBottom()}}" } } },
+          "props": {
+            "type": "primary"
+          },
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.openBottom()"
+              }
+            }
+          },
           "children": [
-            { "type": "BorderBottomOutlined", "directives": { "vSlot": { "name": "icon" } } },
+            {
+              "type": "BorderBottomOutlined",
+              "directives": {
+                "vSlot": {
+                  "name": "icon"
+                }
+              }
+            },
             "bottom"
           ]
         },
         {
           "type": "AButton",
-          "props": { "type": "primary" },
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openTopLeft()}}" } } },
+          "props": {
+            "type": "primary"
+          },
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.openTopLeft()"
+              }
+            }
+          },
           "children": [
-            { "type": "RadiusUpleftOutlined", "directives": { "vSlot": { "name": "icon" } } },
+            {
+              "type": "RadiusUpleftOutlined",
+              "directives": {
+                "vSlot": {
+                  "name": "icon"
+                }
+              }
+            },
             "topLeft"
           ]
         },
         {
           "type": "AButton",
-          "props": { "type": "primary" },
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openTopRight()}}" } } },
+          "props": {
+            "type": "primary"
+          },
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.openTopRight()"
+              }
+            }
+          },
           "children": [
-            { "type": "RadiusUprightOutlined", "directives": { "vSlot": { "name": "icon" } } },
+            {
+              "type": "RadiusUprightOutlined",
+              "directives": {
+                "vSlot": {
+                  "name": "icon"
+                }
+              }
+            },
             "topRight"
           ]
         },
-        { "type": "ADivider" },
+        {
+          "type": "ADivider"
+        },
         {
           "type": "AButton",
-          "props": { "type": "primary" },
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openBottomLeft()}}" } } },
+          "props": {
+            "type": "primary"
+          },
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.openBottomLeft()"
+              }
+            }
+          },
           "children": [
-            { "type": "RadiusBottomleftOutlined", "directives": { "vSlot": { "name": "icon" } } },
+            {
+              "type": "RadiusBottomleftOutlined",
+              "directives": {
+                "vSlot": {
+                  "name": "icon"
+                }
+              }
+            },
             "bottomLeft"
           ]
         },
         {
           "type": "AButton",
-          "props": { "type": "primary" },
-          "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.openBottomRight()}}" } } },
+          "props": {
+            "type": "primary"
+          },
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.openBottomRight()"
+              }
+            }
+          },
           "children": [
-            { "type": "RadiusBottomrightOutlined", "directives": { "vSlot": { "name": "icon" } } },
+            {
+              "type": "RadiusBottomrightOutlined",
+              "directives": {
+                "vSlot": {
+                  "name": "icon"
+                }
+              }
+            },
             "bottomRight"
           ]
         }

@@ -1,18 +1,60 @@
 {
   "name": "MessageTypeDemo",
   "methods": {
-    "success": { "type": "function", "params": "{{{}}}", "body": "{{$_core.antd.message.success('This is a success message')}}" },
-    "error": { "type": "function", "params": "{{{}}}", "body": "{{$_core.antd.message.error('This is an error message')}}" },
-    "warning": { "type": "function", "params": "{{{}}}", "body": "{{$_core.antd.message.warning('This is a warning message')}}" }
+    "success": {
+      "$fn": "$_core.antd.message.success('This is a success message')"
+    },
+    "error": {
+      "$fn": "$_core.antd.message.error('This is an error message')"
+    },
+    "warning": {
+      "$fn": "$_core.antd.message.warning('This is a warning message')"
+    }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "ASpace",
       "children": [
-        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.success()}}" } } }, "children": ["Success"] },
-        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.error()}}" } } }, "children": ["Error"] },
-        { "type": "AButton", "directives": { "vOn": { "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.warning()}}" } } }, "children": ["Warning"] }
+        {
+          "type": "AButton",
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.success()"
+              }
+            }
+          },
+          "children": [
+            "Success"
+          ]
+        },
+        {
+          "type": "AButton",
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.error()"
+              }
+            }
+          },
+          "children": [
+            "Error"
+          ]
+        },
+        {
+          "type": "AButton",
+          "directives": {
+            "vOn": {
+              "click": {
+                "$fn": "methods.warning()"
+              }
+            }
+          },
+          "children": [
+            "Warning"
+          ]
+        }
       ]
     }
   }

@@ -2,9 +2,7 @@
   "name": "MessageLoadingDemo",
   "methods": {
     "success": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{var hide = $_core.antd.message.loading('Action in progress..', 0); setTimeout(hide, 2500);}}"
+      "$fn": "var hide = $_core.antd.message.loading('Action in progress..', 0); setTimeout(hide, 2500);"
     }
   },
   "render": {
@@ -13,10 +11,14 @@
       "type": "AButton",
       "directives": {
         "vOn": {
-          "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.success()}}" }
+          "click": {
+            "$fn": "methods.success()"
+          }
         }
       },
-      "children": ["Display a loading indicator"]
+      "children": [
+        "Display a loading indicator"
+      ]
     }
   }
 }

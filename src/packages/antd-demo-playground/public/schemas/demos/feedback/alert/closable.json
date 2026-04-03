@@ -2,16 +2,16 @@
   "name": "AlertClosableDemo",
   "methods": {
     "onClose": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{console.log(args[0], 'I was closed.')}}"
+      "$fn": "console.log(args[0], 'I was closed.')"
     }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "ASpace",
-      "props": { "direction": "vertical" },
+      "props": {
+        "direction": "vertical"
+      },
       "children": [
         {
           "type": "AAlert",
@@ -20,7 +20,13 @@
             "type": "warning",
             "closable": true
           },
-          "directives": { "vOn": { "close": { "type": "function", "params": "{{{}}}", "body": "{{methods.onClose()}}" } } }
+          "directives": {
+            "vOn": {
+              "close": {
+                "$fn": "methods.onClose()"
+              }
+            }
+          }
         },
         {
           "type": "AAlert",
@@ -30,7 +36,13 @@
             "type": "error",
             "closable": true
           },
-          "directives": { "vOn": { "close": { "type": "function", "params": "{{{}}}", "body": "{{methods.onClose()}}" } } }
+          "directives": {
+            "vOn": {
+              "close": {
+                "$fn": "methods.onClose()"
+              }
+            }
+          }
         }
       ]
     }

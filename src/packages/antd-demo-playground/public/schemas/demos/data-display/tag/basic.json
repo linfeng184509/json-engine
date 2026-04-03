@@ -2,9 +2,7 @@
   "name": "TagBasicDemo",
   "methods": {
     "log": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{console.log(args[0])}}"
+      "$fn": "console.log(args[0])"
     }
   },
   "render": {
@@ -12,10 +10,58 @@
     "content": {
       "type": "div",
       "children": [
-        { "type": "ATag", "children": ["Tag 1"] },
-        { "type": "ATag", "children": [{ "type": "a", "props": { "href": "https://github.com/vueComponent/ant-design" }, "children": ["Link"] }] },
-        { "type": "ATag", "props": { "closable": true }, "directives": { "vOn": { "close": { "type": "function", "params": "{{{}}}", "body": "{{methods.log()}}" } } }, "children": ["Tag 2"] },
-        { "type": "ATag", "props": { "closable": true }, "directives": { "vOn": { "close.prevent": { "type": "function", "params": "{{{}}}", "body": "{{}}" } } }, "children": ["Prevent Default"] }
+        {
+          "type": "ATag",
+          "children": [
+            "Tag 1"
+          ]
+        },
+        {
+          "type": "ATag",
+          "children": [
+            {
+              "type": "a",
+              "props": {
+                "href": "https://github.com/vueComponent/ant-design"
+              },
+              "children": [
+                "Link"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ATag",
+          "props": {
+            "closable": true
+          },
+          "directives": {
+            "vOn": {
+              "close": {
+                "$fn": "methods.log()"
+              }
+            }
+          },
+          "children": [
+            "Tag 2"
+          ]
+        },
+        {
+          "type": "ATag",
+          "props": {
+            "closable": true
+          },
+          "directives": {
+            "vOn": {
+              "close.prevent": {
+                "$fn": ""
+              }
+            }
+          },
+          "children": [
+            "Prevent Default"
+          ]
+        }
       ]
     }
   }

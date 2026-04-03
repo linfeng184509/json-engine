@@ -2,22 +2,26 @@
   "name": "MessageBasicDemo",
   "methods": {
     "info": {
-      "type": "function",
-      "params": "{{{}}}",
-      "body": "{{$_core.antd.message.info('This is a normal message')}}"
+      "$fn": "$_core.antd.message.info('This is a normal message')"
     }
   },
   "render": {
     "type": "template",
     "content": {
       "type": "AButton",
-      "props": { "type": "primary" },
+      "props": {
+        "type": "primary"
+      },
       "directives": {
         "vOn": {
-          "click": { "type": "function", "params": "{{{}}}", "body": "{{methods.info()}}" }
+          "click": {
+            "$fn": "methods.info()"
+          }
         }
       },
-      "children": ["Display normal message"]
+      "children": [
+        "Display normal message"
+      ]
     }
   }
 }
