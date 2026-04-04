@@ -36,6 +36,6 @@
 - [x] 5.1 Run `npm run lint` for antd-demo-playground
 - [x] 5.2 Run `npm run typecheck` for antd-demo-playground
 - [x] 5.3 Run `npm run build` for antd-demo-playground
-- [ ] 5.4 Run `npm run dev` and verify page navigation works without duplicate network requests
-- [ ] 5.5 Verify JSON code display shows correct content
-- [ ] 5.6 Verify Vite HMR works when modifying existing JSON schemas
+- [x] 5.4 Run `npm run dev` and verify page navigation works without duplicate network requests
+- [x] 5.5 Verify JSON code display shows correct content
+- [x] 5.6 Verify Vite HMR works when modifying existing JSON schemas
