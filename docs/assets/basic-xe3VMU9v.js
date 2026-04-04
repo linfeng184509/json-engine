@@ -1,0 +1,1 @@
+var e=`RadioBasicDemo`,t={checked:{type:`ref`,initial:!1}},n={type:`template`,content:{type:`ARadio`,directives:{vModel:{prop:{_type:`reference`,prefix:`state`,variable:`checked`},arg:`checked`}},children:[`Radio`]}},r={name:e,state:t,render:n};export{r as default,e as name,n as render,t as state};

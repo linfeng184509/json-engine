@@ -1,0 +1,1 @@
+var e=`RateBasicDemo`,t={value:{type:`ref`,initial:2}},n={type:`template`,content:{type:`ARate`,props:{value:{$expr:`$state.value`}},directives:{vOn:{"update:value":{$fn:`state.value = args[0];`}}}}},r={name:e,state:t,render:n};export{r as default,e as name,n as render,t as state};

@@ -1,0 +1,1 @@
+var e=`ProgressBasicDemo`,t={type:`template`,content:{type:`div`,children:[{type:`AProgress`,props:{percent:30}},{type:`AProgress`,props:{percent:50,status:`active`}},{type:`AProgress`,props:{percent:70,status:`exception`}},{type:`AProgress`,props:{percent:100}},{type:`AProgress`,props:{percent:50,showInfo:!1}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

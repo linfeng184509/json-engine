@@ -1,0 +1,1 @@
+var e=`BackTopBasicDemo`,t={type:`template`,content:{type:`div`,children:[{type:`ABackTop`},{type:`p`,children:[`Scroll down to see the BackTop button.`]}]}},n={name:e,render:t};export{n as default,e as name,t as render};

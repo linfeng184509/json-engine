@@ -1,0 +1,1 @@
+var e=`SpinSizeDemo`,t={type:`template`,content:{type:`ASpace`,children:[{type:`ASpin`,props:{size:`small`}},{type:`ASpin`},{type:`ASpin`,props:{size:`large`}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

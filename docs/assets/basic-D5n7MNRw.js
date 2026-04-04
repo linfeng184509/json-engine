@@ -1,0 +1,1 @@
+var e=`PaginationBasicDemo`,t={current:{type:`ref`,initial:1}},n={onChange:{$fn:`state.current = args[0];`}},r={type:`template`,content:{type:`APagination`,props:{current:{$expr:`state.current`},total:50},directives:{vOn:{change:{$fn:`methods.onChange(args[0]);`}}}}},i={name:e,state:t,methods:n,render:r};export{i as default,n as methods,e as name,r as render,t as state};

@@ -1,0 +1,1 @@
+var e=`CheckboxBasicDemo`,t={checked:{type:`ref`,initial:!1}},n={type:`template`,content:{type:`ACheckbox`,directives:{vModel:{prop:{_type:`reference`,prefix:`state`,variable:`checked`},arg:`checked`}},children:[`Checkbox`]}},r={name:e,state:t,render:n};export{r as default,e as name,n as render,t as state};

@@ -1,0 +1,1 @@
+var e=`SkeletonComplexDemo`,t={type:`template`,content:{type:`ASkeleton`,props:{active:!0,avatar:!0,paragraph:{rows:4}}}},n={name:e,render:t};export{n as default,e as name,t as render};

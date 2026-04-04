@@ -1,0 +1,1 @@
+var e=`SpinBasicDemo`,t={type:`template`,content:{type:`ASpin`}},n={name:e,render:t};export{n as default,e as name,t as render};

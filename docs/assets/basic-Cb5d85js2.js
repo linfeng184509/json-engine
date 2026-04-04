@@ -1,0 +1,1 @@
+var e=`SpaceBasicDemo`,t={type:`template`,content:{type:`ASpace`,children:[{type:`AButton`,children:[`Button 1`]},{type:`AButton`,children:[`Button 2`]},{type:`AButton`,children:[`Button 3`]}]}},n={name:e,render:t};export{n as default,e as name,t as render};

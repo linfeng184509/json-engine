@@ -1,0 +1,1 @@
+var e=`MessageLoadingDemo`,t={success:{$fn:`var hide = $_core.antd.message.loading('Action in progress..', 0); setTimeout(hide, 2500);`}},n={type:`template`,content:{type:`AButton`,directives:{vOn:{click:{$fn:`methods.success()`}}},children:[`Display a loading indicator`]}},r={name:e,methods:t,render:n};export{r as default,t as methods,e as name,n as render};

@@ -1,0 +1,1 @@
+var e=`DatePickerDisabledDateDemo`,t={type:`template`,content:{type:`div`,children:[{type:`h3`,children:[`DatePicker Disabled Date`]},{type:`ADatePicker`,props:{placeholder:`Select date`,disabledDate:`function(current){return current && current < Date.now() - 86400000}`}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

@@ -1,0 +1,1 @@
+var e=`SpinTipDemo`,t={type:`template`,content:{type:`ASpin`,props:{tip:`Loading...`},children:[{type:`AAlert`,props:{message:`Alert message title`,description:`Further details about the context of this alert.`}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

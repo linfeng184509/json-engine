@@ -32,6 +32,16 @@ export class SchemaLoaderImpl {
     ttl: 10 * 60 * 1000,
   });
 
+  private registryLoader?: (path: string) => Promise<VueJsonSchemaInput>;
+
+  setRegistryLoader(loader: (path: string) => Promise<VueJsonSchemaInput>): void {
+    this.registryLoader = loader;
+  }
+
+  private isLocalSchema(path: string): boolean {
+    return path.startsWith('./schemas/') && this.registryLoader !== undefined;
+  }
+
   async load(path: string, options: SchemaLoadOptions = {}): Promise<SchemaLoadResult> {
     const { cache = true, extraComponents = {}, injectStyles = true, debug = false } = options;
     const logger = getLogger('SchemaLoader');
@@ -46,8 +56,15 @@ export class SchemaLoaderImpl {
         }
       }
 
-      logger.debug('Fetching schema: %s', path);
-      const schema = await this.fetchSchema(path);
+      let schema: VueJsonSchemaInput;
+      
+      if (this.isLocalSchema(path)) {
+        logger.debug('Loading from registry: %s', path);
+        schema = await this.registryLoader!(path);
+      } else {
+        logger.debug('Fetching schema: %s', path);
+        schema = await this.fetchSchema(path);
+      }
 
       const parseResult = parseSchema(schema);
       
@@ -94,6 +111,14 @@ export class SchemaLoaderImpl {
 
   hasCached(path: string): boolean {
     return this.schemaCache.has(path);
+  }
+
+  getCachedJsonText(path: string): string | null {
+    const cached = this.schemaCache.get<CachedSchema>(path);
+    if (cached?.schema) {
+      return JSON.stringify(cached.schema, null, 2);
+    }
+    return null;
   }
 
   private async fetchSchema(path: string): Promise<VueJsonSchemaInput> {

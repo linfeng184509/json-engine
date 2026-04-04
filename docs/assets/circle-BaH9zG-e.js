@@ -1,0 +1,1 @@
+var e=`ProgressCircleDemo`,t={type:`template`,content:{type:`ASpace`,children:[{type:`AProgress`,props:{type:`circle`,percent:75}},{type:`AProgress`,props:{type:`circle`,percent:70,status:`exception`}},{type:`AProgress`,props:{type:`circle`,percent:100}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

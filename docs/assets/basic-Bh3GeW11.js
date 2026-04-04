@@ -1,0 +1,1 @@
+var e=`DividerBasicDemo`,t={type:`template`,content:{type:`div`,children:[{type:`p`,children:[`Lorem ipsum dolor sit amet, consectetur adipiscing elit.`]},{type:`ADivider`},{type:`p`,children:[`Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`]}]}},n={name:e,render:t};export{n as default,e as name,t as render};

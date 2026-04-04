@@ -1,0 +1,1 @@
+var e=`MessageBasicDemo`,t={info:{$fn:`$_core.antd.message.info('This is a normal message')`}},n={type:`template`,content:{type:`AButton`,props:{type:`primary`},directives:{vOn:{click:{$fn:`methods.info()`}}},children:[`Display normal message`]}},r={name:e,methods:t,render:n};export{r as default,t as methods,e as name,n as render};

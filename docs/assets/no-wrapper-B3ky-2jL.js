@@ -1,0 +1,1 @@
+var e=`BadgeNoWrapperDemo`,t={type:`template`,content:{type:`div`,children:[{type:`h3`,children:[`Badge No Wrapper`]},{type:`ASpace`,props:{size:16},children:[{type:`ABadge`,props:{count:5}},{type:`ABadge`,props:{count:0,showZero:!0}},{type:`ABadge`,props:{count:99,overflowCount:10}}]}]}},n={name:e,render:t};export{n as default,e as name,t as render};

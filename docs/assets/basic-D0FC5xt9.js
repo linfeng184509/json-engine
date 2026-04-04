@@ -1,0 +1,1 @@
+var e=`AlertBasicDemo`,t={type:`template`,content:{type:`AAlert`,props:{message:`Success Text`,type:`success`}}},n={name:e,render:t};export{n as default,e as name,t as render};

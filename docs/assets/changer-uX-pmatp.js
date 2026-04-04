@@ -1,0 +1,1 @@
+var e=`PaginationChangerDemo`,t={type:`template`,content:{type:`div`,children:[{type:`h3`,children:[`Pagination Changer`]},{type:`APagination`,props:{showSizeChanger:!0,defaultPageSize:20,pageSizeOptions:[`10`,`20`,`30`,`40`],total:100}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

@@ -1,0 +1,1 @@
+var e=`AffixBasicDemo`,t={type:`template`,content:{type:`AAffix`,props:{offsetTop:0},children:[{type:`AButton`,children:[`Affix Top`]}]}},n={name:e,render:t};export{n as default,e as name,t as render};

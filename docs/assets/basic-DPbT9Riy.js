@@ -1,0 +1,1 @@
+var e=`EmptyBasicDemo`,t={type:`template`,content:{type:`AEmpty`}},n={name:e,render:t};export{n as default,e as name,t as render};

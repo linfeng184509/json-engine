@@ -1,0 +1,1 @@
+var e=`PopconfirmBasicDemo`,t={type:`template`,content:{type:`APopconfirm`,props:{title:`Are you sure?`,okText:`Yes`,cancelText:`No`},children:[{type:`AButton`,children:[`Delete`]}]}},n={name:e,render:t};export{n as default,e as name,t as render};

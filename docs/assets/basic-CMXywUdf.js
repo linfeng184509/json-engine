@@ -1,0 +1,1 @@
+var e=`SkeletonBasicDemo`,t={type:`template`,content:{type:`ASkeleton`}},n={name:e,render:t};export{n as default,e as name,t as render};

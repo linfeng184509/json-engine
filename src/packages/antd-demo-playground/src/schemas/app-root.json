@@ -1,0 +1,330 @@
+{
+  "name": "AppRoot",
+  "state": {
+    "collapsed": { "type": "ref", "initial": false },
+    "selectedKeys": { "type": "ref", "initial": ["button/basic"] },
+    "openKeys": { "type": "ref", "initial": ["general"] },
+    "currentRoute": { "type": "ref", "initial": "/" },
+    "pageSchemaPath": { "type": "ref", "initial": null },
+    "isLoading": { "type": "ref", "initial": false },
+    "error": { "type": "ref", "initial": null },
+    "jsonCode": { "type": "ref", "initial": "" },
+    "showJson": { "type": "ref", "initial": true }
+  },
+  "methods": {
+    "onOpenChange": {
+      "$fn": "var newKeys = args[0]; if(newKeys.length > state.openKeys.length) { state.openKeys = [newKeys[newKeys.length - 1]]; } else { state.openKeys = newKeys; }"
+    },
+    "onMenuClick": {
+      "$fn": "var item = args[0]; if(item && item.key) { state.selectedKeys = [item.key]; window.location.hash = '/demos/' + item.key; }"
+    },
+    "loadPage": {
+      "$fn": "var route = args[0] || state.currentRoute; var path = route.split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { state.error = 'Page not found: ' + path; return; } if (matched.redirect) { window.location.hash = matched.redirect; return; } state.isLoading = true; state.error = null; state.pageSchemaPath = matched.component; state.jsonCode = ''; if(matched.component) { var cachedText = coreScope.getCachedJsonText && coreScope.getCachedJsonText(matched.component); if(cachedText) { state.jsonCode = cachedText; } else { fetch(matched.component).then(function(r){ return r.text(); }).then(function(text){ state.jsonCode = text; }).catch(function(e){ state.jsonCode = 'Failed to load JSON: ' + e.message; }); } } state.isLoading = false;"
+    },
+    "handleHashChange": {
+      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute);"
+    },
+    "retry": {
+      "$fn": "methods.loadPage(state.currentRoute);"
+    }
+  },
+  "lifecycle": {
+    "onMounted": {
+      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute); window.addEventListener('hashchange', methods.handleHashChange);"
+    },
+    "onUnmounted": {
+      "$fn": "window.removeEventListener('hashchange', methods.handleHashChange);"
+    }
+  },
+  "render": {
+    "type": "template",
+    "content": {
+      "type": "div",
+      "props": { "style": "min-height: 100vh" },
+      "children": [
+        {
+          "type": "ALayout",
+"props": { "style": "min-height: 100vh" },
+          "children": [
+            {
+              "type": "ALayoutSider",
+              "props": {
+                "theme": "light",
+                "collapsible": true,
+                "collapsed": { "$expr": "$state.collapsed" },
+                "width": 240,
+                "style": "background:#fff;overflow:auto;height:100vh;position:sticky;left:0;top:0;bottom:0"
+              },
+              "directives": {
+                "vOn": {
+                  "collapse": { "$fn": "state.collapsed = args[0];" }
+                }
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "props": { "style": "height:64px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #f0f0f0" },
+                  "children": [
+                    { "type": "span", "props": { "style": "font-size:16px;font-weight:600;color:#1677ff" }, "children": ["Antd Demos"] }
+                  ]
+                },
+                {
+                  "type": "AMenu",
+                  "props": {
+"theme": "light",
+                    "mode": "inline",
+                    "selectedKeys": { "$expr": "$state.selectedKeys" },
+                    "openKeys": { "$expr": "$state.openKeys" },
+                    "style": "border-right:0;height:calc(100vh - 64px);overflow-y:auto"
+                  },
+                  "directives": {
+                    "vOn": {
+                      "click": { "$fn": "methods.onMenuClick(args[0]);" },
+                      "openChange": { "$fn": "methods.onOpenChange(args[0]);" }
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "ASubMenu", "props": { "key": "general", "title": "通用 General" }, "children": [
+                        { "type": "AMenuItem", "props": { "key": "button/basic" }, "children": ["Button Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "button/icon" }, "children": ["Button Icon"] },
+                        { "type": "AMenuItem", "props": { "key": "button/size" }, "children": ["Button Size"] },
+                        { "type": "AMenuItem", "props": { "key": "button/loading" }, "children": ["Button Loading"] },
+                        { "type": "AMenuItem", "props": { "key": "button/disabled" }, "children": ["Button Disabled"] },
+                        { "type": "AMenuItem", "props": { "key": "button/danger" }, "children": ["Button Danger"] },
+                        { "type": "AMenuItem", "props": { "key": "button/block" }, "children": ["Button Block"] },
+                        { "type": "AMenuItem", "props": { "key": "button/ghost" }, "children": ["Button Ghost"] },
+                        { "type": "AMenuItem", "props": { "key": "icon/basic" }, "children": ["Icon Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "icon/two-tone" }, "children": ["Icon TwoTone"] },
+                        { "type": "AMenuItem", "props": { "key": "typography/basic" }, "children": ["Typography Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "typography/title" }, "children": ["Typography Title"] },
+                        { "type": "AMenuItem", "props": { "key": "typography/text" }, "children": ["Typography Text"] },
+                        { "type": "AMenuItem", "props": { "key": "typography/paragraph" }, "children": ["Typography Paragraph"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": "layout", "title": "布局 Layout" }, "children": [
+                        { "type": "AMenuItem", "props": { "key": "grid/basic" }, "children": ["Grid Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "grid/gutter" }, "children": ["Grid Gutter"] },
+                        { "type": "AMenuItem", "props": { "key": "grid/offset" }, "children": ["Grid Offset"] },
+                        { "type": "AMenuItem", "props": { "key": "grid/sort" }, "children": ["Grid Sort"] },
+                        { "type": "AMenuItem", "props": { "key": "space/basic" }, "children": ["Space Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "space/size" }, "children": ["Space Size"] },
+                        { "type": "AMenuItem", "props": { "key": "space/direction" }, "children": ["Space Direction"] },
+                        { "type": "AMenuItem", "props": { "key": "divider/basic" }, "children": ["Divider Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "divider/with-text" }, "children": ["Divider WithText"] },
+                        { "type": "AMenuItem", "props": { "key": "layout/basic" }, "children": ["Layout Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "layout/top-side" }, "children": ["Layout TopSide"] },
+                        { "type": "AMenuItem", "props": { "key": "layout/custom-trigger" }, "children": ["Layout CustomTrigger"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": "navigation", "title": "导航 Navigation" }, "children": [
+                        { "type": "AMenuItem", "props": { "key": "menu/basic" }, "children": ["Menu Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "menu/inline" }, "children": ["Menu Inline"] },
+                        { "type": "AMenuItem", "props": { "key": "menu/vertical" }, "children": ["Menu Vertical"] },
+                        { "type": "AMenuItem", "props": { "key": "dropdown/basic" }, "children": ["Dropdown Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "dropdown/placement" }, "children": ["Dropdown Placement"] },
+                        { "type": "AMenuItem", "props": { "key": "breadcrumb/basic" }, "children": ["Breadcrumb Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "breadcrumb/separator" }, "children": ["Breadcrumb Separator"] },
+                        { "type": "AMenuItem", "props": { "key": "steps/basic" }, "children": ["Steps Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "steps/small" }, "children": ["Steps Small"] },
+                        { "type": "AMenuItem", "props": { "key": "steps/icons" }, "children": ["Steps Icons"] },
+                        { "type": "AMenuItem", "props": { "key": "pagination/basic" }, "children": ["Pagination Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "pagination/more" }, "children": ["Pagination More"] },
+                        { "type": "AMenuItem", "props": { "key": "pagination/changer" }, "children": ["Pagination Changer"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": "data-entry", "title": "数据录入 Data Entry" }, "children": [
+                        { "type": "AMenuItem", "props": { "key": "form/basic" }, "children": ["Form Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "form/layout" }, "children": ["Form Layout"] },
+                        { "type": "AMenuItem", "props": { "key": "form/validation" }, "children": ["Form Validation"] },
+                        { "type": "AMenuItem", "props": { "key": "form/dynamic" }, "children": ["Form Dynamic"] },
+                        { "type": "AMenuItem", "props": { "key": "input/basic" }, "children": ["Input Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "input/size" }, "children": ["Input Size"] },
+                        { "type": "AMenuItem", "props": { "key": "input/addon" }, "children": ["Input Addon"] },
+                        { "type": "AMenuItem", "props": { "key": "input/password" }, "children": ["Input Password"] },
+                        { "type": "AMenuItem", "props": { "key": "input/textarea" }, "children": ["Input Textarea"] },
+                        { "type": "AMenuItem", "props": { "key": "select/basic" }, "children": ["Select Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "select/multiple" }, "children": ["Select Multiple"] },
+                        { "type": "AMenuItem", "props": { "key": "select/search" }, "children": ["Select Search"] },
+                        { "type": "AMenuItem", "props": { "key": "select/size" }, "children": ["Select Size"] },
+                        { "type": "AMenuItem", "props": { "key": "checkbox/basic" }, "children": ["Checkbox Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "checkbox/group" }, "children": ["Checkbox Group"] },
+                        { "type": "AMenuItem", "props": { "key": "checkbox/controller" }, "children": ["Checkbox Controller"] },
+                        { "type": "AMenuItem", "props": { "key": "radio/basic" }, "children": ["Radio Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "radio/group" }, "children": ["Radio Group"] },
+                        { "type": "AMenuItem", "props": { "key": "radio/button" }, "children": ["Radio Button"] },
+                        { "type": "AMenuItem", "props": { "key": "switch/basic" }, "children": ["Switch Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "switch/size" }, "children": ["Switch Size"] },
+                        { "type": "AMenuItem", "props": { "key": "switch/loading" }, "children": ["Switch Loading"] },
+                        { "type": "AMenuItem", "props": { "key": "date-picker/basic" }, "children": ["DatePicker Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "date-picker/format" }, "children": ["DatePicker Format"] },
+                        { "type": "AMenuItem", "props": { "key": "date-picker/disabled-date" }, "children": ["DatePicker DisabledDate"] },
+                        { "type": "AMenuItem", "props": { "key": "time-picker/basic" }, "children": ["TimePicker Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "time-picker/format" }, "children": ["TimePicker Format"] },
+                        { "type": "AMenuItem", "props": { "key": "upload/basic" }, "children": ["Upload Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "upload/drag" }, "children": ["Upload Drag"] },
+                        { "type": "AMenuItem", "props": { "key": "rate/basic" }, "children": ["Rate Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "rate/half" }, "children": ["Rate Half"] },
+                        { "type": "AMenuItem", "props": { "key": "slider/basic" }, "children": ["Slider Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "slider/marks" }, "children": ["Slider Marks"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": "data-display", "title": "数据展示 Data Display" }, "children": [
+                        { "type": "AMenuItem", "props": { "key": "modal/basic" }, "children": ["Modal Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "modal/confirm" }, "children": ["Modal Confirm"] },
+                        { "type": "AMenuItem", "props": { "key": "modal/position" }, "children": ["Modal Position"] },
+                        { "type": "AMenuItem", "props": { "key": "modal/async" }, "children": ["Modal Async"] },
+                        { "type": "AMenuItem", "props": { "key": "table/basic" }, "children": ["Table Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "table/pagination" }, "children": ["Table Pagination"] },
+                        { "type": "AMenuItem", "props": { "key": "table/selection" }, "children": ["Table Selection"] },
+                        { "type": "AMenuItem", "props": { "key": "table/sort-filter" }, "children": ["Table SortFilter"] },
+                        { "type": "AMenuItem", "props": { "key": "tabs/basic" }, "children": ["Tabs Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "tabs/card" }, "children": ["Tabs Card"] },
+                        { "type": "AMenuItem", "props": { "key": "tabs/position" }, "children": ["Tabs Position"] },
+                        { "type": "AMenuItem", "props": { "key": "card/basic" }, "children": ["Card Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "card/meta" }, "children": ["Card Meta"] },
+                        { "type": "AMenuItem", "props": { "key": "card/grid" }, "children": ["Card Grid"] },
+                        { "type": "AMenuItem", "props": { "key": "list/basic" }, "children": ["List Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "list/vertical" }, "children": ["List Vertical"] },
+                        { "type": "AMenuItem", "props": { "key": "list/grid" }, "children": ["List Grid"] },
+                        { "type": "AMenuItem", "props": { "key": "tree/basic" }, "children": ["Tree Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "tree/directory" }, "children": ["Tree Directory"] },
+                        { "type": "AMenuItem", "props": { "key": "tree/search" }, "children": ["Tree Search"] },
+                        { "type": "AMenuItem", "props": { "key": "descriptions/basic" }, "children": ["Descriptions Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "descriptions/border" }, "children": ["Descriptions Border"] },
+                        { "type": "AMenuItem", "props": { "key": "avatar/basic" }, "children": ["Avatar Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "avatar/type" }, "children": ["Avatar Type"] },
+                        { "type": "AMenuItem", "props": { "key": "avatar/group" }, "children": ["Avatar Group"] },
+                        { "type": "AMenuItem", "props": { "key": "badge/basic" }, "children": ["Badge Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "badge/status" }, "children": ["Badge Status"] },
+                        { "type": "AMenuItem", "props": { "key": "badge/no-wrapper" }, "children": ["Badge NoWrapper"] },
+                        { "type": "AMenuItem", "props": { "key": "tag/basic" }, "children": ["Tag Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "tag/colorful" }, "children": ["Tag Colorful"] },
+                        { "type": "AMenuItem", "props": { "key": "tag/checkable" }, "children": ["Tag Checkable"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": "feedback", "title": "反馈 Feedback" }, "children": [
+                        { "type": "AMenuItem", "props": { "key": "alert/basic" }, "children": ["Alert Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "alert/closable" }, "children": ["Alert Closable"] },
+                        { "type": "AMenuItem", "props": { "key": "alert/description" }, "children": ["Alert Description"] },
+                        { "type": "AMenuItem", "props": { "key": "message/basic" }, "children": ["Message Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "message/type" }, "children": ["Message Type"] },
+                        { "type": "AMenuItem", "props": { "key": "message/loading" }, "children": ["Message Loading"] },
+                        { "type": "AMenuItem", "props": { "key": "notification/basic" }, "children": ["Notification Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "notification/placement" }, "children": ["Notification Placement"] },
+                        { "type": "AMenuItem", "props": { "key": "notification/type" }, "children": ["Notification Type"] },
+                        { "type": "AMenuItem", "props": { "key": "progress/basic" }, "children": ["Progress Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "progress/circle" }, "children": ["Progress Circle"] },
+                        { "type": "AMenuItem", "props": { "key": "progress/dynamic" }, "children": ["Progress Dynamic"] },
+                        { "type": "AMenuItem", "props": { "key": "spin/basic" }, "children": ["Spin Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "spin/size" }, "children": ["Spin Size"] },
+                        { "type": "AMenuItem", "props": { "key": "spin/tip" }, "children": ["Spin Tip"] },
+                        { "type": "AMenuItem", "props": { "key": "skeleton/basic" }, "children": ["Skeleton Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "skeleton/complex" }, "children": ["Skeleton Complex"] }
+                      ]
+                    },
+                    {
+                      "type": "ASubMenu", "props": { "key": "other", "title": "其他 Other" }, "children": [
+                        { "type": "AMenuItem", "props": { "key": "collapse/basic" }, "children": ["Collapse Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "collapse/accordion" }, "children": ["Collapse Accordion"] },
+                        { "type": "AMenuItem", "props": { "key": "collapse/mix" }, "children": ["Collapse Mix"] },
+                        { "type": "AMenuItem", "props": { "key": "drawer/basic" }, "children": ["Drawer Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "drawer/placement" }, "children": ["Drawer Placement"] },
+                        { "type": "AMenuItem", "props": { "key": "popconfirm/basic" }, "children": ["Popconfirm Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "popconfirm/placement" }, "children": ["Popconfirm Placement"] },
+                        { "type": "AMenuItem", "props": { "key": "tooltip/basic" }, "children": ["Tooltip Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "popover/basic" }, "children": ["Popover Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "popover/trigger" }, "children": ["Popover Trigger"] },
+                        { "type": "AMenuItem", "props": { "key": "empty/basic" }, "children": ["Empty Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "empty/custom" }, "children": ["Empty Custom"] },
+                        { "type": "AMenuItem", "props": { "key": "back-top/basic" }, "children": ["BackTop Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "back-top/custom" }, "children": ["BackTop Custom"] },
+                        { "type": "AMenuItem", "props": { "key": "anchor/basic" }, "children": ["Anchor Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "anchor/horizontal" }, "children": ["Anchor Horizontal"] },
+                        { "type": "AMenuItem", "props": { "key": "affix/basic" }, "children": ["Affix Basic"] },
+                        { "type": "AMenuItem", "props": { "key": "affix/bottom" }, "children": ["Affix Bottom"] },
+                        { "type": "AMenuItem", "props": { "key": "calendar/basic" }, "children": ["Calendar Basic"] }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ALayout",
+              "props": { "style": "flex:1;overflow:auto" },
+              "children": [
+                {
+                  "type": "ALayoutContent",
+                  "props": { "style": "margin:24px;padding:24px;background:#fff;border-radius:8px;min-height:280px" },
+                  "children": [
+                    {
+                      "type": "div",
+                      "directives": { "vIf": { "$expr": "$state.isLoading" } },
+                      "props": { "style": "display:flex;justify-content:center;align-items:center;min-height:200px" },
+                      "children": ["Loading..."]
+                    },
+                    {
+                      "type": "div",
+                      "directives": { "vIf": { "$expr": "$state.error" } },
+                      "props": { "style": "text-align:center;padding:48px" },
+                      "children": [
+                        { "type": "h3", "children": ["Error"] },
+                        { "type": "p", "children": [{ "$expr": "$state.error" }] },
+                        { "type": "AButton", "props": { "type": "primary" }, "directives": { "vOn": { "click": { "$fn": "methods.retry();" } } }, "children": ["Retry"] }
+                      ]
+                    },
+                    {
+                      "type": "div",
+                      "directives": { "vIf": { "$expr": "$state.pageSchemaPath && !$state.error" } },
+                      "children": [
+                        {
+                          "type": "div",
+                          "props": { "style": "display:flex;justify-content:space-between;align-items:center;margin-bottom:16px" },
+                          "children": [
+                            { "type": "h3", "props": { "style": "margin:0" }, "children": ["Demo"] },
+                            {
+                              "type": "AButton",
+                              "props": { "type": "primary", "ghost": true, "size": "small" },
+                              "directives": { "vOn": { "click": { "$fn": "state.showJson = !state.showJson;" } } },
+                              "children": [{ "$expr": "state.showJson ? 'Hide JSON' : 'Show JSON'" }]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "PageLoader",
+                          "props": {
+                            "schemaPath": { "$expr": "$state.pageSchemaPath" },
+                            "cache": true
+                          }
+                        },
+                        {
+                          "type": "div",
+                          "directives": { "vIf": { "$expr": "$state.showJson" } },
+                          "props": { "style": "margin-top:24px;border-top:1px solid #f0f0f0;padding-top:16px" },
+                          "children": [
+                            { "type": "h4", "children": ["JSON Schema"] },
+                            {
+                              "type": "pre",
+                              "props": { "style": "background:#f5f5f5;padding:16px;border-radius:4px;overflow:auto;max-height:500px;font-size:12px;white-space:pre-wrap;word-break:break-all" },
+                              "children": [{ "$expr": "$state.jsonCode" }]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

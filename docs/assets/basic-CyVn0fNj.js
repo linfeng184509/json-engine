@@ -1,0 +1,1 @@
+var e=`TooltipBasicDemo`,t={type:`template`,content:{type:`ATooltip`,props:{title:`prompt text`},children:[{type:`span`,children:[`Tooltip will show on mouse enter.`]}]}},n={name:e,render:t};export{n as default,e as name,t as render};

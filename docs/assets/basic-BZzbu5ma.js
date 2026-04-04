@@ -1,0 +1,1 @@
+var e=`IconBasicDemo`,t={type:`template`,content:{type:`ASpace`,children:[{type:`HomeOutlined`},{type:`SettingFilled`},{type:`SmileOutlined`},{type:`SyncOutlined`,props:{spin:!0}},{type:`SmileOutlined`,props:{rotate:180}},{type:`LoadingOutlined`}]}},n={name:e,render:t};export{n as default,e as name,t as render};

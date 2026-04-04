@@ -1,0 +1,1 @@
+var e=`IconTwoToneDemo`,t={type:`template`,content:{type:`ASpace`,children:[{type:`SmileTwoTone`},{type:`HeartTwoTone`,props:{twoToneColor:`#eb2f96`}},{type:`CheckCircleTwoTone`,props:{twoToneColor:`#52c41a`}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

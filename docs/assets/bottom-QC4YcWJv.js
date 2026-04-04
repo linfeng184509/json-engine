@@ -1,0 +1,1 @@
+var e=`AffixBottomDemo`,t={type:`template`,content:{type:`div`,children:[{type:`h3`,children:[`Affix Bottom`]},{type:`AAffix`,props:{offsetBottom:0},children:[{type:`AButton`,children:[`Affixed at Bottom`]}]},{type:`div`,props:{style:`height:800px`}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

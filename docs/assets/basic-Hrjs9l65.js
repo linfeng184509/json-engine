@@ -1,0 +1,1 @@
+var e=`PopoverBasicDemo`,t={type:`template`,content:{type:`APopover`,props:{title:`Title`},children:[{type:`p`,directives:{vSlot:{name:`content`}},children:[`Content`]},{type:`p`,directives:{vSlot:{name:`content`}},children:[`Content`]},{type:`AButton`,props:{type:`primary`},children:[`Hover me`]}]}},n={name:e,render:t};export{n as default,e as name,t as render};

@@ -1,0 +1,1 @@
+var e=`PaginationMoreDemo`,t={type:`template`,content:{type:`div`,children:[{type:`h3`,children:[`Pagination More`]},{type:`APagination`,props:{defaultCurrent:6,total:500}}]}},n={name:e,render:t};export{n as default,e as name,t as render};

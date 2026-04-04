@@ -1,0 +1,1 @@
+var e=`RateHalfDemo`,t={value:{type:`ref`,initial:2.5}},n={type:`template`,content:{type:`ARate`,props:{allowHalf:!0},directives:{vModel:{prop:{_type:`reference`,prefix:`state`,variable:`value`},arg:`value`}}}},r={name:e,state:t,render:n};export{r as default,e as name,n as render,t as state};

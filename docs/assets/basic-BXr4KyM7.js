@@ -1,0 +1,1 @@
+var e=`AnchorBasicDemo`,t={type:`template`,content:{type:`AAnchor`,children:[{type:`AAnchorLink`,props:{href:`#components-anchor-demo-basic`,title:`Basic Demo`}},{type:`AAnchorLink`,props:{href:`#components-anchor-demo-static`,title:`Static Demo`}}]}},n={name:e,render:t};export{n as default,e as name,t as render};
