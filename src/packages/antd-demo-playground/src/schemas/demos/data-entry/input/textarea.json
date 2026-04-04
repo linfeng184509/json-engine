@@ -9,7 +9,7 @@
       "type": "div",
       "children": [
         {
-          "type": "ATextarea",
+          "type": "ATextArea",
           "props": { "rows": 4 },
           "directives": {
             "vModel": {
@@ -21,7 +21,7 @@
         { "type": "br" },
         { "type": "br" },
         {
-          "type": "ATextarea",
+          "type": "ATextArea",
           "props": { "rows": 4, "placeholder": "maxlength is 6", "maxlength": 6 }
         }
       ]
