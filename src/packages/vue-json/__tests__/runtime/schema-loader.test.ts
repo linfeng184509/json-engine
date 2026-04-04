@@ -62,6 +62,30 @@ describe('SchemaLoader', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
+
+    it('should return error when path is null', async () => {
+      const result = await loader.load(null as unknown as string);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toContain('Invalid schema path');
+    });
+
+    it('should return error when path is undefined', async () => {
+      const result = await loader.load(undefined as unknown as string);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toContain('Invalid schema path');
+    });
+
+    it('should return error when path is empty string', async () => {
+      const result = await loader.load('');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toContain('Invalid schema path');
+    });
   });
 
   describe('cache', () => {

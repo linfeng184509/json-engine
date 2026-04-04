@@ -47,6 +47,12 @@ export class SchemaLoaderImpl {
     const logger = getLogger('SchemaLoader');
     logger.debug('load() called: path=%s, cache=%s', path, cache);
 
+    if (!path || typeof path !== 'string') {
+      const error = new Error('Invalid schema path: path must be a non-empty string');
+      logger.error('Invalid path: %s', path);
+      return { success: false, error };
+    }
+
     try {
       if (cache) {
         const cached = this.schemaCache.get<CachedSchema>(path);

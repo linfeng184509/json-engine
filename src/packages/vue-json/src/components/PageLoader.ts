@@ -58,6 +58,14 @@ export const PageLoader = defineComponent({
     const schemaLoader = getSchemaLoader();
 
     async function loadSchema(): Promise<void> {
+      if (!props.schemaPath) {
+        isLoading.value = false;
+        error.value = null;
+        pageComponent.value = null;
+        layoutComponent.value = null;
+        return;
+      }
+
       logger.debug('loadSchema() called, schemaPath: %s', props.schemaPath);
       isLoading.value = true;
       error.value = null;
