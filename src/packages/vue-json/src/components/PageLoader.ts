@@ -19,6 +19,8 @@ export interface PageLoaderProps {
   layout?: string;
   cache?: boolean;
   extraComponents?: Record<string, Component>;
+  onLoaded?: (result: { schemaPath: string; success: boolean }) => void;
+  onError?: (error: Error) => void;
 }
 
 export const PageLoader = defineComponent({
@@ -46,9 +48,10 @@ export const PageLoader = defineComponent({
     error?: (props: { error: Error; retry: () => void }) => VNode[];
     default?: () => VNode[];
   }>,
-  setup(props, { slots }) {
+setup(props, { slots }) {
     const logger = getLogger('PageLoader');
     logger.debug('setup() called, schemaPath: %s, cache: %s', props.schemaPath, props.cache);
+    
     const isLoading = ref(true);
     const error = ref<Error | null>(null);
     const pageComponent = shallowRef<Component | null>(null);

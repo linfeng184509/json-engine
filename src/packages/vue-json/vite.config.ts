@@ -21,6 +21,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ['vue', '@json-engine/core-engine'],
+      treeshake: false,
       output: {
         globals: {
           vue: 'Vue',
@@ -28,5 +29,6 @@ export default defineConfig({
         },
       },
     },
+    minify: false,
   },
 });
