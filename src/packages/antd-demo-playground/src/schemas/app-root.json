@@ -19,18 +19,28 @@
       "$fn": "var item = args[0]; if(item && item.key) { state.selectedKeys = [item.key]; window.location.hash = '/demos/' + item.key; }"
     },
     "loadPage": {
-      "$fn": "var route = args[0] || state.currentRoute; var path = route.split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { state.error = 'Page not found: ' + path; return; } if (matched.redirect) { window.location.hash = matched.redirect; return; } state.isLoading = true; state.error = null; state.pageSchemaPath = matched.component; state.jsonCode = ''; if(matched.component) { var cachedText = coreScope.getCachedJsonText && coreScope.getCachedJsonText(matched.component); if(cachedText) { state.jsonCode = cachedText; } else { fetch(matched.component).then(function(r){ return r.text(); }).then(function(text){ state.jsonCode = text; }).catch(function(e){ state.jsonCode = 'Failed to load JSON: ' + e.message; }); } } state.isLoading = false;"
+      "$fn": "var route = args[0] || state.currentRoute; var path = route.split('?')[0] || '/'; var routes = window.__APP_ROUTES__ || []; var matched = null; function matchRoute(routePath, currentPath) { var routeParts = routePath.split('/'); var pathParts = currentPath.split('/'); if (routeParts.length !== pathParts.length) return false; for (var i = 0; i < routeParts.length; i++) { if (routeParts[i].startsWith(':')) continue; if (routeParts[i] !== pathParts[i]) return false; } return true; } for (var i = 0; i < routes.length; i++) { if (matchRoute(routes[i].path, path)) { matched = routes[i]; break; } if (routes[i].path === '/:pathMatch(.*)*') { matched = routes[i]; } } if (!matched) { state.error = 'Page not found: ' + path; return; } if (matched.redirect) { window.location.hash = matched.redirect; return; } state.isLoading = true; state.error = null; state.pageSchemaPath = matched.component; state.jsonCode = ''; state.isLoading = false;"
+    },
+    "updateJsonCode": {
+      "$fn": "if(state.pageSchemaPath) { setTimeout(function() { var cachedText = coreScope.getCachedJsonText && coreScope.getCachedJsonText(state.pageSchemaPath); if(cachedText) { state.jsonCode = cachedText; } }, 100); }"
     },
     "handleHashChange": {
-      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute);"
+      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute); methods.updateJsonCode();"
     },
     "retry": {
-      "$fn": "methods.loadPage(state.currentRoute);"
+      "$fn": "methods.loadPage(state.currentRoute); methods.updateJsonCode();"
+    }
+  },
+  "watch": {
+    "pageSchemaPath": {
+      "source": { "_type": "expression", "expression": "state.pageSchemaPath" },
+      "handler": { "$fn": "methods.updateJsonCode();" },
+      "immediate": false
     }
   },
   "lifecycle": {
     "onMounted": {
-      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute); window.addEventListener('hashchange', methods.handleHashChange);"
+      "$fn": "state.currentRoute = window.location.hash.slice(1) || '/'; methods.loadPage(state.currentRoute); methods.updateJsonCode(); window.addEventListener('hashchange', methods.handleHashChange);"
     },
     "onUnmounted": {
       "$fn": "window.removeEventListener('hashchange', methods.handleHashChange);"

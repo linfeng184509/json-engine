@@ -6,7 +6,7 @@ import {
   getSchemaLoader,
 } from '@json-engine/vue-json';
 import type { VueJsonAppSchema, VueJsonPlugin, CoreScope } from '@json-engine/vue-json';
-import { hasSchema, loadSchema, getCachedJsonText } from './schema-registry';
+import { hasSchema, loadSchema } from './schema-registry';
 
 const pluginLoaders: Record<string, () => Promise<VueJsonPlugin>> = {
   '@json-engine/plugin-antd': () => import('@json-engine/plugin-antd').then((m) => m.default),
@@ -34,7 +34,9 @@ export async function setupApp(schema: VueJsonAppSchema): Promise<void> {
     return response.json();
   });
 
-  (coreScope as CoreScope & { getCachedJsonText: (path: string) => string | null }).getCachedJsonText = getCachedJsonText;
+  (coreScope as CoreScope & { getCachedJsonText: (path: string) => string | null }).getCachedJsonText = (path: string) => {
+    return schemaLoader.getCachedJsonText(path);
+  };
 
   setCoreScope(coreScope);
 }
