@@ -4,6 +4,11 @@ export interface PageLoaderProps {
     layout?: string;
     cache?: boolean;
     extraComponents?: Record<string, Component>;
+    onLoaded?: (result: {
+        schemaPath: string;
+        success: boolean;
+    }) => void;
+    onError?: (error: Error) => void;
 }
 export declare const PageLoader: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     schemaPath: {
