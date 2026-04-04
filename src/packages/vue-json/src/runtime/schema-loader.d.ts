@@ -18,11 +18,15 @@ interface CachedSchema {
 }
 export declare class SchemaLoaderImpl {
     private schemaCache;
+    private registryLoader?;
+    setRegistryLoader(loader: (path: string) => Promise<VueJsonSchemaInput>): void;
+    private isLocalSchema;
     load(path: string, options?: SchemaLoadOptions): Promise<SchemaLoadResult>;
     clearCache(): void;
     preload(paths: string[], options?: SchemaLoadOptions): Promise<SchemaLoadResult[]>;
     getCached(path: string): CachedSchema | undefined;
     hasCached(path: string): boolean;
+    getCachedJsonText(path: string): string | null;
     private fetchSchema;
 }
 export declare function createSchemaLoader(): SchemaLoaderImpl;

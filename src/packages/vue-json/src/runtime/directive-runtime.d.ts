@@ -18,4 +18,6 @@ export interface VSlotProps {
     props?: Record<string, unknown>;
 }
 export declare function applyVSlot(vSlot: NonNullable<VNodeDefinition['directives']>['vSlot'], context: RenderContext): VSlotProps | null;
+export declare function applyVElseIf(condition: ExpressionValue, context: RenderContext): boolean;
+export declare function applyVElse(_context: RenderContext): boolean;
 //# sourceMappingURL=directive-runtime.d.ts.map

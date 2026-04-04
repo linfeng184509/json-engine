@@ -3,7 +3,7 @@ import type { AbstractReferenceParseData, AbstractScopeParseData } from '@json-e
 import { isReferenceParseData, isExpressionParseData, isFunctionParseData, isScopeParseData } from '@json-engine/core-engine';
 import type { FunctionValue } from '../types';
 type ExpressionResult = string | AbstractReferenceParseData | AbstractScopeParseData;
-export { isReferenceParseData, isExpressionParseData, isFunctionParseData, isScopeParseData, };
+export { isReferenceParseData, isExpressionParseData, isFunctionParseData, isScopeParseData, evaluateStringExpression, };
 export declare function isStateReference(value: unknown): value is AbstractReferenceParseData & {
     prefix: 'state';
 };
@@ -19,6 +19,7 @@ export declare function isEChartsOption(value: unknown): value is {
 };
 export declare function resolvePropertyValue(value: PropertyValue, context: RenderContext): unknown;
 export declare function evaluateExpression(expression: ExpressionResult, context: RenderContext): unknown;
+declare function evaluateStringExpression(expression: string, context: RenderContext): unknown;
 export declare function transformFunctionBody(body: string): string;
 export declare function executeFunction(fnValue: FunctionValue, context: RenderContext, args?: unknown[]): unknown;
 //# sourceMappingURL=value-resolver.d.ts.map
