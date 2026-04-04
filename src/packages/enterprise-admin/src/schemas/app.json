@@ -63,7 +63,7 @@
       {
         "path": "/login",
         "name": "Login",
-        "component": "/schemas/pages/login.json",
+        "component": "./schemas/pages/login.json",
         "meta": {
           "title": "登录"
         }
@@ -71,45 +71,45 @@
       {
         "path": "/dashboard",
         "name": "Dashboard",
-        "component": "/schemas/pages/dashboard.json",
+        "component": "./schemas/pages/dashboard.json",
         "meta": {
           "title": "首页",
           "requiresAuth": true,
           "permissions": ["dashboard:view"],
-          "layout": "/schemas/pages/app-layout.json"
+          "layout": "./schemas/pages/app-layout.json"
         }
       },
       {
         "path": "/basic-data-config",
         "name": "BasicDataConfig",
-        "component": "/schemas/pages/basic-data-config.json",
+        "component": "./schemas/pages/basic-data-config.json",
         "meta": {
           "title": "基础数据配置",
           "requiresAuth": true,
           "permissions": ["system:manage"],
-          "layout": "/schemas/pages/app-layout.json"
+          "layout": "./schemas/pages/app-layout.json"
         }
       },
       {
         "path": "/system/role",
         "name": "RoleManagement",
-        "component": "/schemas/pages/role-management.json",
+        "component": "./schemas/pages/role-management.json",
         "meta": {
           "title": "角色管理",
           "requiresAuth": true,
           "permissions": ["role:view"],
-          "layout": "/schemas/pages/app-layout.json"
+          "layout": "./schemas/pages/app-layout.json"
         }
       },
       {
         "path": "/system/role/:id/permissions",
         "name": "RolePermissionConfig",
-        "component": "/schemas/pages/role-permission-config.json",
+        "component": "./schemas/pages/role-permission-config.json",
         "meta": {
           "title": "权限配置",
           "requiresAuth": true,
           "permissions": ["role:edit"],
-          "layout": "/schemas/pages/app-layout.json"
+          "layout": "./schemas/pages/app-layout.json"
         }
       },
       {
@@ -119,7 +119,7 @@
       {
         "path": "/:pathMatch(.*)*",
         "name": "NotFound",
-        "component": "/schemas/pages/404.json"
+        "component": "./schemas/pages/404.json"
       }
     ]
   }

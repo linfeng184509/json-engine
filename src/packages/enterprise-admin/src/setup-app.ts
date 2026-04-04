@@ -3,8 +3,10 @@ import {
   createCoreScope,
   setCoreScope,
   getPluginRegistry,
+  getSchemaLoader,
 } from '@json-engine/vue-json';
-import type { VueJsonAppSchema, VueJsonPlugin } from '@json-engine/vue-json';
+import type { VueJsonAppSchema, VueJsonPlugin, CoreScope } from '@json-engine/vue-json';
+import { hasSchema, loadSchema } from './schema-registry';
 
 let storagePrefix: string = 'ea_';
 
@@ -35,6 +37,19 @@ export async function setupApp(schema: VueJsonAppSchema): Promise<void> {
   const coreScope = createCoreScope();
 
   Object.assign(coreScope, scopeExtensions);
+
+  const schemaLoader = getSchemaLoader();
+  schemaLoader.setRegistryLoader(async (path: string) => {
+    if (hasSchema(path)) {
+      return loadSchema(path);
+    }
+    const response = await fetch(path);
+    return response.json();
+  });
+
+  (coreScope as CoreScope & { getCachedJsonText: (path: string) => string | null }).getCachedJsonText = (path: string) => {
+    return schemaLoader.getCachedJsonText(path);
+  };
 
   setCoreScope(coreScope);
 

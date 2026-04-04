@@ -5,6 +5,7 @@ import {
 } from '@json-engine/vue-json';
 
 import { setupApp } from './setup-app';
+import appConfig from './schemas/app.json';
 
 import 'ant-design-vue/dist/reset.css';
 import './styles/main.css';
@@ -14,17 +15,11 @@ const error = ref<string | null>(null);
 
 async function bootstrap(): Promise<void> {
   try {
-    const appConfigResponse = await fetch('/schemas/app.json');
-    if (!appConfigResponse.ok) {
-      throw new Error(`Failed to load app config: ${appConfigResponse.status}`);
-    }
-    const appConfig = await appConfigResponse.json();
-    
     window.__APP_ROUTES__ = appConfig.router?.routes || [];
     
     await setupApp(appConfig);
 
-    const result = await loadComponent('/schemas/app-root.json', {
+    const result = await loadComponent('./schemas/app-root.json', {
       cache: false,
       injectStyles: true,
     });
