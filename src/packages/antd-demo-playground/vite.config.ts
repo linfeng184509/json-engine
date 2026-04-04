@@ -27,5 +27,26 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/vue/') || id.includes('node_modules/@vue/')) {
+            return 'vue-vendor';
+          }
+          if (id.includes('node_modules/ant-design-vue/')) {
+            return 'antd-vendor';
+          }
+          if (id.includes('node_modules/@ant-design/icons-vue/') || id.includes('node_modules/@ant-design/icons-svg/')) {
+            return 'antd-icons';
+          }
+          if (id.includes('node_modules/lodash-es/')) {
+            return 'lodash';
+          }
+          if (id.includes('@json-engine/vue-json') || id.includes('@json-engine/core-engine')) {
+            return 'json-engine';
+          }
+        },
+      },
+    },
   },
 });

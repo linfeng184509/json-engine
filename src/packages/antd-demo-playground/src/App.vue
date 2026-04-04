@@ -5,7 +5,6 @@ import {
 } from '@json-engine/vue-json';
 
 import { setupApp } from './setup-app';
-import appConfig from './schemas/app.json';
 
 import 'ant-design-vue/dist/reset.css';
 import './styles/main.css';
@@ -15,6 +14,8 @@ const error = ref<string | null>(null);
 
 async function bootstrap(): Promise<void> {
   try {
+    const { default: appConfig } = await import('./schemas/app.json');
+    
     window.__APP_ROUTES__ = appConfig.router?.routes || [];
     
     await setupApp(appConfig);
