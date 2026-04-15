@@ -80,11 +80,21 @@ function renderTemplate(node: VNodeDefinition, context: RenderContext): VNode | 
 }
 
 function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): VNode | null {
+  const proxiedContext = context.stateProxy
+    ? context
+    : ({
+        ...context,
+        state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+        computed: context.computedProxy || createStateProxy(context.computed as Record<string, ReturnType<typeof import('vue').ref>>),
+        stateProxy: context.stateProxy,
+        computedProxy: context.computedProxy,
+      } as RenderContext);
+
   if (node.directives) {
     if (node.directives.vIf !== undefined) {
       logger.debug('v-if condition for %s:', node.type, JSON.stringify(node.directives.vIf));
       try {
-        const result = applyVIf(node.directives.vIf, context);
+        const result = applyVIf(node.directives.vIf, proxiedContext);
         logger.debug('v-if result for %s:', node.type, result);
         if (!result) return null;
       } catch (e) {
@@ -94,13 +104,13 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
     }
 
     if (node.directives.vShow !== undefined) {
-      const vnode = renderVNodeDefinition({ ...node, directives: undefined }, context);
+      const vnode = renderVNodeDefinition({ ...node, directives: undefined }, proxiedContext);
       if (!vnode) return null;
-      return applyVShow(vnode, node.directives.vShow, context);
+      return applyVShow(vnode, node.directives.vShow, proxiedContext);
     }
 
     if (node.directives.vFor) {
-      const results: VForResult[] = applyVFor(node, node.directives.vFor, context);
+      const results: VForResult[] = applyVFor(node, node.directives.vFor, proxiedContext);
       const vnodes = results
         .map((result) => renderVNodeDefinition(result.definition, result.context))
         .filter((vn): vn is VNode => vn !== null);
@@ -110,7 +120,7 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
 
   // Handle template elements: render children directly instead of the template element
   if (node.type === 'template') {
-    const children = resolveNodeChildren(node.children, node.directives, context);
+    const children = resolveNodeChildren(node.children, node.directives, proxiedContext);
     if (Array.isArray(children)) {
       return children.length === 1 ? children[0] as VNode : h(Fragment, children);
     }
@@ -120,13 +130,13 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
     return null;
   }
 
-  const type = resolveNodeType(node.type, context);
-  const props = resolveNodeProps(node.props, node.directives, context);
+  const type = resolveNodeType(node.type, proxiedContext);
+  const props = resolveNodeProps(node.props, node.directives, proxiedContext);
   const isComponent = typeof type !== 'string';
 
   // Check if this component node itself has a vSlot directive
   if (isComponent && node.directives?.vSlot) {
-    const slotInfo = applyVSlot(node.directives.vSlot, context);
+    const slotInfo = applyVSlot(node.directives.vSlot, proxiedContext);
     if (slotInfo) {
       const slotName = slotInfo.name || 'default';
       const slots: Record<string, (slotProps: Record<string, unknown>) => VNode | VNode[]> = {};
@@ -137,11 +147,11 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
           slotState[key] = ref(value);
         }
         const mergedState: Record<string, ReturnType<typeof ref>> = {
-          ...context.state as Record<string, ReturnType<typeof ref>>,
+          ...proxiedContext.state as Record<string, ReturnType<typeof ref>>,
           ...slotState,
         };
         const slotContext: RenderContext = {
-          ...context,
+          ...proxiedContext,
           state: mergedState,
           stateProxy: undefined,
           computedProxy: undefined,
@@ -164,14 +174,14 @@ function renderVNodeDefinition(node: VNodeDefinition, context: RenderContext): V
   // For components with children, check for slots FIRST before resolving children
   // Slot children will be rendered inside slot functions with proper context
   if (isComponent && node.children) {
-    const slots = resolveSlots(node.children, context);
+    const slots = resolveSlots(node.children, proxiedContext);
     if (slots) {
       return h(type, props, slots);
     }
   }
 
   // Only resolve children if not a slot scenario
-  const children = resolveNodeChildren(node.children, node.directives, context);
+  const children = resolveNodeChildren(node.children, node.directives, proxiedContext);
 
   if (isComponent && children) {
     return h(type, props, () => children);
@@ -274,6 +284,7 @@ function resolveNodeChildren(
     : ({
         ...context,
         state: createStateProxy(context.state as Record<string, ReturnType<typeof import('vue')['ref']>>),
+        computed: context.computedProxy || createStateProxy(context.computed as Record<string, ReturnType<typeof import('vue').ref>>),
       } as RenderContext);
 
   if (directives?.vHtml !== undefined) {

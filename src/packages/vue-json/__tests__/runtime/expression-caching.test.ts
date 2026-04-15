@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { evaluateStringExpression, isExpressionParseData } from '../../src/runtime/value-resolver';
 import { functionCache, clearExpressionCache } from '../../src/utils/expression';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { RenderContext } from '../../src/types';
 
 describe('expression evaluation caching', () => {
@@ -11,7 +11,7 @@ describe('expression evaluation caching', () => {
     mockContext = {
       props: { count: 10 },
       state: { count: ref(42), message: ref('Hello') },
-      computed: {},
+      computed: { submitDisabled: computed(() => true) },
       methods: {},
       components: {},
       slots: {},
@@ -67,6 +67,12 @@ describe('expression evaluation caching', () => {
       evaluateStringExpression('$state.message + " World"', mockContext);
       const result = evaluateStringExpression('$state.message + " World"', mockContext);
       expect(result).toBe('Hello World');
+    });
+
+    it('should correctly evaluate computed ref', () => {
+      const result = evaluateStringExpression('$computed.submitDisabled', mockContext);
+      expect(result).toBe(true);
+      expect(typeof result).toBe('boolean');
     });
   });
 });

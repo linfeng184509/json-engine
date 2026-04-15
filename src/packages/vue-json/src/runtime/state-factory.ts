@@ -6,7 +6,6 @@ import {
   toRef,
   toRefs,
   readonly,
-  isRef,
   type Ref,
   type Reactive,
 } from 'vue';
@@ -96,16 +95,18 @@ export function createStateProxy(
   return new Proxy(state, {
     get(target: Record<string, unknown>, prop: string): unknown {
       const value = target[prop];
-      if (isRef(value)) {
-        return value.value;
+      if (value && typeof value === 'object') {
+        if ('value' in value) {
+          return (value as { value: unknown }).value;
+        }
       }
       return value;
     },
     
     set(target: Record<string, unknown>, prop: string, value: unknown): boolean {
       const existing = target[prop];
-      if (isRef(existing)) {
-        (existing as Ref<unknown>).value = value;
+      if (existing && typeof existing === 'object' && 'value' in existing) {
+        (existing as { value: unknown }).value = value;
         return true;
       }
       target[prop] = value as Ref | Reactive<unknown>;

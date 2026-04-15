@@ -10,7 +10,7 @@ import {
   isScopeParseData,
 } from '@json-engine/core-engine';
 import type { FunctionValue } from '../types';
-import { isRef, type Ref } from 'vue';
+import { type Ref } from 'vue';
 import { getLogger } from '../utils/logger';
 import { functionCache } from '../utils/expression';
 
@@ -22,19 +22,21 @@ function createStateProxyForEvaluation(
   return new Proxy(state, {
     get(target: Record<string, unknown>, prop: string): unknown {
       const value = target[prop];
-      if (isRef(value)) {
-        return value.value;
+      if (value && typeof value === 'object') {
+        if ('value' in value) {
+          const result = (value as { value: unknown }).value;
+          if (prop === 'submitDisabled') {
+            console.log('[DEBUG] createStateProxyForEvaluation.submitDisabled:', { value, result, type: typeof result });
+          }
+          return result;
+        }
       }
       return value;
     },
     set(target: Record<string, unknown>, prop: string, value: unknown): boolean {
       const existing = target[prop];
-      if (isRef(existing)) {
-        (existing as Ref<unknown>).value = value;
-        return true;
-      }
-      if (isRef(value)) {
-        target[prop] = value;
+      if (existing && typeof existing === 'object' && 'value' in existing) {
+        (existing as { value: unknown }).value = value;
         return true;
       }
       target[prop] = value as Ref | Record<string, unknown>;
@@ -193,10 +195,12 @@ export function resolvePropertyValue(value: PropertyValue, context: RenderContex
     }
     if (ref.prefix === 'computed') {
       const computedRef = context.computed[ref.variable];
+      console.log('[DEBUG] evaluateExpression computed path:', { variable: ref.variable, computedRef, computedRefType: typeof computedRef });
       let computedValue: unknown = computedRef;
       if (computedRef && typeof computedRef === 'object' && 'value' in computedRef) {
         computedValue = (computedRef as { value: unknown }).value;
       }
+      console.log('[DEBUG] evaluateExpression computedValue:', { computedValue, type: typeof computedValue });
       if (ref.path) {
         if (ref.path === 'value') {
           return computedValue;
@@ -260,6 +264,7 @@ export function evaluateExpression(
   context: RenderContext
 ): unknown {
   if (typeof expression === 'string') {
+    console.log('[DEBUG] evaluateExpression: string path', expression);
     return evaluateStringExpression(expression, context);
   }
 
@@ -287,10 +292,12 @@ export function evaluateExpression(
     }
     if (ref.prefix === 'computed') {
       const computedRef = context.computed[ref.variable];
+      console.log('[DEBUG] evaluateExpression computed path:', { variable: ref.variable, computedRef, computedRefType: typeof computedRef });
       let computedValue: unknown = computedRef;
       if (computedRef && typeof computedRef === 'object' && 'value' in computedRef) {
         computedValue = (computedRef as { value: unknown }).value;
       }
+      console.log('[DEBUG] evaluateExpression computedValue:', { computedValue, type: typeof computedValue });
       if (ref.path) {
         if (ref.path === 'value') {
           return computedValue;
@@ -332,7 +339,18 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
   logger.debug('evaluateStringExpression transformed:', transformed);
 
   const proxiedState = context.stateProxy || createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
-  const proxiedComputed = context.computedProxy || createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
+  const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
+
+  if (trimmed.includes('submitDisabled')) {
+    console.log('[DEBUG] evaluateStringExpression:', { 
+      trimmed, 
+      transformed, 
+      computedKeys: Object.keys(context.computed),
+      computedSubmitDisabled: context.computed.submitDisabled,
+      computedSubmitDisabledType: typeof context.computed.submitDisabled,
+      computedSubmitDisabledValue: context.computed.submitDisabled?.value
+    });
+  }
 
   try {
     const cachedFn = functionCache.get<Function>(transformed);
@@ -364,6 +382,10 @@ function evaluateStringExpression(expression: string, context: RenderContext): u
       context.provide,
       context.coreScope || {}
     );
+    
+    if (transformed.includes('submitDisabled')) {
+      console.log('[DEBUG] evaluateStringExpression result for submitDisabled:', { result, type: typeof result, transformed });
+    }
 
     return result;
   } catch (error) {
@@ -453,7 +475,7 @@ export function executeFunction(
     logger.debug('executeFunction called with context');
 
     const proxiedState = context.stateProxy || createStateProxyForEvaluation(context.state as Record<string, Ref | Record<string, unknown>>);
-    const proxiedComputed = context.computedProxy || createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
+    const proxiedComputed = createStateProxyForEvaluation(context.computed as Record<string, Ref | Record<string, unknown>>);
 
     return fn(
       context.props,

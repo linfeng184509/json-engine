@@ -2,6 +2,7 @@ import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
 import type { ComputedDefinition, RenderContext, SetupContext, FunctionValue } from '../types';
 import { ComponentCreationError } from '../utils/error';
 import { transformFunctionBody } from './value-resolver';
+import { createStateProxy } from './state-factory';
 
 export function createComputed(
   definition: ComputedDefinition | undefined,
@@ -41,8 +42,8 @@ export function createComputed(
           get: () =>
             getter(
               renderContext.props,
-              renderContext.state,
-              renderContext.computed,
+              createStateProxy(renderContext.state as Record<string, ReturnType<typeof import('vue').ref>>),
+              createStateProxy(renderContext.computed as Record<string, ReturnType<typeof import('vue').ref>>),
               renderContext.methods,
               renderContext.emit,
               renderContext.slots,
@@ -54,8 +55,8 @@ export function createComputed(
           set: (value: unknown) =>
             setter(
               renderContext.props,
-              renderContext.state,
-              renderContext.computed,
+              createStateProxy(renderContext.state as Record<string, ReturnType<typeof import('vue').ref>>),
+              createStateProxy(renderContext.computed as Record<string, ReturnType<typeof import('vue').ref>>),
               renderContext.methods,
               renderContext.emit,
               renderContext.slots,
@@ -69,8 +70,8 @@ export function createComputed(
         computeds[computedName] = computed(() =>
           getter(
             renderContext.props,
-            renderContext.state,
-            renderContext.computed,
+            createStateProxy(renderContext.state as Record<string, ReturnType<typeof import('vue').ref>>),
+            createStateProxy(renderContext.computed as Record<string, ReturnType<typeof import('vue').ref>>),
             renderContext.methods,
             renderContext.emit,
             renderContext.slots,
@@ -81,8 +82,6 @@ export function createComputed(
           )
         );
       }
-
-      renderContext.computed = computeds;
     } catch (error) {
       throw new ComponentCreationError(
         context.props?.['__componentName__'] as string || 'Unknown',
