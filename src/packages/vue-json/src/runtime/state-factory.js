@@ -1,4 +1,4 @@
-import { ref, reactive, shallowRef, shallowReactive, toRef, toRefs, readonly, isRef, } from 'vue';
+import { ref, reactive, shallowRef, shallowReactive, toRef, toRefs, readonly, } from 'vue';
 import { evaluateExpression } from './value-resolver';
 import { ComponentCreationError } from '../utils/error';
 export function createState(definition, context) {
@@ -72,14 +72,16 @@ export function createStateProxy(state) {
     return new Proxy(state, {
         get(target, prop) {
             const value = target[prop];
-            if (isRef(value)) {
-                return value.value;
+            if (value && typeof value === 'object') {
+                if ('value' in value) {
+                    return value.value;
+                }
             }
             return value;
         },
         set(target, prop, value) {
             const existing = target[prop];
-            if (isRef(existing)) {
+            if (existing && typeof existing === 'object' && 'value' in existing) {
                 existing.value = value;
                 return true;
             }

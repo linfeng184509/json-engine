@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 import { ComponentCreationError } from '../utils/error';
 import { transformFunctionBody } from './value-resolver';
+import { createStateProxy } from './state-factory';
 export function createComputed(definition, context, state, stateTypes = {}, coreScope) {
     const computeds = {};
     if (!definition)
@@ -26,14 +27,13 @@ export function createComputed(definition, context, state, stateTypes = {}, core
                 const setterFn = computedDef.set;
                 const setter = createFunctionFromValue(setterFn);
                 computeds[computedName] = computed({
-                    get: () => getter(renderContext.props, renderContext.state, renderContext.computed, renderContext.methods, renderContext.emit, renderContext.slots, renderContext.attrs, renderContext.provide, undefined, coreScope || {}),
-                    set: (value) => setter(renderContext.props, renderContext.state, renderContext.computed, renderContext.methods, renderContext.emit, renderContext.slots, renderContext.attrs, renderContext.provide, value, coreScope || {}),
+                    get: () => getter(renderContext.props, createStateProxy(renderContext.state), createStateProxy(renderContext.computed), renderContext.methods, renderContext.emit, renderContext.slots, renderContext.attrs, renderContext.provide, undefined, coreScope || {}),
+                    set: (value) => setter(renderContext.props, createStateProxy(renderContext.state), createStateProxy(renderContext.computed), renderContext.methods, renderContext.emit, renderContext.slots, renderContext.attrs, renderContext.provide, value, coreScope || {}),
                 });
             }
             else {
-                computeds[computedName] = computed(() => getter(renderContext.props, renderContext.state, renderContext.computed, renderContext.methods, renderContext.emit, renderContext.slots, renderContext.attrs, renderContext.provide, undefined, coreScope || {}));
+                computeds[computedName] = computed(() => getter(renderContext.props, createStateProxy(renderContext.state), createStateProxy(renderContext.computed), renderContext.methods, renderContext.emit, renderContext.slots, renderContext.attrs, renderContext.provide, undefined, coreScope || {}));
             }
-            renderContext.computed = computeds;
         }
         catch (error) {
             throw new ComponentCreationError(context.props?.['__componentName__'] || 'Unknown', `Failed to create computed "${computedName}": ${error instanceof Error ? error.message : String(error)}`);

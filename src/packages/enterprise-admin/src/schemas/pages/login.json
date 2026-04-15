@@ -8,8 +8,8 @@
     "errors": { "type": "reactive", "initial": { "username": "", "password": "", "general": "" } }
   },
   "computed": {
-    "isValid": { "get": { "$fn": "return state.formData.username && state.formData.password;" } },
-    "submitDisabled": { "get": { "$fn": "return state.loading || !computed.isValid;" } }
+    "isValid": { "get": { "$fn": "return $state.formData.username && $state.formData.password;" } },
+    "submitDisabled": { "get": { "$fn": "return $state.loading || !$computed.isValid;" } }
   },
   "methods": {
     "fetchCaptcha": { "$fn": "$_core.api.get('/api/auth/captcha').then(function(d){state.captcha=d;}).catch(function(e){console.error(e);})" },
@@ -59,7 +59,7 @@
                 ] }
               ] },
               { "type": "AFormItem", "children": [
-                { "type": "AButton", "props": { "type": "primary", "htmlType": "submit", "size": "large", "block": true, "loading": { "$expr": "$state.loading" }, "disabled": { "$expr": "computed.submitDisabled" } }, "children": ["登 录"] }
+                { "type": "AButton", "props": { "type": "primary", "htmlType": "submit", "size": "large", "block": true, "loading": { "$expr": "$state.loading" }, "disabled": { "$expr": "$computed.submitDisabled" } }, "children": ["登 录"] }
               ] }
             ] },
             { "type": "div", "props": { "class": "ea-login-tips" }, "children": ["测试账号：admin / admin123 或 user / user123"] }

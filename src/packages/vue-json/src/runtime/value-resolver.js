@@ -1,5 +1,4 @@
 import { isReferenceParseData, isExpressionParseData, isFunctionParseData, isScopeParseData, } from '@json-engine/core-engine';
-import { isRef } from 'vue';
 import { getLogger } from '../utils/logger';
 import { functionCache } from '../utils/expression';
 const logger = getLogger('value-resolver');
@@ -7,19 +6,21 @@ function createStateProxyForEvaluation(state) {
     return new Proxy(state, {
         get(target, prop) {
             const value = target[prop];
-            if (isRef(value)) {
-                return value.value;
+            if (value && typeof value === 'object') {
+                if ('value' in value) {
+                    const result = value.value;
+                    if (prop === 'submitDisabled') {
+                        console.log('[DEBUG] createStateProxyForEvaluation.submitDisabled:', { value, result, type: typeof result });
+                    }
+                    return result;
+                }
             }
             return value;
         },
         set(target, prop, value) {
             const existing = target[prop];
-            if (isRef(existing)) {
+            if (existing && typeof existing === 'object' && 'value' in existing) {
                 existing.value = value;
-                return true;
-            }
-            if (isRef(value)) {
-                target[prop] = value;
                 return true;
             }
             target[prop] = value;
@@ -150,10 +151,12 @@ export function resolvePropertyValue(value, context) {
         }
         if (ref.prefix === 'computed') {
             const computedRef = context.computed[ref.variable];
+            console.log('[DEBUG] evaluateExpression computed path:', { variable: ref.variable, computedRef, computedRefType: typeof computedRef });
             let computedValue = computedRef;
             if (computedRef && typeof computedRef === 'object' && 'value' in computedRef) {
                 computedValue = computedRef.value;
             }
+            console.log('[DEBUG] evaluateExpression computedValue:', { computedValue, type: typeof computedValue });
             if (ref.path) {
                 if (ref.path === 'value') {
                     return computedValue;
@@ -206,6 +209,7 @@ export function resolvePropertyValue(value, context) {
 }
 export function evaluateExpression(expression, context) {
     if (typeof expression === 'string') {
+        console.log('[DEBUG] evaluateExpression: string path', expression);
         return evaluateStringExpression(expression, context);
     }
     if (expression._type === 'reference') {
@@ -232,10 +236,12 @@ export function evaluateExpression(expression, context) {
         }
         if (ref.prefix === 'computed') {
             const computedRef = context.computed[ref.variable];
+            console.log('[DEBUG] evaluateExpression computed path:', { variable: ref.variable, computedRef, computedRefType: typeof computedRef });
             let computedValue = computedRef;
             if (computedRef && typeof computedRef === 'object' && 'value' in computedRef) {
                 computedValue = computedRef.value;
             }
+            console.log('[DEBUG] evaluateExpression computedValue:', { computedValue, type: typeof computedValue });
             if (ref.path) {
                 if (ref.path === 'value') {
                     return computedValue;
@@ -271,7 +277,17 @@ function evaluateStringExpression(expression, context) {
         .replace(/\$_antd\.(\w+)/g, 'coreScope._antd.$1');
     logger.debug('evaluateStringExpression transformed:', transformed);
     const proxiedState = context.stateProxy || createStateProxyForEvaluation(context.state);
-    const proxiedComputed = context.computedProxy || createStateProxyForEvaluation(context.computed);
+    const proxiedComputed = createStateProxyForEvaluation(context.computed);
+    if (trimmed.includes('submitDisabled')) {
+        console.log('[DEBUG] evaluateStringExpression:', {
+            trimmed,
+            transformed,
+            computedKeys: Object.keys(context.computed),
+            computedSubmitDisabled: context.computed.submitDisabled,
+            computedSubmitDisabledType: typeof context.computed.submitDisabled,
+            computedSubmitDisabledValue: context.computed.submitDisabled?.value
+        });
+    }
     try {
         const cachedFn = functionCache.get(transformed);
         const fn = cachedFn || new Function('props', 'state', 'computed', 'methods', 'emit', 'slots', 'attrs', 'provide', 'coreScope', `"use strict"; return (${transformed});`);
@@ -279,6 +295,9 @@ function evaluateStringExpression(expression, context) {
             functionCache.set(transformed, fn);
         }
         const result = fn(context.props, proxiedState, proxiedComputed, context.methods, context.emit, context.slots, context.attrs, context.provide, context.coreScope || {});
+        if (transformed.includes('submitDisabled')) {
+            console.log('[DEBUG] evaluateStringExpression result for submitDisabled:', { result, type: typeof result, transformed });
+        }
         return result;
     }
     catch (error) {
@@ -340,7 +359,7 @@ export function executeFunction(fnValue, context, args = []) {
         const fn = new Function('props', 'state', 'computed', 'methods', 'emit', 'slots', 'attrs', 'provide', 'args', 'coreScope', `"use strict"; ${paramBindings} ${transformedBody}`);
         logger.debug('executeFunction called with context');
         const proxiedState = context.stateProxy || createStateProxyForEvaluation(context.state);
-        const proxiedComputed = context.computedProxy || createStateProxyForEvaluation(context.computed);
+        const proxiedComputed = createStateProxyForEvaluation(context.computed);
         return fn(context.props, proxiedState, proxiedComputed, context.methods, context.emit, context.slots, context.attrs, context.provide, args, context.coreScope || {});
     }
     catch (error) {

@@ -1,0 +1,101 @@
+﻿{
+  "version": "1.0",
+  "rules": [
+    {
+      "id": "no-assumption-reasoning",
+      "category": "reasoning",
+      "severity": "error",
+      "pattern": "(假设|推断|应该|大概|可能|猜想)",
+      "message": "禁止假设推理",
+      "strategy": "使用已验证的事实和代码证据进行推理，避免主观臆测",
+      "examples": {
+        "violation": ["这个函数可能返回undefined", "用户应该想要这个功能"],
+        "compliant": ["根据测试结果，该函数返回null", "用户明确要求实现X功能"]
+      }
+    },
+    {
+      "id": "no-simplify-test",
+      "category": "execution",
+      "severity": "error",
+      "pattern": "(简化|跳过|绕过|忽略)\\s*(测试|test)",
+      "message": "禁止简化测试",
+      "strategy": "所有测试必须完整通过，不可修改测试逻辑或预期结果以通过测试",
+      "examples": {
+        "violation": ["修改测试断言使其通过", "添加todo跳过失败测试"],
+        "compliant": ["修复代码使测试通过", "标记test为pending并说明原因"]
+      }
+    },
+    {
+      "id": "no-autonomous-decision",
+      "category": "execution",
+      "severity": "error",
+      "pattern": "(需要|应该)\\s*(确认|询问)",
+      "message": "禁止自主决策",
+      "strategy": "严格按照用户指令执行，不进行未授权的扩展或变更",
+      "examples": {
+        "violation": ["我决定使用X方案", "自动优化了这段代码"],
+        "compliant": ["根据用户指令执行Y操作"]
+      }
+    },
+    {
+      "id": "no-entropy-management",
+      "category": "execution",
+      "severity": "warning",
+      "pattern": "(熵|entropy)",
+      "message": "禁止熵管理概念",
+      "strategy": "使用明确的代码质量指标和重构策略，而非抽象的熵概念",
+      "examples": {
+        "violation": ["降低代码熵", "管理系统熵"],
+        "compliant": ["减少圈复杂度", "消除重复代码"]
+      }
+    },
+    {
+      "id": "small-commits",
+      "category": "planning",
+      "severity": "warning",
+      "pattern": "(大量|批量|一次性)\\s*(提交|commit)",
+      "message": "小步提交",
+      "strategy": "每次变更应小而专注，便于审查和回滚",
+      "examples": {
+        "violation": ["一次性提交20个文件", "批量修改并统一提交"],
+        "compliant": ["分次提交，每次一个功能或修复"]
+      }
+    },
+    {
+      "id": "no-reinvent-wheel",
+      "category": "planning",
+      "severity": "error",
+      "pattern": "(重新|重复)\\s*(造轮子|实现|开发)",
+      "message": "禁止重复造轮子",
+      "strategy": "优先使用现有库和工具，避免重复实现已有功能",
+      "examples": {
+        "violation": ["自己实现一个JSON解析器"],
+        "compliant": ["使用已有的JSON.parse"]
+      }
+    },
+    {
+      "id": "chinese-output",
+      "category": "output",
+      "severity": "error",
+      "pattern": "^[a-zA-Z]",
+      "message": "语言要求",
+      "strategy": "使用中文回复，保持与用户一致的沟通语言",
+      "examples": {
+        "violation": ["This is a fix", "The function returns..."],
+        "compliant": ["这是一个修复", "该函数返回..."]
+      }
+    },
+    {
+      "id": "no-redundant-output",
+      "category": "output",
+      "severity": "warning",
+      "pattern": "(以下|上面|如上|具体请看)\\s*(代码|示例)",
+      "message": "禁止冗余输出",
+      "strategy": "直接呈现结果，避免引导性语句和重复描述",
+      "examples": {
+        "violation": ["以下是实现代码，请查看", "如上所示，代码如下"],
+        "compliant": ["实现如下："]
+      }
+    }
+  ]
+}
